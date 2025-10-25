@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Srikar’s Books — Admin</title>
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      /* Request rows (no thumbnail) — give text full width */
+      .row.row--request {
+        grid-template-columns: 1fr auto !important;
+        align-items: start;
+      }
+      .row.row--request .row-actions {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      @media (max-width: 900px) {
+        .row.row--request {
+          grid-template-columns: 1fr !important;
+        }
+        .row.row--request .row-actions {
+          grid-column: 1 / -1;
+          justify-content: flex-start;
+        }
+      }
+    </style>
+
+    <style>
+      /* Dark grey background override */
+      body {
+        background: linear-gradient(180deg, #1f2329, #242933) !important;
+      }
+
+      .admin {
+        display: none;
+      }
+      .auth {
+        max-width: 420px;
+        margin: 2rem auto;
+      }
+      .hint {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+      .pill {
+        display: inline-block;
+        padding: 0.1rem 0.4rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <h1 class="brand"><a href="./">Srikar’s Books</a></h1>
+        <nav class="tabs"><a class="tab" href="./">← Back to catalog</a></nav>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <section class="auth" id="auth">
+        <h2>Admin sign in</h2>
+        <p class="muted">
+          Use your admin email. Only whitelisted emails can add/remove books.
+        </p>
+        <form id="loginForm" class="stack">
+          <input
+            id="email"
+            type="email"
+            placeholder="email@example.com"
+            required
+          />
+          <input
+            id="password"
+            type="password"
+            placeholder="Password"
+            required
+          />
+          <button class="btn" type="submit">Sign in</button>
+          <p id="authError" class="error" hidden></p>
+        </form>
+      </section>
+
+      <section class="admin" id="admin">
+        <div class="flex between">
+          <h2>Inventory</h2>
+          <button id="signOutBtn" class="btn btn-secondary">Sign out</button>
+        </div>
+
+        <details class="panel" open>
+          <summary><strong>Add a book</strong></summary>
+
+          <!-- Lookup helper -->
+          <div class="stack" style="margin-bottom: 0.6rem">
+            <div class="hint">
+              Fill Title and (optionally) Author, then click
+              <em>Find details</em> to auto‑fill ISBN/MRP/Format/Description and
+              pre‑fill the cover image.
+            </div>
+            <div class="flex">
+              <button class="btn btn-secondary" type="button" id="lookupBtn">
+                Find details (ISBN/MRP)
+              </button>
+              <span
+                id="lookupMsg"
+                class="hint"
+                style="margin-left: 0.6rem"
+              ></span>
+            </div>
+            <div id="lookupResults" class="admin-list"></div>
+          </div>
+
+          <form id="addForm" class="stack">
+            <div class="grid-2">
+              <input name="title" placeholder="Title *" required />
+              <!-- AUTHOR with autocomplete from authors master -->
+              <input
+                id="authorInput"
+                name="author"
+                placeholder="Author"
+                list="authorList"
+                autocomplete="off"
+              />
+              <datalist id="authorList"></datalist>
+
+              <select name="category" required>
+                <option value="" selected disabled>Category *</option>
+                <option>Fiction</option>
+                <option>Non-Fiction</option>
+                <option>Children</option>
+              </select>
+
+              <select name="binding" id="binding" required>
+                <option value="" selected disabled>Format *</option>
+                <option>Paperback</option>
+                <option>Hardcover</option>
+              </select>
+
+              <input
+                name="price"
+                placeholder="Price (e.g., 250)"
+                inputmode="numeric"
+              />
+              <input
+                name="mrp"
+                placeholder="MRP (e.g., 499)"
+                inputmode="numeric"
+              />
+              <input name="isbn" placeholder="ISBN (10 or 13)" />
+              <select name="condition" id="condition" required>
+                <option value="" selected disabled>Condition *</option>
+                <option>Good as new</option>
+                <option>Excellent</option>
+                <option>Gently used</option>
+                <option>Used</option>
+              </select>
+            </div>
+
+            <textarea
+              name="description"
+              rows="3"
+              placeholder="Auto-filled or write a short marketing description"
+            ></textarea>
+
+            <label
+              ><strong>Cover image</strong>
+              <input
+                name="cover"
+                id="coverInput"
+                type="file"
+                accept="image/*"
+                required
+            /></label>
+            <label
+              >More images (optional)
+              <input name="more" type="file" accept="image/*" multiple
+            /></label>
+            <button class="btn" type="submit">Add book</button>
+            <p id="addMsg" class="muted"></p>
+          </form>
+        </details>
+
+        <details class="panel" open>
+          <summary><strong>Available</strong></summary>
+          <div id="availList" class="admin-list"></div>
+        </details>
+
+        <details class="panel">
+          <summary><strong>Sold</strong></summary>
+          <div id="soldList" class="admin-list"></div>
+        </details>
+
+        <details class="panel" open>
+          <summary><strong>Book Requests</strong></summary>
+          <div class="muted" style="margin-bottom: 0.4rem">
+            Requests sent from the catalog.
+          </div>
+          <div id="reqOpen" class="admin-list"></div>
+          <hr
+            style="
+              border: 0;
+              border-top: 1px solid var(--border);
+              opacity: 0.4;
+              margin: 0.6rem 0;
+            "
+          />
+          <div class="muted" style="margin-bottom: 0.3rem">
+            <strong>Closed</strong>
+          </div>
+          <div id="reqClosed" class="admin-list"></div>
+        </details>
+      </section>
+    </main>
+
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js';
+      import {
+        getFirestore,
+        collection,
+        query,
+        where,
+        orderBy,
+        onSnapshot,
+        addDoc,
+        updateDoc,
+        deleteDoc,
+        doc,
+        setDoc,
+        serverTimestamp,
+        getDoc,
+      } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signInWithEmailAndPassword,
+        signOut,
+      } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js';
+      import {
+        getStorage,
+        ref,
+        uploadBytes,
+        getDownloadURL,
+        deleteObject,
+      } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js';
+      import { firebaseConfig, settings } from './scripts/config.js';
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
+      const storage = getStorage(app);
+      const adminEmails = new Set(
+        settings.adminEmails.map((e) => e.toLowerCase())
+      );
+
+      const authEl = document.getElementById('auth');
+      const adminEl = document.getElementById('admin');
+      const loginForm = document.getElementById('loginForm');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const authError = document.getElementById('authError');
+      const signOutBtn = document.getElementById('signOutBtn');
+      const addForm = document.getElementById('addForm');
+      const addMsg = document.getElementById('addMsg');
+      const availList = document.getElementById('availList');
+      const soldList = document.getElementById('soldList');
+      const authorInput = document.getElementById('authorInput');
+      const authorList = document.getElementById('authorList');
+      const lookupBtn = document.getElementById('lookupBtn');
+      const lookupMsg = document.getElementById('lookupMsg');
+      const lookupResults = document.getElementById('lookupResults');
+      const coverInput = document.getElementById('coverInput');
+      const reqOpen = document.getElementById('reqOpen');
+      const reqClosed = document.getElementById('reqClosed');
+
+      // ---------- helpers ----------
+      function escapeHtml(str = '') {
+        return String(str).replace(
+          /[&<>"']/g,
+          (m) =>
+            ({
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#39;',
+            }[m])
+        );
+      }
+
+      function normalizeAuthorName(str = '') {
+        return str
+          .replace(/\u00A0/g, ' ')
+          .trim()
+          .replace(/\s+/g, ' ');
+      }
+      function authorKeyFromName(str = '') {
+        const base = normalizeAuthorName(str)
+          .toLowerCase()
+          .replace(/[^a-z0-9 ]+/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        return base.replace(/ /g, '-').slice(0, 100);
+      }
+      function onlyDigitsX(v = '') {
+        return (v || '').toString().replace(/[^\dxX]/g, '');
+      }
+      function stripHtmlAndSquash(s = '') {
+        const noHtml = s.replace(/<[^>]+>/g, ' ');
+        return noHtml.replace(/\s+/g, ' ').trim();
+      }
+
+      // --- Auto-price from MRP & Condition ---
+      const priceInput = addForm.elements['price'];
+      const mrpInput = addForm.elements['mrp'];
+      const condSelect = addForm.elements['condition'];
+
+      // discount OFF MRP (e.g., 0.40 => 40% off => price = 60% of MRP)
+      const DISCOUNT = {
+        'Good as new': 0.4,
+        Excellent: 0.4,
+        'Gently used': 0.5,
+        Used: 0.6,
+      };
+
+      function autoPrice() {
+        const mrp = parseInt(mrpInput?.value ?? '', 10);
+        const cond = condSelect?.value || '';
+        const d = DISCOUNT[cond];
+        if (!isNaN(mrp) && d != null) {
+          // e.g., 40% off => 60% of MRP
+          const computed = Math.max(1, Math.round(mrp * (1 - d)));
+          priceInput.value = String(computed);
+        }
+      }
+
+      // Recompute when either field changes
+      mrpInput?.addEventListener('input', autoPrice);
+      condSelect?.addEventListener('change', autoPrice);
+
+      // Prefer larger Google image where possible
+      function upgradeGoogleThumb(url = '') {
+        if (!url) return '';
+        let u = url.replace(/^http:/, 'https:');
+        u = u.replace('zoom=1', 'zoom=2'); // slightly larger; you can try 3 if needed
+        u = u.replace(/&?edge=curl/g, ''); // avoid curled-edge variant
+        return u;
+      }
+      function coverUrlsFromIsbn(isbn) {
+        if (!isbn) return [];
+        // Try large then medium
+        return [
+          `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`,
+          `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg?default=false`,
+        ];
+      }
+      async function setCoverFromUrl(url, title = 'cover') {
+        if (!url) return false;
+        try {
+          const r = await fetch(url, { mode: 'cors' });
+          if (!r.ok) return false;
+          const blob = await r.blob();
+          if (!/^image\//.test(blob.type)) return false;
+          const ext = (blob.type.split('/')[1] || 'jpg').toLowerCase();
+          const safe =
+            String(title)
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .slice(0, 50) || 'cover';
+          const file = new File([blob], `${safe}.${ext}`, { type: blob.type });
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          coverInput.files = dt.files; // programmatically fill the required file input
+          return true;
+        } catch (e) {
+          console.warn('Cover fetch failed for', url, e);
+          return false;
+        }
+      }
+      async function prefillCover(thumb, isbn, title) {
+        lookupMsg.textContent = 'Downloading cover…';
+        const candidates = [];
+        if (thumb) candidates.push(upgradeGoogleThumb(thumb));
+        candidates.push(...coverUrlsFromIsbn(isbn));
+        for (const u of candidates) {
+          const ok = await setCoverFromUrl(u, title);
+          if (ok) {
+            lookupMsg.textContent = 'Fields updated (cover pre‑filled).';
+            return;
+          }
+        }
+        lookupMsg.textContent =
+          'Fields updated. Couldn’t fetch a cover; please upload one.';
+      }
+
+      onAuthStateChanged(auth, (user) => {
+        const ok = !!user && adminEmails.has((user.email || '').toLowerCase());
+        authEl.style.display = ok ? 'none' : 'block';
+        adminEl.style.display = ok ? 'block' : 'none';
+        if (ok) {
+          setupSubscriptions();
+          subscribeAuthors?.(); // if you have the author master feature
+          subscribeRequests(); // NEW
+        }
+      });
+
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        authError.hidden = true;
+        try {
+          await signInWithEmailAndPassword(
+            auth,
+            emailInput.value.trim(),
+            passwordInput.value
+          );
+        } catch (err) {
+          authError.hidden = false;
+          authError.textContent = err.message;
+        }
+      });
+
+      signOutBtn.addEventListener('click', () => signOut(auth));
+
+      function subscribeRequests() {
+        // Open/Contacted
+        const qOpen = query(
+          collection(db, 'requests'),
+          where('status', 'in', ['open', 'contacted']),
+          orderBy('createdAt', 'desc')
+        );
+        onSnapshot(qOpen, (snap) => {
+          reqOpen.innerHTML =
+            snap.docs.map((d) => reqRowHTML(d.id, d.data())).join('') ||
+            '<p class="muted">No open requests.</p>';
+          wireReqButtons(reqOpen);
+        });
+
+        // Fulfilled/Closed
+        const qClosed = query(
+          collection(db, 'requests'),
+          where('status', 'in', ['fulfilled', 'closed', 'unfulfilled']),
+          orderBy('updatedAt', 'desc')
+        );
+
+        onSnapshot(qClosed, (snap) => {
+          reqClosed.innerHTML =
+            snap.docs.map((d) => reqRowHTML(d.id, d.data(), true)).join('') ||
+            '<p class="muted">No closed requests.</p>';
+          wireReqButtons(reqClosed);
+        });
+      }
+
+      function wireReqButtons(container) {
+        container.querySelectorAll('button[data-action]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const row = btn.closest('.row');
+            const id = row.dataset.id;
+            const action = btn.dataset.action;
+            const refDoc = doc(db, 'requests', id);
+            try {
+              if (action === 'contacted') {
+                await updateDoc(refDoc, {
+                  status: 'contacted',
+                  updatedAt: serverTimestamp(),
+                });
+              } else if (action === 'fulfilled') {
+                await updateDoc(refDoc, {
+                  status: 'fulfilled',
+                  updatedAt: serverTimestamp(),
+                });
+              } else if (action === 'close') {
+                await updateDoc(refDoc, {
+                  status: 'closed',
+                  updatedAt: serverTimestamp(),
+                });
+              } else if (action === 'reopen') {
+                await updateDoc(refDoc, {
+                  status: 'open',
+                  updatedAt: serverTimestamp(),
+                });
+              } else if (action === 'delete') {
+                if (!confirm('Delete this request?')) return;
+                await deleteDoc(refDoc);
+              } else if (action === 'unfulfilled') {
+                await updateDoc(refDoc, {
+                  status: 'unfulfilled',
+                  updatedAt: serverTimestamp(),
+                });
+              }
+            } catch (err) {
+              console.error(err);
+              alert('Could not update this request: ' + err.message);
+            }
+          });
+        });
+      }
+
+      function reqRowHTML(id, r, closed = false) {
+        const when = r.createdAt?.toDate
+          ? r.createdAt.toDate().toLocaleString()
+          : '';
+        return `
+  <article class="row row--request" data-id="${id}">
+    <div class="row-meta">
+      <strong>${r.title ? escapeHtml(r.title) : '(untitled)'}</strong>
+      <div class="muted">
+        ${r.author ? escapeHtml(r.author) : 'Author: Any'}
+        · ${r.binding || 'Any'}
+        ${when ? ` · ${when}` : ''}
+        ${
+          r.contactName || r.contactPhone || r.contactEmail
+            ? ' · ' +
+              escapeHtml(
+                [r.contactName, r.contactPhone, r.contactEmail]
+                  .filter(Boolean)
+                  .join(' · ')
+              )
+            : ''
+        }
+      </div>
+      ${r.notes ? `<div class="muted">${escapeHtml(r.notes)}</div>` : ''}
+    </div>
+    <div class="row-actions">
+      ${
+        closed
+          ? `
+        <button data-action="reopen" class="btn btn-secondary">Reopen</button>
+        <button data-action="delete" class="btn btn-danger">Delete</button>
+      `
+          : `
+        <button data-action="contacted" class="btn">Mark contacted</button>
+        <button data-action="fulfilled" class="btn">Mark fulfilled</button>
+        <button data-action="unfulfilled" class="btn btn-danger">Could not fulfill</button>
+        <button data-action="close" class="btn btn-secondary">Close</button>
+      `
+      }
+    </div>
+  </article>`;
+      }
+
+      // --- authors master subscription (for autocomplete) ---
+      function subscribeAuthors() {
+        const qAuthors = query(collection(db, 'authors'), orderBy('name'));
+        onSnapshot(
+          qAuthors,
+          (snap) => {
+            const names = snap.docs
+              .map((d) => (d.data().name || '').toString())
+              .filter(Boolean);
+            authorList.innerHTML = Array.from(new Set(names))
+              .map((n) => `<option value="${escapeHtml(n)}"></option>`)
+              .join('');
+          },
+          (err) => {
+            console.error('authors onSnapshot error:', err);
+          }
+        );
+      }
+
+      // --- Lookup (Google Books + Open Library fallback) ---
+      lookupBtn.addEventListener('click', async () => {
+        lookupMsg.textContent = '';
+        lookupResults.innerHTML = '';
+        const title = (addForm.elements['title'].value || '').trim();
+        const author = (addForm.elements['author'].value || '').trim();
+        if (!title) {
+          lookupMsg.textContent =
+            'Enter a Title first, then click Find details.';
+          return;
+        }
+        lookupBtn.disabled = true;
+        lookupBtn.textContent = 'Searching…';
+        try {
+          const qParts = [];
+          if (title) qParts.push(`intitle:${title}`);
+          if (author) qParts.push(`inauthor:${author}`);
+          const key = settings.googleBooksApiKey
+            ? `&key=${settings.googleBooksApiKey}`
+            : '';
+          const fields =
+            'items(volumeInfo/title,volumeInfo/authors,volumeInfo/industryIdentifiers,volumeInfo/description,volumeInfo/imageLinks/thumbnail,volumeInfo/imageLinks/smallThumbnail,saleInfo/listPrice,saleInfo/retailPrice)';
+          const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+            qParts.join(' ')
+          )}&printType=books&maxResults=6&country=IN&fields=${encodeURIComponent(
+            fields
+          )}${key}`;
+          const gRes = await fetch(url);
+          const gData = await gRes.json();
+
+          let items = (gData.items || []).map((v) => {
+            const vi = v.volumeInfo || {},
+              si = v.saleInfo || {};
+            let isbn13 = null,
+              isbn10 = null;
+            (vi.industryIdentifiers || []).forEach((id) => {
+              if (id.type === 'ISBN_13') isbn13 = id.identifier;
+              if (id.type === 'ISBN_10') isbn10 = id.identifier;
+            });
+            const priceINR =
+              si.listPrice && si.listPrice.currencyCode === 'INR'
+                ? si.listPrice.amount
+                : si.retailPrice && si.retailPrice.currencyCode === 'INR'
+                ? si.retailPrice.amount
+                : null;
+            const thumb =
+              vi.imageLinks &&
+              (vi.imageLinks.thumbnail || vi.imageLinks.smallThumbnail);
+            return {
+              source: 'google',
+              title: vi.title || '',
+              author: (vi.authors && vi.authors[0]) || '',
+              isbn13,
+              isbn10,
+              priceINR,
+              description: vi.description
+                ? stripHtmlAndSquash(vi.description)
+                : '',
+              thumb,
+            };
+          });
+
+          // Fallback: Open Library search if we didn't get useful identifiers
+          const needFallback =
+            !items.length || items.every((i) => !i.isbn13 && !i.isbn10);
+          if (needFallback) {
+            const olUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(
+              title
+            )}${author ? `&author=${encodeURIComponent(author)}` : ''}&limit=6`;
+            try {
+              const olRes = await fetch(olUrl);
+              const olData = await olRes.json();
+              const olItems = (olData.docs || []).map((d) => ({
+                source: 'openlibrary',
+                title: d.title || '',
+                author: (d.author_name && d.author_name[0]) || '',
+                isbn13: (d.isbn && d.isbn.find((x) => x.length === 13)) || null,
+                isbn10: (d.isbn && d.isbn.find((x) => x.length === 10)) || null,
+                priceINR: null,
+                description: (typeof d.first_sentence === 'string'
+                  ? d.first_sentence
+                  : d.subtitle || ''
+                ).toString(),
+                thumb: null,
+              }));
+              items = items.concat(olItems);
+            } catch (_) {}
+          }
+
+          if (!items.length) {
+            lookupResults.innerHTML =
+              '<p class="muted">No results from Google Books/Open Library.</p>';
+          } else {
+            lookupResults.innerHTML = items
+              .map(
+                (c, idx) => `
+              <article class="row" data-idx="${idx}">
+                ${
+                  c.thumb
+                    ? `<img src="${c.thumb}" alt="" />`
+                    : `<div style="width:64px;height:64px;background:#333;border-radius:8px;"></div>`
+                }
+                <div class="row-meta">
+                  <strong>${escapeHtml(c.title)}</strong>
+                  <div class="muted">
+                    ${escapeHtml(c.author || '')}
+                    ${
+                      c.isbn13
+                        ? ` · <span class="pill">ISBN‑13 ${c.isbn13}</span>`
+                        : c.isbn10
+                        ? ` · <span class="pill">ISBN‑10 ${c.isbn10}</span>`
+                        : ''
+                    }
+                    ${
+                      c.priceINR != null
+                        ? ` · <span class="pill">MRP ₹${Math.round(
+                            c.priceINR
+                          )}</span>`
+                        : ''
+                    }
+                  </div>
+                </div>
+                <div class="row-actions">
+                  <button class="btn" data-use="${idx}">Use this</button>
+                </div>
+              </article>
+            `
+              )
+              .join('');
+
+            // Apply chosen candidate to the form
+            lookupResults
+              .querySelectorAll('button[data-use]')
+              .forEach((btn) => {
+                btn.addEventListener('click', async () => {
+                  const i = Number(btn.dataset.use);
+                  const c = items[i];
+                  // Fill fields
+                  if (c.title) addForm.elements['title'].value = c.title;
+                  if (c.author) authorInput.value = c.author;
+                  if (c.priceINR != null)
+                    addForm.elements['mrp'].value = Math.round(c.priceINR);
+                  const isbn = c.isbn13 || c.isbn10 || '';
+                  if (isbn) addForm.elements['isbn'].value = isbn;
+                  if (c.description)
+                    addForm.elements['description'].value = c.description.slice(
+                      0,
+                      5000
+                    );
+                  if (c.priceINR != null) {
+                    addForm.elements['mrp'].value = Math.round(c.priceINR);
+                    autoPrice(); // <-- add this so price updates immediately
+                  }
+
+                  // Try to infer binding
+                  if (isbn) {
+                    try {
+                      const ol = await fetch(
+                        `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`
+                      ).then((r) => r.json());
+                      const key = `ISBN:${isbn}`;
+                      const fmt =
+                        ol[key] && ol[key].physical_format
+                          ? String(ol[key].physical_format).toLowerCase()
+                          : '';
+                      if (fmt.includes('hard'))
+                        addForm.elements['binding'].value = 'Hardcover';
+                      else if (fmt.includes('paper') || fmt.includes('soft'))
+                        addForm.elements['binding'].value = 'Paperback';
+                    } catch (_) {}
+                  }
+
+                  // Download and pre-fill the cover image
+                  await prefillCover(c.thumb, isbn, c.title);
+
+                  lookupMsg.textContent ||= 'Fields updated from selection.';
+                  lookupResults.innerHTML = '';
+                });
+              });
+          }
+        } catch (err) {
+          console.error(err);
+          lookupMsg.textContent = 'Lookup error: ' + err.message;
+        } finally {
+          lookupBtn.disabled = false;
+          lookupBtn.textContent = 'Find details (ISBN/MRP)';
+        }
+      });
+
+      // --- Submit new book ---
+      addForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        addMsg.textContent = 'Uploading…';
+
+        const fd = new FormData(addForm);
+        const title = (fd.get('title') || '').toString().trim();
+        const authorRaw = (fd.get('author') || '').toString();
+        const author = normalizeAuthorName(authorRaw);
+        const authorKey = author ? authorKeyFromName(author) : null;
+        const category = fd.get('category');
+        const binding = fd.get('binding') || '';
+        const price = fd.get('price') ? parseInt(fd.get('price'), 10) : null;
+        const mrp = fd.get('mrp') ? parseInt(fd.get('mrp'), 10) : null;
+        const isbn = onlyDigitsX(fd.get('isbn'));
+        const condition = fd.get('condition') || '';
+        const descRaw = (fd.get('description') || '').toString();
+        const description = stripHtmlAndSquash(descRaw).slice(0, 5000); // keep long marketing copy, just be sane
+        const cover = fd.get('cover');
+        const more = fd.getAll('more').filter((f) => f && f.size);
+
+        if (!title || !category || !binding || !cover || !cover.size) {
+          addMsg.textContent =
+            'Please fill the required fields (Title, Category, Format, Cover).';
+          return;
+        }
+
+        try {
+          // Book doc
+          const res = await addDoc(collection(db, 'books'), {
+            title,
+            author,
+            authorKey,
+            category,
+            binding,
+            isbn,
+            price,
+            mrp,
+            condition,
+            description,
+            status: 'available',
+            images: [],
+            imagePaths: [],
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+          const bookId = res.id;
+
+          // Upsert author master
+          if (authorKey) {
+            await setDoc(
+              doc(db, 'authors', authorKey),
+              {
+                key: authorKey,
+                name: author,
+                updatedAt: serverTimestamp(),
+                createdAt: serverTimestamp(),
+              },
+              { merge: true }
+            );
+          }
+
+          // Upload cover
+          const coverPath = `images/books/${bookId}/cover-${Date.now()}-${
+            cover.name
+          }`;
+          const coverRef = ref(storage, coverPath);
+          await uploadBytes(coverRef, cover);
+          const coverUrl = await getDownloadURL(coverRef);
+
+          // Upload more images
+          const moreUrls = [];
+          const morePaths = [];
+          for (const file of more) {
+            const p = `images/books/${bookId}/img-${Date.now()}-${file.name}`;
+            const r = ref(storage, p);
+            await uploadBytes(r, file);
+            moreUrls.push(await getDownloadURL(r));
+            morePaths.push(p);
+          }
+
+          await updateDoc(res, {
+            images: [coverUrl, ...moreUrls],
+            imagePaths: [coverPath, ...morePaths],
+            updatedAt: serverTimestamp(),
+          });
+
+          addForm.reset();
+          lookupResults.innerHTML = '';
+          lookupMsg.textContent = '';
+          addMsg.textContent = 'Added! It is now live in the catalog.';
+          setTimeout(() => (addMsg.textContent = ''), 3000);
+        } catch (err) {
+          console.error(err);
+          addMsg.textContent = 'Error: ' + err.message;
+        }
+      });
+
+      function setupSubscriptions() {
+        const qAvail = query(
+          collection(db, 'books'),
+          where('status', '==', 'available'),
+          orderBy('createdAt', 'desc')
+        );
+        const qSold = query(
+          collection(db, 'books'),
+          where('status', '==', 'sold'),
+          orderBy('updatedAt', 'desc')
+        );
+
+        onSnapshot(qAvail, (snap) => {
+          availList.innerHTML =
+            snap.docs.map((d) => rowHTML(d.id, d.data())).join('') ||
+            '<p class="muted">No available books.</p>';
+          wireRowButtons(availList);
+        });
+
+        onSnapshot(qSold, (snap) => {
+          soldList.innerHTML =
+            snap.docs.map((d) => rowHTML(d.id, d.data(), true)).join('') ||
+            '<p class="muted">No sold books.</p>';
+          wireRowButtons(soldList);
+        });
+      }
+
+      function rowHTML(id, b, sold = false) {
+        const img = (b.images && b.images[0]) || './assets/placeholder.webp';
+        return `
+    <article class="row" data-id="${id}">
+      <img src="${img}" alt="" />
+      <div class="row-meta">
+        <strong>${(b.title || '').replace(/</g, '&lt;')}</strong>
+        <div class="muted">
+          ${b.author || ''} · ${b.category || ''} · ${b.binding || ''}${
+          b.price ? ' · ₹' + b.price : ''
+        }${b.mrp ? ' · MRP ₹' + b.mrp : ''}${b.isbn ? ' · ISBN ' + b.isbn : ''}
+        </div>
+      </div>
+      <div class="row-actions">
+        ${
+          sold
+            ? `<button data-action="available" class="btn btn-secondary">Mark available</button>`
+            : `<button data-action="sold" class="btn">Mark sold</button>`
+        }
+        <button data-action="delete" class="btn btn-danger">Delete</button>
+      </div>
+    </article>`;
+      }
+
+      function wireRowButtons(container) {
+        container.querySelectorAll('button[data-action]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const row = btn.closest('.row');
+            const id = row.dataset.id;
+            const action = btn.dataset.action;
+            const refDoc = doc(db, 'books', id);
+            if (action === 'sold') {
+              await updateDoc(refDoc, {
+                status: 'sold',
+                updatedAt: serverTimestamp(),
+              });
+            } else if (action === 'available') {
+              await updateDoc(refDoc, {
+                status: 'available',
+                updatedAt: serverTimestamp(),
+              });
+            } else if (action === 'delete') {
+              if (
+                !confirm(
+                  'Delete this book permanently? This also deletes images.'
+                )
+              )
+                return;
+              const snap = await getDoc(refDoc);
+              const data = snap.data();
+              if (data && Array.isArray(data.imagePaths)) {
+                for (const p of data.imagePaths) {
+                  try {
+                    await deleteObject(ref(storage, p));
+                  } catch {}
+                }
+              }
+              await deleteDoc(refDoc);
+            }
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

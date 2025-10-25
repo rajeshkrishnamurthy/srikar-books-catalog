@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /books/{bookId} {
+      // Public can read only 'available' books; admins can read all
+      allow read: if resource.data.status == 'available' || (request.auth != null && request.auth.token.email in ['srikar2014@gmail.com']);
+      // Only admins can write
+      allow create, update, delete: if request.auth != null && request.auth.token.email in ['srikar2014@gmail.com'];
+    }
+  }
+}
