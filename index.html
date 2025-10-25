@@ -4,102 +4,47 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Srikar’s Books — Catalog</title>
-    <meta
-      name="description"
-      content="Browse Srikar’s curated used books. Message on WhatsApp to buy."
-    />
+    <meta name="description" content="Browse Srikar’s curated used books. Message on WhatsApp to buy." />
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="./styles.css?v=4" />
-    <style>
-      body {
-        background: linear-gradient(180deg, #1f2329, #242933) !important;
-      }
-      /* tighter card spacing + clamped description; remove unintended blank gaps */
-      .card .meta {
-        gap: 0.25rem;
-      }
-      .card .meta p {
-        margin: 0;
-      }
-      .card .desc {
-        font-size: 0.92rem;
-        color: var(--muted);
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        line-height: 1.25;
-        white-space: normal;
-      }
-    </style>
+    <!-- Base styles shared across admin + catalog -->
+    <link rel="stylesheet" href="./styles.css?v=7" />
+    <!-- Page-specific, small overrides for the catalog (moved out of inline <style>) -->
+    <link rel="stylesheet" href="./styles/index.css?v=1" />
   </head>
   <body>
     <header class="site-header">
       <div class="wrap">
         <h1 class="brand"><a href="./">Srikar’s Books</a></h1>
         <nav class="tabs" role="tablist" aria-label="Categories">
-          <button
-            class="tab active"
-            data-category="Fiction"
-            aria-selected="true"
-          >
-            Fiction
-          </button>
-          <button class="tab" data-category="Non-Fiction" aria-selected="false">
-            Non-Fiction
-          </button>
-          <button class="tab" data-category="Children" aria-selected="false">
-            Children
-          </button>
+          <button class="tab active" data-category="Fiction" aria-selected="true">Fiction</button>
+          <button class="tab" data-category="Non-Fiction" aria-selected="false">Non-Fiction</button>
+          <button class="tab" data-category="Children" aria-selected="false">Children</button>
         </nav>
         <div class="search">
-          <input
-            id="search"
-            type="search"
-            placeholder="Search by title or author…"
-            aria-label="Search books"
-          />
+          <input id="search" type="search" placeholder="Search by title or author…" aria-label="Search books" />
         </div>
       </div>
     </header>
 
     <main class="wrap">
       <section id="bookGrid" class="grid" aria-live="polite"></section>
-      <p id="emptyState" class="muted" hidden>
-        No books found here yet. Try another category or clear search.
-      </p>
+      <p id="emptyState" class="muted" hidden>No books found here yet. Try another category or clear search.</p>
+
+      <!-- Request a Book (kept here; logic moved to scripts/index/requestForm.js) -->
       <details class="panel" id="requestPanel" open>
         <summary><strong>Can’t find a book?</strong> Request it</summary>
         <form id="requestForm" class="stack">
           <div class="grid-2">
-            <input name="rtitle" placeholder="Title *" required />
-            <input name="rauthor" placeholder="Author *" required />
-            <input name="rname" placeholder="Your name *" required />
-            <input
-              name="rphone"
-              placeholder="Phone/WhatsApp *"
-              inputmode="tel"
-              required
-            />
+            <input name="rtitle"  placeholder="Title *"        required />
+            <input name="rauthor" placeholder="Author *"       required />
+            <input name="rname"   placeholder="Your name *"    required />
+            <input name="rphone"  placeholder="Phone/WhatsApp *" inputmode="tel" required />
           </div>
-          <textarea
-            name="rnotes"
-            rows="3"
-            placeholder="Anything else? (edition, language, condition, etc.)"
-          ></textarea>
+          <textarea name="rnotes" rows="3" placeholder="Anything else? (edition, language, condition, etc.)"></textarea>
           <div class="flex">
             <button class="btn" type="submit">Save & Open WhatsApp</button>
-            <a
-              id="reqWaLink"
-              class="btn btn-secondary"
-              href="#"
-              target="_blank"
-              rel="noopener"
-              style="display: none"
-              >Send on WhatsApp</a
-            >
-            <span id="reqMsg" class="muted" style="margin-left: 0.6rem"></span>
+            <a id="reqWaLink" class="btn btn-secondary" href="#" target="_blank" rel="noopener" style="display:none">Send on WhatsApp</a>
+            <span id="reqMsg" class="muted" style="margin-left:.6rem"></span>
           </div>
         </form>
       </details>
@@ -107,231 +52,11 @@
 
     <footer class="site-footer">
       <div class="wrap">
-        <p>
-          WhatsApp Srikar to purchase. No online checkout.
-          <a href="./admin.html">Admin</a>
-        </p>
+        <p>WhatsApp Srikar to purchase. No online checkout. <a href="./admin.html">Admin</a></p>
       </div>
     </footer>
 
-    <script type="module">
-      import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js';
-      import {
-        getFirestore,
-        collection,
-        query,
-        where,
-        orderBy,
-        onSnapshot,
-        addDoc,
-        serverTimestamp,
-      } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
-      import { firebaseConfig, settings } from './scripts/config.js';
-
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-
-      const grid = document.getElementById('bookGrid');
-      const emptyState = document.getElementById('emptyState');
-      const searchInput = document.getElementById('search');
-      const tabs = Array.from(document.querySelectorAll('.tab'));
-      let activeCategory = 'Fiction';
-      let unsub = null;
-      let cachedDocs = [];
-
-      tabs.forEach((btn) =>
-        btn.addEventListener('click', () => {
-          tabs.forEach((b) => {
-            b.classList.remove('active');
-            b.setAttribute('aria-selected', 'false');
-          });
-          btn.classList.add('active');
-          btn.setAttribute('aria-selected', 'true');
-          activeCategory = btn.dataset.category;
-          subscribe();
-        })
-      );
-
-      searchInput.addEventListener('input', () => render());
-
-      function subscribe() {
-        if (unsub) unsub();
-        const q = query(
-          collection(db, 'books'),
-          where('status', '==', 'available'),
-          where('category', '==', activeCategory),
-          orderBy('createdAt', 'desc')
-        );
-        unsub = onSnapshot(
-          q,
-          (snap) => {
-            cachedDocs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-            render();
-          },
-          (err) => {
-            console.error(err);
-            grid.innerHTML =
-              '<p class="error">Could not load books. Check your Firestore rules and indexes.</p>';
-          }
-        );
-      }
-
-      function escapeHtml(str = '') {
-        return str.replace(
-          /[&<>"']/g,
-          (m) =>
-            ({
-              '&': '&amp;',
-              '<': '&lt;',
-              '>': '&gt;',
-              '"': '&quot;',
-              "'": '&#39;',
-            }[m])
-        );
-      }
-      function compactText(s = '') {
-        return s.replace(/\s+/g, ' ').trim();
-      }
-
-      function bookCardHTML(b) {
-        const img = (b.images && b.images[0]) || './assets/placeholder.webp';
-        const msg = encodeURIComponent(
-          `Hi Srikar, I was going through the book deals on your website and I found a book I liked - "${
-            b.title
-          }"${
-            b.author ? ` by ${b.author}` : ''
-          }. I would like to buy this book!`
-        );
-        const wa = `https://wa.me/${settings.whatsappNumber}?text=${msg}`;
-
-        const lines = [];
-        if (b.condition)
-          lines.push(
-            `<p class="muted">Book condition : ${escapeHtml(b.condition)}</p>`
-          );
-        if (b.price != null)
-          lines.push(
-            `<p class="muted">My price : ₹${escapeHtml(String(b.price))}</p>`
-          );
-        if (b.mrp != null)
-          lines.push(`<p class="muted">MRP: ₹${escapeHtml(String(b.mrp))}</p>`);
-
-        const desc = b.description
-          ? `<p class="desc">${escapeHtml(
-              compactText(String(b.description))
-            ).slice(0, 500)}</p>`
-          : '';
-
-        return `
-        <article class="card">
-          <img loading="lazy" src="${img}" alt="${escapeHtml(
-          b.title || 'Book cover'
-        )}" />
-          <div class="meta">
-            <h3>${escapeHtml(b.title || 'Untitled')}</h3>
-            ${lines.join('')}
-            ${desc}
-            <a class="btn" href="${wa}" target="_blank" rel="noopener">Message on WhatsApp</a>
-          </div>
-        </article>`;
-      }
-
-      function render() {
-        const term = (searchInput.value || '').trim().toLowerCase();
-        const docs = term
-          ? cachedDocs.filter(
-              (b) =>
-                (b.title || '').toLowerCase().includes(term) ||
-                (b.author || '').toLowerCase().includes(term)
-            )
-          : cachedDocs;
-
-        if (!docs.length) {
-          grid.innerHTML = '';
-          emptyState.hidden = false;
-          return;
-        }
-        emptyState.hidden = true;
-        grid.innerHTML = docs.map(bookCardHTML).join('');
-      }
-
-      // ---- Book Request form (save + WhatsApp) ----
-      const requestForm = document.getElementById('requestForm');
-      const reqMsg = document.getElementById('reqMsg');
-      const reqWaLink = document.getElementById('reqWaLink');
-
-      function compact(s = '') {
-        return s.replace(/\s+/g, ' ').trim();
-      }
-
-      requestForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        reqMsg.textContent = '';
-        reqWaLink.style.display = 'none';
-
-        const fd = new FormData(requestForm);
-        const title = compact((fd.get('rtitle') || '').toString());
-        if (!title) {
-          reqMsg.textContent = 'Please enter a title.';
-          return;
-        }
-
-        const author = compact((fd.get('rauthor') || '').toString());
-        const binding = (fd.get('rbinding') || '').toString();
-        const name = compact((fd.get('rname') || '').toString());
-        const phone = compact((fd.get('rphone') || '').toString()).replace(
-          /[^\d+]/g,
-          ''
-        );
-        const notes = compact((fd.get('rnotes') || '').toString());
-
-        const parts = [
-          `Hi Srikar, I would like to request for a book.`,
-          `Title: "${title}"`,
-          `Author: ${author || 'Any'}`,
-          `Format: ${binding || 'Any'}`,
-        ];
-        if (notes) parts.push(`Notes: ${notes}`);
-        if (name || phone)
-          parts.push(
-            `My contact: ${[name, phone].filter(Boolean).join(' · ')}`
-          );
-        if (!author || !name || !phone) {
-          reqMsg.textContent =
-            'Please fill Title, Author, Your name and Phone.';
-          return;
-        }
-
-        const waText = encodeURIComponent(parts.join('\n'));
-        const wa = `https://wa.me/${settings.whatsappNumber}?text=${waText}`;
-
-        try {
-          await addDoc(collection(db, 'requests'), {
-            title,
-            author,
-            binding,
-            notes,
-            contactName: name,
-            contactPhone: phone,
-            status: 'open',
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-          });
-          reqMsg.textContent = 'Saved. You can now send the WhatsApp message.';
-          reqWaLink.href = wa;
-          reqWaLink.style.display = 'inline-block';
-          // Attempt to open a new tab for convenience (may be blocked)
-          try {
-            window.open(wa, '_blank');
-          } catch {}
-          requestForm.reset();
-        } catch (err) {
-          console.error(err);
-          reqMsg.textContent = 'Could not save your request. Please try again.';
-        }
-      });
-
-      subscribe();
-    </script>
+    <!-- One small entry point. All page logic lives in modules under ./scripts/index/*.js -->
+    <script type="module" src="./scripts/index/main.js"></script>
   </body>
 </html>

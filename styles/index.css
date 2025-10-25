@@ -1,0 +1,17 @@
+/* Intent: keep catalog-only visual tweaks out of HTML for easier maintenance */
+body { background: linear-gradient(180deg, #1f2329, #242933) !important; }
+
+/* tighter card spacing + clamped description; remove unintended blank gaps */
+.card .meta { gap: 0.25rem; }
+.card .meta p { margin: 0; }
+.card .desc {
+  font-size: 0.92rem;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+  white-space: normal;
+}

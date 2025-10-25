@@ -1,0 +1,18 @@
+/* Intent: keep admin-only styling out of HTML and co-located with the page. */
+
+/* Dark grey background override for admin to match catalog look */
+body { background: linear-gradient(180deg, #1f2329, #242933) !important; }
+
+.admin { display: none; }
+.auth { max-width: 420px; margin: 2rem auto; }
+.hint { font-size: .9rem; color: var(--muted); }
+.pill { display:inline-block; padding:.1rem .4rem; border:1px solid var(--border); border-radius:999px; color:var(--muted); }
+
+/* Request rows (no thumbnail) — give text full width */
+.row.row--request { grid-template-columns: 1fr auto !important; align-items: start; }
+.row.row--request .row-actions { display:flex; gap:.4rem; flex-wrap: wrap; justify-content: flex-end; }
+
+@media (max-width: 900px){
+  .row.row--request { grid-template-columns: 1fr !important; }
+  .row.row--request .row-actions { grid-column: 1 / -1; justify-content: flex-start; }
+}
