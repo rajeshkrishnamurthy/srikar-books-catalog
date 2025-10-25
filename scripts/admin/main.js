@@ -8,6 +8,24 @@ import { initRequests } from './requests.js';
 import { db, collection, query, orderBy, onSnapshot } from '../lib/firebase.js';
 import { escapeHtml } from '../helpers/text.js';
 
+function subscribeAuthors() {
+  const qAuthors = query(collection(db, 'authors'), orderBy('name'));
+  onSnapshot(
+    qAuthors,
+    (snap) => {
+      const names = snap.docs
+        .map((d) => (d.data().name || '').toString())
+        .filter(Boolean);
+      authorList.innerHTML = Array.from(new Set(names))
+        .map((n) => `<option value="${escapeHtml(n)}"></option>`)
+        .join('');
+    },
+    (err) => {
+      console.error('authors onSnapshot error:', err);
+    }
+  );
+}
+
 // Elements
 const authEl = document.getElementById('auth');
 const adminEl = document.getElementById('admin');
@@ -31,19 +49,37 @@ const reqOpen = document.getElementById('reqOpen');
 const reqClosed = document.getElementById('reqClosed');
 
 // Authors datalist subscription (kept tiny here to avoid a full module)
-function subscribeAuthors(){
+function subscribeAuthors() {
   const qAuthors = query(collection(db, 'authors'), orderBy('name'));
-  onSnapshot(qAuthors, (snap) => {
-    const names = snap.docs.map(d => (d.data().name || '').toString()).filter(Boolean);
-    authorList.innerHTML = Array.from(new Set(names)).map(n => `<option value="${escapeHtml(n)}"></option>`).join('');
-  }, (err) => { console.error('authors onSnapshot error:', err); });
+  onSnapshot(
+    qAuthors,
+    (snap) => {
+      const names = snap.docs
+        .map((d) => (d.data().name || '').toString())
+        .filter(Boolean);
+      authorList.innerHTML = Array.from(new Set(names))
+        .map((n) => `<option value="${escapeHtml(n)}"></option>`)
+        .join('');
+    },
+    (err) => {
+      console.error('authors onSnapshot error:', err);
+    }
+  );
 }
 
 initAuth({
-  authEl, adminEl, loginForm, emailInput, passwordInput, authError, signOutBtn,
-  onAuthed(){
+  authEl,
+  adminEl,
+  loginForm,
+  emailInput,
+  passwordInput,
+  authError,
+  signOutBtn,
+  onAuthed() {
     // Once authed, wire the rest
     const autoPrice = bindAutoPrice(addForm);
+    // Start the real-time fill of the <datalist id="authorList">
+    subscribeAuthors();
 
     wireLookup({
       addForm,
@@ -53,10 +89,18 @@ initAuth({
       msgEl: lookupMsg,
       resultsEl: lookupResults,
       autoPrice,
-      apiKey: settings.googleBooksApiKey || ''
+      apiKey: settings.googleBooksApiKey || '',
     });
 
-    initInventory({ addForm, addMsg, authorInput, authorList, availList, soldList, subscribeAuthors });
+    initInventory({
+      addForm,
+      addMsg,
+      authorInput,
+      authorList,
+      availList,
+      soldList,
+      subscribeAuthors,
+    });
     initRequests({ reqOpen, reqClosed });
-  }
+  },
 });
