@@ -1,130 +1,90 @@
-// scripts/index/carousel.js
-// Spotlight carousel — behavior only (no HTML/CSS injection).
+// scripts/index/carousel.js — Embla behavior
 
 import { subscribeToCarousel } from './catalogService.js';
 import { settings } from '../config.js';
 
-export function initCarousel() {
+export async function initCarousel() {
   const shell = document.getElementById('homeCarousel');
   if (!shell) return;
+
   const viewport = shell.querySelector('#carouselViewport');
   const track = shell.querySelector('#carouselTrack');
   const countEl = shell.querySelector('#carouselCount');
   const prevBtn = shell.querySelector('#carouselPrev');
   const nextBtn = shell.querySelector('#carouselNext');
 
-  let activeIndex = 0;
+  const EmblaCarousel = await loadEmbla();
 
-  const getCards = () => Array.from(track.querySelectorAll('.spot__card'));
-  const centerOf = (el) => el.offsetLeft + el.clientWidth / 2;
-  const vCenter = () => viewport.scrollLeft + viewport.clientWidth / 2;
+  let embla = null;
+  let slides = [];
+  const getSlides = () => Array.from(track.querySelectorAll('.spot__card'));
 
-  function nearestIndex() {
-    const cards = getCards();
-    if (!cards.length) return 0;
-    const vc = vCenter();
-    let idx = 0,
-      best = Infinity;
-    cards.forEach((c, i) => {
-      const d = Math.abs(centerOf(c) - vc);
-      if (d < best) {
-        best = d;
-        idx = i;
-      }
+  const onSelect = () => {
+    if (!embla) return;
+    const i = embla.selectedScrollSnap();
+    slides.forEach((s, idx) => s.classList.toggle('is-active', idx === i));
+    prevBtn.disabled = !embla.canScrollPrev();
+    nextBtn.disabled = !embla.canScrollNext();
+  };
+
+  const reInit = () => {
+    if (embla) embla.destroy();
+    embla = EmblaCarousel(viewport, {
+      align: 'center',
+      loop: false,
+      containScroll: 'trimSnaps',
+      dragFree: false,
+      slidesToScroll: 1,
+      inViewThreshold: 0.6,
     });
-    return idx;
-  }
-
-  function goTo(i) {
-    const cards = getCards();
-    if (!cards.length) return;
-    const clamped = Math.max(0, Math.min(i, cards.length - 1));
-    const card = cards[clamped];
-    const left =
-      card.offsetLeft - (viewport.clientWidth - card.clientWidth) / 2;
-    viewport.scrollTo({ left, behavior: 'smooth' });
-    activeIndex = clamped;
-    updateActive();
-  }
-
-  function updateActive() {
-    const cards = getCards();
-    if (!cards.length) return;
-    // If the user hand-scrolled, snap our state to the nearest centered card
-    activeIndex = nearestIndex();
-    cards.forEach((c, i) => {
-      c.classList.toggle('is-active', i === activeIndex);
-      c.classList.toggle('is-left', i < activeIndex);
-      c.classList.toggle('is-right', i > activeIndex);
+    slides = getSlides();
+    embla.on('select', onSelect);
+    embla.on('reInit', () => {
+      slides = getSlides();
+      onSelect();
     });
-    prevBtn.disabled = activeIndex <= 0;
-    nextBtn.disabled = activeIndex >= cards.length - 1;
-  }
+    onSelect();
+  };
 
-  // Compute side padding so first/last can center even on wide viewports
-  function recalcEdgePad() {
-    const first = track.querySelector('.spot__card');
-    if (!first) return;
-    const cardW = first.getBoundingClientRect().width;
-    const vw = viewport.clientWidth;
-    const pad = Math.max(0, (vw - cardW) / 2); // full required pad; no clamp
-    track.style.setProperty('--edge-pad-left', pad + 'px');
-    track.style.setProperty('--edge-pad-right', pad + 'px');
-  }
+  // Buttons
+  prevBtn.addEventListener('click', () => embla && embla.scrollPrev());
+  nextBtn.addEventListener('click', () => embla && embla.scrollNext());
 
-  // Inputs
-  viewport.addEventListener('scroll', () => {
-    if (!viewport._ticking) {
-      viewport._ticking = true;
-      requestAnimationFrame(() => {
-        viewport._ticking = false;
-        updateActive();
-      });
-    }
-  });
-  window.addEventListener('resize', () => {
-    recalcEdgePad();
-    updateActive();
-  });
-
-  prevBtn.addEventListener('click', () => goTo(activeIndex - 1));
-  nextBtn.addEventListener('click', () => goTo(activeIndex + 1));
-
+  // Click a card to center it
   track.addEventListener('click', (e) => {
     const card = e.target.closest('.spot__card');
-    if (!card) return;
-    const idx = getCards().indexOf(card);
-    if (idx !== -1) goTo(idx);
+    if (!card || !embla) return;
+    const idx = slides.indexOf(card);
+    if (idx !== -1) embla.scrollTo(idx);
   });
 
+  // Keyboard arrows when viewport is focused
   viewport.addEventListener('keydown', (e) => {
+    if (!embla) return;
     if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      goTo(activeIndex - 1);
+      embla.scrollPrev();
     }
     if (e.key === 'ArrowRight') {
       e.preventDefault();
-      goTo(activeIndex + 1);
+      embla.scrollNext();
     }
   });
 
-  // Subscribe & render
+  // Subscribe to featured books
   subscribeToCarousel(
     (docs) => {
       if (!docs.length) {
         shell.hidden = true;
         track.innerHTML = '';
+        if (embla) embla.destroy();
+        embla = null;
         return;
       }
       shell.hidden = false;
       countEl.textContent = `${docs.length} featured`;
-
       track.innerHTML = docs.map(cardHTML).join('');
-      // After paint: compute padding and center the first card
-      requestAnimationFrame(() => {
-        recalcEdgePad();
-        goTo(0);
-      });
+      reInit();
     },
     (err) => {
       console.error('carousel subscribe error:', err);
@@ -140,9 +100,13 @@ export function initCarousel() {
               : ''
           }
         </div>`;
+      if (embla) embla.destroy();
+      embla = null;
     }
   );
 }
+
+// ---------- helpers ----------
 
 function escapeHtml(str = '') {
   return String(str).replace(
@@ -185,4 +149,34 @@ function cardHTML(b) {
       )}" target="_blank" rel="noopener">Message on WhatsApp</a>
     </div>
   </article>`;
+}
+
+/**
+ * Load Embla from CDN. Prefer ESM, fallback to UMD global.
+ */
+async function loadEmbla() {
+  // ESM (preferred)
+  try {
+    const m = await import(
+      'https://cdn.jsdelivr.net/npm/embla-carousel@latest/embla-carousel.esm.js'
+    );
+    return m.default || m;
+  } catch (e) {
+    // Fallback to UMD global
+    await injectScript(
+      'https://cdn.jsdelivr.net/npm/embla-carousel@latest/embla-carousel.umd.js'
+    );
+    if (!window.EmblaCarousel) throw new Error('Embla failed to load.');
+    return window.EmblaCarousel;
+  }
+}
+
+function injectScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
 }
