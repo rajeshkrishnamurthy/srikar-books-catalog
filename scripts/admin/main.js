@@ -30,22 +30,26 @@ const soldList = document.getElementById('soldList');
 const reqOpen = document.getElementById('reqOpen');
 const reqClosed = document.getElementById('reqClosed');
 
-// Authors datalist subscription (kept tiny here to avoid a full module)
+// --- Authors datalist subscription (single definition) ---
 function subscribeAuthors() {
   const qAuthors = query(collection(db, 'authors'), orderBy('name'));
   onSnapshot(
     qAuthors,
     (snap) => {
-      const names = snap.docs
-        .map((d) => (d.data().name || '').toString())
-        .filter(Boolean);
-      authorList.innerHTML = Array.from(new Set(names))
-        .map((n) => `<option value="${escapeHtml(n)}"></option>`)
-        .join('');
+      // dedupe ignoring case; turn into <option> list
+      const seen = new Set();
+      const opts = [];
+      for (const d of snap.docs) {
+        const name = String(d.data().name || '');
+        if (!name) continue;
+        const key = name.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        opts.push(`<option value="${escapeHtml(name)}"></option>`);
+      }
+      authorList.innerHTML = opts.join('');
     },
-    (err) => {
-      console.error('authors onSnapshot error:', err);
-    }
+    (err) => console.error('authors onSnapshot error:', err)
   );
 }
 
@@ -58,7 +62,10 @@ initAuth({
   authError,
   signOutBtn,
   onAuthed() {
-    // Once authed, wire the rest
+    // 1) Start the realtime <datalist> fill for Author autocomplete
+    subscribeAuthors();
+
+    // 2) Wire the rest of the admin app
     const autoPrice = bindAutoPrice(addForm);
 
     wireLookup({
@@ -72,6 +79,7 @@ initAuth({
       apiKey: settings.googleBooksApiKey || '',
     });
 
+    // (Note: no need to pass subscribeAuthors to initInventory)
     initInventory({
       addForm,
       addMsg,
@@ -79,8 +87,8 @@ initAuth({
       authorList,
       availList,
       soldList,
-      subscribeAuthors,
     });
+
     initRequests({ reqOpen, reqClosed });
   },
 });
