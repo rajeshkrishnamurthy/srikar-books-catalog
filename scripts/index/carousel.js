@@ -1,37 +1,44 @@
-// scripts/index/carousel.js — Embla predefined (Class Names)
-// Fix: pass the viewport node to Embla; correct CDN ESM paths; robust button state.
-
+// scripts/index/carousel.js — Embla predefined (Class Names) + category-aware
 import { subscribeToCarousel } from './catalogService.js';
 import { settings } from '../config.js';
 
-export async function initCarousel() {
-  const shell = document.getElementById('homeCarousel');
-  if (!shell) return;
+let currentCategory = null;
+let unsubCarousel = null;
+let embla = null;
+let EmblaCarousel = null;
+let ClassNames = null;
 
-  const emblaRoot = document.getElementById('embla');
-  const viewport = document.getElementById('emblaViewport'); // <-- pass THIS to Embla
+export async function initCarousel(initialCategory = null) {
+  currentCategory = initialCategory;
+
+  const viewport = document.getElementById('emblaViewport');
   const container = document.getElementById('emblaContainer');
+  const dotsWrap = document.getElementById('emblaDots');
   const btnPrev = document.getElementById('emblaPrev');
   const btnNext = document.getElementById('emblaNext');
-  const dotsWrap = document.getElementById('emblaDots');
   const countEl = document.getElementById('carouselCount');
+  const shell = document.getElementById('homeCarousel');
 
-  const EmblaCarousel = await loadEmbla();
-  const ClassNames = await loadClassNames().catch(() => null);
+  if (!viewport || !container) return;
 
-  let embla = null;
-  let dotBtns = [];
+  EmblaCarousel = await loadEmbla();
+  ClassNames = await loadClassNames().catch(() => null);
 
   // Buttons wired once; they act on the current embla instance
   btnPrev.addEventListener('click', () => embla && embla.scrollPrev());
   btnNext.addEventListener('click', () => embla && embla.scrollNext());
 
-  const render = (docs) => {
+  function render(docs) {
     if (!docs.length) {
       shell.hidden = true;
       container.innerHTML = '';
-      if (embla) embla.destroy();
-      embla = null;
+      if (embla) {
+        embla.destroy();
+        embla = null;
+      }
+      dotsWrap.innerHTML = '';
+      btnPrev.disabled = true;
+      btnNext.disabled = true;
       return;
     }
     shell.hidden = false;
@@ -56,7 +63,7 @@ export async function initCarousel() {
 
     // Dots
     dotsWrap.innerHTML = '';
-    dotBtns = embla.slideNodes().map((_, i) => {
+    const dotBtns = embla.slideNodes().map((_, i) => {
       const b = document.createElement('button');
       b.className = 'embla__dot';
       b.type = 'button';
@@ -68,42 +75,140 @@ export async function initCarousel() {
     const updateUi = () => {
       const i = embla.selectedScrollSnap();
       dotBtns.forEach((d, idx) => d.classList.toggle('is-selected', idx === i));
-
       const multi = embla.slideNodes().length > 1;
       btnPrev.disabled = !multi || !embla.canScrollPrev();
       btnNext.disabled = !multi || !embla.canScrollNext();
     };
 
-    // Keep UI in sync
     embla.on('init', updateUi);
     embla.on('select', updateUi);
     embla.on('reInit', updateUi);
     updateUi();
-  };
+  }
 
-  subscribeToCarousel(
-    (docs) => render(docs),
-    (err) => {
+  function onError(err) {
+    console.error('carousel subscribe error:', err);
+    const link = (String(err?.message || '').match(/https?:\/\/\S+/) || [])[0];
+    document.getElementById('emblaContainer').innerHTML = `
+      <div class="muted" style="padding:.6rem">
+        The featured carousel needs a Firestore index.
+        ${
+          link
+            ? `<a class="btn btn-secondary" href="${link}" target="_blank" rel="noopener">Create index</a>`
+            : ''
+        }
+      </div>`;
+  }
+
+  // Initial subscribe
+  resubscribe(render, onError);
+}
+
+// Allow main.js (tabs) to change the active category
+export function setCarouselCategory(category) {
+  currentCategory = category || null;
+  // Re-subscribe only after initCarousel has run
+  if (EmblaCarousel) resubscribe();
+}
+
+function resubscribe(renderOverride, errorOverride) {
+  // (Re)subscribe to featured by current category
+  if (unsubCarousel) {
+    try {
+      unsubCarousel();
+    } catch {}
+  }
+  const shell = document.getElementById('homeCarousel');
+  const container = document.getElementById('emblaContainer');
+
+  const render =
+    renderOverride ||
+    ((docs) => {
+      // Default render path used on subsequent category changes, mirroring init
+      const dotsWrap = document.getElementById('emblaDots');
+      const btnPrev = document.getElementById('emblaPrev');
+      const btnNext = document.getElementById('emblaNext');
+      const countEl = document.getElementById('carouselCount');
+      const viewport = document.getElementById('emblaViewport');
+
+      if (!docs.length) {
+        shell.hidden = true;
+        container.innerHTML = '';
+        if (embla) {
+          embla.destroy();
+          embla = null;
+        }
+        dotsWrap.innerHTML = '';
+        btnPrev.disabled = true;
+        btnNext.disabled = true;
+        return;
+      }
+      shell.hidden = false;
+      countEl.textContent = `${docs.length} featured`;
+
+      container.innerHTML = docs.map(slideHTML).join('');
+
+      if (embla) embla.destroy();
+      const plugins = ClassNames
+        ? [ClassNames({ snapped: 'is-selected' })]
+        : [];
+      embla = EmblaCarousel(
+        viewport,
+        {
+          align: 'center',
+          containScroll: 'trimSnaps',
+          loop: false,
+          dragFree: false,
+        },
+        plugins
+      );
+
+      dotsWrap.innerHTML = '';
+      const dotBtns = embla.slideNodes().map((_, i) => {
+        const b = document.createElement('button');
+        b.className = 'embla__dot';
+        b.type = 'button';
+        b.addEventListener('click', () => embla.scrollTo(i));
+        dotsWrap.appendChild(b);
+        return b;
+      });
+
+      const updateUi = () => {
+        const i = embla.selectedScrollSnap();
+        dotBtns.forEach((d, idx) =>
+          d.classList.toggle('is-selected', idx === i)
+        );
+        const multi = embla.slideNodes().length > 1;
+        btnPrev.disabled = !multi || !embla.canScrollPrev();
+        btnNext.disabled = !multi || !embla.canScrollNext();
+      };
+      embla.on('init', updateUi);
+      embla.on('select', updateUi);
+      embla.on('reInit', updateUi);
+      updateUi();
+    });
+
+  const onError =
+    errorOverride ||
+    ((err) => {
       console.error('carousel subscribe error:', err);
       const link = (String(err?.message || '').match(/https?:\/\/\S+/) ||
         [])[0];
-      shell.hidden = false;
       container.innerHTML = `
-        <div class="muted" style="padding:.6rem">
-          The featured carousel needs a Firestore index.
-          ${
-            link
-              ? `<a class="btn btn-secondary" href="${link}" target="_blank" rel="noopener">Create index</a>`
-              : ''
-          }
-        </div>`;
-      if (embla) embla.destroy();
-      embla = null;
-    }
-  );
+      <div class="muted" style="padding:.6rem">
+        The featured carousel needs a Firestore index.
+        ${
+          link
+            ? `<a class="btn btn-secondary" href="${link}" target="_blank" rel="noopener">Create index</a>`
+            : ''
+        }
+      </div>`;
+    });
+
+  unsubCarousel = subscribeToCarousel(currentCategory, render, onError);
 }
 
-// --- helpers ---
+// ---- slide template & loaders ----
 function escapeHtml(str = '') {
   return String(str).replace(
     /[&<>"']/g,
@@ -126,7 +231,6 @@ function slideHTML(b) {
   const bits = [];
   if (b.price != null) bits.push(`₹${escapeHtml(String(b.price))}`);
   if (b.condition) bits.push(escapeHtml(b.condition));
-
   return `
   <div class="embla__slide">
     <article class="card">
@@ -146,7 +250,7 @@ function slideHTML(b) {
   </div>`;
 }
 
-// --- dynamic loaders (ESM first, UMD fallback) ---
+// (ESM first, UMD fallback — pinned to a stable version)
 async function loadEmbla() {
   try {
     const m = await import(
@@ -157,7 +261,6 @@ async function loadEmbla() {
     await inject(
       'https://cdn.jsdelivr.net/npm/embla-carousel@8.6.0/embla-carousel.umd.js'
     );
-    if (!window.EmblaCarousel) throw new Error('Embla failed to load');
     return window.EmblaCarousel;
   }
 }
@@ -171,17 +274,15 @@ async function loadClassNames() {
     await inject(
       'https://cdn.jsdelivr.net/npm/embla-carousel-class-names@8.6.0/embla-carousel-class-names.umd.js'
     );
-    if (!window.EmblaCarouselClassNames)
-      throw new Error('ClassNames failed to load');
     return window.EmblaCarouselClassNames;
   }
 }
 function inject(src) {
-  return new Promise((resolve, reject) => {
+  return new Promise((res, rej) => {
     const s = document.createElement('script');
     s.src = src;
-    s.onload = resolve;
-    s.onerror = reject;
+    s.onload = res;
+    s.onerror = rej;
     document.head.appendChild(s);
   });
 }
