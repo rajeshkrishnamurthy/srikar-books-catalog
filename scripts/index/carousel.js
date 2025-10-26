@@ -230,7 +230,7 @@ function injectCssOnce() {
   if (document.getElementById('carousel-spotlight-css')) return;
   const css = `
   /* --- Spotlight carousel --- */
-  #homeCarousel.carousel--spotlight { --card-w: clamp(380px, 54vw, 560px); --gap: 1rem; }
+  #homeCarousel.carousel--spotlight { --card-w: clamp(200px, 54vw, 240px); --gap: 1rem; }
   #homeCarousel .carousel__head { margin-bottom: .4rem; }
 
   .spot__viewport {
