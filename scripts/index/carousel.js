@@ -1,11 +1,10 @@
 // scripts/index/carousel.js
-// Intent: Spotlight carousel (manual, no auto-scroll).
-// - One centered, large card; neighbors dimmed
-// - Manual controls: prev/next buttons, click, drag/scroll, keyboard arrows
-// - No item duplication; smooth, accessible; reduced-motion respected by OS
+// Spotlight carousel (manual, no auto-scroll).
+// - Centered big card; neighbors dimmed
+// - Prev/Next buttons (outside the mask), click, drag/scroll, keyboard arrows
+// - No content duplication
 //
-// Works with: subscribeToCarousel(..) in scripts/index/catalogService.js
-// Used by:    scripts/index/main.js → import { initCarousel } from './carousel.js'
+// Uses subscribeToCarousel(..) from catalogService.js, orchestrated by scripts/index/main.js.
 
 import { subscribeToCarousel } from './catalogService.js';
 import { settings } from '../config.js';
@@ -19,24 +18,17 @@ export function initCarousel() {
   const prevBtn = shell.querySelector('#carouselPrev');
   const nextBtn = shell.querySelector('#carouselNext');
 
-  let docs = [];
   let activeIndex = 0;
 
-  // Navigation helpers
-  function getCards() {
-    return Array.from(track.querySelectorAll('.spot__card'));
-  }
-  function centerOf(el) {
-    return el.offsetLeft + el.clientWidth / 2;
-  }
-  function viewportCenter() {
-    return viewport.scrollLeft + viewport.clientWidth / 2;
-  }
+  // Helpers
+  const getCards = () => Array.from(track.querySelectorAll('.spot__card'));
+  const centerOf = (el) => el.offsetLeft + el.clientWidth / 2;
+  const vCenter = () => viewport.scrollLeft + viewport.clientWidth / 2;
 
   function nearestIndex() {
     const cards = getCards();
     if (!cards.length) return 0;
-    const vc = viewportCenter();
+    const vc = vCenter();
     let idx = 0,
       best = Infinity;
     cards.forEach((c, i) => {
@@ -64,24 +56,31 @@ export function initCarousel() {
   function updateActive() {
     const cards = getCards();
     if (!cards.length) return;
-    // If the user scrolled by hand, recompute the closest card to center
+    // If user hand-scrolled, lock to the center-most card.
     activeIndex = nearestIndex();
     cards.forEach((c, i) => {
       c.classList.toggle('is-active', i === activeIndex);
       c.classList.toggle('is-left', i < activeIndex);
       c.classList.toggle('is-right', i > activeIndex);
     });
-    updateNavState();
-  }
-
-  function updateNavState() {
     prevBtn.disabled = activeIndex <= 0;
-    nextBtn.disabled = activeIndex >= getCards().length - 1;
+    nextBtn.disabled = activeIndex >= cards.length - 1;
   }
 
-  // Wire inputs
+  // Clamp side padding so the first card centers without huge blank space.
+  function recalcEdgePad() {
+    const first = track.querySelector('.spot__card');
+    if (!first) return;
+    const cardW = first.getBoundingClientRect().width;
+    const vw = viewport.clientWidth;
+    const raw = Math.max(0, (vw - cardW) / 2);
+    const maxPad = cardW * 0.6; // at most ~0.6× card width of empty edge
+    const pad = Math.min(raw, maxPad);
+    track.style.setProperty('--edge-pad', pad + 'px');
+  }
+
+  // Inputs
   viewport.addEventListener('scroll', () => {
-    // throttle using rAF so we don't do work on every pixel
     if (!viewport._ticking) {
       viewport._ticking = true;
       requestAnimationFrame(() => {
@@ -90,12 +89,14 @@ export function initCarousel() {
       });
     }
   });
-  window.addEventListener('resize', () => updateActive());
+  window.addEventListener('resize', () => {
+    recalcEdgePad();
+    updateActive();
+  });
 
   prevBtn.addEventListener('click', () => goTo(activeIndex - 1));
   nextBtn.addEventListener('click', () => goTo(activeIndex + 1));
 
-  // Click on any side card to snap it to center
   track.addEventListener('click', (e) => {
     const card = e.target.closest('.spot__card');
     if (!card) return;
@@ -103,7 +104,6 @@ export function initCarousel() {
     if (idx !== -1) goTo(idx);
   });
 
-  // Keyboard arrows
   viewport.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') {
       e.preventDefault();
@@ -117,8 +117,7 @@ export function initCarousel() {
 
   // Subscribe & render
   subscribeToCarousel(
-    (arr) => {
-      docs = arr || [];
+    (docs) => {
       if (!docs.length) {
         shell.hidden = true;
         track.innerHTML = '';
@@ -126,18 +125,18 @@ export function initCarousel() {
       }
       shell.hidden = false;
       countEl.textContent = `${docs.length} featured`;
-
       track.innerHTML = docs.map(cardHTML).join('');
-      // Ensure first item is centered on first render
+
+      // Compute side padding once we know actual card width, then center first.
       requestAnimationFrame(() => {
+        recalcEdgePad();
         goTo(0);
       });
     },
     (err) => {
       console.error('carousel subscribe error:', err);
-      // Friendly hint if index is missing
-      const m = String(err?.message || '');
-      const link = (m.match(/https?:\/\/\S+/) || [])[0];
+      const link = (String(err?.message || '').match(/https?:\/\/\S+/) ||
+        [])[0];
       shell.hidden = false;
       track.innerHTML = `
         <div class="muted" style="padding:.6rem">
@@ -152,7 +151,7 @@ export function initCarousel() {
   );
 }
 
-// ---------- view ----------
+// ---------- markup ----------
 
 function buildShell() {
   let shell = document.getElementById('homeCarousel');
@@ -170,12 +169,14 @@ function buildShell() {
       <strong>Featured</strong>
       <div class="muted" id="carouselCount"></div>
     </div>
+
     <div class="spot__viewport" id="carouselViewport" tabindex="0" aria-roledescription="carousel">
       <div class="spot__track" id="carouselTrack" role="list"></div>
-
-      <button class="spot__nav" id="carouselPrev" aria-label="Previous">‹</button>
-      <button class="spot__nav" id="carouselNext" aria-label="Next">›</button>
     </div>
+
+    <!-- NAV placed OUTSIDE the masked viewport so it is always visible -->
+    <button class="spot__nav spot__nav--prev" id="carouselPrev" aria-label="Previous">‹</button>
+    <button class="spot__nav spot__nav--next" id="carouselNext" aria-label="Next">›</button>
   `;
   shell.hidden = true;
   return shell;
@@ -189,6 +190,15 @@ function escapeHtml(str = '') {
         m
       ])
   );
+}
+
+function waUrl(b) {
+  const msg = encodeURIComponent(
+    `Hi Srikar, I was going through the book deals on your website and I found a book I liked - "${
+      b.title
+    }"${b.author ? ` by ${b.author}` : ''}. I would like to buy this book!`
+  );
+  return `https://wa.me/${settings.whatsappNumber}?text=${msg}`;
 }
 
 function cardHTML(b) {
@@ -215,22 +225,13 @@ function cardHTML(b) {
   </article>`;
 }
 
-function waUrl(b) {
-  const msg = encodeURIComponent(
-    `Hi Srikar, I was going through the book deals on your website and I found a book I liked - "${
-      b.title
-    }"${b.author ? ` by ${b.author}` : ''}. I would like to buy this book!`
-  );
-  return `https://wa.me/${settings.whatsappNumber}?text=${msg}`;
-}
-
 // ---------- styles (injected once) ----------
 
 function injectCssOnce() {
   if (document.getElementById('carousel-spotlight-css')) return;
   const css = `
-  /* --- Spotlight carousel --- */
-  #homeCarousel.carousel--spotlight { --card-w: clamp(200px, 54vw, 240px); --gap: 1rem; }
+  /* Spotlight carousel — presentation only. */
+  #homeCarousel.carousel--spotlight { position: relative; }
   #homeCarousel .carousel__head { margin-bottom: .4rem; }
 
   .spot__viewport {
@@ -239,6 +240,7 @@ function injectCssOnce() {
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
+    touch-action: pan-x;
     /* edge fade */
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
             mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
@@ -248,9 +250,9 @@ function injectCssOnce() {
   .spot__track {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: var(--card-w);
-    gap: var(--gap);
-    padding: 0 calc((100% - var(--card-w)) / 2); /* center first/last card */
+    grid-auto-columns: var(--card-w, clamp(380px, 54vw, 560px)); /* your external --card-w overrides this */
+    gap: var(--gap, 1rem);
+    padding-inline: var(--edge-pad, 12px); /* computed in JS to avoid huge blanks */
   }
 
   .spot__card {
@@ -259,8 +261,7 @@ function injectCssOnce() {
     border: 1px solid var(--border);
     border-radius: 16px;
     overflow: hidden;
-    display: grid;
-    grid-template-rows: auto 1fr;
+    display: grid; grid-template-rows: auto 1fr;
     transform: scale(.92);
     opacity: .65;
     filter: saturate(.9) contrast(.95);
@@ -275,36 +276,30 @@ function injectCssOnce() {
   }
 
   .spot__imgWrap { background:#1f2329; }
-  .spot__imgWrap img {
-    width: 100%;
-    aspect-ratio: 2 / 3;
-    object-fit: contain;
-    display: block;
-  }
-  .spot__meta { padding: .8rem; display: grid; gap: .3rem; }
+  .spot__imgWrap img { width:100%; aspect-ratio: 2 / 3; object-fit: contain; display:block; }
+  .spot__meta { padding:.8rem; display:grid; gap:.3rem; }
   .spot__title { font-size: 1.15rem; line-height: 1.15; }
 
-  /* nav buttons */
+  /* Nav buttons: live outside the mask so they're always visible */
   .spot__nav {
     position: absolute;
-    top: 50%;
-    translate: 0 -50%;
-    width: 38px; height: 38px;
-    display: grid; place-items: center;
+    top: 50%; transform: translateY(-50%);
+    width: 38px; height: 38px; display: grid; place-items: center;
     border-radius: 999px;
     border: 1px solid var(--border);
     background: rgba(0,0,0,.35);
     color: var(--text);
     pointer-events: auto;
     backdrop-filter: blur(6px);
+    z-index: 5;
   }
-  #carouselPrev { left: .25rem; }
-  #carouselNext { right: .25rem; }
+  .spot__nav--prev { left: .25rem; }
+  .spot__nav--next { right: .25rem; }
   .spot__nav:disabled { opacity: .4; cursor: not-allowed; }
 
-  /* mobile sizing */
+  /* Mobile width (your external --card-w can override this too) */
   @media (max-width: 720px) {
-    #homeCarousel.carousel--spotlight { --card-w: min(86vw, 520px); }
+    .spot__track { grid-auto-columns: var(--card-w, min(86vw, 520px)); }
   }
   `;
   const style = document.createElement('style');
