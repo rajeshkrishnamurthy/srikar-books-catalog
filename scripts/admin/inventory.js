@@ -1,5 +1,6 @@
 // scripts/admin/inventory.js
-// Intent: Inventory lists + row actions (sold/available/delete/edit/feature) + ADD BOOK submit wiring.
+// Intent: Inventory lists + row actions (sold/available/delete/edit/feature) + ADD BOOK submit wiring,
+//         now with fast client-side filtering exposed via setFilter(term).
 
 import {
   db,
@@ -23,25 +24,34 @@ import {
 } from '../lib/firebase.js';
 import { stripHtmlAndSquash } from '../helpers/text.js';
 
-// Local helpers (avoid extra imports)
-function normalizeAuthorName(str = '') {
-  return String(str)
+// ---- small utils ----
+const norm = (s = '') => String(s).toLowerCase();
+const onlyDigitsX = (v = '') => (v || '').toString().replace(/[^\dxX]/g, '');
+const normalizeAuthorName = (str = '') =>
+  String(str)
     .replace(/\u00A0/g, ' ')
     .trim()
     .replace(/\s+/g, ' ');
-}
-function authorKeyFromName(str = '') {
-  const base = normalizeAuthorName(str)
+const authorKeyFromName = (str = '') =>
+  normalizeAuthorName(str)
     .toLowerCase()
     .replace(/[^a-z0-9 ]+/g, '')
     .replace(/\s+/g, ' ')
-    .trim();
-  return base.replace(/ /g, '-').slice(0, 100);
-}
-function onlyDigitsX(v = '') {
-  return (v || '').toString().replace(/[^\dxX]/g, '');
+    .trim()
+    .replace(/ /g, '-')
+    .slice(0, 100);
+
+function matches(doc, term) {
+  if (!term) return true;
+  const t = norm(term);
+  return (
+    norm(doc.title || '').includes(t) ||
+    norm(doc.author || '').includes(t) ||
+    norm(doc.isbn || '').includes(t)
+  );
 }
 
+// ---- row rendering ----
 function rowHTML(id, b, sold = false) {
   const img = (b.images && b.images[0]) || './assets/placeholder.webp';
   const price = b.price ? ` · ₹${b.price}` : '';
@@ -90,7 +100,6 @@ function wireRowButtons(container, docsMap, onEdit) {
         onEdit && onEdit(id, docsMap.get(id));
         return;
       }
-
       if (action === 'feature') {
         await updateDoc(refDoc, {
           featured: true,
@@ -106,7 +115,6 @@ function wireRowButtons(container, docsMap, onEdit) {
         });
         return;
       }
-
       if (action === 'sold') {
         await updateDoc(refDoc, {
           status: 'sold',
@@ -139,17 +147,15 @@ function wireRowButtons(container, docsMap, onEdit) {
   });
 }
 
-// PUBLIC API
+// ---- public API ----
 export function initInventory({
   addForm,
   addMsg,
-  authorInput, // kept for consistency; not used here
-  authorList, // kept for consistency; not used here
   availList,
   soldList,
-  onEdit, // optional: editor.open
+  onEdit, // optional
 }) {
-  // ---- ADD BOOK: submit handler (prevents full page reload) ----
+  // ---- ADD BOOK: submit handler (unchanged) ----
   addForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (addMsg) addMsg.textContent = 'Uploading…';
@@ -166,8 +172,7 @@ export function initInventory({
     const condition = (fd.get('condition') || '').toString();
     const descRaw = (fd.get('description') || '').toString();
     const description = stripHtmlAndSquash(descRaw).slice(0, 5000);
-    const featured = !!fd.get('featured'); // checkbox name="featured"
-
+    const featured = !!fd.get('featured');
     const cover = fd.get('cover');
     const more = fd.getAll('more').filter((f) => f && f.size);
 
@@ -179,7 +184,6 @@ export function initInventory({
     }
 
     try {
-      // 1) Create book doc (get ID)
       const res = await addDoc(collection(db, 'books'), {
         title,
         author,
@@ -201,7 +205,6 @@ export function initInventory({
       });
       const bookId = res.id;
 
-      // 2) Upsert author master (for autocomplete)
       if (authorKey) {
         await setDoc(
           doc(db, 'authors', authorKey),
@@ -215,7 +218,6 @@ export function initInventory({
         );
       }
 
-      // 3) Upload cover
       const coverPath = `images/books/${bookId}/cover-${Date.now()}-${
         cover.name
       }`;
@@ -223,9 +225,8 @@ export function initInventory({
       await uploadBytes(coverRef, cover);
       const coverUrl = await getDownloadURL(coverRef);
 
-      // 4) Upload more images (optional)
-      const moreUrls = [];
-      const morePaths = [];
+      const moreUrls = [],
+        morePaths = [];
       for (const file of more) {
         const p = `images/books/${bookId}/img-${Date.now()}-${file.name}`;
         const r = ref(storage, p);
@@ -234,7 +235,6 @@ export function initInventory({
         morePaths.push(p);
       }
 
-      // 5) Patch doc with image URLs/paths
       await updateDoc(res, {
         images: [coverUrl, ...moreUrls],
         imagePaths: [coverPath, ...morePaths],
@@ -252,33 +252,69 @@ export function initInventory({
     }
   });
 
-  // ---- Lists: Available ----
+  // ---- live lists + filtering ----
+  let currentFilter = ''; // search text
+  let availDocs = []; // latest available docs
+  let soldDocs = []; // latest sold docs
+
+  function renderLists() {
+    const isSearching = !!currentFilter;
+    const A = isSearching
+      ? availDocs.filter((d) => matches(d, currentFilter))
+      : availDocs;
+    const S = isSearching
+      ? soldDocs.filter((d) => matches(d, currentFilter))
+      : soldDocs;
+
+    // Available
+    if (A.length) {
+      const map = new Map(A.map((d) => [d.id, d]));
+      availList.innerHTML = A.map((d) => rowHTML(d.id, d, false)).join('');
+      wireRowButtons(availList, map, onEdit);
+    } else {
+      availList.innerHTML = `<p class="muted">${
+        isSearching ? 'No matches in Available.' : 'No available books.'
+      }</p>`;
+    }
+
+    // Sold
+    if (S.length) {
+      const map = new Map(S.map((d) => [d.id, d]));
+      soldList.innerHTML = S.map((d) => rowHTML(d.id, d, true)).join('');
+      wireRowButtons(soldList, map, onEdit);
+    } else {
+      soldList.innerHTML = `<p class="muted">${
+        isSearching ? 'No matches in Sold.' : 'No sold books.'
+      }</p>`;
+    }
+  }
+
+  // snapshots (unchanged queries)
   const qAvail = query(
     collection(db, 'books'),
     where('status', '==', 'available'),
     orderBy('createdAt', 'desc')
   );
-  onSnapshot(qAvail, (snap) => {
-    const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    const map = new Map(docs.map((d) => [d.id, d]));
-    availList.innerHTML =
-      docs.map((d) => rowHTML(d.id, d, false)).join('') ||
-      '<p class="muted">No available books.</p>';
-    wireRowButtons(availList, map, onEdit);
-  });
-
-  // ---- Lists: Sold ----
   const qSold = query(
     collection(db, 'books'),
     where('status', '==', 'sold'),
     orderBy('updatedAt', 'desc')
   );
-  onSnapshot(qSold, (snap) => {
-    const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    const map = new Map(docs.map((d) => [d.id, d]));
-    soldList.innerHTML =
-      docs.map((d) => rowHTML(d.id, d, true)).join('') ||
-      '<p class="muted">No sold books.</p>';
-    wireRowButtons(soldList, map, onEdit);
+
+  onSnapshot(qAvail, (snap) => {
+    availDocs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    renderLists();
   });
+  onSnapshot(qSold, (snap) => {
+    soldDocs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    renderLists();
+  });
+
+  // expose to main.js
+  return {
+    setFilter(term = '') {
+      currentFilter = String(term).trim().toLowerCase();
+      renderLists();
+    },
+  };
 }

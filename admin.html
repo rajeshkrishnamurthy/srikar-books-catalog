@@ -46,7 +46,15 @@
       <section class="admin" id="admin" style="display: none">
         <div class="flex between">
           <h2>Inventory</h2>
-          <button id="signOutBtn" class="btn btn-secondary">Sign out</button>
+          <div class="flex" style="gap: 0.5rem; align-items: center">
+            <input
+              id="adminSearch"
+              type="search"
+              placeholder="Search title or author…"
+              aria-label="Search inventory"
+            />
+            <button id="signOutBtn" class="btn btn-secondary">Sign out</button>
+          </div>
         </div>
 
         <!-- Add book -->
