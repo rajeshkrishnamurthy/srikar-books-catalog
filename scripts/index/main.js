@@ -1,39 +1,39 @@
 // scripts/index/main.js
-// Intent: glue layer for the catalog page. Minimal orchestration only.
-import { subscribeToCategory } from './catalogService.js';
+// Intent: glue for the catalog page
+// - Grid/search: site-wide (subscribeToAllAvailable)
+// - Carousel: category-scoped (initCarousel + setCarouselCategory)
+
+import { subscribeToAllAvailable } from './catalogService.js';
 import { renderBooks, wireTabs } from './render.js';
 import { initCarousel, setCarouselCategory } from './carousel.js';
 
 const grid = document.getElementById('bookGrid');
 const emptyState = document.getElementById('emptyState');
 const searchInput = document.getElementById('search');
-// IMPORTANT: define tabButtons before wireTabs
-const tabButtons = Array.from(document.querySelectorAll('.tab'));
+const tabButtons = Array.from(document.querySelectorAll('.tab')); // IMPORTANT: define before wireTabs
 
 let activeCategory = 'Fiction';
 let unsub = null;
 let cachedDocs = [];
 
-// Tabs (also inform the carousel of the new category)
+// Tabs: switch the *carousel* category only (grid stays site-wide)
 wireTabs(tabButtons, (newCat) => {
   activeCategory = newCat;
-  resubscribe();
-  setCarouselCategory(activeCategory); // keep carousel in sync with tabs
+  setCarouselCategory(activeCategory);
 });
 
 searchInput?.addEventListener('input', () => {
   renderBooks({
     gridEl: grid,
     emptyEl: emptyState,
-    docs: cachedDocs,
+    docs: cachedDocs, // site-wide data
     searchTerm: searchInput.value || '',
   });
 });
 
-function resubscribe() {
+function subscribeAll() {
   if (unsub) unsub();
-  unsub = subscribeToCategory(
-    activeCategory,
+  unsub = subscribeToAllAvailable(
     (docs) => {
       cachedDocs = docs;
       renderBooks({
@@ -51,6 +51,6 @@ function resubscribe() {
   );
 }
 
-// Kick things off
-initCarousel(activeCategory); // start Embla-based featured carousel for current category
-resubscribe();
+// Start: category-scoped carousel + site-wide grid/search
+initCarousel(activeCategory);
+subscribeAll();
