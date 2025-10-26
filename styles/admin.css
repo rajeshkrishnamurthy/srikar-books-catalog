@@ -62,3 +62,14 @@ body {
   border-radius: 8px;
   display: block;
 }
+
+dialog.panel {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 1rem;
+}
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}

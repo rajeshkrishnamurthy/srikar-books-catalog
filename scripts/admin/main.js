@@ -1,10 +1,11 @@
-// Intent: minimal glue that wires auth, lookup, auto-pricing, inventory, and requests.
+// Intent: minimal glue that wires auth, lookup, auto-pricing, inventory, requests, and editor.
 import { settings } from '../config.js';
 import { initAuth } from './auth.js';
 import { bindAutoPrice } from './autoPrice.js';
 import { wireLookup } from './lookup.js';
 import { initInventory } from './inventory.js';
 import { initRequests } from './requests.js';
+import { initEditor } from './editor.js'; // <-- NEW
 import { db, collection, query, orderBy, onSnapshot } from '../lib/firebase.js';
 import { escapeHtml } from '../helpers/text.js';
 
@@ -19,7 +20,7 @@ const signOutBtn = document.getElementById('signOutBtn');
 
 const addForm = document.getElementById('addForm');
 const addMsg = document.getElementById('addMsg');
-const authorInput = document.getElementById('authorInput');
+const authorInput = document.getElementById('authorInput'); // add form's author input (with datalist)
 const authorList = document.getElementById('authorList');
 const lookupBtn = document.getElementById('lookupBtn');
 const lookupMsg = document.getElementById('lookupMsg');
@@ -38,7 +39,6 @@ function subscribeAuthors() {
   onSnapshot(
     qAuthors,
     (snap) => {
-      // dedupe ignoring case; turn into <option> list
       const seen = new Set();
       const opts = [];
       for (const d of snap.docs) {
@@ -67,9 +67,33 @@ initAuth({
     // 1) Start the realtime <datalist> fill for Author autocomplete
     subscribeAuthors();
 
-    // 2) Wire the rest of the admin app
-    const autoPrice = bindAutoPrice(addForm);
+    // 2) Wire cover preview for Add form
+    function updateCoverPreview() {
+      if (!coverPreviewEl) return;
+      coverPreviewEl.textContent = '';
+      const file = coverInput?.files?.[0];
+      if (!file) {
+        coverPreviewEl.textContent = 'No cover selected.';
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.alt = 'Cover preview';
+      img.src = url;
+      img.onload = () => URL.revokeObjectURL(url);
+      img.style.width = '96px';
+      img.style.height = '144px';
+      img.style.objectFit = 'contain';
+      img.style.background = '#1f2329';
+      img.style.border = '1px solid var(--border)';
+      img.style.borderRadius = '8px';
+      coverPreviewEl.appendChild(img);
+    }
+    coverInput?.addEventListener('change', updateCoverPreview);
+    addForm?.addEventListener('reset', () => setTimeout(updateCoverPreview, 0));
 
+    // 3) Lookup + autoPrice on Add form
+    const autoPrice = bindAutoPrice(addForm);
     wireLookup({
       addForm,
       authorInput,
@@ -81,64 +105,33 @@ initAuth({
       apiKey: settings.googleBooksApiKey || '',
     });
 
-    // (Note: no need to pass subscribeAuthors to initInventory)
-    initInventory({
-      addForm,
-      addMsg,
-      authorInput,
-      authorList,
-      availList,
-      soldList,
-    });
+    // 4) Create the editor and pass its opener to inventory
+    const editor = initEditor(); // <-- NEW
+    initInventory({ availList, soldList, onEdit: editor.open }); // <-- NEW
 
+    // 5) Requests panel
     initRequests({ reqOpen, reqClosed });
   },
 });
-// Open Google Images with a sensible query for the current book
+
+// ---- Search cover image helper ----
 function openCoverSearch() {
   const title = (addForm.elements['title']?.value || '').trim();
   const author = (addForm.elements['author']?.value || '').trim();
   const binding = (addForm.elements['binding']?.value || '').trim();
   const isbn = (addForm.elements['isbn']?.value || '').trim();
-
   if (!title) {
     alert('Enter a Title first, then click Search cover image.');
     return;
   }
-
-  // Bias results toward actual covers; include author/format if available
-  const parts = [];
-  parts.push(`"${title}"`);
+  const parts = [`"${title}"`];
   if (author) parts.push(author);
   if (binding) parts.push(binding);
   parts.push('book cover');
   if (isbn) parts.push(isbn);
-
   const url = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(
     parts.join(' ')
   )}`;
-  window.open(url, '_blank', 'noopener'); // new tab; no access back to this page
+  window.open(url, '_blank', 'noopener');
 }
-
 searchCoverBtn?.addEventListener('click', openCoverSearch);
-
-// --- Live preview for the cover input ---
-function updateCoverPreview() {
-  if (!coverPreviewEl) return;
-  coverPreviewEl.textContent = ''; // clear any "No cover selected."
-  const file = coverInput?.files?.[0];
-  if (!file) {
-    coverPreviewEl.textContent = 'No cover selected.';
-    return;
-  }
-  const url = URL.createObjectURL(file);
-  const img = new Image();
-  img.alt = 'Cover preview';
-  img.src = url;
-  img.onload = () => URL.revokeObjectURL(url);
-  coverPreviewEl.appendChild(img);
-}
-
-// Preview on manual selection and after form reset
-coverInput?.addEventListener('change', updateCoverPreview);
-addForm?.addEventListener('reset', () => setTimeout(updateCoverPreview, 0));

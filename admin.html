@@ -191,6 +191,100 @@
           </div>
           <div id="reqClosed" class="admin-list"></div>
         </details>
+
+        <!-- EDIT BOOK DIALOG -->
+        <dialog id="editDialog" class="panel" style="max-width: 760px">
+          <form id="editForm" method="dialog" class="stack">
+            <h3>Edit book</h3>
+            <input type="hidden" name="id" />
+
+            <div class="grid-2">
+              <input name="etitle" placeholder="Title *" required />
+              <input
+                name="eauthor"
+                id="editAuthor"
+                placeholder="Author"
+                list="authorList"
+                autocomplete="off"
+              />
+
+              <select name="ecategory" required>
+                <option value="" selected disabled>Category *</option>
+                <option>Fiction</option>
+                <option>Non-Fiction</option>
+                <option>Children</option>
+              </select>
+
+              <select name="ebinding" required>
+                <option value="" selected disabled>Format *</option>
+                <option>Paperback</option>
+                <option>Hardcover</option>
+              </select>
+
+              <input
+                name="eprice"
+                placeholder="Price (₹)"
+                inputmode="numeric"
+              />
+              <input name="emrp" placeholder="MRP (₹)" inputmode="numeric" />
+              <input name="eisbn" placeholder="ISBN (10 or 13)" />
+              <select name="econdition" required>
+                <option value="" selected disabled>Condition *</option>
+                <option>Good as new</option>
+                <option>Excellent</option>
+                <option>Gently used</option>
+                <option>Used</option>
+              </select>
+            </div>
+
+            <textarea
+              name="edescription"
+              rows="3"
+              placeholder="Marketing description"
+            ></textarea>
+
+            <strong>Current cover</strong>
+            <div id="editCoverPreview" class="cover-preview muted">
+              No cover.
+            </div>
+
+            <div class="flex">
+              <label
+                ><strong>Replace cover</strong>
+                <input
+                  id="editCoverInput"
+                  name="cover"
+                  type="file"
+                  accept="image/*"
+                />
+              </label>
+              <label style="margin-left: 0.6rem"
+                >Add more images
+                <input
+                  id="editMoreInput"
+                  name="more"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                />
+              </label>
+            </div>
+
+            <div class="flex between">
+              <button id="editSaveBtn" class="btn" type="submit">
+                Save changes
+              </button>
+              <button
+                id="editCancelBtn"
+                class="btn btn-secondary"
+                type="button"
+              >
+                Cancel
+              </button>
+            </div>
+            <p id="editMsg" class="muted"></p>
+          </form>
+        </dialog>
       </section>
     </main>
 
