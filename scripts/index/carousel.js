@@ -1,5 +1,5 @@
-// scripts/index/carousel.js — Embla predefined (Class Names plugin)
-// Fixes: correct CDN ESM paths + robust UMD fallback + arrows/dots wiring.
+// scripts/index/carousel.js — Embla predefined (Class Names)
+// Fix: pass the viewport node to Embla; correct CDN ESM paths; robust button state.
 
 import { subscribeToCarousel } from './catalogService.js';
 import { settings } from '../config.js';
@@ -9,20 +9,20 @@ export async function initCarousel() {
   if (!shell) return;
 
   const emblaRoot = document.getElementById('embla');
-  const viewport = document.getElementById('emblaViewport');
+  const viewport = document.getElementById('emblaViewport'); // <-- pass THIS to Embla
   const container = document.getElementById('emblaContainer');
   const btnPrev = document.getElementById('emblaPrev');
   const btnNext = document.getElementById('emblaNext');
   const dotsWrap = document.getElementById('emblaDots');
   const countEl = document.getElementById('carouselCount');
 
-  const EmblaCarousel = await loadEmbla(); // core
-  const ClassNames = await loadClassNames().catch(() => null); // plugin optional
+  const EmblaCarousel = await loadEmbla();
+  const ClassNames = await loadClassNames().catch(() => null);
 
   let embla = null;
   let dotBtns = [];
 
-  // Buttons (wired once; work after reinit)
+  // Buttons wired once; they act on the current embla instance
   btnPrev.addEventListener('click', () => embla && embla.scrollPrev());
   btnNext.addEventListener('click', () => embla && embla.scrollNext());
 
@@ -37,14 +37,14 @@ export async function initCarousel() {
     shell.hidden = false;
     countEl.textContent = `${docs.length} featured`;
 
-    // Build slides
+    // Slides
     container.innerHTML = docs.map(slideHTML).join('');
 
-    // (Re)initialize Embla with plugin
+    // (Re)init Embla on the VIEWPORT node
     if (embla) embla.destroy();
     const plugins = ClassNames ? [ClassNames({ snapped: 'is-selected' })] : [];
     embla = EmblaCarousel(
-      emblaRoot,
+      viewport,
       {
         align: 'center',
         containScroll: 'trimSnaps',
@@ -65,15 +65,20 @@ export async function initCarousel() {
       return b;
     });
 
-    const onSelect = () => {
+    const updateUi = () => {
       const i = embla.selectedScrollSnap();
       dotBtns.forEach((d, idx) => d.classList.toggle('is-selected', idx === i));
-      btnPrev.disabled = !embla.canScrollPrev();
-      btnNext.disabled = !embla.canScrollNext();
+
+      const multi = embla.slideNodes().length > 1;
+      btnPrev.disabled = !multi || !embla.canScrollPrev();
+      btnNext.disabled = !multi || !embla.canScrollNext();
     };
-    embla.on('select', onSelect);
-    embla.on('reInit', onSelect);
-    onSelect();
+
+    // Keep UI in sync
+    embla.on('init', updateUi);
+    embla.on('select', updateUi);
+    embla.on('reInit', updateUi);
+    updateUi();
   };
 
   subscribeToCarousel(
@@ -98,7 +103,7 @@ export async function initCarousel() {
   );
 }
 
-// ---------- helpers ----------
+// --- helpers ---
 function escapeHtml(str = '') {
   return String(str).replace(
     /[&<>"']/g,
@@ -141,7 +146,7 @@ function slideHTML(b) {
   </div>`;
 }
 
-// ---------- dynamic loaders (ESM first, UMD fallback) ----------
+// --- dynamic loaders (ESM first, UMD fallback) ---
 async function loadEmbla() {
   try {
     const m = await import(
