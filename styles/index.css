@@ -61,3 +61,16 @@ body {
     place-items: center;
   }
 }
+
+/* Request panel — breathing room between the summary and the form */
+#requestPanel > summary {
+  display: block; /* avoid inline layout collisions */
+  margin: 0 0 0.75rem 0; /* give it some space */
+  line-height: 1.25;
+  cursor: pointer; /* keeps it obviously clickable */
+}
+
+/* Optional: a touch more space above the first row of inputs */
+#requestPanel form {
+  margin-top: 0.25rem;
+}
