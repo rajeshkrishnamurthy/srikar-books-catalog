@@ -1,6 +1,9 @@
 // scripts/index/main.js
-// Catalog glue: site-wide search/grid + category-scoped Embla carousel.
-// New behavior: hide the carousel whenever search returns one or more results.
+// Catalog glue:
+// - Grid/search: site-wide search results take priority.
+// - When NOT searching: grid shows only the active category.
+// - Featured carousel: still category-scoped.
+// - Hide the carousel whenever search returns one or more matches.
 
 import { subscribeToAllAvailable } from './catalogService.js';
 import { renderBooks, wireTabs } from './render.js';
@@ -10,62 +13,71 @@ const grid = document.getElementById('bookGrid');
 const emptyState = document.getElementById('emptyState');
 const searchInput = document.getElementById('search');
 const tabButtons = Array.from(document.querySelectorAll('.tab'));
-const carouselSection = document.getElementById('homeCarousel'); // from index.html
+const carouselSection = document.getElementById('homeCarousel');
 
 let activeCategory = 'Fiction';
 let unsub = null;
-let cachedDocs = [];
+let cachedDocs = []; // site-wide dataset from Firestore (status == 'available')
 
-// ---- Small helper: does the current search have any matches?
-function hasMatch(docs, term) {
-  const t = (term || '').trim().toLowerCase();
-  if (!t) return false;
-  return docs.some(
+// ---- Helpers ----
+function normalize(s = '') {
+  return String(s).toLowerCase();
+}
+function filterBySearch(docs, term) {
+  const t = normalize(term).trim();
+  if (!t) return [];
+  return docs.filter(
     (b) =>
-      (b.title || '').toLowerCase().includes(t) ||
-      (b.author || '').toLowerCase().includes(t)
+      normalize(b.title || '').includes(t) ||
+      normalize(b.author || '').includes(t)
   );
 }
-
-// Toggle carousel visibility based on search results.
-function toggleCarouselForSearch(term) {
+function filterByCategory(docs, category) {
+  return docs.filter((b) => (b.category || '') === category);
+}
+function hideCarouselIfSearching(term, resultsCount) {
   if (!carouselSection) return;
-  const found = hasMatch(cachedDocs, term);
-  // Hide if there are matches; show otherwise (empty search or zero matches)
-  carouselSection.hidden = !!found;
-  carouselSection.setAttribute('aria-hidden', found ? 'true' : 'false');
+  const hasTerm = !!(term && term.trim());
+  const show = !(hasTerm && resultsCount > 0);
+  carouselSection.hidden = !show;
+  carouselSection.setAttribute('aria-hidden', show ? 'false' : 'true');
 }
 
-// Tabs: update only the *carousel* category (grid stays site-wide)
-wireTabs(tabButtons, (newCat) => {
-  activeCategory = newCat;
-  setCarouselCategory(activeCategory);
-});
+function updateView() {
+  const term = searchInput?.value || '';
+  const matches = term ? filterBySearch(cachedDocs, term) : [];
+  const docsToRender = term
+    ? matches // site-wide search results take priority
+    : filterByCategory(cachedDocs, activeCategory); // default view: active category
 
-searchInput?.addEventListener('input', () => {
-  const term = searchInput.value || '';
+  // We pass an empty searchTerm to renderBooks because we already filtered above.
   renderBooks({
     gridEl: grid,
     emptyEl: emptyState,
-    docs: cachedDocs, // site-wide docs
-    searchTerm: term,
+    docs: docsToRender,
+    searchTerm: '',
   });
-  toggleCarouselForSearch(term);
+
+  hideCarouselIfSearching(term, matches.length);
+}
+
+// ---- Tabs: only update the *carousel* category + re-render grid (category view) when not searching
+wireTabs(tabButtons, (newCat) => {
+  activeCategory = newCat;
+  setCarouselCategory(activeCategory); // re-subscribe carousel
+  updateView(); // if no search term, grid switches to the new category
 });
 
+// ---- Search: recompute results + carousel visibility
+searchInput?.addEventListener('input', updateView);
+
+// ---- Firestore: subscribe once, site-wide (status == 'available')
 function subscribeAll() {
   if (unsub) unsub();
   unsub = subscribeToAllAvailable(
     (docs) => {
       cachedDocs = docs;
-      const term = searchInput?.value || '';
-      renderBooks({
-        gridEl: grid,
-        emptyEl: emptyState,
-        docs: cachedDocs,
-        searchTerm: term,
-      });
-      toggleCarouselForSearch(term);
+      updateView(); // refresh grid (category or search), and carousel visibility
     },
     (err) => {
       console.error(err);
@@ -75,6 +87,6 @@ function subscribeAll() {
   );
 }
 
-// Start: category-scoped carousel + site-wide grid/search
-initCarousel(activeCategory);
+// ---- Boot
+initCarousel(activeCategory); // carousel is category-scoped
 subscribeAll();
