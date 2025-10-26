@@ -29,6 +29,7 @@ const availList = document.getElementById('availList');
 const soldList = document.getElementById('soldList');
 const reqOpen = document.getElementById('reqOpen');
 const reqClosed = document.getElementById('reqClosed');
+const searchCoverBtn = document.getElementById('searchCoverBtn');
 
 // --- Authors datalist subscription (single definition) ---
 function subscribeAuthors() {
@@ -92,3 +93,30 @@ initAuth({
     initRequests({ reqOpen, reqClosed });
   },
 });
+// Open Google Images with a sensible query for the current book
+function openCoverSearch() {
+  const title = (addForm.elements['title']?.value || '').trim();
+  const author = (addForm.elements['author']?.value || '').trim();
+  const binding = (addForm.elements['binding']?.value || '').trim();
+  const isbn = (addForm.elements['isbn']?.value || '').trim();
+
+  if (!title) {
+    alert('Enter a Title first, then click Search cover image.');
+    return;
+  }
+
+  // Bias results toward actual covers; include author/format if available
+  const parts = [];
+  parts.push(`"${title}"`);
+  if (author) parts.push(author);
+  if (binding) parts.push(binding);
+  parts.push('book cover');
+  if (isbn) parts.push(isbn);
+
+  const url = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(
+    parts.join(' ')
+  )}`;
+  window.open(url, '_blank', 'noopener'); // new tab; no access back to this page
+}
+
+searchCoverBtn?.addEventListener('click', openCoverSearch);

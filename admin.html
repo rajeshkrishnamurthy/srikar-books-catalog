@@ -126,19 +126,33 @@
               placeholder="Auto-filled or write a short marketing description"
             ></textarea>
 
-            <label
-              ><strong>Cover image</strong>
-              <input
-                name="cover"
-                id="coverInput"
-                type="file"
-                accept="image/*"
-                required
-            /></label>
+            <div class="flex">
+              <label
+                ><strong>Cover image</strong>
+                <input
+                  name="cover"
+                  id="coverInput"
+                  type="file"
+                  accept="image/*"
+                  required
+                />
+              </label>
+
+              <!-- New helper button -->
+              <button
+                type="button"
+                id="searchCoverBtn"
+                class="btn btn-secondary"
+                style="align-self: flex-end"
+              >
+                Search cover image
+              </button>
+            </div>
+
             <label
               >More images (optional)
-              <input name="more" type="file" accept="image/*" multiple
-            /></label>
+              <input name="more" type="file" accept="image/*" multiple />
+            </label>
             <button class="btn" type="submit">Add book</button>
             <p id="addMsg" class="muted"></p>
           </form>
