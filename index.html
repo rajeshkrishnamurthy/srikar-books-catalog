@@ -35,6 +35,7 @@
             Children
           </button>
         </nav>
+        <!-- in index.html header -->
         <div class="search">
           <input
             id="search"
@@ -42,6 +43,14 @@
             placeholder="Search by title or author…"
             aria-label="Search books"
           />
+          <button
+            id="openRequestBtn"
+            class="btn btn-secondary btn-ghost"
+            type="button"
+            aria-controls="requestPanel"
+          >
+            Request a book
+          </button>
         </div>
       </div>
     </header>
@@ -138,5 +147,16 @@
 
     <!-- Page logic lives in modules under ./scripts/index/*.js -->
     <script type="module" src="./scripts/index/main.js"></script>
+
+    <button
+      id="requestFab"
+      class="request-fab"
+      type="button"
+      aria-controls="requestPanel"
+      title="Request a book"
+      aria-label="Request a book"
+    >
+      ✚
+    </button>
   </body>
 </html>

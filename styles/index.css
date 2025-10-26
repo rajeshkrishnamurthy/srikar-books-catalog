@@ -1,9 +1,15 @@
 /* Intent: keep catalog-only visual tweaks out of HTML for easier maintenance */
-body { background: linear-gradient(180deg, #1f2329, #242933) !important; }
+body {
+  background: linear-gradient(180deg, #1f2329, #242933) !important;
+}
 
 /* tighter card spacing + clamped description; remove unintended blank gaps */
-.card .meta { gap: 0.25rem; }
-.card .meta p { margin: 0; }
+.card .meta {
+  gap: 0.25rem;
+}
+.card .meta p {
+  margin: 0;
+}
 .card .desc {
   font-size: 0.92rem;
   color: var(--muted);
@@ -14,4 +20,44 @@ body { background: linear-gradient(180deg, #1f2329, #242933) !important; }
   text-overflow: ellipsis;
   line-height: 1.25;
   white-space: normal;
+}
+
+/* Make the search row host a CTA button comfortably */
+.search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Ghost variant so the header CTA blends into the header style */
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+}
+
+/* Mobile FAB (shown on small screens only) */
+.request-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  z-index: 50;
+  display: none; /* default hidden on desktop */
+}
+
+/* Desktop: keep header CTA, hide FAB. Mobile: show FAB, hide header CTA (space-saving). */
+@media (max-width: 720px) {
+  .search .btn-ghost {
+    display: none;
+  }
+  .request-fab {
+    display: grid;
+    place-items: center;
+  }
 }

@@ -1,9 +1,9 @@
 // scripts/index/main.js
 // Catalog glue:
-// - Grid/search: site-wide search results take priority.
-// - When NOT searching: grid shows only the active category.
-// - Featured carousel: still category-scoped.
-// - Hide the carousel whenever search returns one or more matches.
+// - Grid/search: site-wide results take priority; otherwise show active category.
+// - Featured carousel: category-scoped.
+// - Hide carousel when search returns results.
+// - New: "Request a book" CTA in header and mobile FAB open the request panel.
 
 import { subscribeToAllAvailable } from './catalogService.js';
 import { renderBooks, wireTabs } from './render.js';
@@ -15,14 +15,18 @@ const searchInput = document.getElementById('search');
 const tabButtons = Array.from(document.querySelectorAll('.tab'));
 const carouselSection = document.getElementById('homeCarousel');
 
+// NEW: request UI handles
+const openRequestBtn = document.getElementById('openRequestBtn');
+const requestFab = document.getElementById('requestFab');
+const requestPanel = document.getElementById('requestPanel');
+
 let activeCategory = 'Fiction';
 let unsub = null;
-let cachedDocs = []; // site-wide dataset from Firestore (status == 'available')
+let cachedDocs = []; // site-wide dataset (status == 'available')
 
 // ---- Helpers ----
-function normalize(s = '') {
-  return String(s).toLowerCase();
-}
+const normalize = (s = '') => String(s).toLowerCase();
+
 function filterBySearch(docs, term) {
   const t = normalize(term).trim();
   if (!t) return [];
@@ -43,14 +47,28 @@ function hideCarouselIfSearching(term, resultsCount) {
   carouselSection.setAttribute('aria-hidden', show ? 'false' : 'true');
 }
 
+// NEW: open & focus the Request panel
+function openRequest() {
+  if (!requestPanel) return;
+  try {
+    requestPanel.open = true;
+  } catch {}
+  requestPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const first =
+    requestPanel.querySelector('input[name="rtitle"]') ||
+    requestPanel.querySelector('input,textarea,select,button');
+  if (first) setTimeout(() => first.focus(), 300);
+}
+
+// ---- View update ----
 function updateView() {
   const term = searchInput?.value || '';
   const matches = term ? filterBySearch(cachedDocs, term) : [];
   const docsToRender = term
-    ? matches // site-wide search results take priority
+    ? matches // site-wide results take priority
     : filterByCategory(cachedDocs, activeCategory); // default view: active category
 
-  // We pass an empty searchTerm to renderBooks because we already filtered above.
+  // We pass searchTerm='' because we already filtered above.
   renderBooks({
     gridEl: grid,
     emptyEl: emptyState,
@@ -61,23 +79,27 @@ function updateView() {
   hideCarouselIfSearching(term, matches.length);
 }
 
-// ---- Tabs: only update the *carousel* category + re-render grid (category view) when not searching
+// ---- Tabs: switch carousel category + re-render grid (category view if no search)
 wireTabs(tabButtons, (newCat) => {
   activeCategory = newCat;
-  setCarouselCategory(activeCategory); // re-subscribe carousel
-  updateView(); // if no search term, grid switches to the new category
+  setCarouselCategory(activeCategory);
+  updateView();
 });
 
 // ---- Search: recompute results + carousel visibility
 searchInput?.addEventListener('input', updateView);
 
-// ---- Firestore: subscribe once, site-wide (status == 'available')
+// ---- Request CTA + FAB listeners
+openRequestBtn?.addEventListener('click', openRequest);
+requestFab?.addEventListener('click', openRequest);
+
+// ---- Firestore: subscribe once, site-wide
 function subscribeAll() {
   if (unsub) unsub();
   unsub = subscribeToAllAvailable(
     (docs) => {
       cachedDocs = docs;
-      updateView(); // refresh grid (category or search), and carousel visibility
+      updateView();
     },
     (err) => {
       console.error(err);
@@ -88,5 +110,5 @@ function subscribeAll() {
 }
 
 // ---- Boot
-initCarousel(activeCategory); // carousel is category-scoped
+initCarousel(activeCategory); // category-scoped featured carousel
 subscribeAll();
