@@ -1,31 +1,89 @@
-// Intent: Initialize Firebase once and re-export the SDK pieces pages need.
-// Keeping this here avoids repeating CDN imports and app bootstrap across pages.
+// Unified Firebase bootstrap + re-exports for app-wide use.
+// Intent: keep all CDN imports in one place so feature modules import from here.
+
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js';
+
 import {
-  getFirestore, collection, query, where, orderBy, onSnapshot,
-  addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc, serverTimestamp
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  serverTimestamp,
+  limit, // <-- added
+  startAfter, // (optional export for future pagination)
+  endBefore,
+  Timestamp,
 } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
+
 import {
-  getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
 } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js';
+
 import {
-  getStorage, ref, uploadBytes, getDownloadURL, deleteObject
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
 } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js';
+
 import { firebaseConfig } from '../config.js';
 
+// --- singletons ---
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
+// --- re-exports (one stop import for all modules) ---
 export {
-  // Instances
-  app, db, auth, storage,
+  app,
+  db,
+  auth,
+  storage,
   // Firestore
-  collection, query, where, orderBy, onSnapshot,
-  addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc, serverTimestamp,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  serverTimestamp,
+  limit,
+  startAfter,
+  endBefore,
+  Timestamp,
   // Auth
-  onAuthStateChanged, signInWithEmailAndPassword, signOut,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
   // Storage
-  ref, uploadBytes, getDownloadURL, deleteObject
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
 };
