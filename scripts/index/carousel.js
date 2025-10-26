@@ -1,85 +1,106 @@
-// Intent: Subscribe to featured books and render a CSS scroll-snap carousel with no external deps.
+// scripts/index/carousel.js
+// Intent: "Endless carousel" presentation for Featured books.
+// - Continuous auto-scroll reel (duplicates items to loop seamlessly)
+// - Gradient-faded edges, pause on hover, reduced-motion friendly
+// - No external libraries; keeps your existing Firestore subscription
+//
+// Works with: subscribeToCarousel(..) in scripts/index/catalogService.js
+// Used by:    scripts/index/main.js → import { initCarousel } from './carousel.js'
+//
+// Tweakables (CSS variables):
+//   --reel-duration : total time for one full cycle (auto-set, but you can override)
+//   --reel-gap      : gap between cards
+//   --reel-card-w   : min card width
+
 import { subscribeToCarousel } from './catalogService.js';
 import { settings } from '../config.js';
 
-function injectCssOnce() {
-  if (document.getElementById('carousel-css')) return;
-  const css = `
-  .carousel { position: relative; overflow: hidden; margin-bottom: .8rem; }
-  .carousel__head { margin-bottom: .4rem; }
-  .carousel__viewport {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(220px, 28vw);
-    gap: .8rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    padding-bottom: .2rem;
-  }
-  @media (max-width: 720px) { .carousel__viewport { grid-auto-columns: minmax(68%, 78%); } }
-  .carousel__viewport::-webkit-scrollbar { height: 6px; }
-  .carousel__viewport::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
-  .carousel__card {
-    scroll-snap-align: start;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    display: grid;
-  }
-  .carousel__card img {
-    width: 100%;
-    aspect-ratio: 2 / 3;
-    object-fit: contain;
-    background: #1f2329;
-    display: block;
-  }
-  .carousel__meta { padding: .7rem; display: grid; gap: .25rem; }
-  .carousel__nav {
-    position: absolute; inset: 0; pointer-events: none;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 .2rem;
-  }
-  .carousel__btn {
-    pointer-events: auto;
-    border: 1px solid var(--border);
-    background: rgba(0,0,0,.35);
-    color: var(--text);
-    border-radius: 999px;
-    width: 34px; height: 34px;
-    display: grid; place-items: center;
-    backdrop-filter: blur(6px);
-  }`;
-  const style = document.createElement('style');
-  style.id = 'carousel-css';
-  style.textContent = css;
-  document.head.appendChild(style);
+export function initCarousel() {
+  injectCssOnce();
+  const shell = buildShell();
+  const track = shell.querySelector('#carouselReel');
+  const count = shell.querySelector('#carouselCount');
+
+  // Pause animation on hover/focus
+  shell.addEventListener('mouseenter', () =>
+    shell.classList.add('carousel--paused')
+  );
+  shell.addEventListener('mouseleave', () =>
+    shell.classList.remove('carousel--paused')
+  );
+  shell.addEventListener('focusin', () =>
+    shell.classList.add('carousel--paused')
+  );
+  shell.addEventListener('focusout', () =>
+    shell.classList.remove('carousel--paused')
+  );
+
+  subscribeToCarousel(
+    (docs) => {
+      if (!docs.length) {
+        shell.hidden = true;
+        track.innerHTML = '';
+        return;
+      }
+      shell.hidden = false;
+      count.textContent = `${docs.length} featured`;
+
+      // Build one set of cards then duplicate to loop seamlessly
+      const once = docs.map(cardHTML).join('');
+      track.innerHTML = once + once; // two copies side-by-side
+
+      // Compute a sensible duration so speed feels consistent with content width
+      // (duration = distance / pxPerSec; clamp between 18s and 60s)
+      requestAnimationFrame(() => {
+        const total = track.scrollWidth / 2; // width of one copy
+        const pxPerSec = 120; // lower = slower, higher = faster
+        const secs = Math.max(18, Math.min(60, Math.round(total / pxPerSec)));
+        shell.style.setProperty('--reel-duration', secs + 's');
+      });
+    },
+    (err) => {
+      console.error('carousel subscribe error:', err);
+      // Graceful hint if an index is missing
+      const m = String(err?.message || '');
+      const link = (m.match(/https?:\/\/\S+/) || [])[0];
+      shell.hidden = false;
+      track.innerHTML = `
+        <div class="muted" style="padding:.6rem">
+          The featured carousel needs a Firestore index.
+          ${
+            link
+              ? `<a class="btn btn-secondary" href="${link}" target="_blank" rel="noopener">Create index</a>`
+              : ''
+          }
+        </div>`;
+    }
+  );
 }
 
-function buildShellIfMissing() {
+// -------------------- view helpers --------------------
+
+function buildShell() {
   let shell = document.getElementById('homeCarousel');
-  if (shell) return shell;
-
-  const main =
-    document.querySelector('main.wrap') || document.querySelector('main');
-  shell = document.createElement('section');
-  shell.id = 'homeCarousel';
-  shell.className = 'carousel panel';
+  // Create or repurpose the existing shell
+  if (!shell) {
+    const main =
+      document.querySelector('main.wrap') || document.querySelector('main');
+    shell = document.createElement('section');
+    shell.id = 'homeCarousel';
+    main?.insertBefore(shell, main.firstChild);
+  }
+  shell.className = 'panel carousel carousel--reel';
   shell.setAttribute('aria-label', 'Featured books');
-  shell.hidden = true;
-
   shell.innerHTML = `
     <div class="carousel__head flex between">
       <strong>Featured</strong>
       <div class="muted" id="carouselCount"></div>
     </div>
-    <div class="carousel__viewport" id="carouselTrack" tabindex="0" aria-roledescription="carousel"></div>
-    <div class="carousel__nav">
-      <button class="carousel__btn" id="carouselPrev" aria-label="Previous">‹</button>
-      <button class="carousel__btn" id="carouselNext" aria-label="Next">›</button>
+    <div class="reel__mask" aria-roledescription="carousel">
+      <div class="reel" id="carouselReel" role="list"></div>
     </div>
   `;
-  main?.insertBefore(shell, main.firstChild);
+  shell.hidden = true;
   return shell;
 }
 
@@ -95,9 +116,9 @@ function escapeHtml(str = '') {
 
 function cardHTML(b) {
   const img = (b.images && b.images[0]) || './assets/placeholder.webp';
-  const lines = [];
-  if (b.price != null) lines.push(`₹${escapeHtml(String(b.price))}`);
-  if (b.condition) lines.push(escapeHtml(b.condition));
+  const bits = [];
+  if (b.price != null) bits.push(`₹${escapeHtml(String(b.price))}`);
+  if (b.condition) bits.push(escapeHtml(b.condition));
 
   const msg = encodeURIComponent(
     `Hi Srikar, I was going through the book deals on your website and I found a book I liked - "${
@@ -107,48 +128,86 @@ function cardHTML(b) {
   const wa = `https://wa.me/${settings.whatsappNumber}?text=${msg}`;
 
   return `
-  <article class="carousel__card">
-    <img loading="lazy" src="${img}" alt="${escapeHtml(
+  <article class="reel__card" role="listitem" tabindex="0">
+    <div class="reel__imgWrap">
+      <img loading="lazy" src="${img}" alt="${escapeHtml(
     b.title || 'Book cover'
   )}" />
-    <div class="carousel__meta">
-      <strong>${escapeHtml(b.title || 'Untitled')}</strong>
-      ${b.author ? `<div class="muted">by ${escapeHtml(b.author)}</div>` : ''}
-      ${lines.length ? `<div class="muted">${lines.join(' · ')}</div>` : ''}
+    </div>
+    <div class="reel__meta">
+      <strong class="reel__title">${escapeHtml(b.title || 'Untitled')}</strong>
+      ${
+        b.author
+          ? `<div class="reel__sub muted">by ${escapeHtml(b.author)}</div>`
+          : ''
+      }
+      ${
+        bits.length
+          ? `<div class="reel__sub muted">${bits.join(' · ')}</div>`
+          : ''
+      }
       <a class="btn" href="${wa}" target="_blank" rel="noopener">Message on WhatsApp</a>
     </div>
   </article>`;
 }
 
-function scrollByCard(track, dir = 1) {
-  const firstCard = track?.querySelector('.carousel__card');
-  if (!firstCard) return;
-  const dx = (firstCard.getBoundingClientRect().width + 12) * dir;
-  track.scrollBy({ left: dx, behavior: 'smooth' });
-}
+// -------------------- CSS (injected once) --------------------
 
-export function initCarousel() {
-  injectCssOnce();
-  const shell = buildShellIfMissing();
-  const track = shell.querySelector('#carouselTrack');
-  const count = shell.querySelector('#carouselCount');
-  const prev = shell.querySelector('#carouselPrev');
-  const next = shell.querySelector('#carouselNext');
+function injectCssOnce() {
+  if (document.getElementById('carousel-reel-css')) return;
+  const css = `
+  /* --- Endless reel carousel --- */
+  #homeCarousel.carousel--reel { --reel-gap:.8rem; --reel-card-w:min(28vw, 260px); }
+  #homeCarousel .carousel__head { margin-bottom:.3rem; }
+  .reel__mask {
+    overflow:hidden; position:relative;
+    /* subtle peek and fade at edges */
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+  .reel {
+    display:flex; gap:var(--reel-gap);
+    will-change: transform;
+    animation: reel-scroll var(--reel-duration, 36s) linear infinite;
+    padding-bottom:.2rem;
+  }
+  .carousel--paused .reel { animation-play-state: paused; }
+  @keyframes reel-scroll { to { transform: translateX(-50%); } }
 
-  subscribeToCarousel(
-    (docs) => {
-      if (!docs.length) {
-        shell.hidden = true;
-        track.innerHTML = '';
-        return;
-      }
-      shell.hidden = false;
-      count.textContent = `${docs.length} featured`;
-      track.innerHTML = docs.map(cardHTML).join('');
-    },
-    (err) => console.error('carousel subscribe error:', err)
-  );
+  /* cards */
+  .reel__card {
+    display:grid; grid-template-rows: auto 1fr;
+    width: var(--reel-card-w);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .reel__card:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .reel__card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(0,0,0,.35); border-color: rgba(255,255,255,.08); }
 
-  prev?.addEventListener('click', () => scrollByCard(track, -1));
-  next?.addEventListener('click', () => scrollByCard(track, 1));
+  .reel__imgWrap { background: #1f2329; }
+  .reel__imgWrap img {
+    width:100%;
+    aspect-ratio: 2 / 3;
+    object-fit: contain;
+    display:block;
+  }
+  .reel__meta { padding:.7rem; display:grid; gap:.28rem; }
+  .reel__title { font-size: 1rem; line-height:1.2; }
+
+  /* Responsive sizing */
+  @media (max-width: 720px) {
+    #homeCarousel.carousel--reel { --reel-card-w:min(78vw, 340px); }
+  }
+
+  /* Respect user's reduced-motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .reel { animation: none; }
+  }`;
+  const style = document.createElement('style');
+  style.id = 'carousel-reel-css';
+  style.textContent = css;
+  document.head.appendChild(style);
 }
