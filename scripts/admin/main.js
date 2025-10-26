@@ -32,6 +32,13 @@ const reqOpen = document.getElementById('reqOpen');
 const reqClosed = document.getElementById('reqClosed');
 const searchCoverBtn = document.getElementById('searchCoverBtn');
 const coverPreviewEl = document.getElementById('coverPreview');
+const adminSearch = document.getElementById('adminSearch');
+let inventoryApi = null; // <-- make it visible to the search handler
+
+adminSearch?.addEventListener('input', () => {
+  // guard: before auth, inventoryApi is null and the admin section is hidden anyway
+  inventoryApi?.setFilter(adminSearch.value);
+});
 
 // --- Authors datalist subscription (single definition) ---
 function subscribeAuthors() {
@@ -107,7 +114,7 @@ initAuth({
 
     // 4) Editor + Inventory (PASS addForm/addMsg/etc so submit is wired)
     const editor = initEditor();
-    initInventory({
+    inventoryApi = initInventory({
       addForm,
       addMsg,
       authorInput,
