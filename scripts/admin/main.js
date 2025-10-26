@@ -117,10 +117,12 @@ initAuth({
       onEdit: editor.open,
     });
 
+    // Wire admin search
     const adminSearch = document.getElementById('adminSearch');
     adminSearch?.addEventListener('input', () => {
       inventory.setFilter(adminSearch.value);
     });
+
     // 5) Requests panel
     initRequests({ reqOpen, reqClosed });
   },
