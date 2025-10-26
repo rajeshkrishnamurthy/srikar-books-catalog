@@ -21,7 +21,8 @@
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  touch-action: pan-x;
+  /* IMPORTANT: allow vertical page scroll when touch starts inside carousel */
+  touch-action: auto;
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent,
@@ -41,13 +42,14 @@
   outline: none;
 }
 
-/* Track lays out one card per column; side padding is set by JS via --edge-pad */
+/* Track lays out one card per column; side padding is set by JS via --edge-pad-* */
 .spot__track {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: var(--card-w);
   gap: var(--gap);
-  padding-inline: var(--edge-pad, 12px);
+  padding-inline-start: var(--edge-pad-left, 12px);
+  padding-inline-end: var(--edge-pad-right, 12px);
 }
 
 /* Card look */

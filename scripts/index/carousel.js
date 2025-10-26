@@ -1,15 +1,12 @@
 // scripts/index/carousel.js
 // Spotlight carousel — behavior only (no HTML/CSS injection).
-// - One centered card; neighbors dimmed
-// - Prev/Next buttons, click-to-focus, drag/scroll, keyboard arrows
-// - No content duplication
 
 import { subscribeToCarousel } from './catalogService.js';
 import { settings } from '../config.js';
 
 export function initCarousel() {
   const shell = document.getElementById('homeCarousel');
-  if (!shell) return; // container missing
+  if (!shell) return;
   const viewport = shell.querySelector('#carouselViewport');
   const track = shell.querySelector('#carouselTrack');
   const countEl = shell.querySelector('#carouselCount');
@@ -53,6 +50,7 @@ export function initCarousel() {
   function updateActive() {
     const cards = getCards();
     if (!cards.length) return;
+    // If the user hand-scrolled, snap our state to the nearest centered card
     activeIndex = nearestIndex();
     cards.forEach((c, i) => {
       c.classList.toggle('is-active', i === activeIndex);
@@ -63,16 +61,15 @@ export function initCarousel() {
     nextBtn.disabled = activeIndex >= cards.length - 1;
   }
 
-  // Compute side padding to keep the first/last cards centerable without huge blanks.
+  // Compute side padding so first/last can center even on wide viewports
   function recalcEdgePad() {
     const first = track.querySelector('.spot__card');
     if (!first) return;
     const cardW = first.getBoundingClientRect().width;
     const vw = viewport.clientWidth;
-    const raw = Math.max(0, (vw - cardW) / 2); // ideal for perfect centering
-    const maxPad = cardW * 0.6; // cap to avoid two-card blanks
-    const pad = Math.min(raw, maxPad);
-    track.style.setProperty('--edge-pad', pad + 'px');
+    const pad = Math.max(0, (vw - cardW) / 2); // full required pad; no clamp
+    track.style.setProperty('--edge-pad-left', pad + 'px');
+    track.style.setProperty('--edge-pad-right', pad + 'px');
   }
 
   // Inputs
@@ -111,7 +108,7 @@ export function initCarousel() {
     }
   });
 
-  // Subscription
+  // Subscribe & render
   subscribeToCarousel(
     (docs) => {
       if (!docs.length) {
@@ -123,7 +120,7 @@ export function initCarousel() {
       countEl.textContent = `${docs.length} featured`;
 
       track.innerHTML = docs.map(cardHTML).join('');
-      // After DOM paints, compute padding and center the first card
+      // After paint: compute padding and center the first card
       requestAnimationFrame(() => {
         recalcEdgePad();
         goTo(0);
