@@ -22,6 +22,39 @@ import {
 } from '../helpers/data.js';
 import { stripHtmlAndSquash } from '../helpers/text.js';
 
+// --- Auto-price for EDIT form (mirrors add-form logic) ---
+const EDIT_DISCOUNT = {
+  'Good as new': 0.4,
+  Excellent: 0.4,
+  'Gently used': 0.5,
+  Used: 0.6,
+};
+
+function bindEditAutoPrice(form) {
+  const mrpEl = form.elements['emrp'];
+  const condEl = form.elements['econdition'];
+  const priceEl = form.elements['eprice'];
+  if (!mrpEl || !condEl || !priceEl) return () => {};
+
+  function recompute() {
+    // Respect manual edits: once user types a price, don't overwrite it
+    if (priceEl.dataset.manual === '1') return;
+    const mrp = parseInt(mrpEl.value, 10);
+    const d = EDIT_DISCOUNT[condEl.value];
+    if (!Number.isNaN(mrp) && d != null) {
+      const computed = Math.max(1, Math.round(mrp * (1 - d))); // discount off MRP
+      priceEl.value = String(computed);
+    }
+  }
+  condEl.addEventListener('change', recompute);
+  mrpEl.addEventListener('input', recompute);
+  priceEl.addEventListener('input', () => {
+    priceEl.dataset.manual = '1';
+  });
+
+  return recompute;
+}
+
 export function initEditor() {
   const dlg = document.getElementById('editDialog');
   const form = document.getElementById('editForm');
@@ -92,6 +125,9 @@ export function initEditor() {
     form.elements['eisbn'].value = currentData.isbn || '';
     form.elements['econdition'].value = currentData.condition || '';
     form.elements['edescription'].value = currentData.description || '';
+
+    const recompute = bindEditAutoPrice(form);
+    recompute(); // compute once based on current MRP+Condition
 
     // Preview current cover
     const coverUrl =

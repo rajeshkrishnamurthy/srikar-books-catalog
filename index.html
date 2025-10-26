@@ -4,47 +4,84 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Srikar’s Books — Catalog</title>
-    <meta name="description" content="Browse Srikar’s curated used books. Message on WhatsApp to buy." />
+    <meta
+      name="description"
+      content="Browse Srikar’s curated used books. Message on WhatsApp to buy."
+    />
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
     <!-- Base styles shared across admin + catalog -->
     <link rel="stylesheet" href="./styles.css?v=7" />
-    <!-- Page-specific, small overrides for the catalog (moved out of inline <style>) -->
-    <link rel="stylesheet" href="./styles/index.css?v=1" />
+    <!-- Page-specific, small overrides for the catalog -->
+    <link rel="stylesheet" href="./styles/index.css?v=2" />
   </head>
   <body>
     <header class="site-header">
       <div class="wrap">
         <h1 class="brand"><a href="./">Srikar’s Books</a></h1>
         <nav class="tabs" role="tablist" aria-label="Categories">
-          <button class="tab active" data-category="Fiction" aria-selected="true">Fiction</button>
-          <button class="tab" data-category="Non-Fiction" aria-selected="false">Non-Fiction</button>
-          <button class="tab" data-category="Children" aria-selected="false">Children</button>
+          <button
+            class="tab active"
+            data-category="Fiction"
+            aria-selected="true"
+          >
+            Fiction
+          </button>
+          <button class="tab" data-category="Non-Fiction" aria-selected="false">
+            Non-Fiction
+          </button>
+          <button class="tab" data-category="Children" aria-selected="false">
+            Children
+          </button>
         </nav>
         <div class="search">
-          <input id="search" type="search" placeholder="Search by title or author…" aria-label="Search books" />
+          <input
+            id="search"
+            type="search"
+            placeholder="Search by title or author…"
+            aria-label="Search books"
+          />
         </div>
       </div>
     </header>
 
     <main class="wrap">
       <section id="bookGrid" class="grid" aria-live="polite"></section>
-      <p id="emptyState" class="muted" hidden>No books found here yet. Try another category or clear search.</p>
+      <p id="emptyState" class="muted" hidden>
+        No books found here yet. Try another category or clear search.
+      </p>
 
-      <!-- Request a Book (kept here; logic moved to scripts/index/requestForm.js) -->
+      <!-- Request a Book (logic lives in scripts/index/main.js) -->
       <details class="panel" id="requestPanel" open>
         <summary><strong>Can’t find a book?</strong> Request it</summary>
         <form id="requestForm" class="stack">
           <div class="grid-2">
-            <input name="rtitle"  placeholder="Title *"        required />
-            <input name="rauthor" placeholder="Author *"       required />
-            <input name="rname"   placeholder="Your name *"    required />
-            <input name="rphone"  placeholder="Phone/WhatsApp *" inputmode="tel" required />
+            <input name="rtitle" placeholder="Title *" required />
+            <input name="rauthor" placeholder="Author *" required />
+            <input name="rname" placeholder="Your name *" required />
+            <input
+              name="rphone"
+              placeholder="Phone/WhatsApp *"
+              inputmode="tel"
+              required
+            />
           </div>
-          <textarea name="rnotes" rows="3" placeholder="Anything else? (edition, language, condition, etc.)"></textarea>
+          <textarea
+            name="rnotes"
+            rows="3"
+            placeholder="Anything else? (edition, language, condition, etc.)"
+          ></textarea>
           <div class="flex">
             <button class="btn" type="submit">Save & Open WhatsApp</button>
-            <a id="reqWaLink" class="btn btn-secondary" href="#" target="_blank" rel="noopener" style="display:none">Send on WhatsApp</a>
-            <span id="reqMsg" class="muted" style="margin-left:.6rem"></span>
+            <a
+              id="reqWaLink"
+              class="btn btn-secondary"
+              href="#"
+              target="_blank"
+              rel="noopener"
+              style="display: none"
+              >Send on WhatsApp</a
+            >
+            <span id="reqMsg" class="muted" style="margin-left: 0.6rem"></span>
           </div>
         </form>
       </details>
@@ -52,11 +89,14 @@
 
     <footer class="site-footer">
       <div class="wrap">
-        <p>WhatsApp Srikar to purchase. No online checkout. <a href="./admin.html">Admin</a></p>
+        <p>
+          WhatsApp Srikar to purchase. No online checkout.
+          <a href="./admin.html">Admin</a>
+        </p>
       </div>
     </footer>
 
-    <!-- One small entry point. All page logic lives in modules under ./scripts/index/*.js -->
-    <script type="module" src="./scripts/index/main.js"></script>
+    <!-- Single entry point; all logic under ./scripts/index/*.js -->
+    <script type="module" src="./scripts/index/main.js?v=2"></script>
   </body>
 </html>

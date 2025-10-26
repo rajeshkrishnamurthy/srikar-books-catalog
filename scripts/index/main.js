@@ -1,5 +1,11 @@
 // Intent: glue layer for the catalog page. Minimal orchestration only.
-import { subscribeToCategory } from './catalogService.js';
+// Global search: when search has any text, subscribe to ALL available books;
+// otherwise subscribe to the active category. Rendering stays in render.js.
+
+import {
+  subscribeToCategory,
+  subscribeToAllAvailable,
+} from './catalogService.js';
 import { renderBooks, wireTabs } from './render.js';
 
 const grid = document.getElementById('bookGrid');
@@ -10,26 +16,57 @@ const tabButtons = Array.from(document.querySelectorAll('.tab'));
 let activeCategory = 'Fiction';
 let unsub = null;
 let cachedDocs = [];
+let usingAll = false; // tracks current subscription scope
 
-wireTabs(tabButtons, (newCat) => {
-  activeCategory = newCat;
-  resubscribe();
-});
-
-searchInput?.addEventListener('input', () => {
-  renderBooks({ gridEl: grid, emptyEl: emptyState, docs: cachedDocs, searchTerm: searchInput.value });
-});
+function isGlobalSearchActive() {
+  return (searchInput?.value || '').trim().length > 0;
+}
 
 function resubscribe() {
   if (unsub) unsub();
-  unsub = subscribeToCategory(activeCategory, (docs) => {
+
+  const onNext = (docs) => {
     cachedDocs = docs;
-    renderBooks({ gridEl: grid, emptyEl: emptyState, docs: cachedDocs, searchTerm: searchInput?.value || '' });
-  }, (err) => {
+    renderBooks({
+      gridEl: grid,
+      emptyEl: emptyState,
+      docs: cachedDocs,
+      searchTerm: searchInput?.value || '',
+    });
+  };
+  const onError = (err) => {
     console.error(err);
-    grid.innerHTML = '<p class="error">Could not load books. Check your Firestore rules and indexes.</p>';
-  });
+    grid.innerHTML =
+      '<p class="error">Could not load books. Check your Firestore rules and indexes.</p>';
+  };
+
+  if (isGlobalSearchActive()) {
+    usingAll = true;
+    unsub = subscribeToAllAvailable(onNext, onError);
+  } else {
+    usingAll = false;
+    unsub = subscribeToCategory(activeCategory, onNext, onError);
+  }
 }
+
+// Tabs: only resubscribe if we’re NOT in global search (since search spans all categories)
+wireTabs(tabButtons, (newCat) => {
+  activeCategory = newCat;
+  if (!isGlobalSearchActive()) resubscribe();
+});
+
+// Search: if scope flips (none → global or global → none), resubscribe; always re-render
+searchInput?.addEventListener('input', () => {
+  const wasAll = usingAll;
+  const nowAll = isGlobalSearchActive();
+  if (nowAll !== wasAll) resubscribe();
+  renderBooks({
+    gridEl: grid,
+    emptyEl: emptyState,
+    docs: cachedDocs,
+    searchTerm: searchInput.value,
+  });
+});
 
 // Public request form
 import { initRequestForm } from './requestForm.js';

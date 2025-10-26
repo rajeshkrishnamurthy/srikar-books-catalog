@@ -1,5 +1,12 @@
 // Intent: Firestore reads only; no DOM here. Keeps data concerns separate from UI.
-import { db, collection, query, where, orderBy, onSnapshot } from '../lib/firebase.js';
+import {
+  db,
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+} from '../lib/firebase.js';
 
 export function subscribeToCategory(category, onData, onError) {
   const q = query(
@@ -9,7 +16,24 @@ export function subscribeToCategory(category, onData, onError) {
     orderBy('createdAt', 'desc')
   );
   // Return unsubscribe so caller can switch categories cleanly
-  return onSnapshot(q, (snap) => {
-    onData(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-  }, onError);
+  return onSnapshot(
+    q,
+    (snap) => {
+      onData(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    },
+    onError
+  );
+}
+
+export function subscribeToAllAvailable(onNext, onError) {
+  const q = query(
+    collection(db, 'books'),
+    where('status', '==', 'available'),
+    orderBy('createdAt', 'desc')
+  );
+  return onSnapshot(
+    q,
+    (snap) => onNext(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
+    onError
+  );
 }
