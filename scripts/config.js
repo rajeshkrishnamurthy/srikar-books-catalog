@@ -7,5 +7,5 @@ export const firebaseConfig = {
   appId: '1:129722793187:web:fd932eb62f4626c79f59d6',
 };
 export const settings = {
-  whatsappNumber: '919876543210', // no + or spaces
+  whatsappNumber: '918951395971', // no + or spaces
 };
