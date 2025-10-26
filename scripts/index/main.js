@@ -7,6 +7,7 @@ import {
   subscribeToAllAvailable,
 } from './catalogService.js';
 import { renderBooks, wireTabs } from './render.js';
+import { initCarousel } from './carousel.js'; // NEW
 
 const grid = document.getElementById('bookGrid');
 const emptyState = document.getElementById('emptyState');
@@ -73,4 +74,5 @@ import { initRequestForm } from './requestForm.js';
 initRequestForm();
 
 // Kick things off
+initCarousel(); // NEW — no markup change needed
 resubscribe();

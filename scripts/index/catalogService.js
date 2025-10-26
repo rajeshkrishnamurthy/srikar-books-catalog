@@ -1,4 +1,3 @@
-// Intent: Firestore reads only; no DOM here. Keeps data concerns separate from UI.
 import {
   db,
   collection,
@@ -6,30 +5,46 @@ import {
   where,
   orderBy,
   onSnapshot,
+  limit,
 } from '../lib/firebase.js';
 
-export function subscribeToCategory(category, onData, onError) {
+// Per-category (existing)
+export function subscribeToCategory(category, onNext, onError) {
   const q = query(
     collection(db, 'books'),
     where('status', '==', 'available'),
     where('category', '==', category),
     orderBy('createdAt', 'desc')
   );
-  // Return unsubscribe so caller can switch categories cleanly
   return onSnapshot(
     q,
-    (snap) => {
-      onData(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-    },
+    (snap) => onNext(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
     onError
   );
 }
 
+// Global "all available" (for site-wide search)
 export function subscribeToAllAvailable(onNext, onError) {
   const q = query(
     collection(db, 'books'),
     where('status', '==', 'available'),
     orderBy('createdAt', 'desc')
+  );
+  return onSnapshot(
+    q,
+    (snap) => onNext(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
+    onError
+  );
+}
+
+// NEW: Featured for carousel
+export function subscribeToCarousel(onNext, onError) {
+  const q = query(
+    collection(db, 'books'),
+    where('status', '==', 'available'),
+    where('featured', '==', true),
+    orderBy('featuredAt', 'desc'),
+    limit(12) // small & fast
   );
   return onSnapshot(
     q,
