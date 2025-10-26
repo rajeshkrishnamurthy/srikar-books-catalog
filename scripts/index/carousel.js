@@ -1,5 +1,4 @@
-// scripts/index/carousel.js — Embla behavior
-
+// scripts/index/carousel.js — Embla predefined (class names)
 import { subscribeToCarousel } from './catalogService.js';
 import { settings } from '../config.js';
 
@@ -7,91 +6,79 @@ export async function initCarousel() {
   const shell = document.getElementById('homeCarousel');
   if (!shell) return;
 
-  const viewport = shell.querySelector('#carouselViewport');
-  const track = shell.querySelector('#carouselTrack');
-  const countEl = shell.querySelector('#carouselCount');
-  const prevBtn = shell.querySelector('#carouselPrev');
-  const nextBtn = shell.querySelector('#carouselNext');
+  const emblaRoot = document.getElementById('embla');
+  const viewport = document.getElementById('emblaViewport');
+  const container = document.getElementById('emblaContainer');
+  const btnPrev = document.getElementById('emblaPrev');
+  const btnNext = document.getElementById('emblaNext');
+  const dotsWrap = document.getElementById('emblaDots');
+  const countEl = document.getElementById('carouselCount');
 
-  const EmblaCarousel = await loadEmbla();
+  const Embla = await loadEmbla();
+  const ClassNames = await loadClassNames();
 
   let embla = null;
-  let slides = [];
-  const getSlides = () => Array.from(track.querySelectorAll('.spot__card'));
+  let dotBtns = [];
 
-  const onSelect = () => {
-    if (!embla) return;
-    const i = embla.selectedScrollSnap();
-    slides.forEach((s, idx) => s.classList.toggle('is-active', idx === i));
-    prevBtn.disabled = !embla.canScrollPrev();
-    nextBtn.disabled = !embla.canScrollNext();
-  };
-
-  const reInit = () => {
-    if (embla) embla.destroy();
-    embla = EmblaCarousel(viewport, {
-      align: 'center',
-      loop: false,
-      containScroll: 'trimSnaps',
-      dragFree: false,
-      slidesToScroll: 1,
-      inViewThreshold: 0.6,
-    });
-    slides = getSlides();
-    embla.on('select', onSelect);
-    embla.on('reInit', () => {
-      slides = getSlides();
-      onSelect();
-    });
-    onSelect();
-  };
-
-  // Buttons
-  prevBtn.addEventListener('click', () => embla && embla.scrollPrev());
-  nextBtn.addEventListener('click', () => embla && embla.scrollNext());
-
-  // Click a card to center it
-  track.addEventListener('click', (e) => {
-    const card = e.target.closest('.spot__card');
-    if (!card || !embla) return;
-    const idx = slides.indexOf(card);
-    if (idx !== -1) embla.scrollTo(idx);
-  });
-
-  // Keyboard arrows when viewport is focused
-  viewport.addEventListener('keydown', (e) => {
-    if (!embla) return;
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      embla.scrollPrev();
-    }
-    if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      embla.scrollNext();
-    }
-  });
-
-  // Subscribe to featured books
   subscribeToCarousel(
     (docs) => {
       if (!docs.length) {
         shell.hidden = true;
-        track.innerHTML = '';
+        container.innerHTML = '';
         if (embla) embla.destroy();
         embla = null;
         return;
       }
       shell.hidden = false;
       countEl.textContent = `${docs.length} featured`;
-      track.innerHTML = docs.map(cardHTML).join('');
-      reInit();
+
+      container.innerHTML = docs.map(slideHTML).join('');
+
+      if (embla) embla.destroy();
+      embla = Embla(
+        emblaRoot,
+        {
+          align: 'center',
+          containScroll: 'trimSnaps',
+          loop: false,
+          dragFree: false,
+        },
+        [ClassNames()]
+      );
+
+      // Buttons
+      btnPrev.onclick = () => embla && embla.scrollPrev();
+      btnNext.onclick = () => embla && embla.scrollNext();
+
+      // Dots
+      dotsWrap.innerHTML = '';
+      dotBtns = embla.slideNodes().map((_, i) => {
+        const b = document.createElement('button');
+        b.className = 'embla__dot';
+        b.type = 'button';
+        b.addEventListener('click', () => embla.scrollTo(i));
+        dotsWrap.appendChild(b);
+        return b;
+      });
+
+      const onSelect = () => {
+        const i = embla.selectedScrollSnap();
+        dotBtns.forEach((d, idx) =>
+          d.classList.toggle('is-selected', idx === i)
+        );
+        btnPrev.disabled = !embla.canScrollPrev();
+        btnNext.disabled = !embla.canScrollNext();
+      };
+      embla.on('select', onSelect);
+      embla.on('reInit', onSelect);
+      onSelect();
     },
     (err) => {
       console.error('carousel subscribe error:', err);
       const link = (String(err?.message || '').match(/https?:\/\/\S+/) ||
         [])[0];
       shell.hidden = false;
-      track.innerHTML = `
+      container.innerHTML = `
         <div class="muted" style="padding:.6rem">
           The featured carousel needs a Firestore index.
           ${
@@ -106,8 +93,7 @@ export async function initCarousel() {
   );
 }
 
-// ---------- helpers ----------
-
+// --- helpers ---
 function escapeHtml(str = '') {
   return String(str).replace(
     /[&<>"']/g,
@@ -117,7 +103,6 @@ function escapeHtml(str = '') {
       ])
   );
 }
-
 function waUrl(b) {
   const msg = encodeURIComponent(
     `Hi Srikar, I was going through the book deals on your website and I found a book I liked - "${
@@ -126,57 +111,63 @@ function waUrl(b) {
   );
   return `https://wa.me/${settings.whatsappNumber}?text=${msg}`;
 }
-
-function cardHTML(b) {
+function slideHTML(b) {
   const img = (b.images && b.images[0]) || './assets/placeholder.webp';
   const bits = [];
   if (b.price != null) bits.push(`₹${escapeHtml(String(b.price))}`);
   if (b.condition) bits.push(escapeHtml(b.condition));
 
   return `
-  <article class="spot__card" role="listitem" tabindex="0">
-    <div class="spot__imgWrap">
+  <div class="embla__slide">
+    <article class="card">
       <img loading="lazy" src="${img}" alt="${escapeHtml(
     b.title || 'Book cover'
-  )}" />
-    </div>
-    <div class="spot__meta">
-      <strong class="spot__title">${escapeHtml(b.title || 'Untitled')}</strong>
-      ${b.author ? `<div class="muted">by ${escapeHtml(b.author)}</div>` : ''}
-      ${bits.length ? `<div class="muted">${bits.join(' · ')}</div>` : ''}
-      <a class="btn" href="${waUrl(
-        b
-      )}" target="_blank" rel="noopener">Message on WhatsApp</a>
-    </div>
-  </article>`;
+  )}" style="width:100%;aspect-ratio:2/3;object-fit:contain;background:#1f2329;display:block;" />
+      <div class="meta">
+        <h3>${escapeHtml(b.title || 'Untitled')}</h3>
+        ${b.author ? `<p class="muted">by ${escapeHtml(b.author)}</p>` : ''}
+        ${bits.length ? `<p class="muted">${bits.join(' · ')}</p>` : ''}
+        <a class="btn" href="${waUrl(
+          b
+        )}" target="_blank" rel="noopener">Message on WhatsApp</a>
+      </div>
+    </article>
+  </div>`;
 }
 
-/**
- * Load Embla from CDN. Prefer ESM, fallback to UMD global.
- */
+/** Prefer ESM from CDN, fallback to UMD globals for robustness. */
 async function loadEmbla() {
-  // ESM (preferred)
   try {
     const m = await import(
       'https://cdn.jsdelivr.net/npm/embla-carousel@latest/embla-carousel.esm.js'
     );
     return m.default || m;
-  } catch (e) {
-    // Fallback to UMD global
-    await injectScript(
+  } catch {
+    await inject(
       'https://cdn.jsdelivr.net/npm/embla-carousel@latest/embla-carousel.umd.js'
     );
-    if (!window.EmblaCarousel) throw new Error('Embla failed to load.');
     return window.EmblaCarousel;
   }
 }
-
-function injectScript(src) {
-  return new Promise((resolve, reject) => {
+async function loadClassNames() {
+  try {
+    const m = await import(
+      'https://cdn.jsdelivr.net/npm/embla-carousel-class-names@latest/embla-carousel-class-names.esm.js'
+    );
+    return m.default || m;
+  } catch {
+    await inject(
+      'https://cdn.jsdelivr.net/npm/embla-carousel-class-names@latest/embla-carousel-class-names.umd.js'
+    );
+    return window.EmblaCarouselClassNames;
+  }
+}
+function inject(src) {
+  return new Promise((res, rej) => {
     const s = document.createElement('script');
     s.src = src;
-    s.onload = resolve;
-    s.onerror = reject;
+    s.onload = res;
+    s.onerror = rej;
     document.head.appendChild(s);
   });
 }

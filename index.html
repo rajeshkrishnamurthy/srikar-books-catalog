@@ -9,12 +9,12 @@
       content="Browse Srikar’s curated used books. Message on WhatsApp to buy."
     />
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
-    <!-- Base styles -->
+    <!-- Base styles shared across admin + catalog -->
     <link rel="stylesheet" href="./styles.css?v=7" />
     <!-- Page-specific tweaks -->
     <link rel="stylesheet" href="./styles/index.css?v=1" />
-    <!-- NEW: Spotlight carousel styles -->
-    <link rel="stylesheet" href="./styles/carousel.css?v=1" />
+    <!-- NEW: Embla carousel styles -->
+    <link rel="stylesheet" href="./styles/carousel.css?v=2" />
   </head>
   <body>
     <header class="site-header">
@@ -47,39 +47,42 @@
     </header>
 
     <main class="wrap">
-      <!-- NEW: Spotlight carousel (structure only; behavior in scripts/index/carousel.js, styles in styles/carousel.css) -->
-      <section
-        id="homeCarousel"
-        class="panel carousel carousel--spotlight"
-        aria-label="Featured books"
-      >
-        <div class="carousel__head flex between">
+      <!-- === Featured (Embla predefined — class names) === -->
+      <section id="homeCarousel" class="panel" aria-label="Featured books">
+        <div class="flex between" style="margin-bottom: 0.4rem">
           <strong>Featured</strong>
           <div class="muted" id="carouselCount"></div>
         </div>
-        <div
-          class="spot__viewport"
-          id="carouselViewport"
-          tabindex="0"
-          aria-roledescription="carousel"
-        >
-          <div class="spot__track" id="carouselTrack" role="list"></div>
+
+        <div class="embla" id="embla">
+          <div class="embla__viewport" id="emblaViewport">
+            <div class="embla__container" id="emblaContainer">
+              <!-- Slides injected by scripts/index/carousel.js -->
+            </div>
+          </div>
+
+          <div class="embla__controls">
+            <div class="embla__buttons">
+              <button
+                class="embla__button embla__button--prev"
+                id="emblaPrev"
+                type="button"
+                aria-label="Previous"
+              >
+                ‹
+              </button>
+              <button
+                class="embla__button embla__button--next"
+                id="emblaNext"
+                type="button"
+                aria-label="Next"
+              >
+                ›
+              </button>
+            </div>
+            <div class="embla__dots" id="emblaDots"></div>
+          </div>
         </div>
-        <!-- Controls placed outside the mask so they’re always visible -->
-        <button
-          class="spot__nav spot__nav--prev"
-          id="carouselPrev"
-          aria-label="Previous"
-        >
-          ‹
-        </button>
-        <button
-          class="spot__nav spot__nav--next"
-          id="carouselNext"
-          aria-label="Next"
-        >
-          ›
-        </button>
       </section>
 
       <section id="bookGrid" class="grid" aria-live="polite"></section>
@@ -133,7 +136,7 @@
       </div>
     </footer>
 
-    <!-- One small entry point. All page logic lives in modules under ./scripts/index/*.js -->
+    <!-- Page logic lives in modules under ./scripts/index/*.js -->
     <script type="module" src="./scripts/index/main.js"></script>
   </body>
 </html>
