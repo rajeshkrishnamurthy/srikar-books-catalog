@@ -5,7 +5,7 @@ import { bindAutoPrice } from './autoPrice.js';
 import { wireLookup } from './lookup.js';
 import { initInventory } from './inventory.js';
 import { initRequests } from './requests.js';
-import { initEditor } from './editor.js'; // <-- NEW
+import { initEditor } from './editor.js';
 import { db, collection, query, orderBy, onSnapshot } from '../lib/firebase.js';
 import { escapeHtml } from '../helpers/text.js';
 
@@ -105,9 +105,17 @@ initAuth({
       apiKey: settings.googleBooksApiKey || '',
     });
 
-    // 4) Create the editor and pass its opener to inventory
-    const editor = initEditor(); // <-- NEW
-    initInventory({ availList, soldList, onEdit: editor.open }); // <-- NEW
+    // 4) Editor + Inventory (PASS addForm/addMsg/etc so submit is wired)
+    const editor = initEditor();
+    initInventory({
+      addForm,
+      addMsg,
+      authorInput,
+      authorList,
+      availList,
+      soldList,
+      onEdit: editor.open,
+    });
 
     // 5) Requests panel
     initRequests({ reqOpen, reqClosed });
