@@ -42,6 +42,10 @@ async function setCoverFromUrl(url, coverInput, title = 'cover') {
     const dt = new DataTransfer();
     dt.items.add(file);
     coverInput.files = dt.files;
+    // Notify listeners so the preview updates
+    try {
+      coverInput.dispatchEvent(new Event('change', { bubbles: true }));
+    } catch {}
     return true;
   } catch {
     return false;

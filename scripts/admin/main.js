@@ -30,6 +30,7 @@ const soldList = document.getElementById('soldList');
 const reqOpen = document.getElementById('reqOpen');
 const reqClosed = document.getElementById('reqClosed');
 const searchCoverBtn = document.getElementById('searchCoverBtn');
+const coverPreviewEl = document.getElementById('coverPreview');
 
 // --- Authors datalist subscription (single definition) ---
 function subscribeAuthors() {
@@ -120,3 +121,24 @@ function openCoverSearch() {
 }
 
 searchCoverBtn?.addEventListener('click', openCoverSearch);
+
+// --- Live preview for the cover input ---
+function updateCoverPreview() {
+  if (!coverPreviewEl) return;
+  coverPreviewEl.textContent = ''; // clear any "No cover selected."
+  const file = coverInput?.files?.[0];
+  if (!file) {
+    coverPreviewEl.textContent = 'No cover selected.';
+    return;
+  }
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.alt = 'Cover preview';
+  img.src = url;
+  img.onload = () => URL.revokeObjectURL(url);
+  coverPreviewEl.appendChild(img);
+}
+
+// Preview on manual selection and after form reset
+coverInput?.addEventListener('change', updateCoverPreview);
+addForm?.addEventListener('reset', () => setTimeout(updateCoverPreview, 0));
