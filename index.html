@@ -9,10 +9,12 @@
       content="Browse Srikar’s curated used books. Message on WhatsApp to buy."
     />
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
-    <!-- Base styles shared across admin + catalog -->
+    <!-- Base styles -->
     <link rel="stylesheet" href="./styles.css?v=7" />
-    <!-- Page-specific, small overrides for the catalog -->
-    <link rel="stylesheet" href="./styles/index.css?v=2" />
+    <!-- Page-specific tweaks -->
+    <link rel="stylesheet" href="./styles/index.css?v=1" />
+    <!-- NEW: Spotlight carousel styles -->
+    <link rel="stylesheet" href="./styles/carousel.css?v=1" />
   </head>
   <body>
     <header class="site-header">
@@ -45,12 +47,47 @@
     </header>
 
     <main class="wrap">
+      <!-- NEW: Spotlight carousel (structure only; behavior in scripts/index/carousel.js, styles in styles/carousel.css) -->
+      <section
+        id="homeCarousel"
+        class="panel carousel carousel--spotlight"
+        aria-label="Featured books"
+      >
+        <div class="carousel__head flex between">
+          <strong>Featured</strong>
+          <div class="muted" id="carouselCount"></div>
+        </div>
+        <div
+          class="spot__viewport"
+          id="carouselViewport"
+          tabindex="0"
+          aria-roledescription="carousel"
+        >
+          <div class="spot__track" id="carouselTrack" role="list"></div>
+        </div>
+        <!-- Controls placed outside the mask so they’re always visible -->
+        <button
+          class="spot__nav spot__nav--prev"
+          id="carouselPrev"
+          aria-label="Previous"
+        >
+          ‹
+        </button>
+        <button
+          class="spot__nav spot__nav--next"
+          id="carouselNext"
+          aria-label="Next"
+        >
+          ›
+        </button>
+      </section>
+
       <section id="bookGrid" class="grid" aria-live="polite"></section>
       <p id="emptyState" class="muted" hidden>
         No books found here yet. Try another category or clear search.
       </p>
 
-      <!-- Request a Book (logic lives in scripts/index/main.js) -->
+      <!-- Request a Book (unchanged) -->
       <details class="panel" id="requestPanel" open>
         <summary><strong>Can’t find a book?</strong> Request it</summary>
         <form id="requestForm" class="stack">
@@ -96,7 +133,7 @@
       </div>
     </footer>
 
-    <!-- Single entry point; all logic under ./scripts/index/*.js -->
-    <script type="module" src="./scripts/index/main.js?v=2"></script>
+    <!-- One small entry point. All page logic lives in modules under ./scripts/index/*.js -->
+    <script type="module" src="./scripts/index/main.js"></script>
   </body>
 </html>
