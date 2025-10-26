@@ -8,5 +8,4 @@ export const firebaseConfig = {
 };
 export const settings = {
   whatsappNumber: '919876543210', // no + or spaces
-  adminEmails: ['srikar2014@gmail.com'],
 };
