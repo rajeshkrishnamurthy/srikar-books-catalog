@@ -55,7 +55,7 @@ export async function initCarousel(initialCategory = null) {
       {
         align: 'center',
         containScroll: 'trimSnaps',
-        loop: false,
+        loop: true,
         dragFree: false,
       },
       plugins
@@ -157,7 +157,7 @@ function resubscribe(renderOverride, errorOverride) {
         {
           align: 'center',
           containScroll: 'trimSnaps',
-          loop: false,
+          loop: true,
           dragFree: false,
         },
         plugins
