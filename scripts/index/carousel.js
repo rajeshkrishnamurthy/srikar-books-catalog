@@ -2,6 +2,23 @@
 import { subscribeToCarousel } from './catalogService.js';
 import { settings } from '../config.js';
 
+// Preload the first slide image so it fetches ASAP
+function preloadFirstImage(src) {
+  if (!src) return;
+  // avoid duplicates
+  if (
+    document.head.querySelector(
+      `link[rel="preload"][as="image"][href="${src}"]`
+    )
+  )
+    return;
+  const l = document.createElement('link');
+  l.rel = 'preload';
+  l.as = 'image';
+  l.href = src;
+  document.head.appendChild(l);
+}
+
 let currentCategory = null;
 let unsubCarousel = null;
 let embla = null;
@@ -25,8 +42,8 @@ export async function initCarousel(initialCategory = null) {
   ClassNames = await loadClassNames().catch(() => null);
 
   // Buttons wired once; they act on the current embla instance
-  btnPrev.addEventListener('click', () => embla && embla.scrollPrev());
-  btnNext.addEventListener('click', () => embla && embla.scrollNext());
+  btnPrev?.addEventListener('click', () => embla && embla.scrollPrev());
+  btnNext?.addEventListener('click', () => embla && embla.scrollNext());
 
   function render(docs) {
     if (!docs.length) {
@@ -37,15 +54,20 @@ export async function initCarousel(initialCategory = null) {
         embla = null;
       }
       dotsWrap.innerHTML = '';
-      btnPrev.disabled = true;
-      btnNext.disabled = true;
+      if (btnPrev) btnPrev.disabled = true;
+      if (btnNext) btnNext.disabled = true;
       return;
     }
-    shell.hidden = false;
-    countEl.textContent = `${docs.length} featured`;
 
-    // Slides
-    container.innerHTML = docs.map(slideHTML).join('');
+    shell.hidden = false;
+    if (countEl) countEl.textContent = `${docs.length} featured`;
+
+    // NEW: Preload first slide image for immediate fetch
+    const firstImg = docs?.[0]?.images?.[0];
+    if (firstImg) preloadFirstImage(firstImg);
+
+    // NEW: Pass index so slide 0 can be eager/high priority
+    container.innerHTML = docs.map((b, i) => slideHTML(b, i)).join('');
 
     // (Re)init Embla on the VIEWPORT node
     if (embla) embla.destroy();
@@ -76,8 +98,8 @@ export async function initCarousel(initialCategory = null) {
       const i = embla.selectedScrollSnap();
       dotBtns.forEach((d, idx) => d.classList.toggle('is-selected', idx === i));
       const multi = embla.slideNodes().length > 1;
-      btnPrev.disabled = !multi || !embla.canScrollPrev();
-      btnNext.disabled = !multi || !embla.canScrollNext();
+      if (btnPrev) btnPrev.disabled = !multi || !embla.canScrollPrev();
+      if (btnNext) btnNext.disabled = !multi || !embla.canScrollNext();
     };
 
     embla.on('init', updateUi);
@@ -100,11 +122,11 @@ export async function initCarousel(initialCategory = null) {
       </div>`;
   }
 
-  // Initial subscribe
+  // Initial subscribe/render
   resubscribe(render, onError);
 }
 
-// Allow main.js (tabs) to change the active category
+// Allow main.js (tabs/search) to change the active category
 export function setCarouselCategory(category) {
   currentCategory = category || null;
   // Re-subscribe only after initCarousel has run
@@ -124,7 +146,7 @@ function resubscribe(renderOverride, errorOverride) {
   const render =
     renderOverride ||
     ((docs) => {
-      // Default render path used on subsequent category changes, mirroring init
+      // Default render path for subsequent category changes
       const dotsWrap = document.getElementById('emblaDots');
       const btnPrev = document.getElementById('emblaPrev');
       const btnNext = document.getElementById('emblaNext');
@@ -139,14 +161,20 @@ function resubscribe(renderOverride, errorOverride) {
           embla = null;
         }
         dotsWrap.innerHTML = '';
-        btnPrev.disabled = true;
-        btnNext.disabled = true;
+        if (btnPrev) btnPrev.disabled = true;
+        if (btnNext) btnNext.disabled = true;
         return;
       }
-      shell.hidden = false;
-      countEl.textContent = `${docs.length} featured`;
 
-      container.innerHTML = docs.map(slideHTML).join('');
+      shell.hidden = false;
+      if (countEl) countEl.textContent = `${docs.length} featured`;
+
+      // NEW: Preload first slide image
+      const firstImg = docs?.[0]?.images?.[0];
+      if (firstImg) preloadFirstImage(firstImg);
+
+      // NEW: Pass index to slideHTML
+      container.innerHTML = docs.map((b, i) => slideHTML(b, i)).join('');
 
       if (embla) embla.destroy();
       const plugins = ClassNames
@@ -179,8 +207,8 @@ function resubscribe(renderOverride, errorOverride) {
           d.classList.toggle('is-selected', idx === i)
         );
         const multi = embla.slideNodes().length > 1;
-        btnPrev.disabled = !multi || !embla.canScrollPrev();
-        btnNext.disabled = !multi || !embla.canScrollNext();
+        if (btnPrev) btnPrev.disabled = !multi || !embla.canScrollPrev();
+        if (btnNext) btnNext.disabled = !multi || !embla.canScrollNext();
       };
       embla.on('init', updateUi);
       embla.on('select', updateUi);
@@ -195,20 +223,20 @@ function resubscribe(renderOverride, errorOverride) {
       const link = (String(err?.message || '').match(/https?:\/\/\S+/) ||
         [])[0];
       container.innerHTML = `
-      <div class="muted" style="padding:.6rem">
-        The featured carousel needs a Firestore index.
-        ${
-          link
-            ? `<a class="btn btn-secondary" href="${link}" target="_blank" rel="noopener">Create index</a>`
-            : ''
-        }
-      </div>`;
+        <div class="muted" style="padding:.6rem">
+          The featured carousel needs a Firestore index.
+          ${
+            link
+              ? `<a class="btn btn-secondary" href="${link}" target="_blank" rel="noopener">Create index</a>`
+              : ''
+          }
+        </div>`;
     });
 
   unsubCarousel = subscribeToCarousel(currentCategory, render, onError);
 }
 
-// ---- slide template & loaders ----
+// ---- slide template & helpers ----
 function escapeHtml(str = '') {
   return String(str).replace(
     /[&<>"']/g,
@@ -226,28 +254,47 @@ function waUrl(b) {
   );
   return `https://wa.me/${settings.whatsappNumber}?text=${msg}`;
 }
-function slideHTML(b) {
+
+// NOTE: accepts index so we can set eager/lazy + fetchpriority accordingly
+function slideHTML(b, idx) {
   const img = (b.images && b.images[0]) || './assets/placeholder.webp';
-  const bits = [];
-  if (b.price != null) bits.push(`₹${escapeHtml(String(b.price))}`);
-  if (b.condition) bits.push(escapeHtml(b.condition));
+  const eager = idx === 0;
+  const imgAttrs = eager
+    ? 'loading="eager" fetchpriority="high" decoding="sync"'
+    : 'loading="lazy" fetchpriority="low" decoding="async"';
+
   return `
-  <div class="embla__slide">
-    <article class="card">
-      <img loading="lazy" src="${img}" alt="${escapeHtml(
-    b.title || 'Book cover'
-  )}"
-           style="width:100%;aspect-ratio:2/3;object-fit:contain;background:#1f2329;display:block;" />
-      <div class="meta">
-        <h3>${escapeHtml(b.title || 'Untitled')}</h3>
-        ${b.author ? `<p class="muted">by ${escapeHtml(b.author)}</p>` : ''}
-        ${bits.length ? `<p class="muted">${bits.join(' · ')}</p>` : ''}
-        <a class="btn" href="${waUrl(
-          b
-        )}" target="_blank" rel="noopener">Message on WhatsApp</a>
-      </div>
-    </article>
-  </div>`;
+    <div class="embla__slide">
+      <article class="card card--featured">
+        <img ${imgAttrs}
+             src="${img}"
+             alt="${escapeHtml(b.title || 'Book cover')}"
+             width="400" height="600"
+             style="width:100%;aspect-ratio:2/3;object-fit:contain;background:#1f2329;display:block;" />
+        <div class="meta">
+          <h3>${escapeHtml(b.title || 'Untitled')}</h3>
+          ${
+            b.condition
+              ? `<p class="muted">Book condition : ${escapeHtml(
+                  b.condition
+                )}</p>`
+              : ''
+          }
+          ${
+            b.price != null
+              ? `<p class="muted">My price : ₹${escapeHtml(
+                  String(b.price)
+                )}</p>`
+              : ''
+          }
+          ${
+            b.mrp != null
+              ? `<p class="muted">MRP: ₹${escapeHtml(String(b.mrp))}</p>`
+              : ''
+          }
+        </div>
+      </article>
+    </div>`;
 }
 
 // (ESM first, UMD fallback — pinned to a stable version)
