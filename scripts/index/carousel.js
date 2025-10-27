@@ -269,7 +269,7 @@ function slideHTML(b, idx) {
         <img ${imgAttrs}
              src="${img}"
              alt="${escapeHtml(b.title || 'Book cover')}"
-             width="400" height="600"
+             width="200" height="300"
              style="width:100%;aspect-ratio:2/3;object-fit:contain;background:#1f2329;display:block;" />
         <div class="meta">
           <h3>${escapeHtml(b.title || 'Untitled')}</h3>
