@@ -1,0 +1,30 @@
+name: Deploy (staging)
+on:
+  push:
+    branches: [staging]
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use STAGING config
+        run: cp scripts/config.staging.js scripts/config.js
+
+      # Optional: mark staging pages noindex (prevents accidental SEO indexing)
+      # - name: Add robots noindex to index.html
+      #   run: |
+      #     sed -i '0,/<head>/s//<head>\n    <meta name="robots" content="noindex">\n/' index.html
+
+      - name: Deploy to Firebase Hosting (staging live)
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}
+          projectId: srikar-book-deals-staging
+          channelId: live
