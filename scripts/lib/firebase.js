@@ -1,10 +1,14 @@
-// Unified Firebase bootstrap + re-exports for app-wide use.
+// scripts/lib/firebase.js
+// Unified Firebase bootstrap + re-exports for browser (CDN modules only).
 // Intent: keep all CDN imports in one place so feature modules import from here.
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js';
 
 import {
-  getFirestore,
+  // Firestore (all from CDN — no bare "firebase/firestore" imports)
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   collection,
   doc,
   getDoc,
@@ -18,8 +22,8 @@ import {
   orderBy,
   onSnapshot,
   serverTimestamp,
-  limit, // <-- added
-  startAfter, // (optional export for future pagination)
+  limit,
+  startAfter,
   endBefore,
   Timestamp,
 } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
@@ -44,23 +48,20 @@ import {
 
 import { firebaseConfig } from '../config.js';
 
-import {
-  initializeFirestore,
-  persistentLocalCache,
-  persistentMultipleTabManager,
-} from 'firebase/firestore';
-
 // --- singletons ---
 const app = initializeApp(firebaseConfig);
+
+// Enable a strong local cache that works across tabs
 const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager(),
   }),
 });
+
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// --- re-exports (one stop import for all modules) ---
+// --- re-exports (one-stop import for all modules) ---
 export {
   app,
   db,
