@@ -44,13 +44,30 @@
             aria-label="Search books"
           />
           <button
-            id="openRequestBtn"
-            class="btn btn-secondary btn-ghost"
+            id="menuBtn"
+            class="icon-btn"
             type="button"
-            aria-controls="requestPanel"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="siteMenu"
+            title="Menu"
+            aria-label="Open menu"
           >
-            Request a book
+            <!-- burger icon -->
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z"
+              />
+            </svg>
           </button>
+
+          <div id="siteMenu" class="menu" role="menu" hidden>
+            <a href="#requestPanel" role="menuitem" data-action="request"
+              >Request a book</a
+            >
+            <a href="./admin.html" role="menuitem">Admin</a>
+          </div>
         </div>
       </div>
     </header>

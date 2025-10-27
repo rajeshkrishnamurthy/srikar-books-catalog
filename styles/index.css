@@ -35,22 +35,6 @@ body {
   border: 1px solid var(--border);
 }
 
-/* Mobile FAB (shown on small screens only) */
-.request-fab {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  width: 52px;
-  height: 52px;
-  border: none;
-  border-radius: 999px;
-  background: var(--brand);
-  color: #fff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  z-index: 50;
-  display: none; /* default hidden on desktop */
-}
-
 /* Desktop: keep header CTA, hide FAB. Mobile: show FAB, hide header CTA (space-saving). */
 @media (max-width: 720px) {
   .search .btn-ghost {
@@ -73,4 +57,57 @@ body {
 /* Optional: a touch more space above the first row of inputs */
 #requestPanel form {
   margin-top: 0.25rem;
+}
+
+/* --- Hamburger + menu --- */
+.search {
+  position: relative;
+} /* anchor the dropdown */
+.icon-btn {
+  margin-left: 0.5rem;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.icon-btn:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 220px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  z-index: 20;
+  padding: 0.25rem;
+}
+.menu a {
+  display: block;
+  padding: 0.55rem 0.7rem;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 8px;
+}
+.menu a:hover {
+  background: var(--surface);
+}
+
+/* Smooth anchor jumps + breathing room above the form */
+html {
+  scroll-behavior: smooth;
+}
+#requestPanel {
+  scroll-margin-top: 84px;
+  margin-top: 0.6rem;
 }

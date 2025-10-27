@@ -99,6 +99,50 @@ window.addEventListener('offline', () => {
   updateView();
 });
 
+// --- Hamburger menu wiring ---
+const menuBtn = document.getElementById('menuBtn');
+const siteMenu = document.getElementById('siteMenu');
+const requestPanel = document.getElementById('requestPanel');
+
+function closeMenu() {
+  if (!siteMenu) return;
+  siteMenu.hidden = true;
+  menuBtn?.setAttribute('aria-expanded', 'false');
+}
+
+menuBtn?.addEventListener('click', () => {
+  if (!siteMenu) return;
+  const willOpen = siteMenu.hidden;
+  siteMenu.hidden = !willOpen;
+  menuBtn.setAttribute('aria-expanded', String(willOpen));
+});
+
+document.addEventListener('click', (e) => {
+  if (!siteMenu || siteMenu.hidden) return;
+  const withinMenu = siteMenu.contains(e.target);
+  const onBtn = menuBtn && menuBtn.contains(e.target);
+  if (!withinMenu && !onBtn) closeMenu();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeMenu();
+});
+
+// Open the request form from the menu (scroll + focus)
+siteMenu
+  ?.querySelector('[data-action="request"]')
+  ?.addEventListener('click', (e) => {
+    e.preventDefault();
+    closeMenu();
+    if (!requestPanel) return;
+    requestPanel.open = true; // open <details>
+    requestPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const first =
+      requestPanel.querySelector('input[name="rtitle"]') ||
+      requestPanel.querySelector('input, textarea, select');
+    if (first) setTimeout(() => first.focus(), 300);
+  });
+
 // Subscribe once to site‑wide books; render on every snapshot
 function subscribeAll() {
   if (unsubAll) unsubAll();
