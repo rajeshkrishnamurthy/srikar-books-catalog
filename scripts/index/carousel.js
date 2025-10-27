@@ -38,6 +38,14 @@ export async function initCarousel(initialCategory = null) {
 
   if (!viewport || !container) return;
 
+  // Make viewport keyboard-navigable with arrow keys
+  viewport.setAttribute('tabindex', '0');
+  viewport.addEventListener('keydown', (e) => {
+    if (!embla) return;
+    if (e.key === 'ArrowLeft') embla.scrollPrev();
+    else if (e.key === 'ArrowRight') embla.scrollNext();
+  });
+
   EmblaCarousel = await loadEmbla();
   ClassNames = await loadClassNames().catch(() => null);
 

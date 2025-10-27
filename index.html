@@ -57,41 +57,59 @@
 
     <main class="wrap">
       <!-- === Featured (Embla predefined — class names) === -->
-      <section id="homeCarousel" class="panel" aria-label="Featured books">
-        <div class="flex between" style="margin-bottom: 0.4rem">
-          <strong>Featured</strong>
-          <div class="muted" id="carouselCount"></div>
+      <section id="homeCarousel" class="panel" aria-labelledby="feat-title">
+        <div class="flex between">
+          <h2 id="feat-title">Featured</h2>
+          <span id="carouselCount" class="muted"></span>
         </div>
 
-        <div class="embla" id="embla">
-          <div class="embla__viewport" id="emblaViewport">
-            <div class="embla__container" id="emblaContainer">
-              <!-- Slides injected by scripts/index/carousel.js -->
-            </div>
+        <div class="embla">
+          <div
+            id="emblaViewport"
+            class="embla__viewport"
+            tabindex="0"
+            aria-label="Featured books"
+          >
+            <div id="emblaContainer" class="embla__container"></div>
           </div>
 
-          <div class="embla__controls">
-            <div class="embla__buttons">
-              <button
-                class="embla__button embla__button--prev"
-                id="emblaPrev"
-                type="button"
-                aria-label="Previous"
-              >
-                ‹
-              </button>
-              <button
-                class="embla__button embla__button--next"
-                id="emblaNext"
-                type="button"
-                aria-label="Next"
-              >
-                ›
-              </button>
-            </div>
-            <div class="embla__dots" id="emblaDots"></div>
-          </div>
+          <!-- NEW: overlay arrows (bigger & centered) -->
+          <button
+            id="emblaPrev"
+            class="embla__button embla__button--prev"
+            type="button"
+            aria-label="Previous slide"
+          >
+            <!-- chevron-left -->
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"
+              />
+            </svg>
+          </button>
+          <button
+            id="emblaNext"
+            class="embla__button embla__button--next"
+            type="button"
+            aria-label="Next slide"
+          >
+            <!-- chevron-right -->
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z"
+              />
+            </svg>
+          </button>
         </div>
+
+        <div
+          id="emblaDots"
+          class="embla__dots"
+          role="tablist"
+          aria-label="Featured carousel pagination"
+        ></div>
       </section>
 
       <section id="bookGrid" class="grid" aria-live="polite"></section>
