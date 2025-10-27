@@ -44,9 +44,19 @@ import {
 
 import { firebaseConfig } from '../config.js';
 
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore';
+
 // --- singletons ---
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+});
 const auth = getAuth(app);
 const storage = getStorage(app);
 

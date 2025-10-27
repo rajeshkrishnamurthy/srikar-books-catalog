@@ -6,10 +6,9 @@ import {
   where,
   orderBy,
   onSnapshot,
-  // limit, // optional cap if you want
 } from '../lib/firebase.js';
 
-// Site‑wide stream for the grid/search
+// Site‑wide stream (unchanged)
 export function subscribeToAllAvailable(onNext, onError) {
   const q = query(
     collection(db, 'books'),
@@ -23,21 +22,22 @@ export function subscribeToAllAvailable(onNext, onError) {
   );
 }
 
-// Category‑aware Featured for carousel
-export function subscribeToCarousel(
-  category /* string|null */,
-  onNext,
-  onError
-) {
-  const constraints = [
+// Carousel stream: when category is falsy, do *not* create a query.
+export function subscribeToCarousel(category, onNext, onError) {
+  if (!category) {
+    // Pause mode: no Firestore reads; clear the UI if you want.
+    try {
+      onNext([]);
+    } catch {}
+    return () => {};
+  }
+  const q = query(
+    collection(db, 'books'),
     where('status', '==', 'available'),
     where('featured', '==', true),
-  ];
-  if (category) constraints.push(where('category', '==', category));
-  constraints.push(orderBy('featuredAt', 'desc'));
-  // constraints.push(limit(12));
-
-  const q = query(collection(db, 'books'), ...constraints);
+    where('category', '==', category),
+    orderBy('featuredAt', 'desc')
+  );
   return onSnapshot(
     q,
     (snap) => onNext(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
