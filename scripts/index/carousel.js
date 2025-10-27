@@ -292,6 +292,14 @@ function slideHTML(b, idx) {
               ? `<p class="muted">MRP: ₹${escapeHtml(String(b.mrp))}</p>`
               : ''
           }
+
+          <!-- WhatsApp CTA (now visible) -->
+          <a class="btn" href="${waUrl(b)}" target="_blank" rel="noopener"
+             aria-label="Message Srikar on WhatsApp about ${escapeHtml(
+               b.title || 'this book'
+             )}">
+            Message on WhatsApp
+          </a>
         </div>
       </article>
     </div>`;
