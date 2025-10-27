@@ -52,7 +52,7 @@ import {
 
 // --- singletons ---
 const app = initializeApp(firebaseConfig);
-export const db = initializeFirestore(app, {
+const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager(),
   }),
