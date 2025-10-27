@@ -142,10 +142,15 @@
             <input name="rtitle" placeholder="Title *" required />
             <input name="rauthor" placeholder="Author *" required />
             <input name="rname" placeholder="Your name *" required />
+            <!-- index.html -->
             <input
               name="rphone"
-              placeholder="Phone/WhatsApp *"
+              placeholder="Phone/WhatsApp (10 digits) *"
               inputmode="tel"
+              autocomplete="tel"
+              pattern="^[0-9]{10}$"
+              maxlength="10"
+              title="Enter a 10-digit Indian mobile number (e.g., 9876543210)"
               required
             />
           </div>

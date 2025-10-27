@@ -1,4 +1,3 @@
-// scripts/index/main.js
 // Cost-aware catalog glue:
 // - Grid = active category by default; site-wide when searching (>=3 chars).
 // - Featured carousel = category-scoped; paused during search or offline.
@@ -99,7 +98,7 @@ window.addEventListener('offline', () => {
   updateView();
 });
 
-// --- Hamburger menu wiring ---
+// --- Hamburger menu wiring (harmless if menu not present) ---
 const menuBtn = document.getElementById('menuBtn');
 const siteMenu = document.getElementById('siteMenu');
 const requestPanel = document.getElementById('requestPanel');
@@ -143,6 +142,17 @@ siteMenu
     if (first) setTimeout(() => first.focus(), 300);
   });
 
+// (Legacy header button support — harmless if you use the hamburger)
+document.getElementById('openRequestBtn')?.addEventListener('click', () => {
+  if (!requestPanel) return;
+  requestPanel.open = true;
+  requestPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const first =
+    requestPanel.querySelector('input[name="rtitle"]') ||
+    requestPanel.querySelector('input, textarea, select');
+  if (first) setTimeout(() => first.focus(), 300);
+});
+
 // Subscribe once to site‑wide books; render on every snapshot
 function subscribeAll() {
   if (unsubAll) unsubAll();
@@ -158,6 +168,70 @@ function subscribeAll() {
     }
   );
 }
+
+// ---------------- Request form: strict 10‑digit phone validation ----------------
+const requestForm = document.getElementById('requestForm');
+const reqMsg = document.getElementById('reqMsg');
+const reqWaLink = document.getElementById('reqWaLink');
+const phoneInput = requestForm?.querySelector('input[name="rphone"]');
+
+function digitsOnly(s = '') {
+  return String(s).replace(/\D/g, '');
+}
+function isTenDigitPhone(s = '') {
+  return /^[0-9]{10}$/.test(s);
+}
+function showReqError(msg) {
+  if (!reqMsg) return;
+  reqMsg.textContent = msg;
+  reqMsg.classList.add('error');
+  reqMsg.classList.remove('muted');
+}
+function clearReqError() {
+  if (!reqMsg) return;
+  reqMsg.textContent = '';
+  reqMsg.classList.remove('error');
+  reqMsg.classList.add('muted');
+}
+
+// Live filter while typing: keep digits only, cap at 10, clear error state
+phoneInput?.addEventListener('input', () => {
+  const v = digitsOnly(phoneInput.value).slice(0, 10);
+  if (v !== phoneInput.value) phoneInput.value = v;
+  phoneInput.setAttribute('aria-invalid', 'false');
+  clearReqError();
+});
+
+// Gate the submit BEFORE any other listeners (capture phase).
+// If invalid, we block saving and WhatsApp open; if valid, we normalize and let
+// the existing submit handler (if any) proceed.
+requestForm?.addEventListener(
+  'submit',
+  (e) => {
+    if (!phoneInput) return;
+
+    const digits = digitsOnly(phoneInput.value);
+    if (!isTenDigitPhone(digits)) {
+      e.preventDefault();
+      if (typeof e.stopImmediatePropagation === 'function') {
+        e.stopImmediatePropagation();
+      }
+      phoneInput.setAttribute('aria-invalid', 'true');
+      if (reqWaLink) reqWaLink.style.display = 'none';
+      showReqError(
+        'Please enter a 10-digit Indian phone number (e.g., 9876543210) — do not include +91 or spaces.'
+      );
+      phoneInput.focus();
+      phoneInput.select?.();
+      return;
+    }
+
+    // Normalize to the exact 10 digits so downstream code saves/uses the clean value
+    phoneInput.value = digits;
+    clearReqError();
+  },
+  true // capture
+);
 
 // Boot
 initCarousel(activeCategory);
