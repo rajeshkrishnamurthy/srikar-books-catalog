@@ -1,9 +1,8 @@
 // scripts/index/main.js
 // Cost-aware catalog glue:
-// - Grid = category by default; site-wide when searching.
-// - Carousel = category-scoped, but PAUSED while searching or offline.
-// - Don't "query" Firestore when term is short (<3), identical to last, or offline.
-// - Debounce input so we don't churn subscriptions/renders.
+// - Grid = active category by default; site-wide when searching (>=3 chars).
+// - Featured carousel = category-scoped; paused during search or offline.
+// - Debounce input; skip “queries” for short terms; render always on data change.
 
 import { subscribeToAllAvailable } from './catalogService.js';
 import { renderBooks, wireTabs } from './render.js';
@@ -13,17 +12,14 @@ const grid = document.getElementById('bookGrid');
 const emptyState = document.getElementById('emptyState');
 const searchInput = document.getElementById('search');
 const tabButtons = Array.from(document.querySelectorAll('.tab'));
-const carouselSection = document.getElementById('homeCarousel'); // exists in index.html
+const carouselSection = document.getElementById('homeCarousel');
 
-// --- state
 let activeCategory = 'Fiction';
 let unsubAll = null;
 let cachedDocs = []; // site-wide (status == 'available')
 let online = navigator.onLine;
-let lastTerm = ''; // identical-term guard
-let debounceId = 0; // debounce
+let debounceId = 0;
 
-// --- helpers
 const norm = (s = '') => String(s).toLowerCase();
 const hasMinLen = (s = '') => norm(s).trim().length >= 3;
 
@@ -37,35 +33,23 @@ function filterBySearch(docs, term) {
 function filterByCategory(docs, category) {
   return docs.filter((b) => (b.category || '') === category);
 }
-function hideCarousel(show) {
+function showCarousel(yes) {
   if (!carouselSection) return;
-  carouselSection.hidden = !show;
-  carouselSection.setAttribute('aria-hidden', show ? 'false' : 'true');
+  carouselSection.hidden = !yes;
+  carouselSection.setAttribute('aria-hidden', yes ? 'false' : 'true');
 }
 
-/**
- * Render the grid + (un)pause the carousel in a cost-aware way:
- * - If searching with matches (and term >=3): hide & pause carousel.
- * - If short term (<3), identical term, or offline: don't touch the carousel subscription;
- *   for offline we keep it paused (set in the online/offline listeners).
- */
+// Always render based on current state (no “identical-term” early return here)
 function updateView() {
-  const rawTerm = searchInput?.value || '';
-  const t = norm(rawTerm);
+  const term = searchInput?.value || '';
+  const searching = hasMinLen(term);
+  const matches = searching ? filterBySearch(cachedDocs, term) : [];
 
-  // identical-term (no work)
-  if (t === lastTerm) return;
-  lastTerm = t;
-
-  const searching = hasMinLen(rawTerm);
-  const matches = searching ? filterBySearch(cachedDocs, rawTerm) : [];
-
-  // Decide which docs to show
   const docsToRender = searching
-    ? matches
-    : filterByCategory(cachedDocs, activeCategory);
+    ? matches // site-wide search results
+    : filterByCategory(cachedDocs, activeCategory); // default: category
 
-  // Grid render (we already filtered; pass searchTerm='')
+  // We already filtered; pass searchTerm:'' to renderBooks
   renderBooks({
     gridEl: grid,
     emptyEl: emptyState,
@@ -73,68 +57,55 @@ function updateView() {
     searchTerm: '',
   });
 
-  // Carousel visibility + subscription policy
-  if (searching && matches.length > 0) {
-    // We have results → give them priority; pause carousel query
-    hideCarousel(false);
-    setCarouselCategory(null); // special: don't query Firestore at all (see catalogService)
-  } else if (!online) {
-    // Offline → keep it paused; results come from cache
-    hideCarousel(false);
-    setCarouselCategory(null);
+  // Carousel policy: hide/pause only when there ARE matches, or when offline
+  if ((searching && matches.length > 0) || !online) {
+    showCarousel(false);
+    setCarouselCategory(null); // pause carousel reads entirely
   } else {
-    // Default view → show & (re)subscribe carousel for active category
-    hideCarousel(true);
-    setCarouselCategory(activeCategory);
+    showCarousel(true);
+    setCarouselCategory(activeCategory); // resume carousel for current category
   }
 }
 
-// Debounce the keystrokes (UI + subscription churn)
+// Debounce keystrokes; treat short terms as “no search”
 function debouncedUpdate() {
   clearTimeout(debounceId);
   debounceId = setTimeout(updateView, 300);
 }
 
-// Tabs: just update the category and re-render
+// Tabs switch *carousel* category and re-render grid (category view if not searching)
 wireTabs(tabButtons, (newCat) => {
   activeCategory = newCat;
-  // If we are *not* actively searching (term < 3), switch the category view immediately
   if (!hasMinLen(searchInput?.value || '')) {
     setCarouselCategory(activeCategory);
     updateView();
   }
 });
 
-// Search: debounced
+// Search input
 searchInput?.addEventListener('input', () => {
-  // Short terms (<3) → treat like "no search", show category view, *do not* resume carousel if offline.
-  if (!hasMinLen(searchInput.value || '')) {
-    // Reset lastTerm so we re-render when term grows to >=3 later
-    lastTerm = '__short__' + Math.random();
-  }
   debouncedUpdate();
 });
 
-// Online/offline: pause carousel entirely while offline
+// Online/offline: pause carousel while offline, render from cache
 window.addEventListener('online', () => {
   online = true;
-  // If not actively searching, resume carousel for the current category
   if (!hasMinLen(searchInput?.value || '')) setCarouselCategory(activeCategory);
   updateView();
 });
 window.addEventListener('offline', () => {
   online = false;
-  setCarouselCategory(null); // hard pause
+  setCarouselCategory(null); // hard pause carousel
   updateView();
 });
 
-// Subscribe once to site‑wide availability (no keystroke queries)
+// Subscribe once to site‑wide books; render on every snapshot
 function subscribeAll() {
   if (unsubAll) unsubAll();
   unsubAll = subscribeToAllAvailable(
     (docs) => {
       cachedDocs = docs;
-      updateView();
+      updateView(); // ← ensure first load renders the category grid
     },
     (err) => {
       console.error(err);
