@@ -38,15 +38,14 @@ function showCarousel(yes) {
   carouselSection.setAttribute('aria-hidden', yes ? 'false' : 'true');
 }
 
-// Always render based on current state
 function updateView() {
   const term = searchInput?.value || '';
   const searching = hasMinLen(term);
   const matches = searching ? filterBySearch(cachedDocs, term) : [];
 
   const docsToRender = searching
-    ? matches // site‑wide search results
-    : filterByCategory(cachedDocs, activeCategory); // default: category
+    ? matches
+    : filterByCategory(cachedDocs, activeCategory);
 
   renderBooks({
     gridEl: grid,
@@ -55,23 +54,20 @@ function updateView() {
     searchTerm: '',
   });
 
-  // Carousel policy: hide/pause only when there ARE matches, or when offline
   if ((searching && matches.length > 0) || !online) {
     showCarousel(false);
-    setCarouselCategory(null); // pause carousel reads entirely
+    setCarouselCategory(null);
   } else {
     showCarousel(true);
-    setCarouselCategory(activeCategory); // resume carousel for current category
+    setCarouselCategory(activeCategory);
   }
 }
 
-// Debounce keystrokes; treat short terms as “no search”
 function debouncedUpdate() {
   clearTimeout(debounceId);
   debounceId = setTimeout(updateView, 300);
 }
 
-// Tabs switch *carousel* category and re-render grid (category view if not searching)
 wireTabs(tabButtons, (newCat) => {
   activeCategory = newCat;
   if (!hasMinLen(searchInput?.value || '')) {
@@ -80,12 +76,10 @@ wireTabs(tabButtons, (newCat) => {
   }
 });
 
-// Search input
 searchInput?.addEventListener('input', () => {
   debouncedUpdate();
 });
 
-// Online/offline: pause carousel while offline, render from cache
 window.addEventListener('online', () => {
   online = true;
   if (!hasMinLen(searchInput?.value || '')) setCarouselCategory(activeCategory);
@@ -93,56 +87,13 @@ window.addEventListener('online', () => {
 });
 window.addEventListener('offline', () => {
   online = false;
-  setCarouselCategory(null); // hard pause carousel
+  setCarouselCategory(null);
   updateView();
 });
 
-// --- Hamburger menu wiring (harmless if menu not present) ---
-const menuBtn = document.getElementById('menuBtn');
-const siteMenu = document.getElementById('siteMenu');
-const requestPanel = document.getElementById('requestPanel');
-
-function closeMenu() {
-  if (!siteMenu) return;
-  siteMenu.hidden = true;
-  menuBtn?.setAttribute('aria-expanded', 'false');
-}
-
-menuBtn?.addEventListener('click', () => {
-  if (!siteMenu) return;
-  const willOpen = siteMenu.hidden;
-  siteMenu.hidden = !willOpen;
-  menuBtn.setAttribute('aria-expanded', String(willOpen));
-});
-
-document.addEventListener('click', (e) => {
-  if (!siteMenu || siteMenu.hidden) return;
-  const withinMenu = siteMenu.contains(e.target);
-  const onBtn = menuBtn && menuBtn.contains(e.target);
-  if (!withinMenu && !onBtn) closeMenu();
-});
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeMenu();
-});
-
-// Open the request form from the menu (scroll + focus)
-siteMenu
-  ?.querySelector('[data-action="request"]')
-  ?.addEventListener('click', (e) => {
-    e.preventDefault();
-    closeMenu();
-    if (!requestPanel) return;
-    requestPanel.open = true; // open <details>
-    requestPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    const first =
-      requestPanel.querySelector('input[name="rtitle"]') ||
-      requestPanel.querySelector('input, textarea, select');
-    if (first) setTimeout(() => first.focus(), 300);
-  });
-
-// Legacy header button support (present on this branch)
+// --- Optional header shortcut to scroll to the request form ---
 document.getElementById('openRequestBtn')?.addEventListener('click', () => {
+  const requestPanel = document.getElementById('requestPanel');
   if (!requestPanel) return;
   requestPanel.open = true;
   requestPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -158,7 +109,7 @@ function subscribeAll() {
   unsubAll = subscribeToAllAvailable(
     (docs) => {
       cachedDocs = docs;
-      updateView(); // ensure first load renders the category grid
+      updateView();
     },
     (err) => {
       console.error(err);
@@ -168,11 +119,14 @@ function subscribeAll() {
   );
 }
 
-// ---------------- Request form: strict 10‑digit phone validation ----------------
+// ---------------- Phone field: “+91 + 10 digits” enforcement ----------------
 const requestForm = document.getElementById('requestForm');
 const reqMsg = document.getElementById('reqMsg');
 const reqWaLink = document.getElementById('reqWaLink');
 const phoneInput = requestForm?.querySelector('input[name="rphone"]');
+
+const digitsOnly = (s = '') => String(s).replace(/\D/g, '');
+const isTenDigitPhone = (s = '') => /^[0-9]{10}$/.test(s);
 
 function showReqError(msg) {
   if (!reqMsg) return;
@@ -187,47 +141,40 @@ function clearReqError() {
   reqMsg.classList.add('muted');
 }
 
-// Live filter while typing: keep digits only, cap at 10, clear error state
+// Keep only digits (max 10) while typing
 phoneInput?.addEventListener('input', () => {
-  const v = phoneInput.value.replace(/\D/g, '').slice(0, 13);
+  const v = digitsOnly(phoneInput.value).slice(0, 10);
   if (v !== phoneInput.value) phoneInput.value = v;
   phoneInput.setAttribute('aria-invalid', 'false');
   clearReqError();
 });
 
-// Gate the submit BEFORE any other listeners (capture phase).
-// If invalid: block saving/WhatsApp; If valid: normalize and allow existing submit logic to run.
+// Block submit unless it’s exactly 10 digits (capture phase to gate early)
 requestForm?.addEventListener(
   'submit',
   (e) => {
     if (!phoneInput) return;
-
-    const digits = phoneInput.value.replace(/\D/g, '');
-    const normalized =
-      digits.length === 12 && digits.startsWith('91')
-        ? digits.slice(2) // drop leading 91 from 12-digit input
-        : digits.length === 13 && digits.startsWith('91')
-        ? digits.slice(2) // drop leading 91 from 13-digit input (originally +91...)
-        : digits;
-
-    if (!/^[0-9]{10}$/.test(normalized)) {
+    const digits = digitsOnly(phoneInput.value);
+    if (!isTenDigitPhone(digits)) {
       e.preventDefault();
       e.stopImmediatePropagation?.();
       phoneInput.setAttribute('aria-invalid', 'true');
-      reqWaLink && (reqWaLink.style.display = 'none');
-      showReqError('Please enter 10 digits (or +91/91 followed by 10 digits).');
+      if (reqWaLink) reqWaLink.style.display = 'none';
+      showReqError(
+        'Enter a 10‑digit Indian mobile number (no +91, no spaces).'
+      );
       phoneInput.focus();
       phoneInput.select?.();
       return;
     }
-
-    // Save/send only the 10 digits
-    phoneInput.value = normalized;
+    // Normalize to 10 digits for downstream code (saving, WhatsApp, etc.)
+    phoneInput.value = digits;
     clearReqError();
   },
   true
 );
 
 // Boot
+import { initCarousel as _ic } from './carousel.js'; // ensure tree-shake safe in some bundlers
 initCarousel(activeCategory);
 subscribeAll();
