@@ -36,6 +36,7 @@ jobs:
           # Sanitize branch: lowercase, replace non [a-z0-9] with '-', trim '-'
           SAFE=$(echo "$REF" | tr '[:upper:]' '[:lower:]' \
                  | sed -E 's/[^a-z0-9]+/-/g' | sed -E 's/^-+|-+$//g')
+          SAFE=${SAFE#preview-} # avoid duplicate preview- prefix
           # Limit suffix to 24 chars so "preview-" + suffix stays within 32 chars
           PART=$(echo "$SAFE" | cut -c1-24)
           [ -z "$PART" ] && PART="branch"
