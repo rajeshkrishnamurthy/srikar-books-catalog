@@ -143,14 +143,15 @@
             <input name="rauthor" placeholder="Author *" required />
             <input name="rname" placeholder="Your name *" required />
             <!-- index.html -->
+            <!-- Accept 10 digits, optionally prefixed by +91 or 91 -->
             <input
               name="rphone"
               placeholder="Phone/WhatsApp (10 digits) *"
               inputmode="tel"
               autocomplete="tel"
-              pattern="^[0-9]{10}$"
-              maxlength="10"
-              title="Enter a 10-digit Indian mobile number (e.g., 9876543210)"
+              pattern="^(?:\+?91)?\d{10}$"
+              maxlength="13"
+              title="Enter 10 digits, optionally prefixed by +91 or 91"
               required
             />
           </div>

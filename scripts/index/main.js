@@ -195,7 +195,7 @@ function clearReqError() {
 
 // Live filter while typing: keep digits only, cap at 10, clear error state
 phoneInput?.addEventListener('input', () => {
-  const v = digitsOnly(phoneInput.value).slice(0, 10);
+  const v = phoneInput.value.replace(/\D/g, '').slice(0, 13);
   if (v !== phoneInput.value) phoneInput.value = v;
   phoneInput.setAttribute('aria-invalid', 'false');
   clearReqError();
@@ -207,30 +207,29 @@ requestForm?.addEventListener(
   'submit',
   (e) => {
     if (!phoneInput) return;
+    const digits = phoneInput.value.replace(/\D/g, '');
+    const normalized =
+      digits.length === 12 && digits.startsWith('91')
+        ? digits.slice(2) // drop leading 91
+        : digits;
 
-    const digits = digitsOnly(phoneInput.value);
-    if (!isTenDigitPhone(digits)) {
+    if (!/^[0-9]{10}$/.test(normalized)) {
       e.preventDefault();
-      if (typeof e.stopImmediatePropagation === 'function') {
-        e.stopImmediatePropagation();
-      }
+      e.stopImmediatePropagation?.();
       phoneInput.setAttribute('aria-invalid', 'true');
-      if (reqWaLink) reqWaLink.style.display = 'none';
-      showReqError(
-        'Please enter a 10-digit Indian phone number (e.g., 9876543210) — do not include +91 or spaces.'
-      );
+      reqWaLink && (reqWaLink.style.display = 'none');
+      showReqError('Please enter 10 digits (or +91/91 followed by 10 digits).');
       phoneInput.focus();
       phoneInput.select?.();
       return;
     }
 
-    // Normalize to the exact 10 digits so downstream code saves/uses the clean value
-    phoneInput.value = digits;
+    // Save/send only the 10 digits
+    phoneInput.value = normalized;
     clearReqError();
   },
-  true // capture
+  true
 );
-
 // Boot
 initCarousel(activeCategory);
 subscribeAll();
