@@ -38,17 +38,16 @@ function showCarousel(yes) {
   carouselSection.setAttribute('aria-hidden', yes ? 'false' : 'true');
 }
 
-// Always render based on current state (no “identical-term” early return here)
+// Always render based on current state
 function updateView() {
   const term = searchInput?.value || '';
   const searching = hasMinLen(term);
   const matches = searching ? filterBySearch(cachedDocs, term) : [];
 
   const docsToRender = searching
-    ? matches // site-wide search results
+    ? matches // site‑wide search results
     : filterByCategory(cachedDocs, activeCategory); // default: category
 
-  // We already filtered; pass searchTerm:'' to renderBooks
   renderBooks({
     gridEl: grid,
     emptyEl: emptyState,
@@ -142,7 +141,7 @@ siteMenu
     if (first) setTimeout(() => first.focus(), 300);
   });
 
-// (Legacy header button support — harmless if you use the hamburger)
+// Legacy header button support (present on this branch)
 document.getElementById('openRequestBtn')?.addEventListener('click', () => {
   if (!requestPanel) return;
   requestPanel.open = true;
@@ -159,7 +158,7 @@ function subscribeAll() {
   unsubAll = subscribeToAllAvailable(
     (docs) => {
       cachedDocs = docs;
-      updateView(); // ← ensure first load renders the category grid
+      updateView(); // ensure first load renders the category grid
     },
     (err) => {
       console.error(err);
@@ -203,8 +202,7 @@ phoneInput?.addEventListener('input', () => {
 });
 
 // Gate the submit BEFORE any other listeners (capture phase).
-// If invalid, we block saving and WhatsApp open; if valid, we normalize and let
-// the existing submit handler (if any) proceed.
+// If invalid: block saving/WhatsApp; If valid: normalize and allow existing submit logic to run.
 requestForm?.addEventListener(
   'submit',
   (e) => {
@@ -236,4 +234,3 @@ requestForm?.addEventListener(
 // Boot
 initCarousel(activeCategory);
 subscribeAll();
-// touch
