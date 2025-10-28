@@ -29,12 +29,17 @@ jobs:
         run: cp scripts/config.staging.js scripts/config.js
 
       # ---- Branch pushes -> explicit channel per branch ----
-      - name: Compute preview channel id
+      - name: Compute preview channel id (max 32 chars incl. prefix)
         if: github.event_name == 'push'
         run: |
-          # preview-<branch>, lowercase, non-alnum -> '-'
-          CID="preview-$(echo '${GITHUB_REF_NAME}' | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g' | sed -E 's/^-+|-+$//g')"
-          echo "CHANNEL_ID=$CID" >> $GITHUB_ENV
+          REF="${{ github.head_ref || github.ref_name }}"
+          # Sanitize branch: lowercase, replace non [a-z0-9] with '-', trim '-'
+          SAFE=$(echo "$REF" | tr '[:upper:]' '[:lower:]' \
+                 | sed -E 's/[^a-z0-9]+/-/g' | sed -E 's/^-+|-+$//g')
+          # Limit suffix to 24 chars so "preview-" + suffix stays within 32 chars
+          PART=$(echo "$SAFE" | cut -c1-24)
+          [ -z "$PART" ] && PART="branch"
+          echo "CHANNEL_ID=preview-$PART" >> $GITHUB_ENV
 
       - name: Deploy preview (branch push)
         if: github.event_name == 'push'
