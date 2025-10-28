@@ -207,12 +207,14 @@ requestForm?.addEventListener(
   'submit',
   (e) => {
     if (!phoneInput) return;
+
     const digits = phoneInput.value.replace(/\D/g, '');
     const normalized =
       digits.length === 12 && digits.startsWith('91')
-        ? digits.slice(2) // drop leading 91
+        ? digits.slice(2) // drop leading 91 from 12-digit input
+        : digits.length === 13 && digits.startsWith('91')
+        ? digits.slice(2) // drop leading 91 from 13-digit input (originally +91...)
         : digits;
-
     if (!/^[0-9]{10}$/.test(normalized)) {
       e.preventDefault();
       e.stopImmediatePropagation?.();
@@ -230,6 +232,7 @@ requestForm?.addEventListener(
   },
   true
 );
+
 // Boot
 initCarousel(activeCategory);
 subscribeAll();
