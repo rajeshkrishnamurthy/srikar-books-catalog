@@ -1,18 +1,15 @@
+# .github/workflows/deploy-previews.yml
 name: 'Deploy previews (branches + PRs)'
+
 on:
   pull_request:
   push:
-    branches-ignore:
-      - main
-      - staging
-
-permissions:
-  contents: read
-  deployments: write
-  pull-requests: write
+    branches-ignore: [main, staging]
 
 jobs:
   preview:
+    # Skip if it's a PR from a forked repo (no secrets available on forked PRs)
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,9 +17,8 @@ jobs:
       - name: Use STAGING config
         run: cp scripts/config.staging.js scripts/config.js
 
-      - name: Derive channel id from branch/PR
+      - name: Derive channel id
         id: ch
-        shell: bash
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             echo "id=pr-${{ github.event.number }}" >> $GITHUB_OUTPUT

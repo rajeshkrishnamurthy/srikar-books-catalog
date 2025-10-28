@@ -1,4 +1,3 @@
-// scripts/index/main.js
 // Cost-aware catalog glue:
 // - Grid = active category by default; site-wide when searching (>=3 chars).
 // - Featured carousel = category-scoped; paused during search or offline.
@@ -39,17 +38,16 @@ function showCarousel(yes) {
   carouselSection.setAttribute('aria-hidden', yes ? 'false' : 'true');
 }
 
-// Always render based on current state (no “identical-term” early return here)
+// Always render based on current state
 function updateView() {
   const term = searchInput?.value || '';
   const searching = hasMinLen(term);
   const matches = searching ? filterBySearch(cachedDocs, term) : [];
 
   const docsToRender = searching
-    ? matches // site-wide search results
+    ? matches // site‑wide search results
     : filterByCategory(cachedDocs, activeCategory); // default: category
 
-  // We already filtered; pass searchTerm:'' to renderBooks
   renderBooks({
     gridEl: grid,
     emptyEl: emptyState,
@@ -99,7 +97,7 @@ window.addEventListener('offline', () => {
   updateView();
 });
 
-// --- Hamburger menu wiring ---
+// --- Hamburger menu wiring (harmless if menu not present) ---
 const menuBtn = document.getElementById('menuBtn');
 const siteMenu = document.getElementById('siteMenu');
 const requestPanel = document.getElementById('requestPanel');
@@ -143,13 +141,24 @@ siteMenu
     if (first) setTimeout(() => first.focus(), 300);
   });
 
+// Legacy header button support (present on this branch)
+document.getElementById('openRequestBtn')?.addEventListener('click', () => {
+  if (!requestPanel) return;
+  requestPanel.open = true;
+  requestPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const first =
+    requestPanel.querySelector('input[name="rtitle"]') ||
+    requestPanel.querySelector('input, textarea, select');
+  if (first) setTimeout(() => first.focus(), 300);
+});
+
 // Subscribe once to site‑wide books; render on every snapshot
 function subscribeAll() {
   if (unsubAll) unsubAll();
   unsubAll = subscribeToAllAvailable(
     (docs) => {
       cachedDocs = docs;
-      updateView(); // ← ensure first load renders the category grid
+      updateView(); // ensure first load renders the category grid
     },
     (err) => {
       console.error(err);
@@ -158,6 +167,66 @@ function subscribeAll() {
     }
   );
 }
+
+// ---------------- Request form: strict 10‑digit phone validation ----------------
+const requestForm = document.getElementById('requestForm');
+const reqMsg = document.getElementById('reqMsg');
+const reqWaLink = document.getElementById('reqWaLink');
+const phoneInput = requestForm?.querySelector('input[name="rphone"]');
+
+function showReqError(msg) {
+  if (!reqMsg) return;
+  reqMsg.textContent = msg;
+  reqMsg.classList.add('error');
+  reqMsg.classList.remove('muted');
+}
+function clearReqError() {
+  if (!reqMsg) return;
+  reqMsg.textContent = '';
+  reqMsg.classList.remove('error');
+  reqMsg.classList.add('muted');
+}
+
+// Live filter while typing: keep digits only, cap at 10, clear error state
+phoneInput?.addEventListener('input', () => {
+  const v = phoneInput.value.replace(/\D/g, '').slice(0, 13);
+  if (v !== phoneInput.value) phoneInput.value = v;
+  phoneInput.setAttribute('aria-invalid', 'false');
+  clearReqError();
+});
+
+// Gate the submit BEFORE any other listeners (capture phase).
+// If invalid: block saving/WhatsApp; If valid: normalize and allow existing submit logic to run.
+requestForm?.addEventListener(
+  'submit',
+  (e) => {
+    if (!phoneInput) return;
+
+    const digits = phoneInput.value.replace(/\D/g, '');
+    const normalized =
+      digits.length === 12 && digits.startsWith('91')
+        ? digits.slice(2) // drop leading 91 from 12-digit input
+        : digits.length === 13 && digits.startsWith('91')
+        ? digits.slice(2) // drop leading 91 from 13-digit input (originally +91...)
+        : digits;
+
+    if (!/^[0-9]{10}$/.test(normalized)) {
+      e.preventDefault();
+      e.stopImmediatePropagation?.();
+      phoneInput.setAttribute('aria-invalid', 'true');
+      reqWaLink && (reqWaLink.style.display = 'none');
+      showReqError('Please enter 10 digits (or +91/91 followed by 10 digits).');
+      phoneInput.focus();
+      phoneInput.select?.();
+      return;
+    }
+
+    // Save/send only the 10 digits
+    phoneInput.value = normalized;
+    clearReqError();
+  },
+  true
+);
 
 // Boot
 initCarousel(activeCategory);

@@ -142,10 +142,16 @@
             <input name="rtitle" placeholder="Title *" required />
             <input name="rauthor" placeholder="Author *" required />
             <input name="rname" placeholder="Your name *" required />
+            <!-- index.html -->
+            <!-- Accept 10 digits, optionally prefixed by +91 or 91 -->
             <input
               name="rphone"
-              placeholder="Phone/WhatsApp *"
+              placeholder="Phone/WhatsApp (10 digits) *"
               inputmode="tel"
+              autocomplete="tel"
+              pattern="^(\+91|91)?[0-9]{10}$"
+              maxlength="13"
+              title="Enter 10 digits (optionally prefix with +91 or 91)"
               required
             />
           </div>
