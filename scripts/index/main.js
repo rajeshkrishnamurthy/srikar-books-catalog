@@ -215,6 +215,7 @@ requestForm?.addEventListener(
         : digits.length === 13 && digits.startsWith('91')
         ? digits.slice(2) // drop leading 91 from 13-digit input (originally +91...)
         : digits;
+
     if (!/^[0-9]{10}$/.test(normalized)) {
       e.preventDefault();
       e.stopImmediatePropagation?.();
