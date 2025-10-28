@@ -174,12 +174,6 @@ const reqMsg = document.getElementById('reqMsg');
 const reqWaLink = document.getElementById('reqWaLink');
 const phoneInput = requestForm?.querySelector('input[name="rphone"]');
 
-function digitsOnly(s = '') {
-  return String(s).replace(/\D/g, '');
-}
-function isTenDigitPhone(s = '') {
-  return /^[0-9]{10}$/.test(s);
-}
 function showReqError(msg) {
   if (!reqMsg) return;
   reqMsg.textContent = msg;
