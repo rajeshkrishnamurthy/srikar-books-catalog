@@ -1,38 +1,39 @@
-# .github/workflows/deploy-previews.yml
-name: 'Deploy previews (branches + PRs)'
+name: Deploy previews (branches + PRs)
 
 on:
-  pull_request:
   push:
-    branches-ignore: [main, staging]
+    branches-ignore:
+      - main
+      - staging
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: write
+
+concurrency:
+  group: preview-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   preview:
-    # Skip if it's a PR from a forked repo (no secrets available on forked PRs)
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    # Fork-safety: only run on PRs if the PR's head repo is this repo.
+    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use STAGING config
-        run: cp scripts/config.staging.js scripts/config.js
-
-      - name: Derive channel id
-        id: ch
+      # Use the staging config for all previews
+      - name: Select staging Firebase config
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "id=pr-${{ github.event.number }}" >> $GITHUB_OUTPUT
-          else
-            CH="${GITHUB_REF_NAME//\//-}"
-            CH=$(echo "$CH" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-' | cut -c1-32)
-            echo "id=$CH" >> $GITHUB_OUTPUT
-          fi
+          rm -f scripts/config.js
+          cp scripts/config.staging.js scripts/config.js
 
-      - name: Deploy to Firebase Hosting (preview on STAGING project)
+      - name: Deploy preview to Firebase Hosting (staging)
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}
           projectId: srikar-book-deals-staging
-          channelId: ${{ steps.ch.outputs.id }}
-          expires: 7d
+          # channelId is optional; the action will create a PR/commit preview channel automatically
