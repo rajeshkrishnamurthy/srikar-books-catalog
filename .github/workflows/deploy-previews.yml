@@ -4,7 +4,11 @@ on:
   push:
     branches-ignore:
       - main
+      - staging
   pull_request:
+    branches:
+      - main
+      - staging
 
 permissions:
   contents: read
@@ -13,29 +17,41 @@ permissions:
 
 jobs:
   preview:
-    # Fork‑safety guard: don’t try to use secrets on PRs from forks
-    if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}
+    # Run for pushes (always same repo). For PRs, skip forks (no secrets).
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      # Build step: keep if you add a bundler later; for pure static leave as noop
-      - name: Build (static site)
-        run: echo "No build step"
+      # Always point the bundle at STAGING services for previews
+      - name: Use staging Firebase config
+        run: cp scripts/config.staging.js scripts/config.js
 
-      # Make a safe channel id from the branch name (lowercase, [a-z0-9-], max 40)
-      - name: Compute channel id
+      # ---- Branch pushes -> explicit channel per branch ----
+      - name: Compute preview channel id
+        if: github.event_name == 'push'
         run: |
-          REF="${{ github.head_ref || github.ref_name }}"
-          CHID=$(echo "$REF" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-' '-' | sed 's/^-*//;s/-*$//' | cut -c1-40)
-          echo "CHANNEL_ID=preview-$CHID" >> $GITHUB_ENV
+          # preview-<branch>, lowercase, non-alnum -> '-'
+          CID="preview-$(echo '${GITHUB_REF_NAME}' | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g' | sed -E 's/^-+|-+$//g')"
+          echo "CHANNEL_ID=$CID" >> $GITHUB_ENV
 
-      # Deploy preview to the STAGING Firebase project
-      - name: Deploy to Firebase Hosting (preview channel)
+      - name: Deploy preview (branch push)
+        if: github.event_name == 'push'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}
           projectId: srikar-book-deals-staging
           channelId: ${{ env.CHANNEL_ID }}
+          expires: 7d
+
+      # ---- PRs -> Firebase auto-names channel (pr-<number>) ----
+      - name: Deploy preview (pull request)
+        if: github.event_name == 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}
+          projectId: srikar-book-deals-staging
+          expires: 7d
