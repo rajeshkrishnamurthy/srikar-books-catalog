@@ -1,11 +1,11 @@
-// Intent: fetch book metadata (ISBN/MRP/desc/cover) from Google Books/Open Library,
-// then *improve hit-rate* by: (1) ISBN-specific INR price pass, (2) more robust cover fallbacks.
+// scripts/admin/lookup.js
+// Intent: fetch book metadata (ISBN/MRP/desc/cover) with a clear, stepwise progress UI
+// Steps: 1) Queuing selection  2) Fetching metadata (ISBN, title, MRP)  3) Downloading cover
 
 import { stripHtmlAndSquash } from '../helpers/text.js';
 
 // ---------- helpers: choose best Google image, fetch as File for <input type="file"> ----------
 function bestGoogleImage(links = {}) {
-  // Prefer largest available; fallback to smaller ones
   return (
     links.extraLarge ||
     links.large ||
@@ -16,15 +16,12 @@ function bestGoogleImage(links = {}) {
     ''
   );
 }
-
 function upgradeGoogleThumb(url = '') {
   if (!url) return '';
   let u = url.replace(/^http:/, 'https:');
-  // Some thumbs support a 'zoom' param; bump if present
   u = u.replace('zoom=1', 'zoom=2');
   return u.replace(/&?edge=curl/g, '');
 }
-
 async function setCoverFromUrl(url, coverInput, title = 'cover') {
   if (!url) return false;
   try {
@@ -42,7 +39,6 @@ async function setCoverFromUrl(url, coverInput, title = 'cover') {
     const dt = new DataTransfer();
     dt.items.add(file);
     coverInput.files = dt.files;
-    // Notify listeners so the preview updates
     try {
       coverInput.dispatchEvent(new Event('change', { bubbles: true }));
     } catch {}
@@ -62,7 +58,6 @@ function olIsbnCoverUrls(isbn) {
     : [];
 }
 async function olCoverByTitleAuthor(title, author) {
-  // Some Indian/older editions have no ISBN cover but have a cover_i via search
   const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(
     title || ''
   )}${author ? `&author=${encodeURIComponent(author)}` : ''}&limit=1`;
@@ -82,23 +77,10 @@ async function olCoverByTitleAuthor(title, author) {
 }
 
 // Try candidates until one sticks in the file input
-async function prefillCoverFromCandidates(
-  candidates,
-  coverInput,
-  title,
-  msgEl
-) {
-  if (!candidates.length) return false;
-  if (msgEl) msgEl.textContent = 'Downloading cover…';
+async function prefillCoverFromCandidates(candidates, coverInput, title) {
   for (const u of candidates) {
-    if (await setCoverFromUrl(u, coverInput, title)) {
-      if (msgEl) msgEl.textContent = 'Fields updated (cover pre‑filled).';
-      return true;
-    }
+    if (await setCoverFromUrl(u, coverInput, title)) return true;
   }
-  if (msgEl)
-    msgEl.textContent =
-      'Fields updated. Couldn’t fetch a cover; please upload one.';
   return false;
 }
 
@@ -126,14 +108,102 @@ async function findINRPriceByISBN(isbn, apiKey = '') {
   }
 }
 
+// =======================
+// Progress UI (per card)
+// =======================
+const LONG_STEP_MS = 10000;
+
+function buildProgressPanel(card) {
+  let panel = card.querySelector('.lookup-progress');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.className = 'lookup-progress';
+    panel.setAttribute('aria-live', 'polite');
+    card.appendChild(panel);
+  }
+  panel.innerHTML = `
+    <ol class="lookup-steps">
+      <li data-step="queue"><span class="spin" hidden></span><span class="mark" hidden>✓</span><span class="label">Queuing selection</span><small class="step-hint" hidden></small></li>
+      <li data-step="fetch"><span class="spin" hidden></span><span class="mark" hidden>✓</span><span class="label">Fetching metadata (ISBN, title, MRP)</span><small class="step-hint" hidden></small></li>
+      <li data-step="cover"><span class="spin" hidden></span><span class="mark" hidden>✓</span><span class="label">Downloading cover</span><small class="step-hint" hidden></small></li>
+    </ol>
+  `;
+  const timers = new Map();
+
+  function node(step) {
+    return panel.querySelector(`li[data-step="${step}"]`);
+  }
+  function setState(step, state, msg = '') {
+    const li = node(step);
+    if (!li) return;
+    li.classList.remove('is-queued', 'is-current', 'is-done', 'is-failed');
+    li.classList.add(`is-${state}`);
+    const spin = li.querySelector('.spin');
+    const mark = li.querySelector('.mark');
+    const hint = li.querySelector('.step-hint');
+    if (spin) spin.hidden = state !== 'current';
+    if (mark) mark.hidden = state !== 'done';
+    if (hint) {
+      hint.hidden = !(state === 'current' && hint.textContent);
+      if (msg) {
+        hint.textContent = msg;
+        hint.hidden = false;
+      }
+    }
+    // long-running hint
+    clearTimeout(timers.get(step));
+    if (state === 'current') {
+      timers.set(
+        step,
+        setTimeout(() => {
+          const li2 = node(step);
+          const h = li2?.querySelector('.step-hint');
+          if (h && !li2.classList.contains('is-done')) {
+            h.textContent = 'Taking longer than usual…';
+            h.hidden = false;
+          }
+        }, LONG_STEP_MS)
+      );
+    }
+  }
+  return {
+    start(step) {
+      setState(step, 'current');
+    },
+    done(step) {
+      setState(step, 'done');
+    },
+    fail(step, message) {
+      setState(step, 'failed', message || '');
+    },
+    clearLong(step) {
+      clearTimeout(timers.get(step));
+    },
+  };
+}
+
+function dimSiblings(resultsEl, selectedCard) {
+  Array.from(resultsEl.children).forEach((el) => {
+    if (el === selectedCard) el.classList.add('is-selected');
+    else el.classList.add('is-dimmed');
+  });
+}
+function undimAll(resultsEl) {
+  Array.from(resultsEl.children).forEach((el) => {
+    el.classList.remove('is-dimmed', 'is-selected');
+  });
+}
+
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
 // ---------- main wiring ----------
 export function wireLookup({
   addForm,
   authorInput,
   coverInput,
-  btn,
-  msgEl,
-  resultsEl,
+  btn, // "Find details" button
+  msgEl, // global message (still used for search errors)
+  resultsEl, // container where candidates render
   autoPrice,
   apiKey,
 }) {
@@ -157,7 +227,7 @@ export function wireLookup({
       if (author) qParts.push(`inauthor:${author}`);
       const key = apiKey ? `&key=${apiKey}` : '';
       const fields =
-        'items(id,volumeInfo/title,volumeInfo/authors,volumeInfo/industryIdentifiers,volumeInfo/description,volumeInfo/imageLinks, saleInfo/listPrice,saleInfo/retailPrice)';
+        'items(id,volumeInfo/title,volumeInfo/authors,volumeInfo/industryIdentifiers,volumeInfo/description,volumeInfo/imageLinks,saleInfo/listPrice,saleInfo/retailPrice)';
       const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
         qParts.join(' ')
       )}&printType=books&maxResults=8&country=IN&fields=${encodeURIComponent(
@@ -198,29 +268,6 @@ export function wireLookup({
         };
       });
 
-      // If every candidate lacks an INR price but we have ISBNs, try the ISBN pass
-      const needIsbnPass =
-        items.length > 0 &&
-        items.every((i) => i.priceINR == null) &&
-        items.some((i) => i.isbn13 || i.isbn10);
-
-      if (needIsbnPass) {
-        const uniqueIsbns = Array.from(
-          new Set(items.map((i) => i.isbn13 || i.isbn10).filter(Boolean))
-        );
-        for (const isbn of uniqueIsbns) {
-          const inr = await findINRPriceByISBN(isbn, apiKey);
-          if (inr != null) {
-            // Fill price for all candidates with this ISBN (first good INR wins)
-            items.forEach((it) => {
-              if (!it.priceINR && (it.isbn13 === isbn || it.isbn10 === isbn)) {
-                it.priceINR = inr;
-              }
-            });
-          }
-        }
-      }
-
       // Fallback: Open Library if we failed to get any ISBNs
       const needFallback =
         !items.length || items.every((i) => !i.isbn13 && !i.isbn10);
@@ -254,11 +301,11 @@ export function wireLookup({
         return;
       }
 
-      // Render candidates
+      // Render candidates (each card gets an inline progress area)
       resultsEl.innerHTML = items
         .map(
           (c, idx) => `
-        <article class="row" data-idx="${idx}">
+        <article class="row lookup-card" data-idx="${idx}">
           ${
             c.thumb
               ? `<img src="${c.thumb}" alt="" />`
@@ -287,71 +334,124 @@ export function wireLookup({
           <div class="row-actions">
             <button class="btn" data-use="${idx}">Use this</button>
           </div>
+          <div class="lookup-progress" aria-live="polite"></div>
         </article>`
         )
         .join('');
 
       // Apply chosen candidate
-      resultsEl.querySelectorAll('button[data-use]').forEach((btn2) => {
-        btn2.addEventListener('click', async () => {
-          const i = Number(btn2.dataset.use);
+      resultsEl.querySelectorAll('button[data-use]').forEach((useBtn) => {
+        useBtn.addEventListener('click', async () => {
+          const i = Number(useBtn.dataset.use);
           const c = items[i];
+          const card = useBtn.closest('.lookup-card');
 
-          // 1) Fields
-          if (c.title) addForm.elements['title'].value = c.title;
-          if (c.author) authorInput.value = c.author;
+          // Immediate acknowledgement
+          useBtn.disabled = true;
+          useBtn.textContent = 'Working…';
+          dimSiblings(resultsEl, card);
+          const progress = buildProgressPanel(card);
 
-          // MRP: use known INR, else try ISBN pass again just for this choice
-          const isbn = c.isbn13 || c.isbn10 || '';
-          let mrp = c.priceINR != null ? Math.round(c.priceINR) : null;
-          if (mrp == null && isbn) {
-            mrp = await findINRPriceByISBN(isbn, apiKey);
+          // STEP 1: Queuing selection (optimistic; completes immediately)
+          progress.start('queue');
+          await wait(50); // keep it snappy but visible
+          progress.done('queue');
+
+          // STEP 2: Fetching metadata (ISBN, title, MRP)
+          progress.start('fetch');
+          try {
+            // Fill readily available fields
+            if (c.title) addForm.elements['title'].value = c.title;
+            if (c.author) authorInput.value = c.author;
+
+            const isbn = c.isbn13 || c.isbn10 || '';
+            // Parallel: INR by ISBN (if needed) + physical_format inference
+            let mrp = c.priceINR != null ? Math.round(c.priceINR) : null;
+
+            const tasks = [];
+            if (mrp == null && isbn) {
+              tasks.push(
+                (async () => {
+                  const inr = await findINRPriceByISBN(isbn, apiKey);
+                  if (inr != null) mrp = Math.round(inr);
+                })()
+              );
+            }
+            if (isbn) {
+              tasks.push(
+                (async () => {
+                  try {
+                    const ol = await fetch(
+                      `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`
+                    ).then((r) => r.json());
+                    const key2 = `ISBN:${isbn}`;
+                    const fmt = ol[key2]?.physical_format
+                      ? String(ol[key2].physical_format).toLowerCase()
+                      : '';
+                    if (fmt.includes('hard'))
+                      addForm.elements['binding'].value = 'Hardcover';
+                    else if (fmt.includes('paper') || fmt.includes('soft'))
+                      addForm.elements['binding'].value = 'Paperback';
+                  } catch {}
+                })()
+              );
+            }
+            await Promise.all(tasks);
+
+            if (mrp != null) {
+              addForm.elements['mrp'].value = mrp;
+              autoPrice && autoPrice();
+            }
+            if (isbn) addForm.elements['isbn'].value = isbn;
+            if (c.description) {
+              addForm.elements['description'].value = c.description.slice(
+                0,
+                5000
+              );
+            }
+
+            progress.done('fetch');
+          } catch (err) {
+            console.error('fetch step error:', err);
+            progress.fail('fetch');
           }
-          if (mrp != null) {
-            addForm.elements['mrp'].value = mrp;
-            autoPrice && autoPrice();
-          }
 
-          if (isbn) addForm.elements['isbn'].value = isbn;
+          // STEP 3: Downloading cover
+          progress.start('cover');
+          try {
+            const isbn = c.isbn13 || c.isbn10 || '';
+            const candidates = [];
+            if (c.thumb) candidates.push(c.thumb);
+            candidates.push(...olIsbnCoverUrls(isbn));
+            if (c.title) {
+              const extra = await olCoverByTitleAuthor(c.title, c.author || '');
+              candidates.push(...extra);
+            }
 
-          if (c.description)
-            addForm.elements['description'].value = c.description.slice(
-              0,
-              5000
+            const ok = await prefillCoverFromCandidates(
+              candidates,
+              coverInput,
+              c.title
             );
-
-          // Attempt to infer format via OpenLibrary for this ISBN
-          if (isbn) {
-            try {
-              const ol = await fetch(
-                `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`
-              ).then((r) => r.json());
-              const key2 = `ISBN:${isbn}`;
-              const fmt = ol[key2]?.physical_format
-                ? String(ol[key2].physical_format).toLowerCase()
-                : '';
-              if (fmt.includes('hard'))
-                addForm.elements['binding'].value = 'Hardcover';
-              else if (fmt.includes('paper') || fmt.includes('soft'))
-                addForm.elements['binding'].value = 'Paperback';
-            } catch {}
+            if (ok) {
+              progress.done('cover');
+            } else {
+              progress.fail(
+                'cover',
+                'Couldn’t fetch a cover; please upload one.'
+              );
+            }
+          } catch (err) {
+            console.error('cover step error:', err);
+            progress.fail(
+              'cover',
+              'Couldn’t fetch a cover; please upload one.'
+            );
           }
 
-          // 2) Cover prefill: (a) best Google image, (b) OL by ISBN, (c) OL by title/author
-          const candidates = [];
-          if (c.thumb) candidates.push(c.thumb);
-          candidates.push(...olIsbnCoverUrls(isbn));
-          if (c.title) {
-            const extra = await olCoverByTitleAuthor(c.title, c.author || '');
-            candidates.push(...extra);
-          }
-          await prefillCoverFromCandidates(
-            candidates,
-            coverInput,
-            c.title,
-            msgEl
-          );
-
+          // Let the user see the “done/failed” state briefly, then clear
+          await wait(450);
+          undimAll(resultsEl);
           resultsEl.innerHTML = '';
         });
       });
