@@ -153,6 +153,7 @@
               maxlength="13"
               title="Enter 10 digits (optionally prefix with +91 or 91)"
               required
+              onkeypress="return /[0-9+]/.test(event.key)"
             />
           </div>
           <textarea
