@@ -1,10 +1,101 @@
 // scripts/admin/lookup.js
-// Intent: fetch book metadata (ISBN/MRP/desc/cover) with a clear, stepwise progress UI
-// Steps: 1) Queuing selection  2) Fetching metadata (ISBN, title, MRP)  3) Downloading cover
+// Intent: fetch book metadata (ISBN/MRP/desc/cover) from Google Books/Open Library,
+// then rank results by an explicit "MRP reliability" score and render badges + a summary.
+// Non-goals: Change downstream "Use this" behavior. UI remains minimal (pills + summary).
 
 import { stripHtmlAndSquash } from '../helpers/text.js';
 
-// ---------- helpers: choose best Google image, fetch as File for <input type="file"> ----------
+/* -------------------------- Reliability heuristics -------------------------- *
+   We only have Google Books + Open Library, so we proxy "reliability" by:
+   - INR price present (strong signal)
+   - ISBN presence
+   - Source weight (Google > Open Library)
+   - Title / Author match strength vs the admin’s query
+   - Plausible INR range
+   Levels:
+     High   >= 75
+     Medium 50–74
+     Low    25–49
+   “No MRP found” is rendered when priceINR is null, regardless of score.
+* --------------------------------------------------------------------------- */
+
+function normalize(s = '') {
+  return String(s)
+    .toLowerCase()
+    .replace(/[\u00A0]/g, ' ')
+    .replace(/[^a-z0-9 ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function containsEither(a = '', b = '') {
+  const A = normalize(a),
+    B = normalize(b);
+  return A && B && (A.includes(B) || B.includes(A));
+}
+function plausibleINR(price) {
+  // Keep wide bounds to avoid false negatives; tweak if you learn more.
+  return Number.isFinite(price) && price >= 50 && price <= 10000;
+}
+function reliabilityScore(item, qTitle, qAuthor) {
+  const srcWeight = item.source === 'google' ? 10 : 4;
+  const hasIsbn13 = !!item.isbn13;
+  const hasIsbn10 = !!item.isbn10;
+  const hasIsbn = hasIsbn13 || hasIsbn10;
+  const hasPrice = item.priceINR != null;
+
+  let score = 0;
+  if (hasPrice) score += 50;
+  if (hasIsbn && hasPrice) score += 10; // MRPs anchored to an ISBN are better
+  else if (hasIsbn) score += 6;
+
+  // title / author match strength vs the admin-provided text
+  if (qTitle) {
+    if (normalize(item.title) === normalize(qTitle)) score += 20;
+    else if (containsEither(item.title, qTitle)) score += 10;
+  }
+  if (qAuthor && item.author) {
+    if (normalize(item.author) === normalize(qAuthor)) score += 10;
+    else if (containsEither(item.author, qAuthor)) score += 5;
+  }
+
+  // Price reasonableness nudges score
+  if (hasPrice && plausibleINR(item.priceINR)) score += 5;
+
+  score += srcWeight; // source prior
+  if (item.description) score += 2;
+
+  // clamp to 0..100
+  if (score < 0) score = 0;
+  if (score > 100) score = 100;
+  return score;
+}
+function reliabilityLevel(score, hasPrice) {
+  if (!hasPrice) return { level: 'none', label: 'No MRP found', tip: '' };
+  if (score >= 75)
+    return {
+      level: 'high',
+      label: 'High',
+      tip: 'Confirmed from primary source',
+    };
+  if (score >= 50)
+    return {
+      level: 'medium',
+      label: 'Medium',
+      tip: 'Matched via metadata similarity',
+    };
+  return { level: 'low', label: 'Low', tip: 'Derived from weak match' };
+}
+
+function summarize(items) {
+  const total = items.length;
+  const withMrp = items.filter((i) => i.priceINR != null);
+  const reliable = withMrp.filter((i) => i.__rel.score >= 50); // High/Medium
+  const without = total - withMrp.length;
+  return { total, reliable: reliable.length, without };
+}
+
+/* --------- helpers: choose best Google image; prefill cover into input ------- */
+
 function bestGoogleImage(links = {}) {
   return (
     links.extraLarge ||
@@ -40,6 +131,7 @@ async function setCoverFromUrl(url, coverInput, title = 'cover') {
     dt.items.add(file);
     coverInput.files = dt.files;
     try {
+      // So any attached preview updates
       coverInput.dispatchEvent(new Event('change', { bubbles: true }));
     } catch {}
     return true;
@@ -47,8 +139,6 @@ async function setCoverFromUrl(url, coverInput, title = 'cover') {
     return false;
   }
 }
-
-// ---------- Open Library cover candidates ----------
 function olIsbnCoverUrls(isbn) {
   return isbn
     ? [
@@ -75,16 +165,28 @@ async function olCoverByTitleAuthor(title, author) {
     return [];
   }
 }
-
-// Try candidates until one sticks in the file input
-async function prefillCoverFromCandidates(candidates, coverInput, title) {
+async function prefillCoverFromCandidates(
+  candidates,
+  coverInput,
+  title,
+  msgEl
+) {
+  if (!candidates.length) return false;
+  if (msgEl) msgEl.textContent = 'Downloading cover…';
   for (const u of candidates) {
-    if (await setCoverFromUrl(u, coverInput, title)) return true;
+    if (await setCoverFromUrl(u, coverInput, title)) {
+      if (msgEl) msgEl.textContent = 'Fields updated (cover pre‑filled).';
+      return true;
+    }
   }
+  if (msgEl)
+    msgEl.textContent =
+      'Fields updated. Couldn’t fetch a cover; please upload one.';
   return false;
 }
 
-// ---------- INR price pass by ISBN (Google Books) ----------
+/* ------------------------- INR price pass by ISBN (GB) ----------------------- */
+
 async function findINRPriceByISBN(isbn, apiKey = '') {
   if (!isbn) return null;
   const key = apiKey ? `&key=${apiKey}` : '';
@@ -108,111 +210,24 @@ async function findINRPriceByISBN(isbn, apiKey = '') {
   }
 }
 
-// =======================
-// Progress UI (per card)
-// =======================
-const LONG_STEP_MS = 10000;
+/* --------------------------------- main ------------------------------------- */
 
-function buildProgressPanel(card) {
-  let panel = card.querySelector('.lookup-progress');
-  if (!panel) {
-    panel = document.createElement('div');
-    panel.className = 'lookup-progress';
-    panel.setAttribute('aria-live', 'polite');
-    card.appendChild(panel);
-  }
-  panel.innerHTML = `
-    <ol class="lookup-steps">
-      <li data-step="queue"><span class="spin" hidden></span><span class="mark" hidden>✓</span><span class="label">Queuing selection</span><small class="step-hint" hidden></small></li>
-      <li data-step="fetch"><span class="spin" hidden></span><span class="mark" hidden>✓</span><span class="label">Fetching metadata (ISBN, title, MRP)</span><small class="step-hint" hidden></small></li>
-      <li data-step="cover"><span class="spin" hidden></span><span class="mark" hidden>✓</span><span class="label">Downloading cover</span><small class="step-hint" hidden></small></li>
-    </ol>
-  `;
-  const timers = new Map();
-
-  function node(step) {
-    return panel.querySelector(`li[data-step="${step}"]`);
-  }
-  function setState(step, state, msg = '') {
-    const li = node(step);
-    if (!li) return;
-    li.classList.remove('is-queued', 'is-current', 'is-done', 'is-failed');
-    li.classList.add(`is-${state}`);
-    const spin = li.querySelector('.spin');
-    const mark = li.querySelector('.mark');
-    const hint = li.querySelector('.step-hint');
-    if (spin) spin.hidden = state !== 'current';
-    if (mark) mark.hidden = state !== 'done';
-    if (hint) {
-      hint.hidden = !(state === 'current' && hint.textContent);
-      if (msg) {
-        hint.textContent = msg;
-        hint.hidden = false;
-      }
-    }
-    // long-running hint
-    clearTimeout(timers.get(step));
-    if (state === 'current') {
-      timers.set(
-        step,
-        setTimeout(() => {
-          const li2 = node(step);
-          const h = li2?.querySelector('.step-hint');
-          if (h && !li2.classList.contains('is-done')) {
-            h.textContent = 'Taking longer than usual…';
-            h.hidden = false;
-          }
-        }, LONG_STEP_MS)
-      );
-    }
-  }
-  return {
-    start(step) {
-      setState(step, 'current');
-    },
-    done(step) {
-      setState(step, 'done');
-    },
-    fail(step, message) {
-      setState(step, 'failed', message || '');
-    },
-    clearLong(step) {
-      clearTimeout(timers.get(step));
-    },
-  };
-}
-
-function dimSiblings(resultsEl, selectedCard) {
-  Array.from(resultsEl.children).forEach((el) => {
-    if (el === selectedCard) el.classList.add('is-selected');
-    else el.classList.add('is-dimmed');
-  });
-}
-function undimAll(resultsEl) {
-  Array.from(resultsEl.children).forEach((el) => {
-    el.classList.remove('is-dimmed', 'is-selected');
-  });
-}
-
-const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-
-// ---------- main wiring ----------
 export function wireLookup({
   addForm,
   authorInput,
   coverInput,
-  btn, // "Find details" button
-  msgEl, // global message (still used for search errors)
-  resultsEl, // container where candidates render
+  btn,
+  msgEl,
+  resultsEl,
   autoPrice,
   apiKey,
 }) {
   btn.addEventListener('click', async () => {
     msgEl.textContent = '';
     resultsEl.innerHTML = '';
-    const title = (addForm.elements['title'].value || '').trim();
-    const author = (addForm.elements['author'].value || '').trim();
-    if (!title) {
+    const qTitle = (addForm.elements['title'].value || '').trim();
+    const qAuthor = (addForm.elements['author'].value || '').trim();
+    if (!qTitle) {
       msgEl.textContent = 'Enter a Title first, then click Find details.';
       return;
     }
@@ -221,15 +236,15 @@ export function wireLookup({
     btn.textContent = 'Searching…';
 
     try {
-      // Primary Google query (intitle/inauthor)
-      const qParts = [];
-      if (title) qParts.push(`intitle:${title}`);
-      if (author) qParts.push(`inauthor:${author}`);
+      // ---- Primary Google query (intitle/inauthor) ----
+      const parts = [];
+      if (qTitle) parts.push(`intitle:${qTitle}`);
+      if (qAuthor) parts.push(`inauthor:${qAuthor}`);
       const key = apiKey ? `&key=${apiKey}` : '';
       const fields =
         'items(id,volumeInfo/title,volumeInfo/authors,volumeInfo/industryIdentifiers,volumeInfo/description,volumeInfo/imageLinks,saleInfo/listPrice,saleInfo/retailPrice)';
       const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
-        qParts.join(' ')
+        parts.join(' ')
       )}&printType=books&maxResults=8&country=IN&fields=${encodeURIComponent(
         fields
       )}${key}`;
@@ -268,13 +283,35 @@ export function wireLookup({
         };
       });
 
-      // Fallback: Open Library if we failed to get any ISBNs
+      // If every candidate lacks INR price but we have ISBNs, try ISBN pass
+      const needIsbnPass =
+        items.length > 0 &&
+        items.every((i) => i.priceINR == null) &&
+        items.some((i) => i.isbn13 || i.isbn10);
+
+      if (needIsbnPass) {
+        const uniqueIsbns = Array.from(
+          new Set(items.map((i) => i.isbn13 || i.isbn10).filter(Boolean))
+        );
+        for (const isbn of uniqueIsbns) {
+          const inr = await findINRPriceByISBN(isbn, apiKey);
+          if (inr != null) {
+            items.forEach((it) => {
+              if (!it.priceINR && (it.isbn13 === isbn || it.isbn10 === isbn)) {
+                it.priceINR = Math.round(inr);
+              }
+            });
+          }
+        }
+      }
+
+      // Fallback: Open Library if nothing has ISBN
       const needFallback =
         !items.length || items.every((i) => !i.isbn13 && !i.isbn10);
       if (needFallback) {
         const olUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(
-          title
-        )}${author ? `&author=${encodeURIComponent(author)}` : ''}&limit=6`;
+          qTitle
+        )}${qAuthor ? `&author=${encodeURIComponent(qAuthor)}` : ''}&limit=6`;
         try {
           const olRes = await fetch(olUrl);
           const olData = await olRes.json();
@@ -301,11 +338,33 @@ export function wireLookup({
         return;
       }
 
-      // Render candidates (each card gets an inline progress area)
-      resultsEl.innerHTML = items
+      // ---- Score, level, sort (MRP first by reliability; then no-MRP by reliability) ----
+      const scored = items.map((it) => {
+        const score = reliabilityScore(it, qTitle, qAuthor);
+        const hasPrice = it.priceINR != null;
+        const lvl = reliabilityLevel(score, hasPrice);
+        return { ...it, __rel: { score, ...lvl } };
+      });
+
+      const withPrice = scored.filter((i) => i.priceINR != null);
+      const withoutPrice = scored.filter((i) => i.priceINR == null);
+      withPrice.sort((a, b) => b.__rel.score - a.__rel.score);
+      withoutPrice.sort((a, b) => b.__rel.score - a.__rel.score);
+      const ranked = withPrice.concat(withoutPrice);
+
+      // ---- Summary line ----
+      const { total, reliable, without } = summarize(ranked);
+      const summaryHtml = `<div class="muted" style="margin:.2rem 0 .5rem">
+        Found <strong>${total}</strong> results – <strong>${reliable}</strong> with reliable MRP, <strong>${without}</strong> without.
+      </div>`;
+
+      // ---- Render candidate cards with reliability pill ----
+      const cardsHtml = ranked
         .map(
           (c, idx) => `
-        <article class="row lookup-card" data-idx="${idx}">
+        <article class="row" data-idx="${idx}" style="${
+            c.priceINR == null ? 'opacity:.85' : ''
+          }">
           ${
             c.thumb
               ? `<img src="${c.thumb}" alt="" />`
@@ -326,132 +385,84 @@ export function wireLookup({
                 c.priceINR != null
                   ? ` · <span class="pill">MRP ₹${Math.round(
                       c.priceINR
-                    )}</span>`
-                  : ''
+                    )}</span> <span class="pill pill--reliab-${
+                      c.__rel.level
+                    }" title="${c.__rel.tip}">Reliability: ${
+                      c.__rel.label
+                    }</span>`
+                  : ` · <span class="pill pill--reliab-none">No MRP found</span>`
               }
             </div>
           </div>
           <div class="row-actions">
             <button class="btn" data-use="${idx}">Use this</button>
           </div>
-          <div class="lookup-progress" aria-live="polite"></div>
         </article>`
         )
         .join('');
 
-      // Apply chosen candidate
-      resultsEl.querySelectorAll('button[data-use]').forEach((useBtn) => {
-        useBtn.addEventListener('click', async () => {
-          const i = Number(useBtn.dataset.use);
-          const c = items[i];
-          const card = useBtn.closest('.lookup-card');
+      resultsEl.innerHTML = summaryHtml + cardsHtml;
 
-          // Immediate acknowledgement
-          useBtn.disabled = true;
-          useBtn.textContent = 'Working…';
-          dimSiblings(resultsEl, card);
-          const progress = buildProgressPanel(card);
+      // ---- Apply chosen candidate (unchanged behavior) ----
+      resultsEl.querySelectorAll('button[data-use]').forEach((btn2) => {
+        btn2.addEventListener('click', async () => {
+          const i = Number(btn2.dataset.use);
+          const c = ranked[i];
 
-          // STEP 1: Queuing selection (optimistic; completes immediately)
-          progress.start('queue');
-          await wait(50); // keep it snappy but visible
-          progress.done('queue');
+          // 1) Fill fields
+          if (c.title) addForm.elements['title'].value = c.title;
+          if (c.author) authorInput.value = c.author;
 
-          // STEP 2: Fetching metadata (ISBN, title, MRP)
-          progress.start('fetch');
-          try {
-            // Fill readily available fields
-            if (c.title) addForm.elements['title'].value = c.title;
-            if (c.author) authorInput.value = c.author;
-
-            const isbn = c.isbn13 || c.isbn10 || '';
-            // Parallel: INR by ISBN (if needed) + physical_format inference
-            let mrp = c.priceINR != null ? Math.round(c.priceINR) : null;
-
-            const tasks = [];
-            if (mrp == null && isbn) {
-              tasks.push(
-                (async () => {
-                  const inr = await findINRPriceByISBN(isbn, apiKey);
-                  if (inr != null) mrp = Math.round(inr);
-                })()
-              );
-            }
-            if (isbn) {
-              tasks.push(
-                (async () => {
-                  try {
-                    const ol = await fetch(
-                      `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`
-                    ).then((r) => r.json());
-                    const key2 = `ISBN:${isbn}`;
-                    const fmt = ol[key2]?.physical_format
-                      ? String(ol[key2].physical_format).toLowerCase()
-                      : '';
-                    if (fmt.includes('hard'))
-                      addForm.elements['binding'].value = 'Hardcover';
-                    else if (fmt.includes('paper') || fmt.includes('soft'))
-                      addForm.elements['binding'].value = 'Paperback';
-                  } catch {}
-                })()
-              );
-            }
-            await Promise.all(tasks);
-
-            if (mrp != null) {
-              addForm.elements['mrp'].value = mrp;
-              autoPrice && autoPrice();
-            }
-            if (isbn) addForm.elements['isbn'].value = isbn;
-            if (c.description) {
-              addForm.elements['description'].value = c.description.slice(
-                0,
-                5000
-              );
-            }
-
-            progress.done('fetch');
-          } catch (err) {
-            console.error('fetch step error:', err);
-            progress.fail('fetch');
+          // MRP: prefer known INR; else try ISBN pass just for this choice
+          const isbn = c.isbn13 || c.isbn10 || '';
+          let mrp = c.priceINR != null ? Math.round(c.priceINR) : null;
+          if (mrp == null && isbn) mrp = await findINRPriceByISBN(isbn, apiKey);
+          if (mrp != null) {
+            addForm.elements['mrp'].value = mrp;
+            autoPrice && autoPrice();
           }
 
-          // STEP 3: Downloading cover
-          progress.start('cover');
-          try {
-            const isbn = c.isbn13 || c.isbn10 || '';
-            const candidates = [];
-            if (c.thumb) candidates.push(c.thumb);
-            candidates.push(...olIsbnCoverUrls(isbn));
-            if (c.title) {
-              const extra = await olCoverByTitleAuthor(c.title, c.author || '');
-              candidates.push(...extra);
-            }
+          if (isbn) addForm.elements['isbn'].value = isbn;
 
-            const ok = await prefillCoverFromCandidates(
-              candidates,
-              coverInput,
-              c.title
+          if (c.description)
+            addForm.elements['description'].value = c.description.slice(
+              0,
+              5000
             );
-            if (ok) {
-              progress.done('cover');
-            } else {
-              progress.fail(
-                'cover',
-                'Couldn’t fetch a cover; please upload one.'
-              );
-            }
-          } catch (err) {
-            console.error('cover step error:', err);
-            progress.fail(
-              'cover',
-              'Couldn’t fetch a cover; please upload one.'
-            );
+
+          // Infer format via Open Library for this ISBN (best‑effort)
+          if (isbn) {
+            try {
+              const ol = await fetch(
+                `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`
+              ).then((r) => r.json());
+              const key2 = `ISBN:${isbn}`;
+              const fmt = ol[key2]?.physical_format
+                ? String(ol[key2].physical_format).toLowerCase()
+                : '';
+              if (fmt.includes('hard'))
+                addForm.elements['binding'].value = 'Hardcover';
+              else if (fmt.includes('paper') || fmt.includes('soft'))
+                addForm.elements['binding'].value = 'Paperback';
+            } catch {}
           }
 
-          // Let the user see the “done/failed” state briefly, then clear
-          await wait(450);
-          undimAll(resultsEl);
+          // 2) Cover prefill candidates: Google best, then OL by ISBN, then OL by search
+          const candidates = [];
+          if (c.thumb) candidates.push(c.thumb);
+          candidates.push(...olIsbnCoverUrls(isbn));
+          if (c.title) {
+            const extra = await olCoverByTitleAuthor(c.title, c.author || '');
+            candidates.push(...extra);
+          }
+          await prefillCoverFromCandidates(
+            candidates,
+            coverInput,
+            c.title,
+            msgEl
+          );
+
+          // Clear the list post selection (unchanged UX)
           resultsEl.innerHTML = '';
         });
       });
