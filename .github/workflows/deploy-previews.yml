@@ -2,74 +2,40 @@ name: Deploy previews (branches + PRs)
 
 on:
   push:
-    # Don’t deploy previews for production branches
-    branches-ignore: [main, staging]
+    branches-ignore:
+      - main
   pull_request:
-    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
   pull-requests: write
-
-concurrency:
-  group: preview-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
+  checks: write
 
 jobs:
   preview:
-    # Fork-safety guard: skip deploys on PRs from forks (no secrets there)
+    # Fork‑safety guard: don’t try to use secrets on PRs from forks
     if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
-    env:
-      PROJECT_ID: srikar-book-deals-staging
-      # Use your default Hosting site (same as project id, per your logs)
-      SITE_ID: srikar-book-deals-staging
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Write Firebase service account key
-        run: |
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}' > "$RUNNER_TEMP/firebase.json"
-          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase.json" >> $GITHUB_ENV
+      # Build step: keep if you add a bundler later; for pure static leave as noop
+      - name: Build (static site)
+        run: echo "No build step"
 
-      - name: Compute channel id (branch or PR number)
-        id: ch
-        shell: bash
+      # Make a safe channel id from the branch name (lowercase, [a-z0-9-], max 40)
+      - name: Compute channel id
         run: |
-          RAW="${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref_name }}"
-          # sanitise: lower-case, replace anything non [a-z0-9-] with '-', coalesce repeats
-          SAFE=$(echo "$RAW" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g' | sed 's/--*/-/g')
-          echo "id=preview-$SAFE" >> $GITHUB_OUTPUT
+          REF="${{ github.head_ref || github.ref_name }}"
+          CHID=$(echo "$REF" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-' '-' | sed 's/^-*//;s/-*$//' | cut -c1-40)
+          echo "CHANNEL_ID=preview-$CHID" >> $GITHUB_ENV
 
-      - name: Deploy to preview channel
-        run: |
-          npx --yes firebase-tools@14.22.0 \
-            hosting:channel:deploy '${{ steps.ch.outputs.id }}' \
-            --project "$PROJECT_ID" \
-            --only "hosting:${SITE_ID}" \
-            --expires 7d \
-            --json > deploy.json
-
-      - name: Surface preview URL
-        id: parse
-        run: |
-          URL=$(node -e "const j=require('fs').readFileSync('deploy.json','utf8');const o=JSON.parse(j);const r=(o.result&&Array.isArray(o.result)&&o.result[0])||{};const u=r.details?.url || r.details?.urls?.[0] || '';console.log(u)")
-          echo "url=$URL" >> $GITHUB_OUTPUT
-          echo "Preview URL: $URL" >> $GITHUB_STEP_SUMMARY
-
-      - name: Comment on PR with preview URL
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/github-script@v7
+      # Deploy preview to the STAGING Firebase project
+      - name: Deploy to Firebase Hosting (preview channel)
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const url = '${{ steps.parse.outputs.url }}'
-            if (url) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number,
-                body: `✅ Preview deployed: ${url}`
-              })
-            }
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}
+          projectId: srikar-book-deals-staging
+          channelId: ${{ env.CHANNEL_ID }}
