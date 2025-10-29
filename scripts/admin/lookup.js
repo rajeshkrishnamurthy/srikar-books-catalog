@@ -1,42 +1,30 @@
 // scripts/admin/lookup.js
-// Intent: fetch book metadata (ISBN/MRP/desc/cover) from Google Books/Open Library,
-// then prioritize reliable MRPs, cache INR-by-ISBN lookups, and avoid redundant calls.
-// Also: bounded-concurrency for the ISBN pass + defensive reliability scoring.
+// Intent: fetch book metadata (ISBN/MRP/desc/cover), prioritize reliable MRPs,
+// show reliability badges + source pill, avoid redundant INR fetches, and keep
+// the existing "Use this" flow + cover prefill intact.
 
 import { stripHtmlAndSquash } from '../helpers/text.js';
 
-/* -------------------------- small infra/helpers -------------------------- */
+/* ----------------------------- infra / helpers ----------------------------- */
 
-// INR cache so we never refetch the same ISBN again (addresses redundant call).
-const isbnPriceCache = new Map(); // isbn -> number|null|Symbol
+// Cache INR-by-ISBN so "Use this" never re-fetches what we already know
+const isbnPriceCache = new Map(); // isbn -> number | Symbol('no-inr')
 const ISBN_NOT_FOUND = Symbol('no-inr');
 
-// Bounded concurrency utility for polite API usage.
-async function mapLimit(list, limit, iter) {
-  const q = Array.from(list);
+// Polite bounded concurrency for ISBN pass
+async function mapLimit(items, limit, iter) {
+  const queue = [...items];
   const workers = Array.from(
-    { length: Math.min(limit, q.length || 0) },
-    async function worker() {
-      while (q.length) {
-        // Take next item
-        const item = q.shift();
-        // Let errors bubble to allSettled caller
-        await iter(item);
+    { length: Math.min(limit, queue.length) },
+    async () => {
+      while (queue.length) {
+        const next = queue.shift();
+        await iter(next);
       }
     }
   );
   await Promise.allSettled(workers);
 }
-
-// Timeout wrapper so we don’t hang forever on a slow API.
-function withTimeout(promise, ms = 9000) {
-  return Promise.race([
-    promise,
-    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms)),
-  ]);
-}
-
-/* ---------------------- cover helpers (unchanged + minor) ---------------------- */
 
 function bestGoogleImage(links = {}) {
   return (
@@ -54,6 +42,7 @@ function upgradeGoogleThumb(url = '') {
   let u = url.replace(/^http:/, 'https:');
   return u.replace('zoom=1', 'zoom=2').replace(/&?edge=curl/g, '');
 }
+
 async function setCoverFromUrl(url, coverInput, title = 'cover') {
   if (!url) return false;
   try {
@@ -79,6 +68,7 @@ async function setCoverFromUrl(url, coverInput, title = 'cover') {
     return false;
   }
 }
+
 function olIsbnCoverUrls(isbn) {
   return isbn
     ? [
@@ -125,12 +115,12 @@ async function prefillCoverFromCandidates(
   return false;
 }
 
-/* ---------------------- INR MRP (Google Books by ISBN) ---------------------- */
+/* --------------------------- INR lookup (by ISBN) --------------------------- */
 
 async function findINRPriceByISBN(isbn, apiKey = '') {
   if (!isbn) return null;
 
-  // 1) Cache guard (prevents redundant request on selection and across searches)
+  // cache guard
   if (isbnPriceCache.has(isbn)) {
     const v = isbnPriceCache.get(isbn);
     return v === ISBN_NOT_FOUND ? null : v;
@@ -142,13 +132,12 @@ async function findINRPriceByISBN(isbn, apiKey = '') {
   )}&printType=books&country=IN${key}`;
 
   try {
-    const res = await withTimeout(fetch(url), 9000);
+    const res = await fetch(url);
     const data = await res.json();
     const items = data?.items || [];
     for (const v of items) {
-      const si = v?.saleInfo;
-      const lp = si?.listPrice;
-      const rp = si?.retailPrice;
+      const lp = v?.saleInfo?.listPrice;
+      const rp = v?.saleInfo?.retailPrice;
       if (lp?.currencyCode === 'INR') {
         const amt = Math.round(lp.amount);
         isbnPriceCache.set(isbn, amt);
@@ -163,46 +152,52 @@ async function findINRPriceByISBN(isbn, apiKey = '') {
     isbnPriceCache.set(isbn, ISBN_NOT_FOUND);
     return null;
   } catch {
-    // Negative cache to avoid hammering on flaky networks within the same session.
     isbnPriceCache.set(isbn, ISBN_NOT_FOUND);
     return null;
   }
 }
 
-/* ------------------- Reliability scoring (defensive defaults) ------------------- */
+/* ------------------------ Reliability + source badges ------------------------ */
 
+// Compute a defensive reliability score + label.
+// High  : has INR MRP AND has ISBN
+// Medium: has INR MRP (but no ISBN or came via ISBN-pass)
+// No MRP found: no INR price
 function computeReliability(candidate) {
-  // Defensive defaults to avoid fragile access (addresses the review).
-  const src = candidate?.source || 'unknown';
-  const hasIsbn = !!(candidate?.isbn13 || candidate?.isbn10);
   const hasMrp = Number.isFinite(candidate?.priceINR);
-  let score = 0;
+  const hasIsbn = !!(candidate?.isbn13 || candidate?.isbn10);
+  const fromIsbnPass = !!candidate?.__fromIsbnPass;
 
-  // Signal: having INR MRP is the strongest indicator.
+  let score = 0;
   if (hasMrp) score += 80;
   if (hasIsbn) score += 15;
-  if (src === 'google') score += 5;
+  if (candidate?.source === 'google') score += 5;
+  if (fromIsbnPass) score -= 3; // slight nudge down
 
-  // Labels
-  let label;
+  let label = 'No MRP found';
   if (hasMrp && hasIsbn) label = 'High';
   else if (hasMrp) label = 'Medium';
-  else label = 'No MRP found';
 
   return { score, label };
 }
-function badgeHTML(label) {
-  const cls = label === 'High' ? 'pill' : label === 'Medium' ? 'pill' : 'pill'; // keep same style; color comes from your CSS palette
-  return `<span class="${cls}" title="${
+
+function relBadgeHTML(label) {
+  const title =
     label === 'High'
       ? 'Confirmed from primary source'
       : label === 'Medium'
       ? 'Matched via metadata similarity'
-      : 'No INR MRP present'
-  }">${label}</span>`;
+      : 'No INR MRP present';
+  return `<span class="pill" title="${title}">${label}</span>`;
 }
 
-/* ------------------------------ main wiring ------------------------------ */
+function srcPillHTML(src) {
+  const text = src === 'google' ? 'G' : src === 'openlibrary' ? 'OL' : '—';
+  const title = `Source: ${src || 'unknown'}`;
+  return `<span class="pill" title="${title}">${text}</span>`;
+}
+
+/* --------------------------------- main hook -------------------------------- */
 
 export function wireLookup({
   addForm,
@@ -217,6 +212,7 @@ export function wireLookup({
   btn.addEventListener('click', async () => {
     msgEl.textContent = '';
     resultsEl.innerHTML = '';
+
     const title = (addForm.elements['title'].value || '').trim();
     const author = (addForm.elements['author'].value || '').trim();
     if (!title) {
@@ -247,6 +243,7 @@ export function wireLookup({
       let items = (gData.items || []).map((v) => {
         const vi = v.volumeInfo || {};
         const si = v.saleInfo || {};
+
         let isbn13 = null,
           isbn10 = null;
         (vi.industryIdentifiers || []).forEach((id) => {
@@ -273,11 +270,11 @@ export function wireLookup({
           description: vi.description ? stripHtmlAndSquash(vi.description) : '',
           thumb: img ? upgradeGoogleThumb(img) : null,
         };
-        cand.__rel = computeReliability(cand); // safe + defaulted
+        cand.__rel = computeReliability(cand);
         return cand;
       });
 
-      // --- ISBN pass: only if no INR in any candidate but we do have ISBNs ---
+      // --- ISBN pass (only if none have INR but some have ISBN) ---
       const needIsbnPass =
         items.length > 0 &&
         items.every((i) => i.priceINR == null) &&
@@ -287,7 +284,6 @@ export function wireLookup({
         const uniqueIsbns = Array.from(
           new Set(items.map((i) => i.isbn13 || i.isbn10).filter(Boolean))
         );
-
         let anyFound = false;
         await mapLimit(uniqueIsbns, 3, async (isbn) => {
           const inr = await findINRPriceByISBN(isbn, apiKey);
@@ -296,19 +292,19 @@ export function wireLookup({
             items.forEach((it) => {
               if (!it.priceINR && (it.isbn13 === isbn || it.isbn10 === isbn)) {
                 it.priceINR = inr;
+                it.__fromIsbnPass = true;
                 it.__rel = computeReliability(it);
               }
             });
           }
         });
-
         if (!anyFound && msgEl) {
           msgEl.textContent =
             'No INR MRP found via ISBN lookups (you can enter MRP manually).';
         }
       }
 
-      // --- Fallback: Open Library when there are no ISBNs at all ---
+      // --- Fallback: Open Library to widen choices (usually no MRP) ---
       const needFallback =
         !items.length || items.every((i) => !i.isbn13 && !i.isbn10);
       if (needFallback) {
@@ -337,8 +333,7 @@ export function wireLookup({
           });
           items = items.concat(olItems);
         } catch {
-          if (msgEl)
-            msgEl.textContent = 'Network issue while querying Open Library.';
+          // soft‑fail; we still show any Google hits we have
         }
       }
 
@@ -348,7 +343,7 @@ export function wireLookup({
         return;
       }
 
-      // --- Order by reliability > price presence > source ---
+      // --- Order: reliability score (desc), then price presence, then source
       items.sort((a, b) => {
         const as = a?.__rel?.score ?? 0;
         const bs = b?.__rel?.score ?? 0;
@@ -356,25 +351,24 @@ export function wireLookup({
         const ap = Number.isFinite(a.priceINR) ? 1 : 0;
         const bp = Number.isFinite(b.priceINR) ? 1 : 0;
         if (bp !== ap) return bp - ap;
-        // prefer google
         if (a.source !== b.source) return a.source === 'google' ? -1 : 1;
         return 0;
       });
 
-      // --- Summary line (developer-friendly counts) ---
+      // Summary line
       const withMrp = items.filter((i) => Number.isFinite(i.priceINR)).length;
       const without = items.length - withMrp;
-      const summaryLine = `<div class="muted" style="margin: .25rem 0 .4rem">
+      const summary = `<div class="muted" style="margin:.25rem 0 .4rem">
         Found ${items.length} results – ${withMrp} with reliable MRP, ${without} without.
       </div>`;
 
-      // --- Render candidates with reliability badges ---
+      // Render list w/ reliability + source pill
       resultsEl.innerHTML =
-        summaryLine +
+        summary +
         items
           .map((c, idx) => {
             const relLabel =
-              (c.__rel && c.__rel.label) ||
+              c?.__rel?.label ||
               (c.priceINR != null ? 'Medium' : 'No MRP found');
             const mrpPill =
               c.priceINR != null
@@ -382,7 +376,7 @@ export function wireLookup({
                 : '';
             return `
               <article class="row" data-idx="${idx}" style="${
-              c.priceINR == null ? 'opacity:.7' : ''
+              c.priceINR == null ? 'opacity:.78' : ''
             }">
                 ${
                   c.thumb
@@ -400,7 +394,9 @@ export function wireLookup({
                         ? ` · <span class="pill">ISBN‑10 ${c.isbn10}</span>`
                         : ''
                     }
-                    ${mrpPill} · ${badgeHTML(relLabel)}
+                    ${mrpPill}
+                    · ${relBadgeHTML(relLabel)}
+                    · ${srcPillHTML(c.source)}
                   </div>
                 </div>
                 <div class="row-actions">
@@ -410,20 +406,20 @@ export function wireLookup({
           })
           .join('');
 
-      // --- Apply chosen candidate (no redundant INR fetch; reuse cache) ---
-      resultsEl.querySelectorAll('button[data-use]').forEach((btn2) => {
-        btn2.addEventListener('click', async () => {
-          const i = Number(btn2.dataset.use);
+      // Apply chosen candidate
+      resultsEl.querySelectorAll('button[data-use]').forEach((b) => {
+        b.addEventListener('click', async () => {
+          const i = Number(b.dataset.use);
           const c = items[i];
 
-          // 1) Fill fields
+          // Fill fields
           if (c.title) addForm.elements['title'].value = c.title;
           if (c.author) authorInput.value = c.author;
 
           const isbn = c.isbn13 || c.isbn10 || '';
           let mrp = Number.isFinite(c.priceINR) ? Math.round(c.priceINR) : null;
 
-          // Reuse cache instead of refetching (addresses the “redundant fetch” review).
+          // Reuse cached INR first; avoid redundant network hits
           if (mrp == null && isbn && isbnPriceCache.has(isbn)) {
             const cached = isbnPriceCache.get(isbn);
             if (cached !== ISBN_NOT_FOUND) mrp = cached;
@@ -432,15 +428,15 @@ export function wireLookup({
             addForm.elements['mrp'].value = mrp;
             autoPrice && autoPrice();
           }
-
           if (isbn) addForm.elements['isbn'].value = isbn;
+
           if (c.description)
             addForm.elements['description'].value = c.description.slice(
               0,
               5000
             );
 
-          // Infer format via OpenLibrary (best‑effort)
+          // Try to infer binding
           if (isbn) {
             try {
               const ol = await fetch(
@@ -457,7 +453,7 @@ export function wireLookup({
             } catch {}
           }
 
-          // 2) Cover prefill
+          // Cover prefill (thumb → OL by ISBN → OL by title/author)
           const candidates = [];
           if (c.thumb) candidates.push(c.thumb);
           candidates.push(...olIsbnCoverUrls(isbn));

@@ -129,3 +129,16 @@ dialog::backdrop {
     transform: rotate(360deg);
   }
 }
+
+.pill[title^='Confirmed'] {
+  background: #1f3d2b;
+  color: #c8f0d4;
+} /* High */
+.pill[title^='Matched'] {
+  background: #2a3144;
+  color: #d2dcff;
+} /* Medium */
+.pill[title^='No INR'] {
+  background: #3a3f55;
+  color: #a6a8ad;
+} /* No MRP */
