@@ -1,0 +1,59 @@
+{
+  "topicId": "TP3",
+  "title": "Admin Visibility of Purchase Price",
+  "area": "Admin / Inventory List",
+  "goal": "Surface each book's purchase price to admins within list/detail panels for quick reference.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "TP3-001",
+      "title": "AvailableListShowsPurchasePrice",
+      "given": "An admin views the Available inventory list containing a book with a stored purchase price.",
+      "when": "The snapshot renders rows in the Available section.",
+      "then": "Each row includes a purchase price label with the rupee value so admins can see their acquisition cost.",
+      "test": "/tests/spec/admin/TP3-001_AvailableRowShowsPurchasePrice.spec.js"
+    },
+    {
+      "id": "TP3-002",
+      "title": "SoldListShowsPurchasePrice",
+      "given": "A sold book in Firestore already has a purchase price recorded.",
+      "when": "The Sold list renders after receiving its snapshot.",
+      "then": "The sold row mirrors the purchase price text so the information stays visible regardless of status.",
+      "test": "/tests/spec/admin/TP3-002_SoldRowShowsPurchasePrice.spec.js"
+    },
+    {
+      "id": "TP3-003",
+      "title": "MissingPurchasePriceShowsPlaceholder",
+      "given": "A book lacks a stored purchase price.",
+      "when": "Its row is rendered in either list.",
+      "then": "A friendly placeholder such as “Purchase price: not set” is shown instead of leaving the field blank.",
+      "test": "/tests/spec/admin/TP3-003_ShowsPlaceholderWhenMissing.spec.js"
+    },
+    {
+      "id": "TP3-004",
+      "title": "PurchasePriceFormatting",
+      "given": "A book stores a numeric purchase price larger than three digits.",
+      "when": "The list renders the purchase price label.",
+      "then": "The value is formatted with a rupee prefix (₹) and thousand separators (e.g., ₹12,500).",
+      "test": "/tests/spec/admin/TP3-004_FormatsPurchasePrice.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminInventoryHarness.js",
+    "/tests/fixtures/firebaseProxy.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/TP3_red.txt",
+    "green": "codex_output/reports/TP3_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/TP3_green.txt",
+    "summary": {
+      "testSuites": 20,
+      "tests": 20,
+      "result": "passed"
+    }
+  }
+}
