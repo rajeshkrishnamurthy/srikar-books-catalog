@@ -33,6 +33,34 @@
         "verdict": "READY TO MERGE",
         "report": "codex_output/review/TP1_code_review.md"
       }
+    },
+    {
+      "id": "TP2",
+      "title": "Edit Stored Purchase Price",
+      "tests": "GREEN",
+      "greenReport": "codex_output/reports/TP2_green.txt",
+      "coverageDirectory": "codex_output/coverage_tp2",
+      "processReview": {
+        "scope": [
+          "scripts/admin/editor.js",
+          "scripts/admin/inventory.js"
+        ],
+        "coverage": {
+          "statements": 56.91,
+          "branches": 45.85,
+          "functions": 40,
+          "lines": 59.45
+        ],
+        "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage --collectCoverageFrom=[\"scripts/admin/editor.js\",\"scripts/admin/inventory.js\"] --coverageDirectory=codex_output/coverage_tp2 --watchAll=false --bail=0",
+        "coverageDirectory": "codex_output/coverage_tp2",
+        "verdict": "NEEDS WORK",
+        "notes": "Coverage remains below the 70% / 50% targets because editor field-binding logic and inventory validation branches are still untested."
+      },
+      "processReviewReport": "codex_output/review/TP2_process_review.md",
+      "codeReview": {
+        "verdict": "READY TO MERGE",
+        "report": "codex_output/review/TP2_code_review.md"
+      }
     }
   ]
 }

@@ -12,3 +12,7 @@ firebase-debug.log
 *.zip
 _tmp/
 dist/
+
+# Ignore all Node.js dependencies
+**/node_modules/
+

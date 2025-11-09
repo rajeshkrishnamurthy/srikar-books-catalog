@@ -21,6 +21,7 @@ import {
   onlyDigitsX,
 } from '../helpers/data.js';
 import { stripHtmlAndSquash } from '../helpers/text.js';
+import { parseCurrencyValue } from './currency.js';
 
 // --- Auto-price for EDIT form (mirrors add-form logic) ---
 const EDIT_DISCOUNT = {
@@ -63,6 +64,7 @@ export function initEditor() {
   const moreInput = document.getElementById('editMoreInput');
   const coverPreview = document.getElementById('editCoverPreview');
   const cancelBtn = document.getElementById('editCancelBtn');
+  const purchaseInput = form?.elements['epurchasePrice'];
 
   let currentId = null;
   let currentData = null;
@@ -110,9 +112,40 @@ export function initEditor() {
   );
   cancelBtn?.addEventListener('click', () => dlg.close());
 
+  const PURCHASE_PRICE_NUMERIC_ERROR =
+    'Purchase price must be a numeric value.';
+  const PURCHASE_PRICE_POSITIVE_ERROR =
+    'Purchase price must be zero or positive.';
+
+  function readPurchasePriceState() {
+    if (!purchaseInput) {
+      return { present: false, ok: true, value: null };
+    }
+    const raw = (purchaseInput.value || '').trim();
+    const state = parseCurrencyValue(raw, { allowDecimal: false });
+    if (!state.hasValue) {
+      return { present: true, ok: true, value: null };
+    }
+    if (!state.isNumeric || state.value == null) {
+      return {
+        present: true,
+        ok: false,
+        message: PURCHASE_PRICE_NUMERIC_ERROR,
+      };
+    }
+    if (state.value < 0) {
+      return {
+        present: true,
+        ok: false,
+        message: PURCHASE_PRICE_POSITIVE_ERROR,
+      };
+    }
+    return { present: true, ok: true, value: state.value };
+  }
+
   async function load(id, data) {
     currentId = id;
-    currentData = data || (await getDoc(doc(db, 'books', id))).data();
+    currentData = data || (await getDoc(doc(db, 'books', id))).data() || {};
 
     // Fill fields
     form.elements['id'].value = id;
@@ -122,6 +155,13 @@ export function initEditor() {
     form.elements['ebinding'].value = currentData.binding || '';
     form.elements['eprice'].value = currentData.price ?? '';
     form.elements['emrp'].value = currentData.mrp ?? '';
+    if (purchaseInput) {
+      const storedPurchase = currentData.purchasePrice;
+      purchaseInput.value =
+        storedPurchase === undefined || storedPurchase === null
+          ? ''
+          : String(storedPurchase);
+    }
     form.elements['eisbn'].value = currentData.isbn || '';
     form.elements['econdition'].value = currentData.condition || '';
     form.elements['edescription'].value = currentData.description || '';
@@ -150,6 +190,11 @@ export function initEditor() {
 
     const id = form.elements['id'].value;
     const refDoc = doc(db, 'books', id);
+    const purchaseState = readPurchasePriceState();
+    if (!purchaseState.ok) {
+      msgEl.textContent = purchaseState.message;
+      return;
+    }
 
     // Read existing fresh to avoid races
     const snap = await getDoc(refDoc);
@@ -193,6 +238,9 @@ export function initEditor() {
       description,
       updatedAt: serverTimestamp(),
     };
+    if (purchaseState.present) {
+      patch.purchasePrice = purchaseState.value;
+    }
     await updateDoc(refDoc, patch);
 
     // Upsert author master

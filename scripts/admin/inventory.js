@@ -23,6 +23,7 @@ import {
   deleteObject,
 } from '../lib/firebase.js';
 import { stripHtmlAndSquash } from '../helpers/text.js';
+import { readCurrencyField } from './currency.js';
 
 // ---- small utils ----
 const norm = (s = '') => String(s).toLowerCase();
@@ -40,28 +41,6 @@ const authorKeyFromName = (str = '') =>
     .trim()
     .replace(/ /g, '-')
     .slice(0, 100);
-
-function readCurrencyField(fd, name, options = {}) {
-  const { allowDecimal = false } = options;
-  const raw = (fd.get(name) ?? '').toString().trim();
-  if (!raw) {
-    return { hasValue: false, raw, value: null, isNumeric: true };
-  }
-  const pattern = allowDecimal ? /^-?\d+(\.\d+)?$/ : /^-?\d+$/;
-  if (!pattern.test(raw)) {
-    return { hasValue: true, raw, value: null, isNumeric: false };
-  }
-  const parsed = allowDecimal
-    ? Number.parseFloat(raw)
-    : Number.parseInt(raw, 10);
-  const isNumeric = Number.isFinite(parsed);
-  return {
-    hasValue: true,
-    raw,
-    value: isNumeric ? parsed : null,
-    isNumeric,
-  };
-}
 
 function matches(doc, term) {
   if (!term) return true;

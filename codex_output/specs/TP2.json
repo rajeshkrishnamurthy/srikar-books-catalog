@@ -1,0 +1,59 @@
+{
+  "topicId": "TP2",
+  "title": "Edit Stored Purchase Price",
+  "area": "Admin / Inventory Management",
+  "goal": "Enable admins to adjust the saved purchase price on existing books without recreating them.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "TP2-001",
+      "title": "EditFormShowsPurchasePrice",
+      "given": "An admin opens the edit dialog for a book with a stored purchase price.",
+      "when": "The dialog loads the existing record into the form.",
+      "then": "A purchase price input is visible and pre-filled with the stored amount for immediate editing.",
+      "test": "/tests/spec/admin/TP2-001_EditFormShowsPurchasePrice.spec.js"
+    },
+    {
+      "id": "TP2-002",
+      "title": "RejectNonNumericPurchasePriceOnEdit",
+      "given": "An admin enters non-numeric characters into the purchase price field while editing.",
+      "when": "They attempt to save the changes.",
+      "then": "The dialog blocks the save, shows a numeric validation error, and no Firestore update is sent.",
+      "test": "/tests/spec/admin/TP2-002_RejectsNonNumericPurchasePrice.spec.js"
+    },
+    {
+      "id": "TP2-003",
+      "title": "RejectNegativePurchasePriceOnEdit",
+      "given": "An admin enters a negative purchase price while editing a book.",
+      "when": "They submit the edit form.",
+      "then": "The edit flow instructs them to enter zero or a positive number and cancels the update.",
+      "test": "/tests/spec/admin/TP2-003_RejectsNegativePurchasePrice.spec.js"
+    },
+    {
+      "id": "TP2-004",
+      "title": "PersistEditedPurchasePrice",
+      "given": "An admin provides a valid numeric purchase price in the edit dialog.",
+      "when": "They save the form.",
+      "then": "The `updateDoc` call includes the purchasePrice as a number and the dialog confirms the save.",
+      "test": "/tests/spec/admin/TP2-004_PersistsPurchasePriceUpdate.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminEditHarness.js",
+    "/tests/fixtures/firebaseProxy.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/TP2_red.txt",
+    "green": "codex_output/reports/TP2_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/TP2_green.txt",
+    "summary": {
+      "testSuites": 12,
+      "tests": 12,
+      "result": "passed"
+    }
+  }
+}
