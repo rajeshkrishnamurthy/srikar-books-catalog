@@ -118,6 +118,24 @@
                 placeholder="MRP (e.g., 499)"
                 inputmode="numeric"
               />
+              <div class="field-with-label">
+                <label class="sr-only" for="purchasePriceInput">
+                  Purchase price (our cost)
+                </label>
+                <input
+                  id="purchasePriceInput"
+                  type="number"
+                  name="purchasePrice"
+                  placeholder="Purchase price (our cost)"
+                  inputmode="numeric"
+                  min="0"
+                  step="1"
+                  aria-describedby="purchasePriceHelp"
+                />
+                <span id="purchasePriceHelp" class="sr-only">
+                  Enter the amount paid to acquire the book; use zero for donations.
+                </span>
+              </div>
               <input name="isbn" placeholder="ISBN (10 or 13)" />
               <select name="condition" id="condition" required>
                 <option value="" selected disabled>Condition *</option>
@@ -240,6 +258,24 @@
                 inputmode="numeric"
               />
               <input name="emrp" placeholder="MRP (₹)" inputmode="numeric" />
+              <div class="field-with-label">
+                <label class="sr-only" for="editPurchasePriceInput">
+                  Purchase price (our cost)
+                </label>
+                <input
+                  id="editPurchasePriceInput"
+                  type="number"
+                  name="epurchasePrice"
+                  placeholder="Purchase price (our cost)"
+                  inputmode="numeric"
+                  min="0"
+                  step="1"
+                  aria-describedby="editPurchasePriceHelp"
+                />
+                <span id="editPurchasePriceHelp" class="sr-only">
+                  Enter the amount paid to acquire the book; use zero for donations.
+                </span>
+              </div>
               <input name="eisbn" placeholder="ISBN (10 or 13)" />
               <select name="econdition" required>
                 <option value="" selected disabled>Condition *</option>

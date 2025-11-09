@@ -23,6 +23,7 @@ import {
   deleteObject,
 } from '../lib/firebase.js';
 import { stripHtmlAndSquash } from '../helpers/text.js';
+import { readCurrencyField } from './currency.js';
 
 // ---- small utils ----
 const norm = (s = '') => String(s).toLowerCase();
@@ -40,6 +41,20 @@ const authorKeyFromName = (str = '') =>
     .trim()
     .replace(/ /g, '-')
     .slice(0, 100);
+
+const RUPEE_FORMATTER = new Intl.NumberFormat('en-IN');
+
+function formatPurchasePriceText(value) {
+  if (value === undefined || value === null || value === '') {
+    return 'Purchase price: Not set';
+  }
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return 'Purchase price: Not set';
+  }
+  const formatted = RUPEE_FORMATTER.format(Math.round(numeric));
+  return `Purchase price: ₹${formatted}`;
+}
 
 function matches(doc, term) {
   if (!term) return true;
@@ -74,6 +89,9 @@ function rowHTML(id, b, sold = false) {
     b.binding || ''
   }${price}${mrp}${isbn}
     </div>
+    <div class="purchase-price muted">${formatPurchasePriceText(
+      b.purchasePrice
+    )}</div>
   </div>
   <div class="row-actions">
     ${featureBtn}
@@ -166,8 +184,12 @@ export function initInventory({
     const authorKey = author ? authorKeyFromName(author) : null;
     const category = (fd.get('category') || '').toString();
     const binding = (fd.get('binding') || '').toString();
-    const price = fd.get('price') ? parseInt(fd.get('price'), 10) : null;
-    const mrp = fd.get('mrp') ? parseInt(fd.get('mrp'), 10) : null;
+    const priceField = readCurrencyField(fd, 'price');
+    const mrpField = readCurrencyField(fd, 'mrp');
+    const purchaseField = readCurrencyField(fd, 'purchasePrice');
+    const price = priceField.value;
+    const mrp = mrpField.value;
+    const purchasePrice = purchaseField.value;
     const isbn = onlyDigitsX(fd.get('isbn') || '');
     const condition = (fd.get('condition') || '').toString();
     const descRaw = (fd.get('description') || '').toString();
@@ -183,6 +205,18 @@ export function initInventory({
       return;
     }
 
+    if (purchaseField.hasValue && !purchaseField.isNumeric) {
+      if (addMsg)
+        addMsg.textContent = 'Purchase price must be a numeric value.';
+      return;
+    }
+
+    if (purchaseField.hasValue && purchasePrice < 0) {
+      if (addMsg)
+        addMsg.textContent = 'Purchase price must be zero or positive.';
+      return;
+    }
+
     try {
       const res = await addDoc(collection(db, 'books'), {
         title,
@@ -193,6 +227,7 @@ export function initInventory({
         isbn,
         price,
         mrp,
+        purchasePrice,
         condition,
         description,
         status: 'available',
