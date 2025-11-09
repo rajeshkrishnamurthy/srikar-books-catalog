@@ -87,10 +87,10 @@
           "goal": "Require selecting an existing supplier whenever a new book is created.",
           "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
           "dependencies": ["F05-TP1"],
-          "given": "An admin opens the Add Book workflow.",
-          "when": "They choose a supplier from the available list and submit the form.",
-          "then": "The book record saves with a supplier reference, and submissions without a supplier are rejected.",
-          "notes": "Keep the supplier dropdown synced and handle cases where suppliers are added mid-session."
+          "given": "An admin is creating a book and the supplier master already contains at least one active supplier.",
+          "when": "They select a supplier from the dropdown (or attempt to submit without a selection) and submit the book form.",
+          "then": "Valid submissions persist the supplier reference with the book, while missing/invalid selections block the save with clear feedback.",
+          "notes": "Sync the supplier list in real time, prevent stale selections when a supplier is deleted mid-session, and support keyboard navigation for the control."
         },
         {
           "id": "F05-TP4",

@@ -176,7 +176,7 @@ At any given time:
 * ✅ Key diffs (`.js` / `.html`).
 * ✅ Updated `codex_output/specs/<TopicID>.json` → status GREEN.
 * ✅ Proof (Jest summary) in `codex_output/reports/<TopicID>_green.txt`.
-
+* ✅ Write or update `changedFiles` and `changeNotes` in `codex_output/specs/<TopicID>.json` for traceability.
 ---
 ## codex-process-review
 

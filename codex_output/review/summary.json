@@ -171,6 +171,14 @@
         "verdict": "READY TO MERGE",
         "report": "codex_output/review/F05-TP2_code_review.md"
       }
+    },
+    {
+      "id": "F05-TP3",
+      "title": "Attach Supplier on Book Creation",
+      "codeReview": {
+        "verdict": "READY TO MERGE",
+        "report": "codex_output/review/F05-TP3_code_review.md"
+      }
     }
   ]
 }

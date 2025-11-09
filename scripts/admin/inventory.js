@@ -42,6 +42,12 @@ const authorKeyFromName = (str = '') =>
     .replace(/ /g, '-')
     .slice(0, 100);
 
+const supplierLabel = (supplier = {}) => {
+  const name = normalizeAuthorName(supplier.name || '');
+  const location = normalizeAuthorName(supplier.location || '');
+  return location ? `${name} — ${location}` : name;
+};
+
 const RUPEE_FORMATTER = new Intl.NumberFormat('en-IN');
 
 function formatPurchasePriceText(value) {
@@ -171,8 +177,41 @@ export function initInventory({
   addMsg,
   availList,
   soldList,
+  supplierSelect,
   onEdit, // optional
 }) {
+  let supplierEntries = [];
+  let supplierIds = new Set();
+
+  function syncSuppliers(list = []) {
+    supplierEntries = Array.isArray(list) ? list : [];
+    supplierIds = new Set(supplierEntries.map((s) => s.id));
+    const select = supplierSelect || addForm?.elements?.supplierId;
+    if (!select) return;
+    const docRef = select.ownerDocument || document;
+    const currentValue = select.value;
+    select.innerHTML = '';
+    const placeholder = docRef.createElement('option');
+    placeholder.value = '';
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    placeholder.textContent = 'Select supplier *';
+    select.appendChild(placeholder);
+    supplierEntries.forEach((supplier) => {
+      const option = docRef.createElement('option');
+      option.value = supplier.id;
+      option.textContent = supplierLabel(supplier);
+      select.appendChild(option);
+    });
+    select.disabled = supplierEntries.length === 0;
+    if (currentValue && supplierIds.has(currentValue)) {
+      select.value = currentValue;
+    } else {
+      select.value = '';
+    }
+  }
+  syncSuppliers();
+
   // ---- ADD BOOK: submit handler (unchanged) ----
   addForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -195,6 +234,7 @@ export function initInventory({
     const descRaw = (fd.get('description') || '').toString();
     const description = stripHtmlAndSquash(descRaw).slice(0, 5000);
     const featured = !!fd.get('featured');
+    const supplierId = (fd.get('supplierId') || '').toString().trim();
     const cover = fd.get('cover');
     const more = fd.getAll('more').filter((f) => f && f.size);
 
@@ -217,6 +257,18 @@ export function initInventory({
       return;
     }
 
+    if (!supplierId) {
+      if (addMsg) addMsg.textContent = 'Please select a supplier.';
+      return;
+    }
+
+    if (!supplierIds.has(supplierId)) {
+      if (addMsg)
+        addMsg.textContent =
+          'Selected supplier is no longer available. Choose another supplier.';
+      return;
+    }
+
     try {
       const res = await addDoc(collection(db, 'books'), {
         title,
@@ -232,6 +284,7 @@ export function initInventory({
         description,
         status: 'available',
         featured,
+        supplierId,
         ...(featured ? { featuredAt: serverTimestamp() } : {}),
         images: [],
         imagePaths: [],
@@ -350,6 +403,9 @@ export function initInventory({
     setFilter(term = '') {
       currentFilter = String(term).trim().toLowerCase();
       renderLists();
+    },
+    setSuppliers(list = []) {
+      syncSuppliers(list);
     },
   };
 }

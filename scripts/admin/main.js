@@ -55,7 +55,10 @@ const supplierMsg = document.getElementById('supplierMsg');
 const supplierList = document.getElementById('supplierList');
 const supplierIdInput = document.getElementById('supplierIdInput');
 const supplierCancelBtn = document.getElementById('supplierCancelBtn');
+const supplierSelect = document.getElementById('supplierSelect');
 let inventoryApi = null; // <-- make it visible to the search handler
+let latestSupplierOptions = [];
+let unsubscribeSuppliers = null;
 
 adminSearch?.addEventListener('input', () => {
   // guard: before auth, inventoryApi is null and the admin section is hidden anyway
@@ -84,6 +87,22 @@ function subscribeAuthors() {
   );
 }
 
+function subscribeSuppliersForAdd() {
+  unsubscribeSuppliers?.();
+  const qSuppliers = query(collection(db, 'suppliers'), orderBy('name'));
+  unsubscribeSuppliers = onSnapshot(
+    qSuppliers,
+    (snap) => {
+      latestSupplierOptions = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() || {}),
+      }));
+      inventoryApi?.setSuppliers(latestSupplierOptions);
+    },
+    (err) => console.error('suppliers select snapshot error:', err)
+  );
+}
+
 initAuth({
   authEl,
   adminEl,
@@ -95,6 +114,7 @@ initAuth({
   onAuthed() {
     // 1) Start the realtime <datalist> fill for Author autocomplete
     subscribeAuthors();
+    subscribeSuppliersForAdd();
 
     // 2) Wire cover preview for Add form
     function updateCoverPreview() {
@@ -143,8 +163,12 @@ initAuth({
       authorList,
       availList,
       soldList,
+      supplierSelect,
       onEdit: editor.open,
     });
+    if (latestSupplierOptions.length) {
+      inventoryApi.setSuppliers(latestSupplierOptions);
+    }
 
     // Wire admin search
     const adminSearchEl = document.getElementById('adminSearch');
@@ -181,6 +205,10 @@ initAuth({
         limit,
       }
     );
+  },
+  onSignOut() {
+    unsubscribeSuppliers?.();
+    unsubscribeSuppliers = null;
   },
 });
 
