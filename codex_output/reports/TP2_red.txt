@@ -1,0 +1,211 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false
+
+(node:65439) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/TP2-004_PersistsPurchasePriceUpdate.spec.js
+  SPEC TP2-004: Persist edited purchase price
+    ✕ sends numeric purchasePrice in the updateDoc payload when save succeeds (20 ms)
+
+  ● SPEC TP2-004: Persist edited purchase price › sends numeric purchasePrice in the updateDoc payload when save succeeds
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 240
+    Received: undefined
+
+      12 |     const call = harness.mocks.updateDoc.mock.calls[0];
+      13 |     const patch = call?.[1] || {};
+    > 14 |     expect(patch.purchasePrice).toBe(240);
+         |                                 ^
+      15 |     expect(typeof patch.purchasePrice).toBe('number');
+      16 |     expect(harness.msgEl.textContent.toLowerCase()).toContain('saved');
+      17 |   });
+
+      at Object.<anonymous> (tests/spec/admin/TP2-004_PersistsPurchasePriceUpdate.spec.js:14:33)
+
+FAIL tests/unit/editor/TP2-004_PersistsPurchasePriceUpdate.test.js
+  UNIT TP2-004: Persist purchase price edits to Firestore
+    ✕ updateDoc receives purchasePrice as a number when submission passes validation (8 ms)
+
+  ● UNIT TP2-004: Persist purchase price edits to Firestore › updateDoc receives purchasePrice as a number when submission passes validation
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 360
+    Received: undefined
+
+      11 |     expect(harness.mocks.updateDoc).toHaveBeenCalled();
+      12 |     const [, patch] = harness.mocks.updateDoc.mock.calls[0] || [];
+    > 13 |     expect(patch.purchasePrice).toBe(360);
+         |                                 ^
+      14 |     expect(typeof patch.purchasePrice).toBe('number');
+      15 |   });
+      16 | });
+
+      at Object.<anonymous> (tests/unit/editor/TP2-004_PersistsPurchasePriceUpdate.test.js:13:33)
+
+FAIL tests/spec/admin/TP2-003_RejectsNegativePurchasePrice.spec.js
+  SPEC TP2-003: Reject negative purchase price on edit
+    ✕ prevents update when a negative purchase price is submitted (7 ms)
+
+  ● SPEC TP2-003: Reject negative purchase price on edit › prevents update when a negative purchase price is submitted
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "purchase price"
+    Received string:    "saved."
+
+      10 |
+      11 |     const message = harness.msgEl.textContent.toLowerCase();
+    > 12 |     expect(message).toContain('purchase price');
+         |                     ^
+      13 |     expect(message).toMatch(/positive|zero/);
+      14 |     expect(harness.mocks.updateDoc).not.toHaveBeenCalled();
+      15 |   });
+
+      at Object.<anonymous> (tests/spec/admin/TP2-003_RejectsNegativePurchasePrice.spec.js:12:21)
+
+FAIL tests/unit/editor/TP2-003_RejectsNegativePurchasePrice.test.js
+  UNIT TP2-003: Prevent negative purchase price submissions
+    ✕ negative numbers trigger an inline error and avoid updateDoc (7 ms)
+
+  ● UNIT TP2-003: Prevent negative purchase price submissions › negative numbers trigger an inline error and avoid updateDoc
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: {"type": "doc"}, {"author": "", "authorKey": null, "binding": "", "category": "", "condition": "", "description": "", "isbn": "", "mrp": null, "price": null, "title": "", "updatedAt": "ts"}
+
+       9 |     await harness.submit();
+      10 |
+    > 11 |     expect(harness.mocks.updateDoc).not.toHaveBeenCalled();
+         |                                         ^
+      12 |     expect(harness.msgEl.textContent.toLowerCase()).toMatch(/positive|zero/);
+      13 |   });
+      14 | });
+
+      at Object.<anonymous> (tests/unit/editor/TP2-003_RejectsNegativePurchasePrice.test.js:11:41)
+
+FAIL tests/spec/admin/TP2-002_RejectsNonNumericPurchasePrice.spec.js
+  SPEC TP2-002: Reject non-numeric purchase price on edit
+    ✕ blocks save and surfaces numeric guidance when value contains letters (6 ms)
+
+  ● SPEC TP2-002: Reject non-numeric purchase price on edit › blocks save and surfaces numeric guidance when value contains letters
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "purchase price"
+    Received string:    "saved."
+
+      10 |
+      11 |     const message = harness.msgEl.textContent.toLowerCase();
+    > 12 |     expect(message).toContain('purchase price');
+         |                     ^
+      13 |     expect(message).toContain('numeric');
+      14 |     expect(harness.mocks.updateDoc).not.toHaveBeenCalled();
+      15 |   });
+
+      at Object.<anonymous> (tests/spec/admin/TP2-002_RejectsNonNumericPurchasePrice.spec.js:12:21)
+
+FAIL tests/unit/editor/TP2-002_RejectsNonNumericPurchasePrice.test.js
+  UNIT TP2-002: Validate numeric purchase price on edit save
+    ✕ non-numeric input keeps dialog open and skips updateDoc (6 ms)
+
+  ● UNIT TP2-002: Validate numeric purchase price on edit save › non-numeric input keeps dialog open and skips updateDoc
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: called with 0 arguments
+
+       9 |     await harness.submit();
+      10 |
+    > 11 |     expect(harness.dialog.close).not.toHaveBeenCalled();
+         |                                      ^
+      12 |     expect(harness.mocks.updateDoc).not.toHaveBeenCalled();
+      13 |     expect(harness.msgEl.textContent.toLowerCase()).toMatch(/numeric/);
+      14 |   });
+
+      at Object.<anonymous> (tests/unit/editor/TP2-002_RejectsNonNumericPurchasePrice.test.js:11:38)
+
+FAIL tests/spec/admin/TP2-001_EditFormShowsPurchasePrice.spec.js
+  SPEC TP2-001: Edit form exposes purchase price field
+    ✕ pre-fills purchase price input with stored value when opening edit dialog (5 ms)
+
+  ● SPEC TP2-001: Edit form exposes purchase price field › pre-fills purchase price input with stored value when opening edit dialog
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "455"
+    Received: ""
+
+       8 |
+       9 |     expect(harness.purchaseInput).not.toBeNull();
+    > 10 |     expect(harness.purchaseInput.value).toBe('455');
+         |                                         ^
+      11 |     expect(harness.dialog.showModal).toHaveBeenCalled();
+      12 |   });
+      13 | });
+
+      at Object.<anonymous> (tests/spec/admin/TP2-001_EditFormShowsPurchasePrice.spec.js:10:41)
+
+FAIL tests/unit/editor/TP2-001_EditFormShowsPurchasePrice.test.js
+  UNIT TP2-001: Edit form mirrors existing purchase price
+    ✕ open() copies stored purchasePrice (including zero) into the field value (4 ms)
+
+  ● UNIT TP2-001: Edit form mirrors existing purchase price › open() copies stored purchasePrice (including zero) into the field value
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "0"
+    Received: ""
+
+       7 |     await harness.open('book-unit-1', { purchasePrice: 0 });
+       8 |
+    >  9 |     expect(harness.purchaseInput.value).toBe('0');
+         |                                         ^
+      10 |   });
+      11 | });
+      12 |
+
+      at Object.<anonymous> (tests/unit/editor/TP2-001_EditFormShowsPurchasePrice.test.js:9:41)
+
+PASS tests/spec/admin/TP1-004_BlocksNegativePurchasePrice.spec.js
+  SPEC TP1-004: Validation against negative purchase price
+    ✓ stops the submission when the value is below zero (8 ms)
+
+PASS tests/spec/admin/TP1-003_BlocksNonNumericPurchasePrice.spec.js
+  SPEC TP1-003: Validation against non-numeric input
+    ✓ prevents addDoc and surfaces an inline error (5 ms)
+
+PASS tests/spec/admin/TP1-002_PersistsPurchasePrice.spec.js
+  SPEC TP1-002: Persist purchase price
+    ✓ includes purchasePrice number in the addDoc payload (6 ms)
+
+PASS tests/spec/admin/TP1-001_AddFormShowsPurchasePrice.spec.js
+  SPEC TP1-001: Purchase price field is visible
+    ✓ add book form includes a numeric purchase price input (19 ms)
+
+--------------|---------|----------|---------|---------|-------------------------------------------------------------------
+File          | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                 
+--------------|---------|----------|---------|---------|-------------------------------------------------------------------
+All files     |    23.4 |    17.53 |   16.32 |      25 |                                                                   
+ auth.js      |       0 |        0 |       0 |       0 | 23-76                                                             
+ autoPrice.js |       0 |        0 |       0 |       0 | 2-25                                                              
+ editor.js    |   57.44 |    65.06 |      50 |   58.95 | 45-46,52,76-105,109,200,214-232,239-256                           
+ inventory.js |    53.5 |    32.11 |   34.61 |   56.94 | 48,67-166,206-209,270-274,289-290,302,305,310-312,321-323,355-356 
+ lookup.js    |       0 |        0 |       0 |       0 | 11-483                                                            
+ main.js      |       0 |        0 |       0 |       0 | 13-158                                                            
+ requests.js  |       0 |        0 |       0 |       0 | 6-73                                                              
+--------------|---------|----------|---------|---------|-------------------------------------------------------------------
+Test Suites: 8 failed, 4 passed, 12 total
+Tests:       8 failed, 4 passed, 12 total
+Snapshots:   0 total
+Time:        1.768 s
+Ran all test suites.
