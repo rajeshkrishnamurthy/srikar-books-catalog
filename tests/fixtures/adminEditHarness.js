@@ -17,12 +17,16 @@ export async function createAdminEditHarness(options = {}) {
   const dom = buildDom();
   const { initEditor } = await import(editorModuleUrl.href);
   const editor = initEditor();
+  editor.setSuppliers?.([{ id: 'sup-default', name: 'Default Supplier' }]);
+  const defaultSelect = dom.supplierSelect;
+  if (defaultSelect) defaultSelect.value = 'sup-default';
 
   return {
     open: (id = 'book-1', data = null) => editor.open(id, data),
     form: dom.form,
     dialog: dom.dialog,
     purchaseInput: dom.purchaseInput,
+    supplierSelect: dom.supplierSelect,
     msgEl: dom.msgEl,
     mocks: firebase.mocks,
     async submit() {
@@ -32,6 +36,12 @@ export async function createAdminEditHarness(options = {}) {
     setField(name, value) {
       const el = dom.form.elements[name];
       if (el) el.value = value;
+    },
+    setSupplierOptions(list = []) {
+      editor.setSuppliers?.(list);
+      if (dom.supplierSelect && list[0]) {
+        dom.supplierSelect.value = list[0].id;
+      }
     },
   };
 }
@@ -52,6 +62,9 @@ function buildDom() {
         <input name="eprice" />
         <input name="emrp" />
         <input name="epurchasePrice" />
+        <select name="esupplierId">
+          <option value="">Select supplier *</option>
+        </select>
         <input name="eisbn" />
         <select name="econdition">
           <option value="Good as new">Good as new</option>
@@ -93,6 +106,7 @@ function buildDom() {
     dialog,
     form,
     purchaseInput,
+    supplierSelect: form.elements['esupplierId'],
     msgEl: document.getElementById('editMsg'),
   };
 }

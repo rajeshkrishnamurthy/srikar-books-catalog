@@ -1,0 +1,72 @@
+{
+  "topicId": "F05-TP4",
+  "title": "Edit Book-Supplier Mapping",
+  "area": "Admin / Catalog",
+  "goal": "Enable admins to change the supplier linked to an existing book.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F05-TP4-001",
+      "title": "EditDialogShowsSupplierSelect",
+      "given": "An admin opens the Edit Book dialog for a book with a supplier.",
+      "when": "The dialog loads.",
+      "then": "A supplier dropdown is visible with the current supplier preselected and populated from the master list.",
+      "test": "/tests/spec/admin/F05-TP4-001_EditDialogShowsSupplierSelect.spec.js"
+    },
+    {
+      "id": "F05-TP4-002",
+      "title": "PersistSupplierChange",
+      "given": "An admin chooses a different supplier in the edit dialog.",
+      "when": "They save the changes.",
+      "then": "updateDoc includes the new supplierId (and optional supplierName) and completion message confirms the update.",
+      "test": "/tests/spec/admin/F05-TP4-002_PersistSupplierChange.spec.js"
+    },
+    {
+      "id": "F05-TP4-003",
+      "title": "RequireValidSupplierOnEdit",
+      "given": "An admin clears or selects an invalid supplier during edit.",
+      "when": "They try to save.",
+      "then": "The save is blocked, an inline message instructs them to pick a supplier, and updateDoc is not called.",
+      "test": "/tests/spec/admin/F05-TP4-003_RequireValidSupplierOnEdit.spec.js"
+    },
+    {
+      "id": "F05-TP4-004",
+      "title": "HandleStaleSupplierDuringEdit",
+      "given": "A supplier is removed after the dialog opened.",
+      "when": "The admin tries to save with the stale supplier still selected.",
+      "then": "The UI warns that the supplier is unavailable, resets the selection, and prevents updateDoc.",
+      "test": "/tests/spec/admin/F05-TP4-004_HandleStaleSupplierDuringEdit.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminEditHarness.js",
+    "/tests/fixtures/firebaseProxy.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F05-TP4_red.txt",
+    "green": "codex_output/reports/F05-TP4_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/main.js",
+    "scripts/admin/inventory.js",
+    "scripts/admin/editor.js",
+    "scripts/admin/auth.js",
+    "tests/fixtures/adminEditHarness.js"
+  ],
+  "changeNotes": [
+    "Edit dialog now renders a supplier dropdown that stays in sync with the Supplier Master list.",
+    "Editor validation requires a valid supplierId, guards against stale selections, and persists supplierId via updateDoc.",
+    "Supplier snapshots are centralized in main.js and propagated to both the add form and edit dialog without duplicate listeners."
+  ],
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F05-TP4_green.txt",
+    "summary": {
+      "testSuites": 37,
+      "tests": 42,
+      "result": "passed"
+    }
+  }
+}

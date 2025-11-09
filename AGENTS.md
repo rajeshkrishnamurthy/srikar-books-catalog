@@ -133,7 +133,6 @@ codex-tdd reads from `codex_output/topics.json`, locates the chosen Topic ID, an
 * ✅ Ready hand-off to codex-dev and codex-review.
 
 ---
-
 ## codex-dev (HTML / Vanilla JavaScript Edition)
 
 **Goal**
@@ -170,33 +169,78 @@ At any given time:
 5. Maintain semantic HTML and accessibility.
 6. After all tests pass, perform refactor with tests green.
 
+**Refactor Awareness and Duplication Control**
+
+While implementing or refactoring code to satisfy tests, Codex-dev must continuously check for:
+
+1. **Duplicate or near-duplicate logic** across functions, modules, or scripts.  
+   - Identify repeated validation, parsing, or data-handling patterns.  
+   - Highlight any logic duplication discovered in changed files.
+
+2. **Helper consolidation**  
+   - Extract recurring logic into shared helper modules (for example `/scripts/utils/` or `/src/helpers/`).  
+   - Prefer pure, dependency-free helpers to maximize reusability.
+
+3. **Refactor timing**  
+   - Perform helper extraction **after GREEN**, within the same session, to avoid a separate re-open by codex-code-review.
+
+4. **Documentation**  
+   - Add or update a `helpers` section in `codex_output/specs/<TopicID>.json`:  
+     ```json
+     "helpers": {
+       "created": ["scripts/utils/ValidationHelper.js"],
+       "used": ["scripts/utils/FetchHelper.js"]
+     }
+     ```
+   - This allows codex-code-review to confirm abstraction quality instead of repeatedly flagging duplication.
+
 **Deliverables**
 
 * ✅ Implementation plan summarizing fixes.
 * ✅ Key diffs (`.js` / `.html`).
 * ✅ Updated `codex_output/specs/<TopicID>.json` → status GREEN.
 * ✅ Proof (Jest summary) in `codex_output/reports/<TopicID>_green.txt`.
-
+* ✅ Write or update `changedFiles` and `changeNotes` in `codex_output/specs/<TopicID>.json` for traceability.
+* ✅ Add `helpers` metadata (created/used) if duplication refactors were performed.
 ---
 ## codex-process-review
 
 **Goal**
-Verify TDD process compliance for the current topic — confirm that all tests pass, RED → GREEN flow was followed, and feature-scoped coverage meets thresholds.
+Perform the final readiness check for a topic — confirm that all tests pass, coverage meets thresholds, and that **codex-code-review** has explicitly declared the topic **READY FOR MERGE**.
 
 **Context**
-Runs after codex-dev marks the topic GREEN. Consumes `codex_output/specs/<TopicID>.json`, Jest results, and coverage artifacts.
+Runs last in the pipeline, after both codex-dev and codex-code-review complete.
+Consumes:
+
+* `codex_output/specs/<TopicID>.json`
+* `codex_output/reports/<TopicID>_green.txt`
+* Coverage artifacts
+* `codex_output/review/<TopicID>_code_review.md`
 
 **Tasks**
 
-1. Confirm `"status": "GREEN"` in the spec JSON.
-2. Parse Jest results from `codex_output/reports/<TopicID>_green.txt`.
-3. Run coverage limited to files for this topic:
+1. Confirm `"status": "GREEN"` in `specs/<TopicID>.json`.
+2. Parse test results from `codex_output/reports/<TopicID>_green.txt`.
+3. Run topic-scoped coverage using **coverlet + ReportGenerator** (or Jest for JS projects):
 
    ```bash
-   npx jest --coverage --collectCoverageFrom="<topic files>"
+   dotnet test /p:CollectCoverage=true /p:CoverletOutput=codex_output/coverage/ /p:CoverletOutputFormat=cobertura
+   reportgenerator -reports:codex_output/coverage/coverage.cobertura.xml -targetdir:codex_output/coverage_report -reporttypes:HtmlSummary
    ```
-4. Check coverage ≥ 70 % lines, 50 % branches.
-5. Record per-topic coverage and verdict.
+
+   *(In JavaScript contexts, use the equivalent Jest command.)*
+4. Check coverage thresholds (≥ 70 % lines, ≥ 50 % branches).
+5. Read `codex_output/review/<TopicID>_code_review.md` and confirm it contains:
+
+   ```
+   **Verdict:** READY FOR MERGE
+   ```
+6. Aggregate all checks into a single summary verdict:
+
+   * ✅ Tests GREEN
+   * ✅ Coverage thresholds met
+   * ✅ Code review sign-off confirmed
+7. Append this information to both the Markdown report and `summary.json`.
 
 **Output**
 `codex_output/review/<TopicID>_process_review.md`
@@ -204,19 +248,41 @@ Runs after codex-dev marks the topic GREEN. Consumes `codex_output/specs/<TopicI
 ```markdown
 # Process Review — <TopicID> <Title>
 
-✅ **Tests:** All green  
-📊 **Feature Coverage:** 78 % lines / 61 % branches  
-🧩 **Scope:** scripts/admin/inventory.js  
-💡 **Notes:** Validation edge cases remain partially covered.  
+✅ **Tests:** All green (see `codex_output/reports/<TopicID>_green.txt`)  
+📊 **Feature Coverage:** 82 % lines / 67 % branches  
+🧩 **Scope:** src/Admin/CatalogService.cs  
+💬 **Code Review:** codex-code-review verdict = READY FOR MERGE  
+💡 **Notes:** Validation and persistence layers fully covered.
 
-**Verdict:** READY TO MERGE
+**Final Verdict:** READY TO MERGE
 ```
 
 **Deliverables**
 
 * ✅ Topic-scoped coverage verification.
-* ✅ Explicit verdict (`READY TO MERGE` / `NEEDS WORK`).
-* ✅ Machine-readable summary in `codex_output/review/summary.json`.
+* ✅ Consolidated final verdict (`READY TO MERGE` / `NEEDS WORK`).
+* ✅ Machine-readable `codex_output/review/summary.json` with fields:
+
+  ```json
+  {
+    "topicId": "<TopicID>",
+    "testsGreen": true,
+    "coverageLines": 82,
+    "coverageBranches": 67,
+    "codeReviewVerdict": "READY FOR MERGE",
+    "finalVerdict": "READY TO MERGE"
+  }
+  ```
+* ✅ Write or update `changedFiles` and `changeNotes` in `codex_output/specs/<TopicID>.json` for traceability.
+
+**Summary of Improvements**
+
+| Area                  | Before            | Now                                                                  |
+| --------------------- | ----------------- | -------------------------------------------------------------------- |
+| **Pipeline position** | After codex-dev   | Runs after both codex-dev **and** codex-code-review                  |
+| **Code review check** | Not considered    | Explicitly validates “READY FOR MERGE” verdict                       |
+| **Output clarity**    | Technical-only    | Combines test, coverage, and review status                           |
+| **Final authority**   | codex-code-review | codex-process-review confirms and publishes the final merge decision |
 
 ---
 
@@ -231,13 +297,14 @@ Runs after codex-process-review passes. Reads topic metadata, commit diffs, and 
 **Tasks**
 
 1. Inspect changed files listed in `codex_output/specs/<TopicID>.json`.
-2. Review for:
+2. Read changedFiles and changeNotes from the spec JSON to determine the review scope. If branch context is available, cross-check with Git diff for completeness.
+3. Review for:
 
    * Naming and readability
    * Duplication or deep nesting
    * Reusable abstractions
    * Semantic HTML and accessibility
-3. Identify improvement opportunities and summarize strengths.
+4. Identify improvement opportunities and summarize strengths.
 
 **Output**
 `codex_output/review/<TopicID>_code_review.md`

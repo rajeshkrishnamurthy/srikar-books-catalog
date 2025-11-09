@@ -23,22 +23,31 @@ export async function createAdminAddHarness(options = {}) {
   const FormDataMock = jest.fn(() => snapshotFormData(formState));
   global.FormData = FormDataMock;
 
-  initInventory({
+  const inventoryApi = initInventory({
     addForm: dom.addForm,
     addMsg: dom.addMsg,
     availList: dom.availList,
     soldList: dom.soldList,
+    supplierSelect: dom.supplierSelect,
   });
+
+  inventoryApi.setSuppliers([
+    { id: 'sup-default', name: 'Default Supplier', location: 'Chennai' },
+  ]);
 
   return {
     mocks: firebase.mocks,
     addMsg: dom.addMsg,
     addForm: dom.addForm,
+    inventoryApi,
     setField(name, value) {
       formState.single[name] = value;
     },
     setFileList(name, files) {
       formState.multi[name] = files;
+    },
+    setSuppliers(list = []) {
+      inventoryApi?.setSuppliers(list);
     },
     async submitAddForm() {
       fireEvent.submit(dom.addForm);
@@ -49,7 +58,11 @@ export async function createAdminAddHarness(options = {}) {
 
 function buildDom() {
   document.body.innerHTML = `
-    <form id="addForm"></form>
+    <form id="addForm">
+      <select id="supplierSelect" name="supplierId">
+        <option value="" selected disabled>Select supplier *</option>
+      </select>
+    </form>
     <p id="addMsg"></p>
     <div id="availList"></div>
     <div id="soldList"></div>
@@ -61,6 +74,7 @@ function buildDom() {
     addMsg: document.getElementById('addMsg'),
     availList: document.getElementById('availList'),
     soldList: document.getElementById('soldList'),
+    supplierSelect: document.getElementById('supplierSelect'),
   };
 }
 
@@ -77,6 +91,7 @@ function createFormState(overrides = {}) {
     description: 'Gently used copy',
     featured: null,
     purchasePrice: '',
+    supplierId: 'sup-default',
     cover: createFileStub('cover.jpg'),
   };
   const baseMulti = {

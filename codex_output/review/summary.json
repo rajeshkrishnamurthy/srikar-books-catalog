@@ -117,6 +117,117 @@
         "verdict": "READY TO MERGE",
         "report": "codex_output/review/TP4_code_review.md"
       }
+    },
+    {
+      "id": "F05-TP1",
+      "title": "Create Supplier Records",
+      "tests": "GREEN",
+      "greenReport": "codex_output/reports/F05-TP1_green.txt",
+      "coverageDirectory": "codex_output/coverage_F05-TP1",
+      "processReview": {
+        "scope": [
+          "scripts/admin/suppliers.js"
+        ],
+        "coverage": {
+          "statements": 80.39,
+          "branches": 55,
+          "functions": 88.23,
+          "lines": 83.15
+        ],
+        "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage --collectCoverageFrom=[\"scripts/admin/suppliers.js\"] --coverageDirectory=codex_output/coverage_F05-TP1 --watchAll=false --bail=0",
+        "coverageDirectory": "codex_output/coverage_F05-TP1",
+        "verdict": "READY TO MERGE",
+        "notes": "Remaining uncovered paths sit in duplicate detection and Firestore error handling branches (67-157) but thresholds are exceeded."
+      },
+      "processReviewReport": "codex_output/review/F05-TP1_process_review.md",
+      "codeReview": {
+        "verdict": "READY TO MERGE",
+        "report": "codex_output/review/F05-TP1_code_review.md"
+      }
+    },
+    {
+      "id": "F05-TP2",
+      "title": "Edit or Remove Supplier Records",
+      "tests": "GREEN",
+      "greenReport": "codex_output/reports/F05-TP2_green.txt",
+      "coverageDirectory": "codex_output/coverage_F05-TP2",
+      "processReview": {
+        "scope": [
+          "scripts/admin/suppliers.js"
+        ],
+        "coverage": {
+          "statements": 81.64,
+          "branches": 57.37,
+          "functions": 85.18,
+          "lines": 86.48
+        ],
+        "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage --collectCoverageFrom=[\"scripts/admin/suppliers.js\"] --coverageDirectory=codex_output/coverage_F05-TP2 --watchAll=false --bail=0",
+        "coverageDirectory": "codex_output/coverage_F05-TP2",
+        "verdict": "READY TO MERGE",
+        "notes": "Uncovered segments cover defensive duplicate checks and delete error handling (lines 15,116-302) but thresholds are exceeded."
+      },
+      "processReviewReport": "codex_output/review/F05-TP2_process_review.md",
+      "codeReview": {
+        "verdict": "READY TO MERGE",
+        "report": "codex_output/review/F05-TP2_code_review.md"
+      }
+    },
+    {
+      "id": "F05-TP3",
+      "title": "Attach Supplier on Book Creation",
+      "tests": "GREEN",
+      "greenReport": "codex_output/reports/F05-TP3_green.txt",
+      "coverageDirectory": "codex_output/coverage_F05-TP3",
+      "processReview": {
+        "scope": [
+          "scripts/admin/inventory.js",
+          "scripts/admin/main.js"
+        ],
+        "coverage": {
+          "statements": 46.12,
+          "branches": 40.93,
+          "functions": 50,
+          "lines": 46.31
+        ],
+        "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage --collectCoverageFrom=[\"scripts/admin/inventory.js\",\"scripts/admin/main.js\"] --coverageDirectory=codex_output/coverage_F05-TP3 --watchAll=false --bail=0",
+        "coverageDirectory": "codex_output/coverage_F05-TP3",
+        "verdict": "NEEDS WORK",
+        "notes": "main.js supplier dropdown paths (28-235) lack tests and inventory stale-selection handling (118-405) remains uncovered, so coverage misses the 70% / 50% thresholds."
+      },
+      "processReviewReport": "codex_output/review/F05-TP3_process_review.md",
+      "codeReview": {
+        "verdict": "READY TO MERGE",
+        "report": "codex_output/review/F05-TP3_code_review.md"
+      }
+    },
+    {
+      "id": "F05-TP4",
+      "title": "Edit Book-Supplier Mapping",
+      "tests": "GREEN",
+      "greenReport": "codex_output/reports/F05-TP4_green.txt",
+      "coverageDirectory": "codex_output/coverage_F05-TP4",
+      "processReview": {
+        "scope": [
+          "scripts/admin/editor.js",
+          "scripts/admin/inventory.js",
+          "scripts/admin/main.js"
+        ],
+        "coverage": {
+          "statements": 55.49,
+          "branches": 53.09,
+          "functions": 56,
+          "lines": 56.47
+        ],
+        "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage --collectCoverageFrom=[\"scripts/admin/editor.js\",\"scripts/admin/inventory.js\",\"scripts/admin/main.js\"] --coverageDirectory=codex_output/coverage_F05-TP4 --watchAll=false --bail=0",
+        "coverageDirectory": "codex_output/coverage_F05-TP4",
+        "verdict": "NEEDS WORK",
+        "notes": "Line coverage misses 70% because main.js supplier snapshot wiring (28-243) lacks tests and editor/inventory stale-selection paths (122-199, 323-419) remain partially untested."
+      },
+      "processReviewReport": "codex_output/review/F05-TP4_process_review.md",
+      "codeReview": {
+        "verdict": "READY TO MERGE",
+        "report": "codex_output/review/F05-TP4_code_review.md"
+      }
     }
   ]
 }

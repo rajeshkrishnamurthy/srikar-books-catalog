@@ -6,7 +6,22 @@ import { wireLookup } from './lookup.js';
 import { initInventory } from './inventory.js';
 import { initRequests } from './requests.js';
 import { initEditor } from './editor.js';
-import { db, collection, query, orderBy, onSnapshot } from '../lib/firebase.js';
+import { initSupplierMaster } from './suppliers.js';
+import {
+  db,
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+  where,
+  getDocs,
+  limit,
+} from '../lib/firebase.js';
 import { escapeHtml } from '../helpers/text.js';
 
 // Elements
@@ -33,7 +48,19 @@ const reqClosed = document.getElementById('reqClosed');
 const searchCoverBtn = document.getElementById('searchCoverBtn');
 const coverPreviewEl = document.getElementById('coverPreview');
 const adminSearch = document.getElementById('adminSearch');
+const supplierForm = document.getElementById('supplierForm');
+const supplierNameInput = document.getElementById('supplierNameInput');
+const supplierLocationInput = document.getElementById('supplierLocationInput');
+const supplierMsg = document.getElementById('supplierMsg');
+const supplierList = document.getElementById('supplierList');
+const supplierIdInput = document.getElementById('supplierIdInput');
+const supplierCancelBtn = document.getElementById('supplierCancelBtn');
+const supplierSelect = document.getElementById('supplierSelect');
 let inventoryApi = null; // <-- make it visible to the search handler
+let editorApi = null;
+let supplierMasterApi = null;
+let latestSupplierOptions = [];
+let unsubscribeSuppliers = null;
 
 adminSearch?.addEventListener('input', () => {
   // guard: before auth, inventoryApi is null and the admin section is hidden anyway
@@ -59,6 +86,27 @@ function subscribeAuthors() {
       authorList.innerHTML = opts.join('');
     },
     (err) => console.error('authors onSnapshot error:', err)
+  );
+}
+
+function applySuppliersToConsumers() {
+  inventoryApi?.setSuppliers(latestSupplierOptions);
+  editorApi?.setSuppliers?.(latestSupplierOptions);
+}
+
+function subscribeSuppliersForAdd() {
+  unsubscribeSuppliers?.();
+  const qSuppliers = query(collection(db, 'suppliers'), orderBy('name'));
+  unsubscribeSuppliers = onSnapshot(
+    qSuppliers,
+    (snap) => {
+      latestSupplierOptions = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() || {}),
+      }));
+      applySuppliersToConsumers();
+    },
+    (err) => console.error('suppliers select snapshot error:', err)
   );
 }
 
@@ -114,6 +162,7 @@ initAuth({
 
     // 4) Editor + Inventory (PASS addForm/addMsg/etc so submit is wired)
     const editor = initEditor();
+    editorApi = editor;
     inventoryApi = initInventory({
       addForm,
       addMsg,
@@ -121,17 +170,56 @@ initAuth({
       authorList,
       availList,
       soldList,
+      supplierSelect,
       onEdit: editor.open,
     });
+    applySuppliersToConsumers();
+    subscribeSuppliersForAdd();
 
     // Wire admin search
-    const adminSearch = document.getElementById('adminSearch');
-    adminSearch?.addEventListener('input', () => {
-      inventory.setFilter(adminSearch.value);
+    const adminSearchEl = document.getElementById('adminSearch');
+    adminSearchEl?.addEventListener('input', () => {
+      inventoryApi?.setFilter(adminSearchEl.value);
     });
 
     // 5) Requests panel
     initRequests({ reqOpen, reqClosed });
+
+    supplierMasterApi = initSupplierMaster(
+      {
+        form: supplierForm,
+        nameInput: supplierNameInput,
+        locationInput: supplierLocationInput,
+        msgEl: supplierMsg,
+        listEl: supplierList,
+        idInput: supplierIdInput,
+        cancelBtn: supplierCancelBtn,
+      },
+      {
+        db,
+        collection,
+        doc,
+        addDoc,
+        updateDoc,
+        deleteDoc,
+        query,
+        orderBy,
+        onSnapshot,
+        serverTimestamp,
+        where,
+        getDocs,
+        limit,
+      }
+    );
+  },
+  onSignOut() {
+    unsubscribeSuppliers?.();
+    unsubscribeSuppliers = null;
+    inventoryApi?.dispose?.();
+    inventoryApi = null;
+    editorApi = null;
+    supplierMasterApi?.dispose?.();
+    supplierMasterApi = null;
   },
 });
 

@@ -49,5 +49,62 @@
       "then": "Purchase price fields are omitted or stripped before rendering so no cost data leaks publicly.",
       "notes": "Double-check Firestore queries/selects and DOM templates; consider security rules to block reads from non-admin contexts."
     }
+  ],
+  "features": [
+    {
+      "featureId": "F05",
+      "featureTitle": "Supplier Master Management",
+      "description": "Introduce a supplier master so admins can CRUD suppliers (Name, Location) and keep every book attached to a supplier.",
+      "topics": [
+        {
+          "id": "F05-TP1",
+          "title": "Create Supplier Records",
+          "area": "Admin / Supplier Master",
+          "goal": "Allow admins to add supplier entries with required name and location data.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "An admin opens the Supplier Master view.",
+          "when": "They submit the form with a supplier name and location.",
+          "then": "A new supplier document is persisted and listed without duplicates.",
+          "notes": "Surface inline validation for required fields and prevent duplicate supplier names."
+        },
+        {
+          "id": "F05-TP2",
+          "title": "Edit or Remove Supplier Records",
+          "area": "Admin / Supplier Master",
+          "goal": "Let admins update supplier details or remove suppliers that are no longer in use.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F05-TP1"],
+          "given": "A supplier exists in the master list.",
+          "when": "An admin edits the name/location or requests deletion.",
+          "then": "Changes persist with audit safety, and deletions are blocked if books still reference the supplier.",
+          "notes": "Show dependency warnings for in-use suppliers and ensure local lists stay in sync after edits."
+        },
+        {
+          "id": "F05-TP3",
+          "title": "Attach Supplier on Book Creation",
+          "area": "Admin / Catalog",
+          "goal": "Require selecting an existing supplier whenever a new book is created.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F05-TP1"],
+          "given": "An admin is creating a book and the supplier master already contains at least one active supplier.",
+          "when": "They select a supplier from the dropdown (or attempt to submit without a selection) and submit the book form.",
+          "then": "Valid submissions persist the supplier reference with the book, while missing/invalid selections block the save with clear feedback.",
+          "notes": "Sync the supplier list in real time, prevent stale selections when a supplier is deleted mid-session, and support keyboard navigation for the control."
+        },
+        {
+          "id": "F05-TP4",
+          "title": "Edit Book-Supplier Mapping",
+          "area": "Admin / Catalog",
+          "goal": "Enable admins to change the supplier linked to an existing book.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F05-TP3"],
+          "given": "A book already has a supplier association.",
+          "when": "An admin selects a different supplier and confirms the edit.",
+          "then": "The book document updates with the new supplier, and all admin views refresh to reflect the change.",
+          "notes": "Prevent orphan mappings by validating the new supplier still exists; broadcast updates to caching layers if any."
+        }
+      ]
+    }
   ]
 }

@@ -1,0 +1,75 @@
+{
+  "topicId": "F05-TP3",
+  "title": "Attach Supplier on Book Creation",
+  "area": "Admin / Catalog",
+  "goal": "Require selecting an existing supplier whenever a new book is created.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F05-TP3-001",
+      "title": "SupplierDropdownPopulatesFromMaster",
+      "given": "The Supplier Master already contains suppliers.",
+      "when": "An admin opens the Add Book form.",
+      "then": "A supplier dropdown is populated with all active suppliers (sorted alphabetically) and shows an accessible placeholder.",
+      "test": "/tests/spec/admin/F05-TP3-001_PopulatesSupplierDropdown.spec.js"
+    },
+    {
+      "id": "F05-TP3-002",
+      "title": "SupplierSelectionIsRequired",
+      "given": "An admin tries to submit the Add Book form without selecting a supplier.",
+      "when": "They submit the form.",
+      "then": "Submission is blocked with an inline message and no addDoc call occurs.",
+      "test": "/tests/spec/admin/F05-TP3-002_RequiresSupplierSelection.spec.js"
+    },
+    {
+      "id": "F05-TP3-003",
+      "title": "PersistSupplierReference",
+      "given": "An admin selects a valid supplier and completes the Add Book form.",
+      "when": "They submit successfully.",
+      "then": "The Firestore payload contains the supplierId (and optional supplierName) alongside the book record.",
+      "test": "/tests/spec/admin/F05-TP3-003_PersistsSupplierReference.spec.js"
+    },
+    {
+      "id": "F05-TP3-004",
+      "title": "HandleStaleSupplierSelection",
+      "given": "A supplier was selected but gets removed (or becomes invalid) before submission.",
+      "when": "The admin submits the form.",
+      "then": "The UI shows a warning, clears the selection, and prevents saving until a valid supplier is chosen.",
+      "test": "/tests/spec/admin/F05-TP3-004_HandlesStaleSupplierSelection.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminAddHarness.js",
+    "/tests/fixtures/adminSupplierHarness.js",
+    "/tests/fixtures/firebaseProxy.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F05-TP3_red.txt",
+    "green": "codex_output/reports/F05-TP3_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/main.js",
+    "scripts/admin/inventory.js",
+    "tests/fixtures/adminAddHarness.js",
+    "tests/spec/admin/F05-TP3-001_PopulatesSupplierDropdown.spec.js",
+    "tests/spec/admin/F05-TP3-002_RequiresSupplierSelection.spec.js",
+    "tests/spec/admin/F05-TP3-003_PersistsSupplierReference.spec.js",
+    "tests/spec/admin/F05-TP3-004_HandlesStaleSupplierSelection.spec.js"
+  ],
+  "changeNotes": [
+    "Added supplier dropdown to the Add Book form and wired it into the supplier master snapshot.",
+    "Inventory submission now requires a valid supplierId, persists it to Firestore, and guards against stale selections.",
+    "Admin add harness and TP3 specs updated to drive the new supplier flows and validation."
+  ],
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F05-TP3_green.txt",
+    "summary": {
+      "testSuites": 37,
+      "tests": 42,
+      "result": "passed"
+    }
+  }
+}
