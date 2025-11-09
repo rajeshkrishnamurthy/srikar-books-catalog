@@ -1,0 +1,59 @@
+{
+  "topicId": "F05-TP1",
+  "title": "Create Supplier Records",
+  "area": "Admin / Supplier Master",
+  "goal": "Allow admins to add supplier entries with required name and location data.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F05-TP1-001",
+      "title": "SupplierFormRequiresFields",
+      "given": "An admin opens the Supplier Master form.",
+      "when": "They submit with a missing supplier name or location.",
+      "then": "Submission is blocked, an inline error describes the missing field, and no Firestore write occurs.",
+      "test": "/tests/spec/admin/F05-TP1-001_SupplierFormRequiresFields.spec.js"
+    },
+    {
+      "id": "F05-TP1-002",
+      "title": "RejectDuplicateSupplierNames",
+      "given": "A supplier with the same name already exists (case-insensitive).",
+      "when": "An admin tries to add another supplier with the same name.",
+      "then": "The UI surfaces a duplicate warning and prevents addDoc from being called.",
+      "test": "/tests/spec/admin/F05-TP1-002_RejectDuplicateSupplierNames.spec.js"
+    },
+    {
+      "id": "F05-TP1-003",
+      "title": "PersistSupplierRecord",
+      "given": "An admin provides a unique supplier name and location.",
+      "when": "They submit the Supplier Master form.",
+      "then": "addDoc is invoked with trimmed values and the form resets on success.",
+      "test": "/tests/spec/admin/F05-TP1-003_PersistSupplierRecord.spec.js"
+    },
+    {
+      "id": "F05-TP1-004",
+      "title": "RenderNewSupplierInList",
+      "given": "A supplier add succeeds and the snapshot returns the new document.",
+      "when": "The supplier list renders.",
+      "then": "The list displays the supplier name and location, sorted alphabetically for quick scanning.",
+      "test": "/tests/spec/admin/F05-TP1-004_RenderNewSupplierInList.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminSupplierHarness.js",
+    "/tests/fixtures/firebaseProxy.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F05-TP1_red.txt",
+    "green": "codex_output/reports/F05-TP1_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F05-TP1_green.txt",
+    "summary": {
+      "testSuites": 29,
+      "tests": 32,
+      "result": "passed"
+    }
+  }
+}

@@ -217,7 +217,7 @@ Runs after codex-dev marks the topic GREEN. Consumes `codex_output/specs/<TopicI
 * ✅ Topic-scoped coverage verification.
 * ✅ Explicit verdict (`READY TO MERGE` / `NEEDS WORK`).
 * ✅ Machine-readable summary in `codex_output/review/summary.json`.
-
+* ✅ Write a changedFiles and changeNotes section to codex_output/specs/<TopicID>.json, listing each modified file and summarizing the intent of the changes.
 ---
 
 ## codex-code-review
@@ -231,13 +231,14 @@ Runs after codex-process-review passes. Reads topic metadata, commit diffs, and 
 **Tasks**
 
 1. Inspect changed files listed in `codex_output/specs/<TopicID>.json`.
-2. Review for:
+2. Read changedFiles and changeNotes from the spec JSON to determine the review scope. If branch context is available, cross-check with Git diff for completeness.
+3. Review for:
 
    * Naming and readability
    * Duplication or deep nesting
    * Reusable abstractions
    * Semantic HTML and accessibility
-3. Identify improvement opportunities and summarize strengths.
+4. Identify improvement opportunities and summarize strengths.
 
 **Output**
 `codex_output/review/<TopicID>_code_review.md`

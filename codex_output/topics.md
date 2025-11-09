@@ -11,3 +11,16 @@ Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all topics.
 - Reuse validation utilities across TP1–TP3 to keep behavior consistent.
 - TP4 must also verify Firestore security rules to prevent accidental read exposure.
+
+# Feature: Supplier Master Management (F05)
+
+| Topic ID | Title | Area | Goal |
+|-----------|-------|------|------|
+| F05-TP1 | Create Supplier Records | Admin / Supplier Master | Allow admins to add supplier entries with required name and location data. |
+| F05-TP2 | Edit or Remove Supplier Records | Admin / Supplier Master | Let admins update supplier details or remove suppliers that are no longer in use. |
+| F05-TP3 | Attach Supplier on Book Creation | Admin / Catalog | Require selecting an existing supplier whenever a new book is created. |
+| F05-TP4 | Edit Book-Supplier Mapping | Admin / Catalog | Enable admins to change the supplier linked to an existing book. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all topics in F05.
+- F05-TP2 depends on F05-TP1; F05-TP3 depends on supplier data from F05-TP1; F05-TP4 builds on the creation path in F05-TP3.
