@@ -56,6 +56,46 @@ function bindEditAutoPrice(form) {
   return recompute;
 }
 
+function createSupplierOptions(list = []) {
+  return list
+    .slice()
+    .sort((a, b) => {
+      const A = normalizeAuthorName(a.name || '').toLowerCase();
+      const B = normalizeAuthorName(b.name || '').toLowerCase();
+      return A.localeCompare(B);
+    })
+    .map((supplier) => ({
+      id: supplier.id,
+      label: supplier.location
+        ? `${supplier.name} — ${supplier.location}`
+        : supplier.name,
+    }));
+}
+
+function applySupplierOptions(select, entries, currentValue) {
+  if (!select) return;
+  const docRef = select.ownerDocument || document;
+  select.innerHTML = '';
+  const placeholder = docRef.createElement('option');
+  placeholder.value = '';
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  placeholder.textContent = 'Select supplier *';
+  select.appendChild(placeholder);
+  entries.forEach((supplier) => {
+    const option = docRef.createElement('option');
+    option.value = supplier.id;
+    option.textContent = supplier.label;
+    select.appendChild(option);
+  });
+  select.disabled = entries.length === 0;
+  if (currentValue && entries.some((s) => s.id === currentValue)) {
+    select.value = currentValue;
+  } else {
+    select.value = '';
+  }
+}
+
 export function initEditor() {
   const dlg = document.getElementById('editDialog');
   const form = document.getElementById('editForm');
@@ -65,9 +105,13 @@ export function initEditor() {
   const coverPreview = document.getElementById('editCoverPreview');
   const cancelBtn = document.getElementById('editCancelBtn');
   const purchaseInput = form?.elements['epurchasePrice'];
+  const supplierSelect = form?.elements['esupplierId'];
 
   let currentId = null;
   let currentData = null;
+  let supplierEntries = [];
+  let supplierIds = new Set();
+  let desiredSupplierId = '';
 
   function showPreviewFromUrl(url) {
     coverPreview.textContent = '';
@@ -116,6 +160,39 @@ export function initEditor() {
     'Purchase price must be a numeric value.';
   const PURCHASE_PRICE_POSITIVE_ERROR =
     'Purchase price must be zero or positive.';
+  const SUPPLIER_REQUIRED_ERROR = 'Please select a supplier.';
+  const SUPPLIER_STALE_ERROR =
+    'Selected supplier is no longer available. Choose another supplier.';
+
+  function applyDesiredSupplier() {
+    if (!supplierSelect) return;
+    if (desiredSupplierId && supplierIds.has(desiredSupplierId)) {
+      supplierSelect.value = desiredSupplierId;
+    } else if (!supplierSelect.value) {
+      supplierSelect.value = '';
+    }
+  }
+
+  function setSupplierOptions(list = []) {
+    supplierEntries = createSupplierOptions(Array.isArray(list) ? list : []);
+    supplierIds = new Set(supplierEntries.map((s) => s.id));
+    applySupplierOptions(supplierSelect, supplierEntries, supplierSelect?.value);
+    applyDesiredSupplier();
+  }
+
+  function readSupplierState() {
+    if (!supplierSelect) {
+      return { ok: true, value: null };
+    }
+    const value = supplierSelect.value.trim();
+    if (!value) {
+      return { ok: false, message: SUPPLIER_REQUIRED_ERROR };
+    }
+    if (!supplierIds.has(value)) {
+      return { ok: false, message: SUPPLIER_STALE_ERROR };
+    }
+    return { ok: true, value };
+  }
 
   function readPurchasePriceState() {
     if (!purchaseInput) {
@@ -162,6 +239,8 @@ export function initEditor() {
           ? ''
           : String(storedPurchase);
     }
+    desiredSupplierId = currentData.supplierId || '';
+    applyDesiredSupplier();
     form.elements['eisbn'].value = currentData.isbn || '';
     form.elements['econdition'].value = currentData.condition || '';
     form.elements['edescription'].value = currentData.description || '';
@@ -193,6 +272,14 @@ export function initEditor() {
     const purchaseState = readPurchasePriceState();
     if (!purchaseState.ok) {
       msgEl.textContent = purchaseState.message;
+      return;
+    }
+    const supplierState = readSupplierState();
+    if (!supplierState.ok) {
+      msgEl.textContent = supplierState.message;
+      if (supplierSelect && !supplierIds.has(supplierSelect.value)) {
+        supplierSelect.value = '';
+      }
       return;
     }
 
@@ -240,6 +327,10 @@ export function initEditor() {
     };
     if (purchaseState.present) {
       patch.purchasePrice = purchaseState.value;
+    }
+    if (supplierState.value) {
+      patch.supplierId = supplierState.value;
+      desiredSupplierId = supplierState.value;
     }
     await updateDoc(refDoc, patch);
 
@@ -317,5 +408,6 @@ export function initEditor() {
 
   return {
     open: (id, data) => load(id, data),
+    setSuppliers: (list) => setSupplierOptions(list),
   };
 }

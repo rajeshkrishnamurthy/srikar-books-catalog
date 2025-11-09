@@ -19,10 +19,12 @@ export function initAuth({
   authError,
   signOutBtn,
   onAuthed,
+  onSignOut,
 }) {
   onAuthStateChanged(auth, async (user) => {
     // Not signed in → show login
     if (!user) {
+      if (typeof onSignOut === 'function') onSignOut();
       authEl.style.display = 'block';
       adminEl.style.display = 'none';
       return;
@@ -38,6 +40,7 @@ export function initAuth({
 
       if (ok && typeof onAuthed === 'function') onAuthed(user);
       if (!ok) {
+        if (typeof onSignOut === 'function') onSignOut();
         // Friendly message for authenticated but unauthorized users
         if (authError) {
           authError.hidden = false;

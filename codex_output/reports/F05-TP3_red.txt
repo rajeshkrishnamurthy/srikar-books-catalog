@@ -1,0 +1,338 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false
+
+(node:95704) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F05-TP3-001_PopulatesSupplierDropdown.spec.js
+  SPEC F05-TP3-001: Supplier dropdown is present
+    ✕ Add Book form contains a supplier select with a placeholder option (34 ms)
+
+  ● SPEC F05-TP3-001: Supplier dropdown is present › Add Book form contains a supplier select with a placeholder option
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      11 |     const supplierSelect = dom.querySelector('select[name="supplierId"]');
+      12 |
+    > 13 |     expect(supplierSelect).not.toBeNull();
+         |                                ^
+      14 |     const placeholder = supplierSelect?.querySelector('option[disabled]');
+      15 |     expect(placeholder?.textContent?.toLowerCase() || '').toContain('supplier');
+      16 |   });
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP3-001_PopulatesSupplierDropdown.spec.js:13:32)
+
+(node:95709) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:95710) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/F05-TP1-003_PersistSupplierRecord.spec.js
+  SPEC F05-TP1-003: Persist supplier record
+    ✓ valid submission calls addDoc with trimmed payload and resets form (45 ms)
+
+(node:95708) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:95705) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:95707) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:95706) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/F05-TP2-002_PersistSupplierEdit.spec.js
+  SPEC F05-TP2-002: Persist supplier edits
+    ✓ submitting in edit mode calls updateDoc with trimmed values (57 ms)
+    ✓ duplicate name during edit is blocked with inline message (22 ms)
+
+FAIL tests/spec/admin/F05-TP3-002_RequiresSupplierSelection.spec.js
+  SPEC F05-TP3-002: Supplier selection is required
+    ✕ Submitting without a supplier prevents addDoc and shows inline error (73 ms)
+
+  ● SPEC F05-TP3-002: Supplier selection is required › Submitting without a supplier prevents addDoc and shows inline error
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: {"type": "collection"}, {"author": "Test Author", "authorKey": "test-author", "binding": "Paperback", "category": "Fiction", "condition": "Good as new", "createdAt": "ts", "description": "Gently used copy", "featured": false, "imagePaths": [], "images": [], "isbn": "9781234567890", "mrp": 499, "price": 299, "purchasePrice": null, "status": "available", "title": "Test title", "updatedAt": "ts"}
+
+       9 |     await harness.submitAddForm();
+      10 |
+    > 11 |     expect(harness.mocks.addDoc).not.toHaveBeenCalled();
+         |                                      ^
+      12 |     expect(harness.addMsg.textContent.toLowerCase()).toContain('supplier');
+      13 |   });
+      14 | });
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP3-002_RequiresSupplierSelection.spec.js:11:38)
+
+FAIL tests/spec/admin/F05-TP3-003_PersistsSupplierReference.spec.js
+  SPEC F05-TP3-003: Persist supplier reference on add
+    ✕ Valid submission includes supplierId in the Firestore payload (62 ms)
+
+  ● SPEC F05-TP3-003: Persist supplier reference on add › Valid submission includes supplierId in the Firestore payload
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "sup-77"
+    Received: undefined
+
+      11 |     expect(harness.mocks.addDoc).toHaveBeenCalledTimes(1);
+      12 |     const payload = harness.mocks.addDoc.mock.calls[0][1];
+    > 13 |     expect(payload.supplierId).toBe('sup-77');
+         |                                ^
+      14 |   });
+      15 | });
+      16 |
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP3-003_PersistsSupplierReference.spec.js:13:32)
+
+PASS tests/spec/admin/F05-TP2-001_InlineEditPrefillsSupplier.spec.js
+  SPEC F05-TP2-001: Inline edit pre-fills supplier
+    ✓ clicking edit populates the form with supplier values and sets edit mode (56 ms)
+    ✓ cancel button exits edit mode and clears hidden id (14 ms)
+
+FAIL tests/spec/admin/F05-TP3-004_HandlesStaleSupplierSelection.spec.js
+  SPEC F05-TP3-004: Handle stale/invalid supplier selections
+    ✕ Submitting with a stale supplier id is blocked and surfaces warning (47 ms)
+
+  ● SPEC F05-TP3-004: Handle stale/invalid supplier selections › Submitting with a stale supplier id is blocked and surfaces warning
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: {"type": "collection"}, {"author": "Test Author", "authorKey": "test-author", "binding": "Paperback", "category": "Fiction", "condition": "Good as new", "createdAt": "ts", "description": "Gently used copy", "featured": false, "imagePaths": [], "images": [], "isbn": "9781234567890", "mrp": 499, "price": 299, "purchasePrice": null, "status": "available", "title": "Test title", "updatedAt": "ts"}
+
+       9 |     await harness.submitAddForm();
+      10 |
+    > 11 |     expect(harness.mocks.addDoc).not.toHaveBeenCalled();
+         |                                      ^
+      12 |     expect(harness.addMsg.textContent.toLowerCase()).toContain('supplier');
+      13 |   });
+      14 | });
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP3-004_HandlesStaleSupplierSelection.spec.js:11:38)
+
+PASS tests/spec/admin/F05-TP1-004_RenderNewSupplierInList.spec.js
+  SPEC F05-TP1-004: Render supplier list
+    ✓ renders suppliers sorted alphabetically with name and location (33 ms)
+
+PASS tests/unit/editor/TP2-002_RejectsNonNumericPurchasePrice.test.js
+  UNIT TP2-002: Validate numeric purchase price on edit save
+    ✓ non-numeric input keeps dialog open and skips updateDoc (27 ms)
+
+PASS tests/spec/admin/F05-TP1-001_SupplierFormRequiresFields.spec.js
+  SPEC F05-TP1-001: Supplier form requires name/location
+    ✓ missing name blocks submission and surfaces inline error (40 ms)
+
+PASS tests/unit/editor/TP2-003_RejectsNegativePurchasePrice.test.js
+  UNIT TP2-003: Prevent negative purchase price submissions
+    ✓ negative numbers trigger an inline error and avoid updateDoc (24 ms)
+
+PASS tests/spec/admin/TP2-001_EditFormShowsPurchasePrice.spec.js
+  SPEC TP2-001: Edit form exposes purchase price field
+    ✓ pre-fills purchase price input with stored value when opening edit dialog (33 ms)
+
+PASS tests/unit/editor/TP2-004_PersistsPurchasePriceUpdate.test.js
+  UNIT TP2-004: Persist purchase price edits to Firestore
+    ✓ updateDoc receives purchasePrice as a number when submission passes validation (42 ms)
+
+PASS tests/spec/admin/TP1-002_PersistsPurchasePrice.spec.js
+  SPEC TP1-002: Persist purchase price
+    ✓ includes purchasePrice number in the addDoc payload (23 ms)
+
+PASS tests/spec/admin/TP2-002_RejectsNonNumericPurchasePrice.spec.js
+  SPEC TP2-002: Reject non-numeric purchase price on edit
+    ✓ blocks save and surfaces numeric guidance when value contains letters (48 ms)
+
+PASS tests/spec/admin/TP2-004_PersistsPurchasePriceUpdate.spec.js
+  SPEC TP2-004: Persist edited purchase price
+    ✓ sends numeric purchasePrice in the updateDoc payload when save succeeds (47 ms)
+
+PASS tests/spec/admin/TP1-004_BlocksNegativePurchasePrice.spec.js
+  SPEC TP1-004: Validation against negative purchase price
+    ✓ stops the submission when the value is below zero (20 ms)
+
+PASS tests/spec/admin/F05-TP2-003_PreventDeleteWhenInUse.spec.js
+  SPEC F05-TP2-003: Prevent deleting suppliers in use
+    ✓ delete action checks book references and blocks removal when in use (23 ms)
+
+PASS tests/spec/admin/F05-TP1-002_RejectDuplicateSupplierNames.spec.js
+  SPEC F05-TP1-002: Reject duplicate supplier names
+    ✓ duplicate names (case-insensitive) are blocked with warning (20 ms)
+
+PASS tests/spec/admin/TP1-003_BlocksNonNumericPurchasePrice.spec.js
+  SPEC TP1-003: Validation against non-numeric input
+    ✓ prevents addDoc and surfaces an inline error (22 ms)
+
+PASS tests/spec/admin/F05-TP2-004_DeleteSupplierWhenUnused.spec.js
+  SPEC F05-TP2-004: Delete supplier when unused
+    ✓ delete removes supplier when no books reference it (15 ms)
+
+PASS tests/spec/admin/TP2-003_RejectsNegativePurchasePrice.spec.js
+  SPEC TP2-003: Reject negative purchase price on edit
+    ✓ prevents update when a negative purchase price is submitted (23 ms)
+
+PASS tests/spec/admin/TP1-001_AddFormShowsPurchasePrice.spec.js
+  SPEC TP1-001: Purchase price field is visible
+    ✓ add book form includes a numeric purchase price input (41 ms)
+
+PASS tests/unit/inventory/TP3-004_PurchasePriceFormatting.test.js
+  UNIT TP3-004: Purchase price formatting helper
+    ✓ text uses ₹ prefix with comma separators (21 ms)
+
+PASS tests/spec/admin/TP3-003_ShowsPlaceholderWhenMissing.spec.js
+  SPEC TP3-003: Placeholder when purchase price missing
+    ✓ renders “Purchase price: not set” when value absent (23 ms)
+
+PASS tests/spec/admin/TP3-001_AvailableRowShowsPurchasePrice.spec.js
+  SPEC TP3-001: Available list shows purchase price
+    ✓ renders purchase price text with rupee value for available rows (36 ms)
+
+PASS tests/spec/public/TP4-002_SearchResultsHidePurchasePrice.spec.js
+  SPEC TP4-002: Search results hide purchase price
+    ✓ filtered render never mentions purchase price even when sale price is shown (18 ms)
+
+PASS tests/unit/editor/TP2-001_EditFormShowsPurchasePrice.test.js
+  UNIT TP2-001: Edit form mirrors existing purchase price
+    ✓ open() copies stored purchasePrice (including zero) into the field value (6 ms)
+
+PASS tests/unit/public/TP4-004_CatalogPayloadStripsPurchasePrice.test.js
+  UNIT TP4-004: Catalog payload strips purchase price
+    ✓ subscribeToAllAvailable removes purchasePrice before invoking callback (3 ms)
+
+PASS tests/spec/public/TP4-001_CatalogCardsHidePurchasePrice.spec.js
+  SPEC TP4-001: Catalog cards hide purchase price
+    ✓ rendered cards omit any purchase price labels or values (3 ms)
+
+PASS tests/unit/inventory/TP3-001_PurchasePriceElement.test.js
+  UNIT TP3-001: Purchase price element exists for available rows
+    ✓ available row contains .purchase-price element with rupee value (22 ms)
+
+PASS tests/spec/public/TP4-003_PurchaseMessageHidesPurchasePrice.spec.js
+  SPEC TP4-003: WhatsApp message hides purchase price
+    ✓ purchaseMessage ignores purchasePrice field entirely (1 ms)
+
+PASS tests/spec/admin/TP3-002_SoldRowShowsPurchasePrice.spec.js
+  SPEC TP3-002: Sold list also shows purchase price
+    ✓ sold rows mirror the purchase price label (30 ms)
+
+PASS tests/unit/inventory/TP3-002_SoldPurchasePriceElement.test.js
+  UNIT TP3-002: Sold rows keep purchase price element
+    ✓ sold list row includes .purchase-price with rupee amount (6 ms)
+
+PASS tests/unit/inventory/TP3-003_PurchasePricePlaceholder.test.js
+  UNIT TP3-003: Placeholder for missing purchase price
+    ✓ renders descriptive placeholder text inside .purchase-price (9 ms)
+
+PASS tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js
+  UNIT F05-TP1 helpers
+    ✓ normalizeSupplierName trims whitespace and collapses gaps
+    ✓ isDuplicateSupplierName compares case-insensitively (1 ms)
+    ✓ formatSupplierDisplay returns readable string
+    ✓ buildSupplierPayload trims inputs and adds timestamps (1 ms)
+
+PASS tests/spec/admin/TP3-004_FormatsPurchasePrice.spec.js
+  SPEC TP3-004: Purchase price formatting
+    ✓ applies rupee prefix and thousand separators (7 ms)
+
+--------------|---------|----------|---------|---------|--------------------------------------------------------------------------------
+File          | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                              
+--------------|---------|----------|---------|---------|--------------------------------------------------------------------------------
+All files     |    40.5 |    29.41 |   39.84 |   42.18 |                                                                                
+ auth.js      |       0 |        0 |       0 |       0 | 23-76                                                                          
+ autoPrice.js |       0 |        0 |       0 |       0 | 2-25                                                                           
+ currency.js  |     100 |     64.7 |     100 |     100 | 5,7,12,17-24,30                                                                
+ editor.js    |   62.19 |    66.03 |   53.33 |   63.69 | 46-47,53,78-107,111,122,127,248,262-280,287-304                                
+ inventory.js |   66.45 |    45.38 |   69.23 |    66.9 | 53,60-62,112-162,202-205,266-270,285-286,298,301,351-352                       
+ lookup.js    |       0 |        0 |       0 |       0 | 11-483                                                                         
+ main.js      |       0 |        0 |       0 |       0 | 28-207                                                                         
+ requests.js  |       0 |        0 |       0 |       0 | 6-73                                                                           
+ suppliers.js |   81.64 |    57.37 |   85.18 |   86.48 | 15,116-117,136-138,149-151,177-178,190-191,221-224,254-258,267,273-274,295-302 
+--------------|---------|----------|---------|---------|--------------------------------------------------------------------------------
+Summary of all failing tests
+FAIL tests/spec/admin/F05-TP3-001_PopulatesSupplierDropdown.spec.js
+  ● SPEC F05-TP3-001: Supplier dropdown is present › Add Book form contains a supplier select with a placeholder option
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      11 |     const supplierSelect = dom.querySelector('select[name="supplierId"]');
+      12 |
+    > 13 |     expect(supplierSelect).not.toBeNull();
+         |                                ^
+      14 |     const placeholder = supplierSelect?.querySelector('option[disabled]');
+      15 |     expect(placeholder?.textContent?.toLowerCase() || '').toContain('supplier');
+      16 |   });
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP3-001_PopulatesSupplierDropdown.spec.js:13:32)
+
+FAIL tests/spec/admin/F05-TP3-002_RequiresSupplierSelection.spec.js
+  ● SPEC F05-TP3-002: Supplier selection is required › Submitting without a supplier prevents addDoc and shows inline error
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: {"type": "collection"}, {"author": "Test Author", "authorKey": "test-author", "binding": "Paperback", "category": "Fiction", "condition": "Good as new", "createdAt": "ts", "description": "Gently used copy", "featured": false, "imagePaths": [], "images": [], "isbn": "9781234567890", "mrp": 499, "price": 299, "purchasePrice": null, "status": "available", "title": "Test title", "updatedAt": "ts"}
+
+       9 |     await harness.submitAddForm();
+      10 |
+    > 11 |     expect(harness.mocks.addDoc).not.toHaveBeenCalled();
+         |                                      ^
+      12 |     expect(harness.addMsg.textContent.toLowerCase()).toContain('supplier');
+      13 |   });
+      14 | });
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP3-002_RequiresSupplierSelection.spec.js:11:38)
+
+FAIL tests/spec/admin/F05-TP3-003_PersistsSupplierReference.spec.js
+  ● SPEC F05-TP3-003: Persist supplier reference on add › Valid submission includes supplierId in the Firestore payload
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "sup-77"
+    Received: undefined
+
+      11 |     expect(harness.mocks.addDoc).toHaveBeenCalledTimes(1);
+      12 |     const payload = harness.mocks.addDoc.mock.calls[0][1];
+    > 13 |     expect(payload.supplierId).toBe('sup-77');
+         |                                ^
+      14 |   });
+      15 | });
+      16 |
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP3-003_PersistsSupplierReference.spec.js:13:32)
+
+FAIL tests/spec/admin/F05-TP3-004_HandlesStaleSupplierSelection.spec.js
+  ● SPEC F05-TP3-004: Handle stale/invalid supplier selections › Submitting with a stale supplier id is blocked and surfaces warning
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: {"type": "collection"}, {"author": "Test Author", "authorKey": "test-author", "binding": "Paperback", "category": "Fiction", "condition": "Good as new", "createdAt": "ts", "description": "Gently used copy", "featured": false, "imagePaths": [], "images": [], "isbn": "9781234567890", "mrp": 499, "price": 299, "purchasePrice": null, "status": "available", "title": "Test title", "updatedAt": "ts"}
+
+       9 |     await harness.submitAddForm();
+      10 |
+    > 11 |     expect(harness.mocks.addDoc).not.toHaveBeenCalled();
+         |                                      ^
+      12 |     expect(harness.addMsg.textContent.toLowerCase()).toContain('supplier');
+      13 |   });
+      14 | });
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP3-004_HandlesStaleSupplierSelection.spec.js:11:38)
+
+
+Test Suites: 4 failed, 33 passed, 37 total
+Tests:       4 failed, 38 passed, 42 total
+Snapshots:   0 total
+Time:        2.059 s
+Ran all test suites.
