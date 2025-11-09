@@ -29,11 +29,13 @@ export async function createAdminAddHarness(options = {}) {
     availList: dom.availList,
     soldList: dom.soldList,
     supplierSelect: dom.supplierSelect,
+    supplierMultiSelect: dom.supplierMultiSelect,
   });
 
   inventoryApi.setSuppliers([
     { id: 'sup-default', name: 'Default Supplier', location: 'Chennai' },
   ]);
+  syncMultiSelect(dom.supplierMultiSelect, formState.multi.supplierIds);
 
   return {
     mocks: firebase.mocks,
@@ -46,8 +48,20 @@ export async function createAdminAddHarness(options = {}) {
     setFileList(name, files) {
       formState.multi[name] = files;
     },
+    setSupplierIds(ids = []) {
+      formState.multi.supplierIds = Array.isArray(ids) ? [...ids] : [];
+      syncMultiSelect(dom.supplierMultiSelect, formState.multi.supplierIds);
+    },
     setSuppliers(list = []) {
       inventoryApi?.setSuppliers(list);
+      const valid = (formState.multi.supplierIds || []).filter((id) =>
+        list.some((s) => s.id === id)
+      );
+      if (!valid.length && list[0]) {
+        valid.push(list[0].id);
+      }
+      formState.multi.supplierIds = valid;
+      syncMultiSelect(dom.supplierMultiSelect, valid);
     },
     async submitAddForm() {
       fireEvent.submit(dom.addForm);
@@ -62,6 +76,8 @@ function buildDom() {
       <select id="supplierSelect" name="supplierId">
         <option value="" selected disabled>Select supplier *</option>
       </select>
+      <select id="supplierMultiSelect" name="supplierIds" multiple>
+      </select>
     </form>
     <p id="addMsg"></p>
     <div id="availList"></div>
@@ -75,6 +91,7 @@ function buildDom() {
     availList: document.getElementById('availList'),
     soldList: document.getElementById('soldList'),
     supplierSelect: document.getElementById('supplierSelect'),
+    supplierMultiSelect: document.getElementById('supplierMultiSelect'),
   };
 }
 
@@ -96,6 +113,7 @@ function createFormState(overrides = {}) {
   };
   const baseMulti = {
     more: [],
+    supplierIds: [baseSingle.supplierId],
   };
   return {
     single: { ...baseSingle, ...(overrides.single || {}) },
@@ -110,9 +128,13 @@ function snapshotFormData(state) {
   );
   return {
     get(key) {
-      return Object.prototype.hasOwnProperty.call(singleSnapshot, key)
-        ? singleSnapshot[key]
-        : null;
+      if (Object.prototype.hasOwnProperty.call(singleSnapshot, key)) {
+        return singleSnapshot[key];
+      }
+      if (multiSnapshot[key]?.length) {
+        return multiSnapshot[key][0];
+      }
+      return null;
     },
     getAll(key) {
       return multiSnapshot[key] ? [...multiSnapshot[key]] : [];
@@ -197,5 +219,12 @@ function buildFirebaseMocks(overrides = {}) {
 function flushPromises() {
   return new Promise((resolve) => {
     setTimeout(resolve, 0);
+  });
+}
+
+function syncMultiSelect(select, values = []) {
+  if (!select) return;
+  Array.from(select.options).forEach((opt) => {
+    opt.selected = values.includes(opt.value);
   });
 }

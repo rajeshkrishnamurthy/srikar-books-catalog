@@ -24,3 +24,15 @@ Notes:
 Notes:
 - Area: Admin / Supplier Master for F05-TP1/F05-TP2, Admin / Catalog for F05-TP3/F05-TP4.
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F05 topics.
+
+# Feature: Supplier Relationship Enhancements (F06)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F06-TP1 | Multi-Supplier Selection on Book Add | Allow admins to associate one or more suppliers when creating a book, enforcing at least one selection. | F05-TP3 | An admin opens the Add Book form with suppliers already available. | They pick multiple suppliers (or attempt to submit with none) and submit. | The book stores a deduplicated supplier list and blocks submission when no supplier is chosen. |
+| F06-TP2 | Edit Book Supplier Associations | Enable admins to add, reorder, or remove supplier links on existing books while keeping data valid. | F06-TP1 | A book already stores one or more supplier references. | An admin opens edit and adjusts the supplier list. | Updates persist atomically, enforce at least one supplier, and refresh admin views. |
+| F06-TP3 | View Books Per Supplier | Add a \"View books\" action next to each supplier to list all related books. | F06-TP1 | The supplier list renders with Edit/Delete actions. | An admin clicks \"View books\" for a supplier. | A searchable list of linked books appears with empty-state messaging if none exist. |
+
+Notes:
+- Area: Admin / Catalog for F06-TP1/F06-TP2, Admin / Supplier Master for F06-TP3.
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F06 topics.

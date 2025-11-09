@@ -228,6 +228,14 @@
         "verdict": "READY TO MERGE",
         "report": "codex_output/review/F05-TP4_code_review.md"
       }
+    },
+    {
+      "id": "F06-TP1",
+      "title": "Multi-Supplier Selection on Book Add",
+      "codeReview": {
+        "verdict": "READY TO MERGE",
+        "report": "codex_output/review/F06-TP1_code_review.md"
+      }
     }
   ]
 }

@@ -56,6 +56,7 @@ const supplierList = document.getElementById('supplierList');
 const supplierIdInput = document.getElementById('supplierIdInput');
 const supplierCancelBtn = document.getElementById('supplierCancelBtn');
 const supplierSelect = document.getElementById('supplierSelect');
+const supplierMultiSelect = document.getElementById('supplierMultiSelect');
 let inventoryApi = null; // <-- make it visible to the search handler
 let editorApi = null;
 let supplierMasterApi = null;
@@ -171,6 +172,7 @@ initAuth({
       availList,
       soldList,
       supplierSelect,
+      supplierMultiSelect,
       onEdit: editor.open,
     });
     applySuppliersToConsumers();

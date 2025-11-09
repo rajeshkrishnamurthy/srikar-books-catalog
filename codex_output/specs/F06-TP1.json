@@ -1,0 +1,75 @@
+{
+  "topicId": "F06-TP1",
+  "title": "Multi-Supplier Selection on Book Add",
+  "area": "Admin / Catalog",
+  "goal": "Allow admins to associate one or more suppliers when creating a book, enforcing at least one selection.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F06-TP1-001",
+      "title": "AddFormShowsMultiSupplierControl",
+      "given": "An admin opens the Add Book form with suppliers available.",
+      "when": "They inspect the supplier control.",
+      "then": "A multi-select UI (checkbox list or multi-select) renders the suppliers alphabetically with a hint that at least one is required.",
+      "test": "/tests/spec/admin/F06-TP1-001_AddFormShowsMultiSupplierControl.spec.js"
+    },
+    {
+      "id": "F06-TP1-002",
+      "title": "RequireAtLeastOneSupplier",
+      "given": "No supplier is selected.",
+      "when": "The admin tries to submit the Add Book form.",
+      "then": "Submission is blocked with an inline message and no addDoc call occurs.",
+      "test": "/tests/spec/admin/F06-TP1-002_RequireAtLeastOneSupplier.spec.js"
+    },
+    {
+      "id": "F06-TP1-003",
+      "title": "PersistMultipleSuppliers",
+      "given": "The admin selects multiple suppliers.",
+      "when": "The book is saved successfully.",
+      "then": "The Firestore payload stores a deduplicated array (e.g., supplierIds) with all selected suppliers.",
+      "test": "/tests/spec/admin/F06-TP1-003_PersistMultipleSuppliers.spec.js"
+    },
+    {
+      "id": "F06-TP1-004",
+      "title": "HandleStaleSupplierSelections",
+      "given": "The admin selected suppliers that were removed before submission.",
+      "when": "They submit the form.",
+      "then": "The UI warns about stale entries, clears them, and prevents addDoc until the selection is updated.",
+      "test": "/tests/spec/admin/F06-TP1-004_HandleStaleSupplierSelections.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminAddHarness.js",
+    "/tests/fixtures/adminSupplierHarness.js",
+    "/tests/fixtures/firebaseProxy.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F06-TP1_red.txt",
+    "green": "codex_output/reports/F06-TP1_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/main.js",
+    "scripts/admin/inventory.js",
+    "tests/fixtures/adminAddHarness.js",
+    "tests/spec/admin/F06-TP1-001_AddFormShowsMultiSupplierControl.spec.js",
+    "tests/spec/admin/F06-TP1-002_RequireAtLeastOneSupplier.spec.js",
+    "tests/spec/admin/F06-TP1-003_PersistMultipleSuppliers.spec.js",
+    "tests/spec/admin/F06-TP1-004_HandleStaleSupplierSelections.spec.js"
+  ],
+  "changeNotes": [
+    "Add Book form now includes a multi-select supplier control alongside the primary supplier dropdown.",
+    "Inventory submission enforces at least one supplier, deduplicates additional selections, and persists them via `supplierIds`.",
+    "Add harness/specs were updated to drive the new multi-supplier behavior and stale-selection guards."
+  ],
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F06-TP1_green.txt",
+    "summary": {
+      "testSuites": 41,
+      "tests": 46,
+      "result": "passed"
+    }
+  }
+}

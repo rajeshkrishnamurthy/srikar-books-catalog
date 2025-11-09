@@ -111,6 +111,17 @@
               <select id="supplierSelect" name="supplierId" required>
                 <option value="" selected disabled>Select supplier *</option>
               </select>
+              <label>
+                Additional suppliers
+                <select
+                  id="supplierMultiSelect"
+                  name="supplierIds"
+                  multiple
+                  size="4"
+                >
+                  <option value="" disabled>Select supplier *</option>
+                </select>
+              </label>
 
               <input
                 name="price"

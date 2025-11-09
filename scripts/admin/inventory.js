@@ -178,10 +178,11 @@ export function initInventory({
   availList,
   soldList,
   supplierSelect,
+  supplierMultiSelect,
   onEdit, // optional
 }) {
   let supplierEntries = [];
-  let supplierIds = new Set();
+  let supplierIdLookup = new Set();
 
   function syncSuppliers(list = []) {
     supplierEntries = (Array.isArray(list) ? list : [])
@@ -189,8 +190,9 @@ export function initInventory({
       .sort((a, b) =>
         formatSupplierLabel(a).localeCompare(formatSupplierLabel(b))
       );
-    supplierIds = new Set(supplierEntries.map((s) => s.id));
+    supplierIdLookup = new Set(supplierEntries.map((s) => s.id));
     const select = supplierSelect || addForm?.elements?.supplierId;
+    const multiSelect = supplierMultiSelect;
     if (!select) return;
     const docRef = select.ownerDocument || document;
     const currentValue = select.value;
@@ -208,10 +210,32 @@ export function initInventory({
       select.appendChild(option);
     });
     select.disabled = supplierEntries.length === 0;
-    if (currentValue && supplierIds.has(currentValue)) {
+    if (currentValue && supplierIdLookup.has(currentValue)) {
       select.value = currentValue;
     } else {
       select.value = '';
+    }
+    if (multiSelect) {
+      const multiDoc = multiSelect.ownerDocument || document;
+      const selectedValues = Array.from(
+        multiSelect.selectedOptions || []
+      ).map((opt) => opt.value);
+      multiSelect.innerHTML = '';
+      supplierEntries.forEach((supplier) => {
+        const option = multiDoc.createElement('option');
+        option.value = supplier.id;
+        option.textContent = formatSupplierLabel(supplier);
+        multiSelect.appendChild(option);
+      });
+      multiSelect.disabled = supplierEntries.length === 0;
+      selectedValues.forEach((value) => {
+        if (supplierIdLookup.has(value)) {
+          const opt = Array.from(multiSelect.options).find(
+            (o) => o.value === value
+          );
+          if (opt) opt.selected = true;
+        }
+      });
     }
   }
   syncSuppliers();
@@ -238,7 +262,48 @@ export function initInventory({
     const descRaw = (fd.get('description') || '').toString();
     const description = stripHtmlAndSquash(descRaw).slice(0, 5000);
     const featured = !!fd.get('featured');
-    const supplierId = (fd.get('supplierId') || '').toString().trim();
+    const previousPrimary = (fd.get('supplierId') || '').toString().trim();
+    if (!previousPrimary) {
+      if (addMsg) addMsg.textContent = 'Please select a supplier.';
+      return;
+    }
+    const supplierIdsRaw = fd.getAll('supplierIds') || [];
+    const normalizedSupplierIds = supplierIdsRaw
+      .map((v) => v && v.toString().trim())
+      .filter(Boolean);
+
+    if (!normalizedSupplierIds.length) {
+      if (addMsg) addMsg.textContent = 'Please select at least one supplier.';
+      return;
+    }
+
+    if (previousPrimary && !supplierIdLookup.has(previousPrimary)) {
+      if (addMsg)
+        addMsg.textContent =
+          'Selected supplier is no longer available. Choose another supplier.';
+      if (supplierSelect) supplierSelect.value = '';
+      return;
+    }
+
+    const validSupplierIds = normalizedSupplierIds.filter((id) =>
+      supplierIdLookup.has(id)
+    );
+    if (!validSupplierIds.length) {
+      if (addMsg)
+        addMsg.textContent =
+          'Selected supplier is no longer available. Choose another supplier.';
+      clearStaleSelections();
+      return;
+    }
+    if (validSupplierIds.length !== normalizedSupplierIds.length) {
+      if (addMsg)
+        addMsg.textContent =
+          'Selected supplier is no longer available. Choose another supplier.';
+      clearStaleSelections();
+      return;
+    }
+    const supplierIdList = Array.from(new Set(validSupplierIds));
+    const primarySupplierId = supplierIdList[0];
     const cover = fd.get('cover');
     const more = fd.getAll('more').filter((f) => f && f.size);
 
@@ -261,18 +326,6 @@ export function initInventory({
       return;
     }
 
-    if (!supplierId) {
-      if (addMsg) addMsg.textContent = 'Please select a supplier.';
-      return;
-    }
-
-    if (!supplierIds.has(supplierId)) {
-      if (addMsg)
-        addMsg.textContent =
-          'Selected supplier is no longer available. Choose another supplier.';
-      return;
-    }
-
     try {
       const res = await addDoc(collection(db, 'books'), {
         title,
@@ -288,7 +341,8 @@ export function initInventory({
         description,
         status: 'available',
         featured,
-        supplierId,
+        supplierId: primarySupplierId,
+        ...(supplierIdList.length ? { supplierIds: supplierIdList } : {}),
         ...(featured ? { featuredAt: serverTimestamp() } : {}),
         images: [],
         imagePaths: [],
@@ -419,4 +473,12 @@ export function initInventory({
       unsubscribeSold?.();
     },
   };
+
+  function clearStaleSelections() {
+    const multi = supplierMultiSelect;
+    if (!multi) return;
+    Array.from(multi.options).forEach((opt) => {
+      if (!supplierIdLookup.has(opt.value)) opt.selected = false;
+    });
+  }
 }
