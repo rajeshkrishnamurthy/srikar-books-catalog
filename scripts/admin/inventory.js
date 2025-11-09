@@ -42,11 +42,11 @@ const authorKeyFromName = (str = '') =>
     .replace(/ /g, '-')
     .slice(0, 100);
 
-const supplierLabel = (supplier = {}) => {
+function formatSupplierLabel(supplier = {}) {
   const name = normalizeAuthorName(supplier.name || '');
   const location = normalizeAuthorName(supplier.location || '');
   return location ? `${name} — ${location}` : name;
-};
+}
 
 const RUPEE_FORMATTER = new Intl.NumberFormat('en-IN');
 
@@ -184,7 +184,11 @@ export function initInventory({
   let supplierIds = new Set();
 
   function syncSuppliers(list = []) {
-    supplierEntries = Array.isArray(list) ? list : [];
+    supplierEntries = (Array.isArray(list) ? list : [])
+      .slice()
+      .sort((a, b) =>
+        formatSupplierLabel(a).localeCompare(formatSupplierLabel(b))
+      );
     supplierIds = new Set(supplierEntries.map((s) => s.id));
     const select = supplierSelect || addForm?.elements?.supplierId;
     if (!select) return;
@@ -200,7 +204,7 @@ export function initInventory({
     supplierEntries.forEach((supplier) => {
       const option = docRef.createElement('option');
       option.value = supplier.id;
-      option.textContent = supplierLabel(supplier);
+      option.textContent = formatSupplierLabel(supplier);
       select.appendChild(option);
     });
     select.disabled = supplierEntries.length === 0;
@@ -213,7 +217,7 @@ export function initInventory({
   syncSuppliers();
 
   // ---- ADD BOOK: submit handler (unchanged) ----
-  addForm?.addEventListener('submit', async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (addMsg) addMsg.textContent = 'Uploading…';
 
@@ -338,7 +342,9 @@ export function initInventory({
       console.error(err);
       if (addMsg) addMsg.textContent = 'Error: ' + err.message;
     }
-  });
+  };
+
+  addForm?.addEventListener('submit', handleSubmit);
 
   // ---- live lists + filtering ----
   let currentFilter = ''; // search text
@@ -389,11 +395,11 @@ export function initInventory({
     orderBy('updatedAt', 'desc')
   );
 
-  onSnapshot(qAvail, (snap) => {
+  const unsubscribeAvail = onSnapshot(qAvail, (snap) => {
     availDocs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     renderLists();
   });
-  onSnapshot(qSold, (snap) => {
+  const unsubscribeSold = onSnapshot(qSold, (snap) => {
     soldDocs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     renderLists();
   });
@@ -406,6 +412,11 @@ export function initInventory({
     },
     setSuppliers(list = []) {
       syncSuppliers(list);
+    },
+    dispose() {
+      addForm?.removeEventListener('submit', handleSubmit);
+      unsubscribeAvail?.();
+      unsubscribeSold?.();
     },
   };
 }
