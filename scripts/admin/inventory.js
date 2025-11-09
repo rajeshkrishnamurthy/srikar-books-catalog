@@ -41,6 +41,28 @@ const authorKeyFromName = (str = '') =>
     .replace(/ /g, '-')
     .slice(0, 100);
 
+function readCurrencyField(fd, name, options = {}) {
+  const { allowDecimal = false } = options;
+  const raw = (fd.get(name) ?? '').toString().trim();
+  if (!raw) {
+    return { hasValue: false, raw, value: null, isNumeric: true };
+  }
+  const pattern = allowDecimal ? /^-?\d+(\.\d+)?$/ : /^-?\d+$/;
+  if (!pattern.test(raw)) {
+    return { hasValue: true, raw, value: null, isNumeric: false };
+  }
+  const parsed = allowDecimal
+    ? Number.parseFloat(raw)
+    : Number.parseInt(raw, 10);
+  const isNumeric = Number.isFinite(parsed);
+  return {
+    hasValue: true,
+    raw,
+    value: isNumeric ? parsed : null,
+    isNumeric,
+  };
+}
+
 function matches(doc, term) {
   if (!term) return true;
   const t = norm(term);
@@ -166,8 +188,12 @@ export function initInventory({
     const authorKey = author ? authorKeyFromName(author) : null;
     const category = (fd.get('category') || '').toString();
     const binding = (fd.get('binding') || '').toString();
-    const price = fd.get('price') ? parseInt(fd.get('price'), 10) : null;
-    const mrp = fd.get('mrp') ? parseInt(fd.get('mrp'), 10) : null;
+    const priceField = readCurrencyField(fd, 'price');
+    const mrpField = readCurrencyField(fd, 'mrp');
+    const purchaseField = readCurrencyField(fd, 'purchasePrice');
+    const price = priceField.value;
+    const mrp = mrpField.value;
+    const purchasePrice = purchaseField.value;
     const isbn = onlyDigitsX(fd.get('isbn') || '');
     const condition = (fd.get('condition') || '').toString();
     const descRaw = (fd.get('description') || '').toString();
@@ -183,6 +209,18 @@ export function initInventory({
       return;
     }
 
+    if (purchaseField.hasValue && !purchaseField.isNumeric) {
+      if (addMsg)
+        addMsg.textContent = 'Purchase price must be a numeric value.';
+      return;
+    }
+
+    if (purchaseField.hasValue && purchasePrice < 0) {
+      if (addMsg)
+        addMsg.textContent = 'Purchase price must be zero or positive.';
+      return;
+    }
+
     try {
       const res = await addDoc(collection(db, 'books'), {
         title,
@@ -193,6 +231,7 @@ export function initInventory({
         isbn,
         price,
         mrp,
+        purchasePrice,
         condition,
         description,
         status: 'available',
