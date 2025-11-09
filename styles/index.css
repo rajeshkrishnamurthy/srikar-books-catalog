@@ -111,3 +111,24 @@ html {
   scroll-margin-top: 84px;
   margin-top: 0.6rem;
 }
+
+.phone-field {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.phone-prefix {
+  display: inline-grid;
+  place-items: center;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 8px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.phone-field input {
+  flex: 1;
+}

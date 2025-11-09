@@ -1,0 +1,53 @@
+{
+  "feature": "Admin Purchase Price Handling",
+  "topics": [
+    {
+      "id": "TP1",
+      "title": "Capture Purchase Price on Add",
+      "area": "Admin / Inventory Form",
+      "goal": "Allow admins to enter and persist a purchase price when creating a book record.",
+      "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+      "dependencies": [],
+      "given": "An authenticated admin opens the Add Book form.",
+      "when": "They enter a numeric purchase price and submit the form.",
+      "then": "The value is validated (required, non-negative) and written to Firestore with the new book.",
+      "notes": "Includes schema update, client-side validation messaging, and serverTimestamp-safe writes."
+    },
+    {
+      "id": "TP2",
+      "title": "Edit Stored Purchase Price",
+      "area": "Admin / Inventory Management",
+      "goal": "Enable admins to adjust the saved purchase price on existing books without recreating them.",
+      "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+      "dependencies": ["TP1"],
+      "given": "A book exists in inventory with or without a purchase price set.",
+      "when": "An admin invokes the edit action and updates the purchase price field.",
+      "then": "The new value passes validation and updates the Firestore document, reflecting immediately in the UI.",
+      "notes": "Guard against empty submissions; reuse validation logic from TP1; keep optimistic UI updates consistent."
+    },
+    {
+      "id": "TP3",
+      "title": "Admin Visibility of Purchase Price",
+      "area": "Admin / Inventory List",
+      "goal": "Surface each book's purchase price to admins within list/detail panels for quick reference.",
+      "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+      "dependencies": ["TP1"],
+      "given": "An admin loads the inventory dashboard or detail drawer.",
+      "when": "Books are rendered in the admin UI.",
+      "then": "Each entry shows the stored purchase price (formatted currency or placeholder when missing) without affecting actions.",
+      "notes": "Ensure formatting is locale-aware and accessible; no exposure in public components."
+    },
+    {
+      "id": "TP4",
+      "title": "Hide Purchase Price from Public Catalog",
+      "area": "Public Catalog / Data Privacy",
+      "goal": "Guarantee purchase price data never appears in the public catalog payloads or UI.",
+      "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+      "dependencies": ["TP1"],
+      "given": "A visitor browses the public catalog.",
+      "when": "Client-side code queries Firestore and renders cards.",
+      "then": "Purchase price fields are omitted or stripped before rendering so no cost data leaks publicly.",
+      "notes": "Double-check Firestore queries/selects and DOM templates; consider security rules to block reads from non-admin contexts."
+    }
+  ]
+}

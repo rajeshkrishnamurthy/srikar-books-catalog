@@ -73,3 +73,59 @@ dialog.panel {
 dialog::backdrop {
   background: rgba(0, 0, 0, 0.45);
 }
+
+/* --- Admin lookup progress ------------------------------------------------- */
+.lookup-card.is-dimmed {
+  opacity: 0.7;
+}
+
+.lookup-progress {
+  margin-top: 0.35rem;
+}
+
+.lookup-steps {
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+.lookup-steps li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.lookup-steps li.is-current {
+  color: var(--text);
+}
+.lookup-steps li.is-done {
+  color: var(--ok);
+}
+.lookup-steps li.is-failed {
+  color: var(--danger);
+}
+
+.lookup-steps .spin {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+.lookup-steps .mark {
+  font-weight: 700;
+}
+.step-hint {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-left: 1.4rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

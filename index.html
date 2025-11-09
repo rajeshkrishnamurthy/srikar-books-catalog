@@ -35,7 +35,7 @@
             Children
           </button>
         </nav>
-        <!-- in index.html header -->
+
         <div class="search">
           <input
             id="search"
@@ -44,30 +44,13 @@
             aria-label="Search books"
           />
           <button
-            id="menuBtn"
-            class="icon-btn"
+            id="openRequestBtn"
+            class="btn btn-secondary btn-ghost"
             type="button"
-            aria-haspopup="menu"
-            aria-expanded="false"
-            aria-controls="siteMenu"
-            title="Menu"
-            aria-label="Open menu"
+            aria-controls="requestPanel"
           >
-            <!-- burger icon -->
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-              <path
-                fill="currentColor"
-                d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z"
-              />
-            </svg>
+            Request a book
           </button>
-
-          <div id="siteMenu" class="menu" role="menu" hidden>
-            <a href="#requestPanel" role="menuitem" data-action="request"
-              >Request a book</a
-            >
-            <a href="./admin.html" role="menuitem">Admin</a>
-          </div>
         </div>
       </div>
     </header>
@@ -90,14 +73,13 @@
             <div id="emblaContainer" class="embla__container"></div>
           </div>
 
-          <!-- NEW: overlay arrows (bigger & centered) -->
+          <!-- Overlay arrows -->
           <button
             id="emblaPrev"
             class="embla__button embla__button--prev"
             type="button"
             aria-label="Previous slide"
           >
-            <!-- chevron-left -->
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path
                 fill="currentColor"
@@ -111,7 +93,6 @@
             type="button"
             aria-label="Next slide"
           >
-            <!-- chevron-right -->
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path
                 fill="currentColor"
@@ -134,21 +115,32 @@
         No books found here yet. Try another category or clear search.
       </p>
 
-      <!-- Request a Book (unchanged) -->
+      <!-- Request a Book -->
       <details class="panel" id="requestPanel" open>
         <summary><strong>Can’t find a book?</strong> Request it</summary>
-        <form id="requestForm" class="stack">
+        <form id="requestForm" class="stack" novalidate>
           <div class="grid-2">
             <input name="rtitle" placeholder="Title *" required />
             <input name="rauthor" placeholder="Author *" required />
             <input name="rname" placeholder="Your name *" required />
-            <input
-              name="rphone"
-              placeholder="Phone/WhatsApp *"
-              inputmode="tel"
-              required
-            />
+
+            <!-- NEW: +91 prefix + strict 10-digit input -->
+            <div class="phone-field">
+              <span class="phone-prefix" aria-hidden="true">+91</span>
+              <input
+                id="rphone"
+                name="rphone"
+                placeholder="10‑digit mobile number *"
+                inputmode="tel"
+                autocomplete="tel"
+                pattern="^[0-9]{10}$"
+                maxlength="10"
+                title="Enter a 10‑digit Indian mobile number (no +91, no spaces)"
+                required
+              />
+            </div>
           </div>
+
           <textarea
             name="rnotes"
             rows="3"

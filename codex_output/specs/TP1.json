@@ -1,0 +1,60 @@
+{
+  "topicId": "TP1",
+  "title": "Capture Purchase Price on Add",
+  "area": "Admin / Inventory Form",
+  "goal": "Allow admins to enter and persist a purchase price when creating a book record.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "TP1-001",
+      "title": "AddFormShowsPurchasePrice",
+      "given": "An authenticated admin opens the Add Book form.",
+      "when": "They inspect the fields presented in the form.",
+      "then": "A dedicated purchase price input configured for numeric entry is visible.",
+      "test": "/tests/spec/admin/TP1-001_AddFormShowsPurchasePrice.spec.js"
+    },
+    {
+      "id": "TP1-002",
+      "title": "PersistPurchasePrice",
+      "given": "An admin enters a numeric purchase price while adding a book.",
+      "when": "The form submission succeeds.",
+      "then": "The Firestore payload includes the number under `purchasePrice`.",
+      "test": "/tests/spec/admin/TP1-002_PersistsPurchasePrice.spec.js"
+    },
+    {
+      "id": "TP1-003",
+      "title": "RejectNonNumericPurchasePrice",
+      "given": "An admin types non-numeric characters into the purchase price field.",
+      "when": "They submit the add-book form.",
+      "then": "Submission is blocked with a numeric warning and no Firestore write occurs.",
+      "test": "/tests/spec/admin/TP1-003_BlocksNonNumericPurchasePrice.spec.js"
+    },
+    {
+      "id": "TP1-004",
+      "title": "RejectNegativePurchasePrice",
+      "given": "An admin enters a negative purchase price.",
+      "when": "They submit the add-book form.",
+      "then": "Submission is halted with guidance to enter a positive or zero value, and Firestore is not called.",
+      "test": "/tests/spec/admin/TP1-004_BlocksNegativePurchasePrice.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminAddHarness.js",
+    "/tests/fixtures/firebaseProxy.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/TP1_red.txt",
+    "green": "codex_output/reports/TP1_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/TP1_green.txt",
+    "summary": {
+      "testSuites": 4,
+      "tests": 4,
+      "result": "passed"
+    }
+  },
+  "notes": "Unit tests already exist for TP1 and currently pass against the present implementation."
+}

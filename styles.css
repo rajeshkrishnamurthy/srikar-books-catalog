@@ -26,6 +26,19 @@ body {
   color: var(--text);
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
 .wrap {
   width: min(1100px, 92vw);
   margin-inline: auto;
@@ -185,6 +198,13 @@ label {
   display: grid;
   gap: 0.6rem;
   grid-template-columns: repeat(2, 1fr);
+}
+.field-with-label {
+  display: flex;
+  flex-direction: column;
+}
+.field-with-label > input {
+  width: 100%;
 }
 .flex {
   display: flex;

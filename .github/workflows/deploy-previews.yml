@@ -5,21 +5,17 @@ on:
     branches-ignore:
       - main
       - staging
-
 permissions:
   contents: read
   deployments: write
   pull-requests: write
-
 jobs:
   preview:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Use STAGING config
         run: cp scripts/config.staging.js scripts/config.js
-
       - name: Derive channel id from branch/PR
         id: ch
         shell: bash
@@ -31,7 +27,6 @@ jobs:
             CH=$(echo "$CH" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-' | cut -c1-32)
             echo "id=$CH" >> $GITHUB_OUTPUT
           fi
-
       - name: Deploy to Firebase Hosting (preview on STAGING project)
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
