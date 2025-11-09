@@ -1,48 +1,88 @@
 # AGENTS.md (Pipeline-Integrated Layout — HTML + Vanilla JavaScript Edition)
 
 ---
-
 ## codex-spec
 
 **Goal**
-Define high-level **features** and decompose them into 2–5 independently shippable **topics**, each with a clear goal, dependencies, and concise Given/When/Then summaries.
+Define high-level **features** and decompose each into 2–5 independently shippable **topics**, each with a clear goal, dependencies, and concise Given/When/Then summaries.
 
 **Context**
-codex-spec operates before implementation. It transforms a feature description into structured topic data files consumed by codex-tdd.
+codex-spec operates before implementation. It transforms feature descriptions into structured topic data files consumed by codex-tdd and downstream agents.
 
 **Tasks**
-
-1. Identify minimal, independently deployable topics.
-2. For each, record concise Given/When/Then summaries.
-3. Avoid framework-specific details.
-4. Write all topics to a machine-readable file for the next agent.
+1. Accept multiple features at once — each feature is identified by a unique `featureId` (e.g. `F01`, `F02`, etc.).  
+2. For each feature, generate 2–5 topic entries.  
+3. Prefix each topic ID with the feature ID to ensure global uniqueness (`F01-TP1`, `F01-TP2`, etc.).  
+4. Record concise Given/When/Then summaries for each topic.  
+5. Avoid framework-specific details.  
+6. Write all features and topics into a single JSON file (`codex_output/topics.json`) and an optional human-readable Markdown file (`codex_output/topics.md`).
 
 **Output Format (JSON)**
 `codex_output/topics.json`
 
 ```json
 {
-  "feature": "<feature name>",
-  "topics": [
+  "features": [
     {
-      "id": "TP1",
-      "title": "Capture Purchase Price on Add",
-      "area": "Admin / Catalog",
-      "goal": "Allow admins to enter a purchase price when creating a book.",
-      "environment": "HTML + Vanilla JavaScript + Jest + jsdom",
-      "notes": "Validation for non-numeric and negative values must fail gracefully."
+      "featureId": "F01",
+      "featureTitle": "Purchase Price Management",
+      "description": "Enable admins to manage purchase price visibility and editing.",
+      "topics": [
+        {
+          "id": "F01-TP1",
+          "title": "Capture Purchase Price on Add",
+          "area": "Admin / Catalog",
+          "goal": "Allow admins to enter a purchase price when creating a book.",
+          "environment": ".NET 8 + C# + xUnit",
+          "notes": "Validation for non-numeric and negative values must fail gracefully."
+        },
+        {
+          "id": "F01-TP2",
+          "title": "Edit Stored Purchase Price",
+          "area": "Admin / Catalog",
+          "goal": "Allow admins to modify an existing purchase price.",
+          "environment": ".NET 8 + C# + xUnit",
+          "notes": "Editing must preserve existing audit data."
+        }
+      ]
+    },
+    {
+      "featureId": "F02",
+      "featureTitle": "Inventory Import Automation",
+      "description": "Automate import of supplier price lists.",
+      "topics": [
+        {
+          "id": "F02-TP1",
+          "title": "Parse Supplier CSV",
+          "area": "Inventory",
+          "goal": "Extract purchase prices and SKUs from supplier CSV uploads.",
+          "environment": ".NET 8 + C# + xUnit"
+        }
+      ]
     }
   ]
 }
-```
+
+Output Format (Markdown)
+codex_output/topics.md
+
+# Feature: Purchase Price Management (F01)
+| Topic ID | Title | Area | Goal |
+|-----------|--------|------|------|
+| F01-TP1 | Capture Purchase Price on Add | Admin / Catalog | Allow admins to enter a purchase price when creating a book. |
+| F01-TP2 | Edit Stored Purchase Price | Admin / Catalog | Allow admins to modify an existing purchase price. |
+
+
+# Feature: Inventory Import Automation (F02)
+| Topic ID | Title | Area | Goal |
+|-----------|--------|------|------|
+| F02-TP1 | Parse Supplier CSV | Inventory | Extract purchase prices and SKUs from supplier CSV uploads. |
 
 **Deliverables**
-
-* ✅ `codex_output/topics.json` — canonical list of topics for this feature.
-* ✅ Human-readable Markdown copy (optional): `codex_output/topics.md`.
-* ✅ No tests or code produced.
-* ✅ After writing to codex_output/topics.json, also display the generated topics in the Codex output window in both table and markdown formats so the user can review them immediately.
-
+✅ codex_output/topics.json — array of features with globally unique topic IDs.
+✅ codex_output/topics.md — readable Markdown table for every feature.
+✅ Automatically displayed in the Codex output window for review after generation.
+✅ Each downstream agent (codex-tdd, codex-dev, etc.) can now query by featureId + topicId safely.
 ---
 
 ## codex-tdd
