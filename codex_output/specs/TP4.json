@@ -1,0 +1,59 @@
+{
+  "topicId": "TP4",
+  "title": "Hide Purchase Price from Public Catalog",
+  "area": "Public Catalog / Data Privacy",
+  "goal": "Guarantee purchase price data never appears in the public catalog payloads or UI.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "TP4-001",
+      "title": "CatalogCardsHidePurchasePrice",
+      "given": "A public visitor loads catalog cards for available books that contain an internal purchasePrice field.",
+      "when": "renderBooks generates the DOM for those cards.",
+      "then": "No purchase price label or value is rendered anywhere in the markup.",
+      "test": "/tests/spec/public/TP4-001_CatalogCardsHidePurchasePrice.spec.js"
+    },
+    {
+      "id": "TP4-002",
+      "title": "SearchResultsHidePurchasePrice",
+      "given": "The visitor filters books via search and matching docs include purchasePrice.",
+      "when": "renderBooks rerenders the filtered cards.",
+      "then": "The purchasePrice amount never appears in the visible text.",
+      "test": "/tests/spec/public/TP4-002_SearchResultsHidePurchasePrice.spec.js"
+    },
+    {
+      "id": "TP4-003",
+      "title": "PurchaseMessageHidesPurchasePrice",
+      "given": "A visitor taps the WhatsApp CTA for any book.",
+      "when": "purchaseMessage builds the outgoing WhatsApp text.",
+      "then": "The string references only the public details (title and optional author) and omits purchase price data even if provided.",
+      "test": "/tests/spec/public/TP4-003_PurchaseMessageHidesPurchasePrice.spec.js"
+    },
+    {
+      "id": "TP4-004",
+      "title": "CatalogPayloadStripsPurchasePrice",
+      "given": "The catalog subscribes to available books from Firestore where documents carry purchasePrice.",
+      "when": "subscribeToAllAvailable invokes the consumer callback.",
+      "then": "Each emitted object excludes the purchasePrice property to keep payloads free of cost data.",
+      "test": "/tests/unit/public/TP4-004_CatalogPayloadStripsPurchasePrice.test.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/publicCatalogHarness.js",
+    "/tests/fixtures/firebaseProxy.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/TP4_red.txt",
+    "green": "codex_output/reports/TP4_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/TP4_green.txt",
+    "summary": {
+      "testSuites": 24,
+      "tests": 24,
+      "result": "passed"
+    }
+  }
+}
