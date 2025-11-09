@@ -263,6 +263,46 @@
           <ul id="supplierList" class="stack" style="gap: 0.4rem"></ul>
         </details>
 
+        <details class="panel" open>
+          <summary><strong>Customer master</strong></summary>
+          <div class="grid-2" id="customerPanel">
+            <form id="customerForm" class="stack">
+              <h3>Add customer</h3>
+              <input
+                id="customerNameInput"
+                name="customerName"
+                placeholder="Customer name *"
+                required
+              />
+              <textarea
+                id="customerAddressInput"
+                name="customerAddress"
+                placeholder="Address / Landmark"
+                rows="3"
+              ></textarea>
+              <input
+                id="customerLocationInput"
+                name="customerLocation"
+                placeholder="City / Location"
+              />
+              <input
+                id="customerWhatsAppInput"
+                name="customerWhatsApp"
+                placeholder="WhatsApp (10 digits)"
+                inputmode="numeric"
+                required
+                aria-describedby="customerMsg"
+              />
+              <button class="btn" type="submit">Add customer</button>
+              <p id="customerMsg" class="muted"></p>
+            </form>
+            <div>
+              <h3>Recent customers</h3>
+              <ul id="customerList" class="admin-list"></ul>
+            </div>
+          </div>
+        </details>
+
         <!-- EDIT BOOK DIALOG -->
         <dialog id="editDialog" class="panel" style="max-width: 760px">
           <form id="editForm" method="dialog" class="stack">
