@@ -58,6 +58,7 @@ const supplierCancelBtn = document.getElementById('supplierCancelBtn');
 const supplierSelect = document.getElementById('supplierSelect');
 let inventoryApi = null; // <-- make it visible to the search handler
 let editorApi = null;
+let supplierMasterApi = null;
 let latestSupplierOptions = [];
 let unsubscribeSuppliers = null;
 
@@ -184,7 +185,7 @@ initAuth({
     // 5) Requests panel
     initRequests({ reqOpen, reqClosed });
 
-    initSupplierMaster(
+    supplierMasterApi = initSupplierMaster(
       {
         form: supplierForm,
         nameInput: supplierNameInput,
@@ -217,6 +218,8 @@ initAuth({
     inventoryApi?.dispose?.();
     inventoryApi = null;
     editorApi = null;
+    supplierMasterApi?.dispose?.();
+    supplierMasterApi = null;
   },
 });
 
