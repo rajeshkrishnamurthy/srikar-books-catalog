@@ -247,7 +247,13 @@
                 required
               />
             </label>
-            <button type="submit" class="btn">Add supplier</button>
+            <input type="hidden" id="supplierIdInput" name="supplierId" />
+            <div class="flex" style="gap: 0.5rem">
+              <button type="submit" class="btn">Save supplier</button>
+              <button type="button" id="supplierCancelBtn" class="btn btn-secondary">
+                Cancel
+              </button>
+            </div>
           </form>
           <p id="supplierMsg" class="muted"></p>
           <ul id="supplierList" class="stack" style="gap: 0.4rem"></ul>

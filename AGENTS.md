@@ -181,22 +181,41 @@ At any given time:
 ## codex-process-review
 
 **Goal**
-Verify TDD process compliance for the current topic — confirm that all tests pass, RED → GREEN flow was followed, and feature-scoped coverage meets thresholds.
+Perform the final readiness check for a topic — confirm that all tests pass, coverage meets thresholds, and that **codex-code-review** has explicitly declared the topic **READY FOR MERGE**.
 
 **Context**
-Runs after codex-dev marks the topic GREEN. Consumes `codex_output/specs/<TopicID>.json`, Jest results, and coverage artifacts.
+Runs last in the pipeline, after both codex-dev and codex-code-review complete.
+Consumes:
+
+* `codex_output/specs/<TopicID>.json`
+* `codex_output/reports/<TopicID>_green.txt`
+* Coverage artifacts
+* `codex_output/review/<TopicID>_code_review.md`
 
 **Tasks**
 
-1. Confirm `"status": "GREEN"` in the spec JSON.
-2. Parse Jest results from `codex_output/reports/<TopicID>_green.txt`.
-3. Run coverage limited to files for this topic:
+1. Confirm `"status": "GREEN"` in `specs/<TopicID>.json`.
+2. Parse test results from `codex_output/reports/<TopicID>_green.txt`.
+3. Run topic-scoped coverage using **coverlet + ReportGenerator** (or Jest for JS projects):
 
    ```bash
-   npx jest --coverage --collectCoverageFrom="<topic files>"
+   dotnet test /p:CollectCoverage=true /p:CoverletOutput=codex_output/coverage/ /p:CoverletOutputFormat=cobertura
+   reportgenerator -reports:codex_output/coverage/coverage.cobertura.xml -targetdir:codex_output/coverage_report -reporttypes:HtmlSummary
    ```
-4. Check coverage ≥ 70 % lines, 50 % branches.
-5. Record per-topic coverage and verdict.
+
+   *(In JavaScript contexts, use the equivalent Jest command.)*
+4. Check coverage thresholds (≥ 70 % lines, ≥ 50 % branches).
+5. Read `codex_output/review/<TopicID>_code_review.md` and confirm it contains:
+
+   ```
+   **Verdict:** READY FOR MERGE
+   ```
+6. Aggregate all checks into a single summary verdict:
+
+   * ✅ Tests GREEN
+   * ✅ Coverage thresholds met
+   * ✅ Code review sign-off confirmed
+7. Append this information to both the Markdown report and `summary.json`.
 
 **Output**
 `codex_output/review/<TopicID>_process_review.md`
@@ -204,20 +223,42 @@ Runs after codex-dev marks the topic GREEN. Consumes `codex_output/specs/<TopicI
 ```markdown
 # Process Review — <TopicID> <Title>
 
-✅ **Tests:** All green  
-📊 **Feature Coverage:** 78 % lines / 61 % branches  
-🧩 **Scope:** scripts/admin/inventory.js  
-💡 **Notes:** Validation edge cases remain partially covered.  
+✅ **Tests:** All green (see `codex_output/reports/<TopicID>_green.txt`)  
+📊 **Feature Coverage:** 82 % lines / 67 % branches  
+🧩 **Scope:** src/Admin/CatalogService.cs  
+💬 **Code Review:** codex-code-review verdict = READY FOR MERGE  
+💡 **Notes:** Validation and persistence layers fully covered.
 
-**Verdict:** READY TO MERGE
+**Final Verdict:** READY TO MERGE
 ```
 
 **Deliverables**
 
 * ✅ Topic-scoped coverage verification.
-* ✅ Explicit verdict (`READY TO MERGE` / `NEEDS WORK`).
-* ✅ Machine-readable summary in `codex_output/review/summary.json`.
-* ✅ Write a changedFiles and changeNotes section to codex_output/specs/<TopicID>.json, listing each modified file and summarizing the intent of the changes.
+* ✅ Consolidated final verdict (`READY TO MERGE` / `NEEDS WORK`).
+* ✅ Machine-readable `codex_output/review/summary.json` with fields:
+
+  ```json
+  {
+    "topicId": "<TopicID>",
+    "testsGreen": true,
+    "coverageLines": 82,
+    "coverageBranches": 67,
+    "codeReviewVerdict": "READY FOR MERGE",
+    "finalVerdict": "READY TO MERGE"
+  }
+  ```
+* ✅ Write or update `changedFiles` and `changeNotes` in `codex_output/specs/<TopicID>.json` for traceability.
+
+**Summary of Improvements**
+
+| Area                  | Before            | Now                                                                  |
+| --------------------- | ----------------- | -------------------------------------------------------------------- |
+| **Pipeline position** | After codex-dev   | Runs after both codex-dev **and** codex-code-review                  |
+| **Code review check** | Not considered    | Explicitly validates “READY FOR MERGE” verdict                       |
+| **Output clarity**    | Technical-only    | Combines test, coverage, and review status                           |
+| **Final authority**   | codex-code-review | codex-process-review confirms and publishes the final merge decision |
+
 ---
 
 ## codex-code-review

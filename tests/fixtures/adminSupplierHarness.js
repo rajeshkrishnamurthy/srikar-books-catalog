@@ -22,6 +22,8 @@ export async function createAdminSupplierHarness(options = {}) {
       locationInput: dom.locationInput,
       msgEl: dom.msgEl,
       listEl: dom.listEl,
+      idInput: dom.idInput,
+      cancelBtn: dom.cancelBtn,
     },
     firebase.exports
   );
@@ -51,6 +53,14 @@ export async function createAdminSupplierHarness(options = {}) {
         })),
       });
     },
+    async clickListButton(index, action) {
+      const item = dom.listEl.querySelectorAll('li')[index];
+      const btn = item?.querySelector(`button[data-action="${action}"]`);
+      if (btn) {
+        btn.click();
+      }
+      await flushPromises();
+    },
     mocks: firebase.mocks,
   };
 }
@@ -61,7 +71,9 @@ function buildDom() {
       <form id="supplierForm">
         <input id="supplierNameInput" name="supplierName" />
         <input id="supplierLocationInput" name="supplierLocation" />
-        <button type="submit">Add supplier</button>
+        <input id="supplierIdInput" name="supplierId" type="hidden" />
+        <button type="submit">Save supplier</button>
+        <button type="button" id="supplierCancelBtn">Cancel</button>
       </form>
       <p id="supplierMsg"></p>
       <ul id="supplierList"></ul>
@@ -72,6 +84,8 @@ function buildDom() {
     form,
     nameInput: document.getElementById('supplierNameInput'),
     locationInput: document.getElementById('supplierLocationInput'),
+    idInput: document.getElementById('supplierIdInput'),
+    cancelBtn: document.getElementById('supplierCancelBtn'),
     msgEl: document.getElementById('supplierMsg'),
     listEl: document.getElementById('supplierList'),
   };
@@ -80,27 +94,39 @@ function buildDom() {
 function buildFirebaseMocks(overrides = {}) {
   const listeners = { suppliers: null };
 
-  const collection = jest.fn(() => ({ type: 'collection' }));
+  const collection = jest.fn((db, path) => ({ type: 'collection', path }));
   const addDoc = jest.fn().mockResolvedValue({ id: 'sup-1' });
-  const orderBy = jest.fn(() => ({ type: 'orderBy' }));
+  const orderBy = jest.fn((field) => ({ type: 'orderBy', field }));
   const where = jest.fn((field, op, value) => ({
     type: 'where',
     field,
     op,
     value,
   }));
-  const query = jest.fn(() => ({ type: 'query' }));
+  const query = jest.fn((ref, ...constraints) => ({
+    type: 'query',
+    ref,
+    constraints,
+  }));
+  const docRef = jest.fn((db, path, id) => ({ type: 'doc', path, id }));
+  const updateDoc = jest.fn().mockResolvedValue();
+  const deleteDoc = jest.fn().mockResolvedValue();
+  const getDocs = jest
+    .fn()
+    .mockImplementation(async (q) => ({ docs: [], empty: true, query: q }));
   const onSnapshot = jest.fn((ref, cb) => {
     listeners.suppliers = cb;
     cb({ docs: [] });
     return () => {};
   });
-  const getDocs = jest.fn(async () => ({ docs: [], empty: true }));
 
   const exports = {
     db: {},
     collection,
+    doc: docRef,
     addDoc,
+    updateDoc,
+    deleteDoc,
     orderBy,
     query,
     onSnapshot,
@@ -113,7 +139,18 @@ function buildFirebaseMocks(overrides = {}) {
 
   return {
     exports,
-    mocks: { collection, addDoc, orderBy, query, onSnapshot, where, getDocs },
+    mocks: {
+      collection,
+      doc: docRef,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      orderBy,
+      query,
+      onSnapshot,
+      where,
+      getDocs,
+    },
     listeners,
   };
 }

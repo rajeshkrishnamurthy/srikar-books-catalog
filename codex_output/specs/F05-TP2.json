@@ -1,0 +1,59 @@
+{
+  "topicId": "F05-TP2",
+  "title": "Edit or Remove Supplier Records",
+  "area": "Admin / Supplier Master",
+  "goal": "Let admins update supplier details or remove suppliers that are no longer in use.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F05-TP2-001",
+      "title": "InlineEditPrefillsSupplier",
+      "given": "An admin selects a supplier from the list to edit.",
+      "when": "They trigger the edit action.",
+      "then": "The form switches to edit mode with name/location pre-filled and a cancel option.",
+      "test": "/tests/spec/admin/F05-TP2-001_InlineEditPrefillsSupplier.spec.js"
+    },
+    {
+      "id": "F05-TP2-002",
+      "title": "PersistSupplierEdit",
+      "given": "An admin updates a supplier’s name/location in edit mode.",
+      "when": "They submit the form.",
+      "then": "updateDoc is called with trimmed values, duplicates are prevented, and an inline success message appears.",
+      "test": "/tests/spec/admin/F05-TP2-002_PersistSupplierEdit.spec.js"
+    },
+    {
+      "id": "F05-TP2-003",
+      "title": "PreventDeleteWhenInUse",
+      "given": "A supplier is referenced by one or more books.",
+      "when": "An admin attempts to delete that supplier.",
+      "then": "Deletion is blocked with a warning message and no deleteDoc call is made.",
+      "test": "/tests/spec/admin/F05-TP2-003_PreventDeleteWhenInUse.spec.js"
+    },
+    {
+      "id": "F05-TP2-004",
+      "title": "DeleteSupplierWhenUnused",
+      "given": "A supplier is not referenced by any book.",
+      "when": "An admin confirms deletion.",
+      "then": "deleteDoc runs, the supplier disappears from the list, and the UI confirms removal.",
+      "test": "/tests/spec/admin/F05-TP2-004_DeleteSupplierWhenUnused.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminSupplierHarness.js",
+    "/tests/fixtures/firebaseProxy.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F05-TP2_red.txt",
+    "green": "codex_output/reports/F05-TP2_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F05-TP2_green.txt",
+    "summary": {
+      "testSuites": 33,
+      "tests": 38,
+      "result": "passed"
+    }
+  }
+}
