@@ -24,3 +24,29 @@ Notes:
 Notes:
 - Area: Admin / Supplier Master for F05-TP1/F05-TP2, Admin / Catalog for F05-TP3/F05-TP4.
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F05 topics.
+
+# Feature: Book Sale Settlement (F06)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F06-TP1 | Record Sale Status and Price | Let admins toggle inventory status and capture the sale price in one flow. | — | A book exists and is ready to be marked as sold. | The admin switches the sale status and enters a sale price before saving. | Status and validated sale price persist together, updating stock counters. |
+| F06-TP2 | Compute Revenue Shares | Auto-calculate Srikar and supplier payout amounts from sale/cost prices. | TP1, F06-TP1 | The book already stores a cost price and the sale price was captured. | The admin confirms the sale. | The system stores Srikar's share as (sale-cost)/2 and supplier share as cost + (sale-cost)/2 with rounding applied. |
+| F06-TP3 | Associate Buyer With Sale | Link every sold book to a buyer from the customer master. | F06-TP1, F07-TP1 | Customer records exist and a book is being marked sold. | The admin searches/selects (or creates) a buyer while confirming the sale. | The sale record stores the buyer reference and surfaces it in reports. |
+
+Notes:
+- Ensure sale price is required when status is "sold" and enforce positive currency values.
+- Shares should be previewed before save and reuse existing currency-format utilities.
+- Buyer selection should block completion until a valid customer is chosen.
+
+# Feature: Customer Master Management (F07)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F07-TP1 | Add Customer Records | Capture customer name, address, location, and WhatsApp for reuse in sales. | — | An admin opens the Customer Master module. | They submit the add form with all required fields. | A validated customer document is created with normalized phone data. |
+| F07-TP2 | Edit Customer Records | Update customer details without breaking historical sale links. | F07-TP1 | A customer entry already exists. | An admin opens the record and changes address/location/WhatsApp. | Changes persist with updated timestamps and reflect anywhere the customer is referenced. |
+| F07-TP3 | Customer Lookup for Sales | Provide searchable customer listings to other workflows (e.g., sales settlement). | F07-TP1 | Another workflow needs to assign a buyer. | The admin searches/filters/paginates through customers. | Matching customers are returned and the selected ID is emitted back to the calling flow. |
+
+Notes:
+- Deduplicate by name + WhatsApp and enforce consistent phone formatting.
+- Editing should warn before clearing required data and keep immutable IDs for references.
+- Lookup service must integrate cleanly with F06-TP3, exposing minimal fields for selection.

@@ -7,6 +7,7 @@ import { initInventory } from './inventory.js';
 import { initRequests } from './requests.js';
 import { initEditor } from './editor.js';
 import { initSupplierMaster } from './suppliers.js';
+import { initCustomerMaster } from './customers.js';
 import {
   db,
   collection,
@@ -56,6 +57,13 @@ const supplierList = document.getElementById('supplierList');
 const supplierIdInput = document.getElementById('supplierIdInput');
 const supplierCancelBtn = document.getElementById('supplierCancelBtn');
 const supplierSelect = document.getElementById('supplierSelect');
+const customerForm = document.getElementById('customerForm');
+const customerNameInput = document.getElementById('customerNameInput');
+const customerAddressInput = document.getElementById('customerAddressInput');
+const customerLocationInput = document.getElementById('customerLocationInput');
+const customerWhatsAppInput = document.getElementById('customerWhatsAppInput');
+const customerMsg = document.getElementById('customerMsg');
+const customerList = document.getElementById('customerList');
 let inventoryApi = null; // <-- make it visible to the search handler
 let editorApi = null;
 let supplierMasterApi = null;
@@ -209,6 +217,30 @@ initAuth({
         where,
         getDocs,
         limit,
+      }
+    );
+
+    initCustomerMaster(
+      {
+        form: customerForm,
+        nameInput: customerNameInput,
+        addressInput: customerAddressInput,
+        locationInput: customerLocationInput,
+        whatsAppInput: customerWhatsAppInput,
+        msgEl: customerMsg,
+        listEl: customerList,
+      },
+      {
+        db,
+        collection,
+        addDoc,
+        onSnapshot,
+        query,
+        orderBy,
+        where,
+        getDocs,
+        limit,
+        serverTimestamp,
       }
     );
   },

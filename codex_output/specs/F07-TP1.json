@@ -1,0 +1,100 @@
+{
+  "topicId": "F07-TP1",
+  "title": "Add Customer Records",
+  "area": "Admin / Customer Master",
+  "goal": "Allow admins to create customers with the required contact fields so that buyers can be tracked.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "RED",
+  "specs": [
+    {
+      "id": "F07-TP1-001",
+      "title": "CustomerFormRequiresMandatoryFields",
+      "given": "An admin opens the Customer Master add form.",
+      "when": "They try to submit the form without a required field such as name or WhatsApp.",
+      "then": "Submission is blocked, the inline message references the missing field, and no Firestore write occurs.",
+      "test": "/tests/spec/admin/F07-TP1-001_CustomerFormRequiresMandatoryFields.spec.js"
+    },
+    {
+      "id": "F07-TP1-002",
+      "title": "RejectInvalidWhatsAppFormat",
+      "given": "An admin enters a WhatsApp number that contains letters or separators that cannot be normalized.",
+      "when": "They submit the add form.",
+      "then": "Validation surfaces a \"valid WhatsApp\" warning and prevents addDoc from running until the value is corrected.",
+      "test": "/tests/spec/admin/F07-TP1-002_RejectsInvalidWhatsAppFormat.spec.js"
+    },
+    {
+      "id": "F07-TP1-003",
+      "title": "PreventDuplicateCustomers",
+      "given": "A customer with the same country code + WhatsApp digits already exists in Firestore.",
+      "when": "An admin attempts to add another record with the same combination.",
+      "then": "The flow queries Firestore for duplicates using countryCode and whatsAppDigits, surfaces a \"duplicate customer\" error, and no new document is stored.",
+      "test": "/tests/spec/admin/F07-TP1-003_PreventsDuplicateCustomers.spec.js"
+    },
+    {
+      "id": "F07-TP1-004",
+      "title": "PersistCustomerRecord",
+      "given": "All required customer fields are provided and valid.",
+      "when": "The admin submits the form.",
+      "then": "addDoc receives a payload with trimmed strings, a digits-only WhatsApp value, timestamps, and a dedupe key derived from the backend-managed +91 countryCode plus the normalized digits before the form resets and a success message displays.",
+      "test": "/tests/spec/admin/F07-TP1-004_PersistsCustomerRecord.spec.js"
+    },
+    {
+      "id": "F07-TP1-005",
+      "title": "RenderCustomerFormWithoutCountryCode",
+      "given": "An admin signs in and loads the admin console.",
+      "when": "They view the Customer Master add form in the UI.",
+      "then": "The form exposes inputs for name, address, location, and WhatsApp but intentionally omits any country code control because the backend fixes it to +91.",
+      "test": "/tests/spec/admin/F07-TP1-005_AdminCustomerForm.spec.js"
+    },
+    {
+      "id": "F07-TP1-006",
+      "title": "StoreCountryCodeIndependently",
+      "given": "A valid customer is added through the form.",
+      "when": "The module prepares the payload for addDoc.",
+      "then": "The payload automatically injects a dedicated countryCode field fixed to +91 (never entered or displayed in the UI) alongside the normalized WhatsApp digits and customer key.",
+      "test": "/tests/spec/admin/F07-TP1-006_StoresCountryCode.spec.js"
+    },
+    {
+      "id": "F07-TP1-007",
+      "title": "RequireTenDigitWhatsApp",
+      "given": "An admin fills the add form with a WhatsApp number shorter or longer than 10 digits after normalization.",
+      "when": "They submit the form.",
+      "then": "Validation fails with guidance to enter a 10-digit number, and no Firestore writes occur until a valid length is provided.",
+      "test": "/tests/spec/admin/F07-TP1-007_RequiresTenDigitWhatsapp.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminCustomerHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F07-TP1_red.txt",
+    "green": "codex_output/reports/F07-TP1_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F07-TP1_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Suite green via npm test -- --watchAll=false --bail=0 (see codex_output/reports/F07-TP1_green.txt)."
+    }
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/customers.js",
+    "tests/spec/admin/F07-TP1-004_PersistsCustomerRecord.spec.js",
+    "tests/spec/admin/F07-TP1-005_AdminCustomerForm.spec.js",
+    "tests/spec/admin/F07-TP1-006_StoresCountryCode.spec.js",
+    "tests/spec/admin/F07-TP1-007_RequiresTenDigitWhatsapp.spec.js",
+    "tests/unit/customers/F07-TP1-001_CustomerHelpers.test.js"
+  ],
+  "changeNotes": [
+    "Implemented customer form submit flow, normalization helpers, duplicate guard, and snapshot rendering per specs.",
+    "Extended payload builder with a fixed +91 countryCode field to satisfy F07-TP1-006.",
+    "Dedupe now relies on countryCode + 10-digit WhatsApp values, and the form enforces that 10-digit rule before writes.",
+    "Updated specs/tests so the UI never exposes the country code and backend hard-codes +91 while storing digits-only WhatsApp values.",
+    "sanitizeWhatsAppNumber now strips a leading +91 prefix and rejects inputs that are not exactly 10 digits post-normalization.",
+    "Added an over-length WhatsApp test (F07-TP1-007) to prove we surface the 10-digit validation error instead of truncating user input.",
+    "admin.html now ships the Customer Master form (name/address/location/WhatsApp/list) while intentionally omitting any country code field."
+  ],
+  "notes": "Unit coverage for helper functions lives in /tests/unit/customers/F07-TP1-001_CustomerHelpers.test.js to keep business rules well specified, including the 10-digit rule, dedupe key expectations, and the backend-managed +91 country code."
+}
