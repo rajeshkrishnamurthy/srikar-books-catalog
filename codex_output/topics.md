@@ -14,13 +14,13 @@ Notes:
 
 # Feature: Supplier Master Management (F05)
 
-| Topic ID | Title | Area | Goal |
-|-----------|-------|------|------|
-| F05-TP1 | Create Supplier Records | Admin / Supplier Master | Allow admins to add supplier entries with required name and location data. |
-| F05-TP2 | Edit or Remove Supplier Records | Admin / Supplier Master | Let admins update supplier details or remove suppliers that are no longer in use. |
-| F05-TP3 | Attach Supplier on Book Creation | Admin / Catalog | Require selecting an existing supplier whenever a new book is created. |
-| F05-TP4 | Edit Book-Supplier Mapping | Admin / Catalog | Enable admins to change the supplier linked to an existing book. |
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F05-TP1 | Create Supplier Records | Allow admins to add supplier entries with required name and location data. | — | An admin opens the Supplier Master view. | They submit the form with name and location. | A new supplier document persists and appears instantly without duplicates. |
+| F05-TP2 | Edit or Remove Supplier Records | Let admins update supplier details or remove suppliers that are no longer in use. | F05-TP1 | A supplier entry already exists. | An admin edits the name/location or requests deletion. | Updates save with audit safety; deletions are blocked if books still reference the supplier. |
+| F05-TP3 | Attach Supplier on Book Creation | Require selecting an existing supplier whenever a new book is created. | F05-TP1 | An admin opens the Add Book workflow. | They select a supplier and submit the book form. | The book stores the supplier reference; submissions without a supplier are rejected. |
+| F05-TP4 | Edit Book-Supplier Mapping | Enable admins to change the supplier linked to an existing book. | F05-TP3 | A book already has a supplier association. | An admin selects a different supplier and confirms. | The book updates with the new supplier and admin views refresh to match. |
 
 Notes:
-- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all topics in F05.
-- F05-TP2 depends on F05-TP1; F05-TP3 depends on supplier data from F05-TP1; F05-TP4 builds on the creation path in F05-TP3.
+- Area: Admin / Supplier Master for F05-TP1/F05-TP2, Admin / Catalog for F05-TP3/F05-TP4.
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F05 topics.

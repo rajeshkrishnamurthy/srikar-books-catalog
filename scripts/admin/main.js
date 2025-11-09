@@ -14,9 +14,13 @@ import {
   orderBy,
   onSnapshot,
   addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
   serverTimestamp,
   where,
   getDocs,
+  limit,
 } from '../lib/firebase.js';
 import { escapeHtml } from '../helpers/text.js';
 
@@ -49,6 +53,8 @@ const supplierNameInput = document.getElementById('supplierNameInput');
 const supplierLocationInput = document.getElementById('supplierLocationInput');
 const supplierMsg = document.getElementById('supplierMsg');
 const supplierList = document.getElementById('supplierList');
+const supplierIdInput = document.getElementById('supplierIdInput');
+const supplierCancelBtn = document.getElementById('supplierCancelBtn');
 let inventoryApi = null; // <-- make it visible to the search handler
 
 adminSearch?.addEventListener('input', () => {
@@ -156,17 +162,23 @@ initAuth({
         locationInput: supplierLocationInput,
         msgEl: supplierMsg,
         listEl: supplierList,
+        idInput: supplierIdInput,
+        cancelBtn: supplierCancelBtn,
       },
       {
         db,
         collection,
+        doc,
         addDoc,
+        updateDoc,
+        deleteDoc,
         query,
         orderBy,
         onSnapshot,
         serverTimestamp,
         where,
         getDocs,
+        limit,
       }
     );
   },
