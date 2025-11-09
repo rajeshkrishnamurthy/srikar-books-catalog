@@ -133,7 +133,6 @@ codex-tdd reads from `codex_output/topics.json`, locates the chosen Topic ID, an
 * ✅ Ready hand-off to codex-dev and codex-review.
 
 ---
-
 ## codex-dev (HTML / Vanilla JavaScript Edition)
 
 **Goal**
@@ -170,6 +169,31 @@ At any given time:
 5. Maintain semantic HTML and accessibility.
 6. After all tests pass, perform refactor with tests green.
 
+**Refactor Awareness and Duplication Control**
+
+While implementing or refactoring code to satisfy tests, Codex-dev must continuously check for:
+
+1. **Duplicate or near-duplicate logic** across functions, modules, or scripts.  
+   - Identify repeated validation, parsing, or data-handling patterns.  
+   - Highlight any logic duplication discovered in changed files.
+
+2. **Helper consolidation**  
+   - Extract recurring logic into shared helper modules (for example `/scripts/utils/` or `/src/helpers/`).  
+   - Prefer pure, dependency-free helpers to maximize reusability.
+
+3. **Refactor timing**  
+   - Perform helper extraction **after GREEN**, within the same session, to avoid a separate re-open by codex-code-review.
+
+4. **Documentation**  
+   - Add or update a `helpers` section in `codex_output/specs/<TopicID>.json`:  
+     ```json
+     "helpers": {
+       "created": ["scripts/utils/ValidationHelper.js"],
+       "used": ["scripts/utils/FetchHelper.js"]
+     }
+     ```
+   - This allows codex-code-review to confirm abstraction quality instead of repeatedly flagging duplication.
+
 **Deliverables**
 
 * ✅ Implementation plan summarizing fixes.
@@ -177,6 +201,7 @@ At any given time:
 * ✅ Updated `codex_output/specs/<TopicID>.json` → status GREEN.
 * ✅ Proof (Jest summary) in `codex_output/reports/<TopicID>_green.txt`.
 * ✅ Write or update `changedFiles` and `changeNotes` in `codex_output/specs/<TopicID>.json` for traceability.
+* ✅ Add `helpers` metadata (created/used) if duplication refactors were performed.
 ---
 ## codex-process-review
 

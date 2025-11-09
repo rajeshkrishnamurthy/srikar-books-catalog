@@ -57,6 +57,7 @@ const supplierIdInput = document.getElementById('supplierIdInput');
 const supplierCancelBtn = document.getElementById('supplierCancelBtn');
 const supplierSelect = document.getElementById('supplierSelect');
 let inventoryApi = null; // <-- make it visible to the search handler
+let editorApi = null;
 let latestSupplierOptions = [];
 let unsubscribeSuppliers = null;
 
@@ -87,6 +88,11 @@ function subscribeAuthors() {
   );
 }
 
+function applySuppliersToConsumers() {
+  inventoryApi?.setSuppliers(latestSupplierOptions);
+  editorApi?.setSuppliers?.(latestSupplierOptions);
+}
+
 function subscribeSuppliersForAdd() {
   unsubscribeSuppliers?.();
   const qSuppliers = query(collection(db, 'suppliers'), orderBy('name'));
@@ -97,7 +103,7 @@ function subscribeSuppliersForAdd() {
         id: doc.id,
         ...(doc.data() || {}),
       }));
-      inventoryApi?.setSuppliers(latestSupplierOptions);
+      applySuppliersToConsumers();
     },
     (err) => console.error('suppliers select snapshot error:', err)
   );
@@ -114,7 +120,6 @@ initAuth({
   onAuthed() {
     // 1) Start the realtime <datalist> fill for Author autocomplete
     subscribeAuthors();
-    subscribeSuppliersForAdd();
 
     // 2) Wire cover preview for Add form
     function updateCoverPreview() {
@@ -156,6 +161,7 @@ initAuth({
 
     // 4) Editor + Inventory (PASS addForm/addMsg/etc so submit is wired)
     const editor = initEditor();
+    editorApi = editor;
     inventoryApi = initInventory({
       addForm,
       addMsg,
@@ -166,9 +172,8 @@ initAuth({
       supplierSelect,
       onEdit: editor.open,
     });
-    if (latestSupplierOptions.length) {
-      inventoryApi.setSuppliers(latestSupplierOptions);
-    }
+    applySuppliersToConsumers();
+    subscribeSuppliersForAdd();
 
     // Wire admin search
     const adminSearchEl = document.getElementById('adminSearch');
@@ -209,6 +214,9 @@ initAuth({
   onSignOut() {
     unsubscribeSuppliers?.();
     unsubscribeSuppliers = null;
+    inventoryApi?.dispose?.();
+    inventoryApi = null;
+    editorApi = null;
   },
 });
 
