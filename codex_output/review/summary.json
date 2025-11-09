@@ -61,6 +61,33 @@
         "verdict": "READY TO MERGE",
         "report": "codex_output/review/TP2_code_review.md"
       }
+    },
+    {
+      "id": "TP3",
+      "title": "Admin Visibility of Purchase Price",
+      "tests": "GREEN",
+      "greenReport": "codex_output/reports/TP3_green.txt",
+      "coverageDirectory": "codex_output/coverage_tp3",
+      "processReview": {
+        "scope": [
+          "scripts/admin/inventory.js"
+        ],
+        "coverage": {
+          "statements": 66.45,
+          "branches": 45.38,
+          "functions": 69.23,
+          "lines": 66.9
+        ],
+        "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage --collectCoverageFrom=[\"scripts/admin/inventory.js\"] --coverageDirectory=codex_output/coverage_tp3 --watchAll=false --bail=0",
+        "coverageDirectory": "codex_output/coverage_tp3",
+        "verdict": "NEEDS WORK",
+        "notes": "List rendering still skips inventory.js branches (112-162, 202-205, 266-352), so coverage is below the 70% / 50% thresholds."
+      },
+      "processReviewReport": "codex_output/review/TP3_process_review.md",
+      "codeReview": {
+        "verdict": "READY TO MERGE",
+        "report": "codex_output/review/TP3_code_review.md"
+      }
     }
   ]
 }

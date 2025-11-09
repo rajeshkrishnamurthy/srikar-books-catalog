@@ -42,6 +42,20 @@ const authorKeyFromName = (str = '') =>
     .replace(/ /g, '-')
     .slice(0, 100);
 
+const RUPEE_FORMATTER = new Intl.NumberFormat('en-IN');
+
+function formatPurchasePriceText(value) {
+  if (value === undefined || value === null || value === '') {
+    return 'Purchase price: Not set';
+  }
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return 'Purchase price: Not set';
+  }
+  const formatted = RUPEE_FORMATTER.format(Math.round(numeric));
+  return `Purchase price: ₹${formatted}`;
+}
+
 function matches(doc, term) {
   if (!term) return true;
   const t = norm(term);
@@ -75,6 +89,9 @@ function rowHTML(id, b, sold = false) {
     b.binding || ''
   }${price}${mrp}${isbn}
     </div>
+    <div class="purchase-price muted">${formatPurchasePriceText(
+      b.purchasePrice
+    )}</div>
   </div>
   <div class="row-actions">
     ${featureBtn}
