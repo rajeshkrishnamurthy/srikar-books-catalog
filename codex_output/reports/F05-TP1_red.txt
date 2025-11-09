@@ -1,0 +1,495 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false
+
+(node:83414) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js
+  UNIT F05-TP1 helpers
+    ✕ normalizeSupplierName trims whitespace and collapses gaps (6 ms)
+    ✕ isDuplicateSupplierName compares case-insensitively
+    ✕ formatSupplierDisplay returns readable string
+    ✕ buildSupplierPayload trims inputs and adds timestamps
+
+  ● UNIT F05-TP1 helpers › normalizeSupplierName trims whitespace and collapses gaps
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Rare Finds"
+    Received: "  Rare   Finds  "
+
+       8 | describe('UNIT F05-TP1 helpers', () => {
+       9 |   test('normalizeSupplierName trims whitespace and collapses gaps', () => {
+    > 10 |     expect(normalizeSupplierName('  Rare   Finds  ')).toBe('Rare Finds');
+         |                                                       ^
+      11 |   });
+      12 |
+      13 |   test('isDuplicateSupplierName compares case-insensitively', () => {
+
+      at Object.<anonymous> (tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js:10:55)
+
+  ● UNIT F05-TP1 helpers › isDuplicateSupplierName compares case-insensitively
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      13 |   test('isDuplicateSupplierName compares case-insensitively', () => {
+      14 |     const existing = [{ name: 'Acme Books' }];
+    > 15 |     expect(isDuplicateSupplierName(existing, 'acme books')).toBe(true);
+         |                                                             ^
+      16 |     expect(isDuplicateSupplierName(existing, 'Nova House')).toBe(false);
+      17 |   });
+      18 |
+
+      at Object.<anonymous> (tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js:15:61)
+
+  ● UNIT F05-TP1 helpers › formatSupplierDisplay returns readable string
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Acme Books — Bengaluru"
+    Received: "Acme Books"
+
+      20 |     expect(
+      21 |       formatSupplierDisplay({ name: 'Acme Books', location: 'Bengaluru' })
+    > 22 |     ).toBe('Acme Books — Bengaluru');
+         |       ^
+      23 |   });
+      24 |
+      25 |   test('buildSupplierPayload trims inputs and adds timestamps', () => {
+
+      at Object.<anonymous> (tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js:22:7)
+
+  ● UNIT F05-TP1 helpers › buildSupplierPayload trims inputs and adds timestamps
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Nova House"
+    Received: "  Nova House "
+
+      29 |       serverTimestamp: () => 'ts',
+      30 |     });
+    > 31 |     expect(payload.name).toBe('Nova House');
+         |                          ^
+      32 |     expect(payload.location).toBe('Mumbai');
+      33 |     expect(payload.createdAt).toBe('ts');
+      34 |     expect(payload.updatedAt).toBe('ts');
+
+      at Object.<anonymous> (tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js:31:26)
+
+  console.warn
+    initSupplierMaster is not implemented yet.
+
+      1 | // Placeholder module for Supplier Master wiring; real implementation to be provided.
+      2 | export function initSupplierMaster() {
+    > 3 |   console.warn('initSupplierMaster is not implemented yet.');
+        |           ^
+      4 | }
+      5 |
+      6 | export function normalizeSupplierName(name = '') {
+
+      at warn (scripts/admin/suppliers.js:3:11)
+      at createAdminSupplierHarness (tests/fixtures/adminSupplierHarness.js:18:3)
+      at Object.<anonymous> (tests/spec/admin/F05-TP1-003_PersistSupplierRecord.spec.js:5:21)
+
+(node:83415) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  console.warn
+    initSupplierMaster is not implemented yet.
+
+      1 | // Placeholder module for Supplier Master wiring; real implementation to be provided.
+      2 | export function initSupplierMaster() {
+    > 3 |   console.warn('initSupplierMaster is not implemented yet.');
+        |           ^
+      4 | }
+      5 |
+      6 | export function normalizeSupplierName(name = '') {
+
+      at warn (scripts/admin/suppliers.js:3:11)
+      at createAdminSupplierHarness (tests/fixtures/adminSupplierHarness.js:18:3)
+      at Object.<anonymous> (tests/spec/admin/F05-TP1-004_RenderNewSupplierInList.spec.js:5:21)
+
+  console.warn
+    initSupplierMaster is not implemented yet.
+
+      1 | // Placeholder module for Supplier Master wiring; real implementation to be provided.
+      2 | export function initSupplierMaster() {
+    > 3 |   console.warn('initSupplierMaster is not implemented yet.');
+        |           ^
+      4 | }
+      5 |
+      6 | export function normalizeSupplierName(name = '') {
+
+      at warn (scripts/admin/suppliers.js:3:11)
+      at createAdminSupplierHarness (tests/fixtures/adminSupplierHarness.js:18:3)
+      at Object.<anonymous> (tests/spec/admin/F05-TP1-002_RejectDuplicateSupplierNames.spec.js:5:21)
+
+  console.warn
+    initSupplierMaster is not implemented yet.
+
+      1 | // Placeholder module for Supplier Master wiring; real implementation to be provided.
+      2 | export function initSupplierMaster() {
+    > 3 |   console.warn('initSupplierMaster is not implemented yet.');
+        |           ^
+      4 | }
+      5 |
+      6 | export function normalizeSupplierName(name = '') {
+
+      at warn (scripts/admin/suppliers.js:3:11)
+      at createAdminSupplierHarness (tests/fixtures/adminSupplierHarness.js:18:3)
+      at Object.<anonymous> (tests/spec/admin/F05-TP1-001_SupplierFormRequiresFields.spec.js:5:21)
+
+(node:83417) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F05-TP1-003_PersistSupplierRecord.spec.js
+  SPEC F05-TP1-003: Persist supplier record
+    ✕ valid submission calls addDoc with trimmed payload and resets form (51 ms)
+
+  ● SPEC F05-TP1-003: Persist supplier record › valid submission calls addDoc with trimmed payload and resets form
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+       9 |     await harness.submit();
+      10 |
+    > 11 |     expect(harness.mocks.addDoc).toHaveBeenCalledTimes(1);
+         |                                  ^
+      12 |     const payload = harness.mocks.addDoc.mock.calls[0]?.[1] || {};
+      13 |     expect(payload.name).toBe('Rare Finds');
+      14 |     expect(payload.location).toBe('Mumbai');
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP1-003_PersistSupplierRecord.spec.js:11:34)
+
+(node:83418) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F05-TP1-002_RejectDuplicateSupplierNames.spec.js
+  SPEC F05-TP1-002: Reject duplicate supplier names
+    ✕ duplicate names (case-insensitive) are blocked with warning (66 ms)
+
+  ● SPEC F05-TP1-002: Reject duplicate supplier names › duplicate names (case-insensitive) are blocked with warning
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "duplicate"
+    Received string:    ""
+
+      12 |     await harness.submit();
+      13 |
+    > 14 |     expect(harness.msgEl.textContent.toLowerCase()).toContain('duplicate');
+         |                                                     ^
+      15 |     expect(harness.mocks.addDoc).not.toHaveBeenCalled();
+      16 |   });
+      17 | });
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP1-002_RejectDuplicateSupplierNames.spec.js:14:53)
+
+(node:83416) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F05-TP1-004_RenderNewSupplierInList.spec.js
+  SPEC F05-TP1-004: Render supplier list
+    ✕ renders suppliers sorted alphabetically with name and location (69 ms)
+
+  ● SPEC F05-TP1-004: Render supplier list › renders suppliers sorted alphabetically with name and location
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2
+    Received: 0
+
+      13 |     );
+      14 |
+    > 15 |     expect(rows.length).toBe(2);
+         |                         ^
+      16 |     expect(rows[0].toLowerCase()).toContain('acme books');
+      17 |     expect(rows[0].toLowerCase()).toContain('bengaluru');
+      18 |     expect(rows[1].toLowerCase()).toContain('zen traders');
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP1-004_RenderNewSupplierInList.spec.js:15:25)
+
+FAIL tests/spec/admin/F05-TP1-001_SupplierFormRequiresFields.spec.js
+  SPEC F05-TP1-001: Supplier form requires name/location
+    ✕ missing name blocks submission and surfaces inline error (71 ms)
+
+  ● SPEC F05-TP1-001: Supplier form requires name/location › missing name blocks submission and surfaces inline error
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "supplier name"
+    Received string:    ""
+
+       9 |     await harness.submit();
+      10 |
+    > 11 |     expect(harness.msgEl.textContent.toLowerCase()).toContain('supplier name');
+         |                                                     ^
+      12 |     expect(harness.mocks.addDoc).not.toHaveBeenCalled();
+      13 |   });
+      14 | });
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP1-001_SupplierFormRequiresFields.spec.js:11:53)
+
+(node:83419) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:83420) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/TP1-003_BlocksNonNumericPurchasePrice.spec.js
+  SPEC TP1-003: Validation against non-numeric input
+    ✓ prevents addDoc and surfaces an inline error (83 ms)
+
+PASS tests/spec/admin/TP1-002_PersistsPurchasePrice.spec.js
+  SPEC TP1-002: Persist purchase price
+    ✓ includes purchasePrice number in the addDoc payload (60 ms)
+
+PASS tests/spec/admin/TP3-001_AvailableRowShowsPurchasePrice.spec.js
+  SPEC TP3-001: Available list shows purchase price
+    ✓ renders purchase price text with rupee value for available rows (35 ms)
+
+PASS tests/unit/public/TP4-004_CatalogPayloadStripsPurchasePrice.test.js
+  UNIT TP4-004: Catalog payload strips purchase price
+    ✓ subscribeToAllAvailable removes purchasePrice before invoking callback (2 ms)
+
+PASS tests/spec/admin/TP1-004_BlocksNegativePurchasePrice.spec.js
+  SPEC TP1-004: Validation against negative purchase price
+    ✓ stops the submission when the value is below zero (50 ms)
+
+PASS tests/spec/admin/TP2-001_EditFormShowsPurchasePrice.spec.js
+  SPEC TP2-001: Edit form exposes purchase price field
+    ✓ pre-fills purchase price input with stored value when opening edit dialog (53 ms)
+
+PASS tests/unit/editor/TP2-004_PersistsPurchasePriceUpdate.test.js
+  UNIT TP2-004: Persist purchase price edits to Firestore
+    ✓ updateDoc receives purchasePrice as a number when submission passes validation (59 ms)
+
+PASS tests/spec/admin/TP2-004_PersistsPurchasePriceUpdate.spec.js
+  SPEC TP2-004: Persist edited purchase price
+    ✓ sends numeric purchasePrice in the updateDoc payload when save succeeds (38 ms)
+
+PASS tests/unit/editor/TP2-001_EditFormShowsPurchasePrice.test.js
+  UNIT TP2-001: Edit form mirrors existing purchase price
+    ✓ open() copies stored purchasePrice (including zero) into the field value (88 ms)
+
+PASS tests/spec/admin/TP2-002_RejectsNonNumericPurchasePrice.spec.js
+  SPEC TP2-002: Reject non-numeric purchase price on edit
+    ✓ blocks save and surfaces numeric guidance when value contains letters (21 ms)
+
+PASS tests/spec/public/TP4-001_CatalogCardsHidePurchasePrice.spec.js
+  SPEC TP4-001: Catalog cards hide purchase price
+    ✓ rendered cards omit any purchase price labels or values (5 ms)
+
+PASS tests/spec/public/TP4-002_SearchResultsHidePurchasePrice.spec.js
+  SPEC TP4-002: Search results hide purchase price
+    ✓ filtered render never mentions purchase price even when sale price is shown (19 ms)
+
+PASS tests/spec/public/TP4-003_PurchaseMessageHidesPurchasePrice.spec.js
+  SPEC TP4-003: WhatsApp message hides purchase price
+    ✓ purchaseMessage ignores purchasePrice field entirely (2 ms)
+
+PASS tests/spec/admin/TP3-004_FormatsPurchasePrice.spec.js
+  SPEC TP3-004: Purchase price formatting
+    ✓ applies rupee prefix and thousand separators (18 ms)
+
+PASS tests/spec/admin/TP2-003_RejectsNegativePurchasePrice.spec.js
+  SPEC TP2-003: Reject negative purchase price on edit
+    ✓ prevents update when a negative purchase price is submitted (38 ms)
+
+PASS tests/unit/editor/TP2-003_RejectsNegativePurchasePrice.test.js
+  UNIT TP2-003: Prevent negative purchase price submissions
+    ✓ negative numbers trigger an inline error and avoid updateDoc (38 ms)
+
+PASS tests/spec/admin/TP1-001_AddFormShowsPurchasePrice.spec.js
+  SPEC TP1-001: Purchase price field is visible
+    ✓ add book form includes a numeric purchase price input (34 ms)
+
+PASS tests/unit/editor/TP2-002_RejectsNonNumericPurchasePrice.test.js
+  UNIT TP2-002: Validate numeric purchase price on edit save
+    ✓ non-numeric input keeps dialog open and skips updateDoc (14 ms)
+
+PASS tests/spec/admin/TP3-003_ShowsPlaceholderWhenMissing.spec.js
+  SPEC TP3-003: Placeholder when purchase price missing
+    ✓ renders “Purchase price: not set” when value absent (18 ms)
+
+PASS tests/unit/inventory/TP3-002_SoldPurchasePriceElement.test.js
+  UNIT TP3-002: Sold rows keep purchase price element
+    ✓ sold list row includes .purchase-price with rupee amount (18 ms)
+
+PASS tests/spec/admin/TP3-002_SoldRowShowsPurchasePrice.spec.js
+  SPEC TP3-002: Sold list also shows purchase price
+    ✓ sold rows mirror the purchase price label (58 ms)
+
+PASS tests/unit/inventory/TP3-001_PurchasePriceElement.test.js
+  UNIT TP3-001: Purchase price element exists for available rows
+    ✓ available row contains .purchase-price element with rupee value (14 ms)
+
+PASS tests/unit/inventory/TP3-004_PurchasePriceFormatting.test.js
+  UNIT TP3-004: Purchase price formatting helper
+    ✓ text uses ₹ prefix with comma separators (14 ms)
+
+PASS tests/unit/inventory/TP3-003_PurchasePricePlaceholder.test.js
+  UNIT TP3-003: Placeholder for missing purchase price
+    ✓ renders descriptive placeholder text inside .purchase-price (27 ms)
+
+--------------|---------|----------|---------|---------|----------------------------------------------------------
+File          | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                        
+--------------|---------|----------|---------|---------|----------------------------------------------------------
+All files     |   29.74 |    23.47 |   31.13 |   30.93 |                                                          
+ auth.js      |       0 |        0 |       0 |       0 | 23-76                                                    
+ autoPrice.js |       0 |        0 |       0 |       0 | 2-25                                                     
+ currency.js  |   91.66 |    58.82 |     100 |   91.66 | 9                                                        
+ editor.js    |   62.19 |    66.03 |   53.33 |   63.69 | 46-47,53,78-107,111,122,127,248,262-280,287-304          
+ inventory.js |   66.45 |    45.38 |   69.23 |    66.9 | 53,60-62,112-162,202-205,266-270,285-286,298,301,351-352 
+ lookup.js    |       0 |        0 |       0 |       0 | 11-483                                                   
+ main.js      |       0 |        0 |       0 |       0 | 13-158                                                   
+ requests.js  |       0 |        0 |       0 |       0 | 6-73                                                     
+ suppliers.js |     100 |    23.07 |     100 |     100 | 6-27                                                     
+--------------|---------|----------|---------|---------|----------------------------------------------------------
+Summary of all failing tests
+FAIL tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js
+  ● UNIT F05-TP1 helpers › normalizeSupplierName trims whitespace and collapses gaps
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Rare Finds"
+    Received: "  Rare   Finds  "
+
+       8 | describe('UNIT F05-TP1 helpers', () => {
+       9 |   test('normalizeSupplierName trims whitespace and collapses gaps', () => {
+    > 10 |     expect(normalizeSupplierName('  Rare   Finds  ')).toBe('Rare Finds');
+         |                                                       ^
+      11 |   });
+      12 |
+      13 |   test('isDuplicateSupplierName compares case-insensitively', () => {
+
+      at Object.<anonymous> (tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js:10:55)
+
+  ● UNIT F05-TP1 helpers › isDuplicateSupplierName compares case-insensitively
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      13 |   test('isDuplicateSupplierName compares case-insensitively', () => {
+      14 |     const existing = [{ name: 'Acme Books' }];
+    > 15 |     expect(isDuplicateSupplierName(existing, 'acme books')).toBe(true);
+         |                                                             ^
+      16 |     expect(isDuplicateSupplierName(existing, 'Nova House')).toBe(false);
+      17 |   });
+      18 |
+
+      at Object.<anonymous> (tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js:15:61)
+
+  ● UNIT F05-TP1 helpers › formatSupplierDisplay returns readable string
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Acme Books — Bengaluru"
+    Received: "Acme Books"
+
+      20 |     expect(
+      21 |       formatSupplierDisplay({ name: 'Acme Books', location: 'Bengaluru' })
+    > 22 |     ).toBe('Acme Books — Bengaluru');
+         |       ^
+      23 |   });
+      24 |
+      25 |   test('buildSupplierPayload trims inputs and adds timestamps', () => {
+
+      at Object.<anonymous> (tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js:22:7)
+
+  ● UNIT F05-TP1 helpers › buildSupplierPayload trims inputs and adds timestamps
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Nova House"
+    Received: "  Nova House "
+
+      29 |       serverTimestamp: () => 'ts',
+      30 |     });
+    > 31 |     expect(payload.name).toBe('Nova House');
+         |                          ^
+      32 |     expect(payload.location).toBe('Mumbai');
+      33 |     expect(payload.createdAt).toBe('ts');
+      34 |     expect(payload.updatedAt).toBe('ts');
+
+      at Object.<anonymous> (tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js:31:26)
+
+FAIL tests/spec/admin/F05-TP1-003_PersistSupplierRecord.spec.js
+  ● SPEC F05-TP1-003: Persist supplier record › valid submission calls addDoc with trimmed payload and resets form
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+       9 |     await harness.submit();
+      10 |
+    > 11 |     expect(harness.mocks.addDoc).toHaveBeenCalledTimes(1);
+         |                                  ^
+      12 |     const payload = harness.mocks.addDoc.mock.calls[0]?.[1] || {};
+      13 |     expect(payload.name).toBe('Rare Finds');
+      14 |     expect(payload.location).toBe('Mumbai');
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP1-003_PersistSupplierRecord.spec.js:11:34)
+
+FAIL tests/spec/admin/F05-TP1-002_RejectDuplicateSupplierNames.spec.js
+  ● SPEC F05-TP1-002: Reject duplicate supplier names › duplicate names (case-insensitive) are blocked with warning
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "duplicate"
+    Received string:    ""
+
+      12 |     await harness.submit();
+      13 |
+    > 14 |     expect(harness.msgEl.textContent.toLowerCase()).toContain('duplicate');
+         |                                                     ^
+      15 |     expect(harness.mocks.addDoc).not.toHaveBeenCalled();
+      16 |   });
+      17 | });
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP1-002_RejectDuplicateSupplierNames.spec.js:14:53)
+
+FAIL tests/spec/admin/F05-TP1-004_RenderNewSupplierInList.spec.js
+  ● SPEC F05-TP1-004: Render supplier list › renders suppliers sorted alphabetically with name and location
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2
+    Received: 0
+
+      13 |     );
+      14 |
+    > 15 |     expect(rows.length).toBe(2);
+         |                         ^
+      16 |     expect(rows[0].toLowerCase()).toContain('acme books');
+      17 |     expect(rows[0].toLowerCase()).toContain('bengaluru');
+      18 |     expect(rows[1].toLowerCase()).toContain('zen traders');
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP1-004_RenderNewSupplierInList.spec.js:15:25)
+
+FAIL tests/spec/admin/F05-TP1-001_SupplierFormRequiresFields.spec.js
+  ● SPEC F05-TP1-001: Supplier form requires name/location › missing name blocks submission and surfaces inline error
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "supplier name"
+    Received string:    ""
+
+       9 |     await harness.submit();
+      10 |
+    > 11 |     expect(harness.msgEl.textContent.toLowerCase()).toContain('supplier name');
+         |                                                     ^
+      12 |     expect(harness.mocks.addDoc).not.toHaveBeenCalled();
+      13 |   });
+      14 | });
+
+      at Object.<anonymous> (tests/spec/admin/F05-TP1-001_SupplierFormRequiresFields.spec.js:11:53)
+
+
+Test Suites: 5 failed, 24 passed, 29 total
+Tests:       8 failed, 24 passed, 32 total
+Snapshots:   0 total
+Time:        2.181 s
+Ran all test suites.

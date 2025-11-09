@@ -117,6 +117,33 @@
         "verdict": "READY TO MERGE",
         "report": "codex_output/review/TP4_code_review.md"
       }
+    },
+    {
+      "id": "F05-TP1",
+      "title": "Create Supplier Records",
+      "tests": "GREEN",
+      "greenReport": "codex_output/reports/F05-TP1_green.txt",
+      "coverageDirectory": "codex_output/coverage_F05-TP1",
+      "processReview": {
+        "scope": [
+          "scripts/admin/suppliers.js"
+        ],
+        "coverage": {
+          "statements": 80.39,
+          "branches": 55,
+          "functions": 88.23,
+          "lines": 83.15
+        ],
+        "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage --collectCoverageFrom=[\"scripts/admin/suppliers.js\"] --coverageDirectory=codex_output/coverage_F05-TP1 --watchAll=false --bail=0",
+        "coverageDirectory": "codex_output/coverage_F05-TP1",
+        "verdict": "READY TO MERGE",
+        "notes": "Remaining uncovered paths sit in duplicate detection and Firestore error handling branches (67-157) but thresholds are exceeded."
+      },
+      "processReviewReport": "codex_output/review/F05-TP1_process_review.md",
+      "codeReview": {
+        "verdict": "READY TO MERGE",
+        "report": "codex_output/review/F05-TP1_code_review.md"
+      }
     }
   ]
 }
