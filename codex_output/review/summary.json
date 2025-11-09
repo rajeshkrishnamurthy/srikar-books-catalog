@@ -88,6 +88,35 @@
         "verdict": "READY TO MERGE",
         "report": "codex_output/review/TP3_code_review.md"
       }
+    },
+    {
+      "id": "TP4",
+      "title": "Hide Purchase Price from Public Catalog",
+      "tests": "GREEN",
+      "greenReport": "codex_output/reports/TP4_green.txt",
+      "coverageDirectory": "codex_output/coverage_tp4",
+      "processReview": {
+        "scope": [
+          "scripts/index/render.js",
+          "scripts/index/catalogService.js",
+          "scripts/lib/wa.js"
+        ],
+        "coverage": {
+          "statements": 54.54,
+          "branches": 50,
+          "functions": 55.55,
+          "lines": 56.81
+        ],
+        "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage --collectCoverageFrom=[\"scripts/index/render.js\",\"scripts/index/catalogService.js\",\"scripts/lib/wa.js\"] --coverageDirectory=codex_output/coverage_tp4 --watchAll=false --bail=0",
+        "coverageDirectory": "codex_output/coverage_tp4",
+        "verdict": "NEEDS WORK",
+        "notes": "Line coverage remains under 70% because render.js empty-state logic (15-28), catalogService carousel subscription paths (58-74), and message variants in lib/wa.js (10-17) have no tests."
+      },
+      "processReviewReport": "codex_output/review/TP4_process_review.md",
+      "codeReview": {
+        "verdict": "READY TO MERGE",
+        "report": "codex_output/review/TP4_code_review.md"
+      }
     }
   ]
 }

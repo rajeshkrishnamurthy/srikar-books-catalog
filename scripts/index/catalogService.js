@@ -8,6 +8,37 @@ import {
   onSnapshot,
 } from '../lib/firebase.js';
 
+const PUBLIC_FIELDS = [
+  'title',
+  'author',
+  'category',
+  'binding',
+  'price',
+  'mrp',
+  'isbn',
+  'condition',
+  'description',
+  'images',
+  'imagePaths',
+  'status',
+  'featured',
+  'featuredAt',
+  'createdAt',
+  'updatedAt',
+  'tags',
+];
+
+function pickPublicFields(data = {}) {
+  return PUBLIC_FIELDS.reduce((acc, key) => {
+    if (data[key] !== undefined) acc[key] = data[key];
+    return acc;
+  }, {});
+}
+
+function mapPublicDoc(docSnap) {
+  return { id: docSnap.id, ...pickPublicFields(docSnap.data() || {}) };
+}
+
 // Site‑wide stream (unchanged)
 export function subscribeToAllAvailable(onNext, onError) {
   const q = query(
@@ -17,7 +48,7 @@ export function subscribeToAllAvailable(onNext, onError) {
   );
   return onSnapshot(
     q,
-    (snap) => onNext(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
+    (snap) => onNext(snap.docs.map(mapPublicDoc)),
     onError
   );
 }
@@ -40,7 +71,7 @@ export function subscribeToCarousel(category, onNext, onError) {
   );
   return onSnapshot(
     q,
-    (snap) => onNext(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
+    (snap) => onNext(snap.docs.map(mapPublicDoc)),
     onError
   );
 }

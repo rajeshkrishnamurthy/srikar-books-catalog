@@ -1,7 +1,6 @@
 // Intent: DOM rendering only; no Firestore calls here.
 import { escapeHtml, compactText } from '../helpers/text.js';
 import { purchaseMessage, waLink } from '../lib/wa.js';
-import { settings } from '../config.js';
 
 export function renderBooks({ gridEl, emptyEl, docs, searchTerm }) {
   const term = (searchTerm || '').toLowerCase();
