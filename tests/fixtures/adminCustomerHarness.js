@@ -24,6 +24,8 @@ export async function createAdminCustomerHarness(options = {}) {
       whatsAppInput: dom.whatsAppInput,
       msgEl: dom.msgEl,
       listEl: dom.listEl,
+      cancelBtn: dom.cancelBtn,
+      idInput: dom.idInput,
     },
     firebase.exports
   );
@@ -32,6 +34,7 @@ export async function createAdminCustomerHarness(options = {}) {
     form: dom.form,
     msgEl: dom.msgEl,
     listEl: dom.listEl,
+    cancelBtn: dom.cancelBtn,
     get listItems() {
       return Array.from(dom.listEl.querySelectorAll('li'));
     },
@@ -41,6 +44,7 @@ export async function createAdminCustomerHarness(options = {}) {
         customerAddress: dom.addressInput,
         customerLocation: dom.locationInput,
         customerWhatsApp: dom.whatsAppInput,
+        customerId: dom.idInput,
       };
       if (fieldMap[name]) {
         fieldMap[name].value = value;
@@ -48,6 +52,9 @@ export async function createAdminCustomerHarness(options = {}) {
     },
     async submit() {
       fireEvent.submit(dom.form);
+      await flushPromises();
+    },
+    async flush() {
       await flushPromises();
     },
     emitCustomers(customers = []) {
@@ -69,11 +76,15 @@ function buildDom() {
   document.body.innerHTML = `
     <section>
       <form id="customerForm">
+        <input type="hidden" id="customerIdInput" name="customerId" />
         <input id="customerNameInput" name="customerName" />
         <textarea id="customerAddressInput" name="customerAddress"></textarea>
         <input id="customerLocationInput" name="customerLocation" />
         <input id="customerWhatsAppInput" name="customerWhatsApp" />
-        <button type="submit">Save customer</button>
+        <div class="stack">
+          <button type="submit">Save customer</button>
+          <button type="button" id="customerCancelBtn">Cancel edit</button>
+        </div>
       </form>
       <p id="customerMsg"></p>
       <ul id="customerList"></ul>
@@ -87,6 +98,8 @@ function buildDom() {
     addressInput: document.getElementById('customerAddressInput'),
     locationInput: document.getElementById('customerLocationInput'),
     whatsAppInput: document.getElementById('customerWhatsAppInput'),
+    idInput: document.getElementById('customerIdInput'),
+    cancelBtn: document.getElementById('customerCancelBtn'),
     msgEl: document.getElementById('customerMsg'),
     listEl: document.getElementById('customerList'),
   };
