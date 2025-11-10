@@ -64,9 +64,12 @@ const customerLocationInput = document.getElementById('customerLocationInput');
 const customerWhatsAppInput = document.getElementById('customerWhatsAppInput');
 const customerMsg = document.getElementById('customerMsg');
 const customerList = document.getElementById('customerList');
+const customerIdInput = document.getElementById('customerIdInput');
+const customerCancelBtn = document.getElementById('customerCancelBtn');
 let inventoryApi = null; // <-- make it visible to the search handler
 let editorApi = null;
 let supplierMasterApi = null;
+let customerMasterApi = null;
 let latestSupplierOptions = [];
 let unsubscribeSuppliers = null;
 
@@ -193,6 +196,7 @@ initAuth({
     // 5) Requests panel
     initRequests({ reqOpen, reqClosed });
 
+    supplierMasterApi?.dispose?.();
     supplierMasterApi = initSupplierMaster(
       {
         form: supplierForm,
@@ -220,7 +224,8 @@ initAuth({
       }
     );
 
-    initCustomerMaster(
+    customerMasterApi?.dispose?.();
+    customerMasterApi = initCustomerMaster(
       {
         form: customerForm,
         nameInput: customerNameInput,
@@ -229,11 +234,15 @@ initAuth({
         whatsAppInput: customerWhatsAppInput,
         msgEl: customerMsg,
         listEl: customerList,
+        idInput: customerIdInput,
+        cancelBtn: customerCancelBtn,
       },
       {
         db,
         collection,
         addDoc,
+        updateDoc,
+        doc,
         onSnapshot,
         query,
         orderBy,
@@ -252,6 +261,8 @@ initAuth({
     editorApi = null;
     supplierMasterApi?.dispose?.();
     supplierMasterApi = null;
+    customerMasterApi?.dispose?.();
+    customerMasterApi = null;
   },
 });
 

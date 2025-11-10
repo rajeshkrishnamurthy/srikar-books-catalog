@@ -267,7 +267,8 @@
           <summary><strong>Customer master</strong></summary>
           <div class="grid-2" id="customerPanel">
             <form id="customerForm" class="stack">
-              <h3>Add customer</h3>
+              <h3>Customer form</h3>
+              <input type="hidden" id="customerIdInput" name="customerId" />
               <input
                 id="customerNameInput"
                 name="customerName"
@@ -293,8 +294,17 @@
                 required
                 aria-describedby="customerMsg"
               />
-              <button class="btn" type="submit">Add customer</button>
-              <p id="customerMsg" class="muted"></p>
+              <div class="flex" style="gap: 0.5rem; align-items: center">
+                <button class="btn" type="submit">Save customer</button>
+                <button
+                  class="btn btn-secondary"
+                  type="button"
+                  id="customerCancelBtn"
+                >
+                  Cancel edit
+                </button>
+              </div>
+              <p id="customerMsg" class="muted" aria-live="polite"></p>
             </form>
             <div>
               <h3>Recent customers</h3>
