@@ -255,15 +255,42 @@
         "verdict": "READY FOR MERGE",
         "report": "codex_output/review/F07-TP1_code_review.md"
       }
+    },
+    {
+      "id": "F07-TP2",
+      "title": "Edit Customer Records",
+      "tests": "GREEN",
+      "greenReport": "codex_output/reports/F07-TP2_green.txt",
+      "coverageDirectory": "codex_output/coverage/F07-TP2",
+      "processReview": {
+        "scope": [
+          "scripts/admin/customers.js"
+        ],
+        "coverage": {
+          "statements": 70.07,
+          "branches": 46.15,
+          "functions": 76.31,
+          "lines": 74.18
+        },
+        "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --runTestsByPath tests/spec/admin/F07-TP2-001_PrefillCustomerEditForm.spec.js tests/spec/admin/F07-TP2-002_PersistCustomerEdit.spec.js tests/spec/admin/F07-TP2-003_PreventDuplicateCustomerEdits.spec.js tests/spec/admin/F07-TP2-004_CancelCustomerEdit.spec.js tests/spec/admin/F07-TP2-005_BlockInvalidCustomerEdits.spec.js tests/unit/customers/F07-TP2-001_EditPayload.test.js --coverage --coverageDirectory=codex_output/coverage/F07-TP2 --collectCoverageFrom=scripts/admin/customers.js --watchAll=false --bail=0",
+        "coverageDirectory": "codex_output/coverage/F07-TP2",
+        "verdict": "NEEDS WORK",
+        "notes": "Branch coverage stays at 46.15% (< 50%) because duplicate-edit guard and cancel/reset fallbacks (lines 221-281, 346-380, 411-438, 499-518) remain untested."
+      },
+      "processReviewReport": "codex_output/review/F07-TP2_process_review.md",
+      "codeReview": {
+        "verdict": "READY FOR MERGE",
+        "report": "codex_output/review/F07-TP2_code_review.md"
+      }
     }
   ],
   "latest": {
-    "topicId": "F07-TP1",
+    "topicId": "F07-TP2",
     "testsGreen": true,
-    "coverageLines": 86.36,
-    "coverageBranches": 54.96,
+    "coverageLines": 74.18,
+    "coverageBranches": 46.15,
     "codeReviewVerdict": "READY FOR MERGE",
-    "finalVerdict": "READY TO MERGE",
-    "report": "codex_output/review/F07-TP1_process_review.md"
+    "finalVerdict": "NEEDS WORK",
+    "report": "codex_output/review/F07-TP2_process_review.md"
   }
 }
