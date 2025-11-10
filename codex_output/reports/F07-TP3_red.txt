@@ -1,0 +1,523 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false --bail=0
+
+(node:62897) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/unit/customers/F07-TP3-001_NormalizeLookupQuery.test.js
+  UNIT F07-TP3 normalizeLookupQuery helper
+    ✕ trims, collapses whitespace, lowercases, and drops short inputs (4 ms)
+
+  ● UNIT F07-TP3 normalizeLookupQuery helper › trims, collapses whitespace, lowercases, and drops short inputs
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "anil rao"
+    Received: "  Anil   Rao "
+
+      3 | describe('UNIT F07-TP3 normalizeLookupQuery helper', () => {
+      4 |   test('trims, collapses whitespace, lowercases, and drops short inputs', () => {
+    > 5 |     expect(normalizeLookupQuery('  Anil   Rao ')).toBe('anil rao');
+        |                                                   ^
+      6 |     expect(normalizeLookupQuery('  B ')).toBe('');
+      7 |     expect(normalizeLookupQuery('')).toBe('');
+      8 |     expect(normalizeLookupQuery('   ')).toBe('');
+
+      at Object.<anonymous> (tests/unit/customers/F07-TP3-001_NormalizeLookupQuery.test.js:5:51)
+
+(node:62899) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  console.warn
+    initCustomerLookup is not implemented yet.
+
+       5 |
+       6 | export function initCustomerLookup() {
+    >  7 |   console.warn('initCustomerLookup is not implemented yet.');
+         |           ^
+       8 |   return null;
+       9 | }
+      10 |
+
+      at warn (scripts/admin/customerLookup.js:7:11)
+      at createCustomerLookupHarness (tests/fixtures/customerLookupHarness.js:18:3)
+      at Object.<anonymous> (tests/spec/admin/F07-TP3-004_ClearCustomerLookup.spec.js:7:21)
+
+  console.warn
+    initCustomerLookup is not implemented yet.
+
+       5 |
+       6 | export function initCustomerLookup() {
+    >  7 |   console.warn('initCustomerLookup is not implemented yet.');
+         |           ^
+       8 |   return null;
+       9 | }
+      10 |
+
+      at warn (scripts/admin/customerLookup.js:7:11)
+      at createCustomerLookupHarness (tests/fixtures/customerLookupHarness.js:18:3)
+      at Object.<anonymous> (tests/spec/admin/F07-TP3-001_RendersCustomerLookupList.spec.js:5:21)
+
+(node:62893) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F07-TP3-001_RendersCustomerLookupList.spec.js
+  SPEC F07-TP3-001: Customer lookup renders searchable list
+    ✕ snapshot rows render sorted with highlighted query text and metadata (56 ms)
+
+  ● SPEC F07-TP3-001: Customer lookup renders searchable list › snapshot rows render sorted with highlighted query text and metadata
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      4 |   test('snapshot rows render sorted with highlighted query text and metadata', async () => {
+      5 |     const harness = await createCustomerLookupHarness();
+    > 6 |     expect(harness.mocks.onSnapshot).toHaveBeenCalled();
+        |                                      ^
+      7 |
+      8 |     harness.search('Anil');
+      9 |     harness.emitResults([
+
+      at Object.<anonymous> (tests/spec/admin/F07-TP3-001_RendersCustomerLookupList.spec.js:6:38)
+
+(node:62896) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F07-TP3-004_ClearCustomerLookup.spec.js
+  SPEC F07-TP3-004: Clearing the lookup resets state
+    ✕ clear button wipes search input, hides list, and notifies consumer (52 ms)
+
+  ● SPEC F07-TP3-004: Clearing the lookup resets state › clear button wipes search input, hides list, and notifies consumer
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      11 |       { id: 'cust-10', name: 'Zoya Malik', location: 'Mumbai', whatsApp: '+91 90000 11111' },
+      12 |     ]);
+    > 13 |     expect(harness.rows.length).toBeGreaterThan(0);
+         |                                 ^
+      14 |
+      15 |     harness.clickClear();
+      16 |
+
+      at Object.<anonymous> (tests/spec/admin/F07-TP3-004_ClearCustomerLookup.spec.js:13:33)
+
+  console.warn
+    initCustomerLookup is not implemented yet.
+
+       5 |
+       6 | export function initCustomerLookup() {
+    >  7 |   console.warn('initCustomerLookup is not implemented yet.');
+         |           ^
+       8 |   return null;
+       9 | }
+      10 |
+
+      at warn (scripts/admin/customerLookup.js:7:11)
+      at createCustomerLookupHarness (tests/fixtures/customerLookupHarness.js:18:3)
+      at Object.<anonymous> (tests/spec/admin/F07-TP3-003_SelectCustomerEmitsEvent.spec.js:7:21)
+
+  console.warn
+    initCustomerLookup is not implemented yet.
+
+       5 |
+       6 | export function initCustomerLookup() {
+    >  7 |   console.warn('initCustomerLookup is not implemented yet.');
+         |           ^
+       8 |   return null;
+       9 | }
+      10 |
+
+      at warn (scripts/admin/customerLookup.js:7:11)
+      at createCustomerLookupHarness (tests/fixtures/customerLookupHarness.js:18:3)
+      at Object.<anonymous> (tests/spec/admin/F07-TP3-002_DebouncedLookupQueries.spec.js:12:21)
+
+(node:62895) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F07-TP3-003_SelectCustomerEmitsEvent.spec.js
+  SPEC F07-TP3-003: Selecting a lookup row emits structured payload
+    ✕ clicking select button forwards customer details to onSelect callback (66 ms)
+
+  ● SPEC F07-TP3-003: Selecting a lookup row emits structured payload › clicking select button forwards customer details to onSelect callback
+
+    expect(received).toBeTruthy()
+
+    Received: null
+
+      20 |       'button[data-action="select"][data-customer-id="cust-9"]'
+      21 |     );
+    > 22 |     expect(selectBtn).toBeTruthy();
+         |                       ^
+      23 |     selectBtn?.dispatchEvent(new Event('click', { bubbles: true }));
+      24 |
+      25 |     expect(onSelect).toHaveBeenCalledWith({
+
+      at Object.<anonymous> (tests/spec/admin/F07-TP3-003_SelectCustomerEmitsEvent.spec.js:22:23)
+
+(node:62894) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F07-TP3-002_DebouncedLookupQueries.spec.js
+  SPEC F07-TP3-002: Lookup debounces queries before hitting Firestore
+    ✕ typing waits for debounce then queries with normalized keywords and limit (69 ms)
+
+  ● SPEC F07-TP3-002: Lookup debounces queries before hitting Firestore › typing waits for debounce then queries with normalized keywords and limit
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      17 |     expect(getDocs).not.toHaveBeenCalled();
+      18 |     jest.advanceTimersByTime(100);
+    > 19 |     expect(getDocs).toHaveBeenCalledTimes(1);
+         |                     ^
+      20 |
+      21 |     const keywordCall = where.mock.calls.find(([field]) => field === 'keywords');
+      22 |     expect(keywordCall?.[2]).toBe('anil rao');
+
+      at Object.<anonymous> (tests/spec/admin/F07-TP3-002_DebouncedLookupQueries.spec.js:19:21)
+
+PASS tests/spec/admin/F05-TP2-002_PersistSupplierEdit.spec.js
+  SPEC F05-TP2-002: Persist supplier edits
+    ✓ submitting in edit mode calls updateDoc with trimmed values (57 ms)
+    ✓ duplicate name during edit is blocked with inline message (28 ms)
+
+PASS tests/spec/admin/F07-TP2-002_PersistCustomerEdit.spec.js
+  SPEC F07-TP2-002: Customer edits persist via updateDoc
+    ✓ submitting in edit mode updates Firestore with normalized fields (38 ms)
+
+PASS tests/spec/admin/F07-TP1-005_AdminCustomerForm.spec.js
+  SPEC F07-TP1-005: Admin customer form is present without country code input
+    ✓ admin.html exposes the add customer form fields but hides country code (476 ms)
+
+(node:62898) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/F05-TP2-003_PreventDeleteWhenInUse.spec.js
+  SPEC F05-TP2-003: Prevent deleting suppliers in use
+    ✓ delete action checks book references and blocks removal when in use (29 ms)
+
+PASS tests/unit/editor/TP2-001_EditFormShowsPurchasePrice.test.js
+  UNIT TP2-001: Edit form mirrors existing purchase price
+    ✓ open() copies stored purchasePrice (including zero) into the field value (39 ms)
+
+PASS tests/spec/admin/TP1-003_BlocksNonNumericPurchasePrice.spec.js
+  SPEC TP1-003: Validation against non-numeric input
+    ✓ prevents addDoc and surfaces an inline error (75 ms)
+
+PASS tests/spec/admin/F05-TP4-004_HandleStaleSupplierDuringEdit.spec.js
+  SPEC F05-TP4-004: Handle stale supplier during edit
+    ✓ if previously selected supplier disappears, save is blocked and warning shown (43 ms)
+
+PASS tests/spec/admin/F05-TP2-001_InlineEditPrefillsSupplier.spec.js
+  SPEC F05-TP2-001: Inline edit pre-fills supplier
+    ✓ clicking edit populates the form with supplier values and sets edit mode (61 ms)
+    ✓ cancel button exits edit mode and clears hidden id (77 ms)
+
+PASS tests/spec/admin/TP2-004_PersistsPurchasePriceUpdate.spec.js
+  SPEC TP2-004: Persist edited purchase price
+    ✓ sends numeric purchasePrice in the updateDoc payload when save succeeds (17 ms)
+
+PASS tests/spec/admin/F07-TP1-006_StoresCountryCode.spec.js
+  SPEC F07-TP1-006: Customer payload stores country code independently
+    ✓ submissions persist a dedicated countryCode field fixed to +91 (16 ms)
+
+PASS tests/spec/admin/F05-TP1-002_RejectDuplicateSupplierNames.spec.js
+  SPEC F05-TP1-002: Reject duplicate supplier names
+    ✓ duplicate names (case-insensitive) are blocked with warning (9 ms)
+
+PASS tests/spec/admin/TP2-002_RejectsNonNumericPurchasePrice.spec.js
+  SPEC TP2-002: Reject non-numeric purchase price on edit
+    ✓ blocks save and surfaces numeric guidance when value contains letters (54 ms)
+
+PASS tests/spec/admin/TP1-004_BlocksNegativePurchasePrice.spec.js
+  SPEC TP1-004: Validation against negative purchase price
+    ✓ stops the submission when the value is below zero (67 ms)
+
+PASS tests/spec/admin/F05-TP3-002_RequiresSupplierSelection.spec.js
+  SPEC F05-TP3-002: Supplier selection is required
+    ✓ Submitting without a supplier prevents addDoc and shows inline error (53 ms)
+
+PASS tests/spec/admin/F05-TP2-004_DeleteSupplierWhenUnused.spec.js
+  SPEC F05-TP2-004: Delete supplier when unused
+    ✓ delete removes supplier when no books reference it (39 ms)
+
+PASS tests/unit/editor/TP2-003_RejectsNegativePurchasePrice.test.js
+  UNIT TP2-003: Prevent negative purchase price submissions
+    ✓ negative numbers trigger an inline error and avoid updateDoc (18 ms)
+
+PASS tests/spec/admin/TP2-003_RejectsNegativePurchasePrice.spec.js
+  SPEC TP2-003: Reject negative purchase price on edit
+    ✓ prevents update when a negative purchase price is submitted (23 ms)
+
+PASS tests/unit/editor/TP2-002_RejectsNonNumericPurchasePrice.test.js
+  UNIT TP2-002: Validate numeric purchase price on edit save
+    ✓ non-numeric input keeps dialog open and skips updateDoc (20 ms)
+
+PASS tests/spec/admin/F05-TP1-001_SupplierFormRequiresFields.spec.js
+  SPEC F05-TP1-001: Supplier form requires name/location
+    ✓ missing name blocks submission and surfaces inline error (22 ms)
+
+PASS tests/spec/admin/F07-TP1-007_RequiresTenDigitWhatsapp.spec.js
+  SPEC F07-TP1-007: WhatsApp number must be exactly 10 digits
+    ✓ submission with fewer than 10 digits shows an inline error (23 ms)
+    ✓ submission with more than 10 digits is rejected instead of truncated (11 ms)
+
+PASS tests/spec/admin/TP1-002_PersistsPurchasePrice.spec.js
+  SPEC TP1-002: Persist purchase price
+    ✓ includes purchasePrice number in the addDoc payload (37 ms)
+
+PASS tests/spec/admin/F07-TP1-001_CustomerFormRequiresMandatoryFields.spec.js
+  SPEC F07-TP1-001: Customer form enforces required fields
+    ✓ missing customer name blocks submission with inline guidance (19 ms)
+    ✓ missing WhatsApp number blocks submission as well (10 ms)
+
+PASS tests/spec/admin/F07-TP1-004_PersistsCustomerRecord.spec.js
+  SPEC F07-TP1-004: Successful add persists normalized customer payload
+    ✓ payload trims strings, normalizes WhatsApp, stores timestamps, and clears the form (22 ms)
+
+PASS tests/spec/admin/F07-TP2-001_PrefillCustomerEditForm.spec.js
+  SPEC F07-TP2-001: Edit button pre-fills the customer form
+    ✓ clicking edit switches the form to edit mode with populated fields (28 ms)
+
+PASS tests/spec/admin/F05-TP4-002_PersistSupplierChange.spec.js
+  SPEC F05-TP4-002: Persist supplier change from edit dialog
+    ✓ submitting edit with a different supplier updates Firestore payload (46 ms)
+
+PASS tests/unit/editor/TP2-004_PersistsPurchasePriceUpdate.test.js
+  UNIT TP2-004: Persist purchase price edits to Firestore
+    ✓ updateDoc receives purchasePrice as a number when submission passes validation (36 ms)
+
+PASS tests/spec/admin/F05-TP4-003_RequireValidSupplierOnEdit.spec.js
+  SPEC F05-TP4-003: Require valid supplier when saving edits
+    ✓ empty supplier selection blocks save with inline message (20 ms)
+
+PASS tests/spec/admin/F07-TP1-003_PreventsDuplicateCustomers.spec.js
+  SPEC F07-TP1-003: Duplicate customers are rejected before writes
+    ✓ WhatsApp digits + country code drive the duplicate query (65 ms)
+
+PASS tests/spec/admin/F05-TP1-003_PersistSupplierRecord.spec.js
+  SPEC F05-TP1-003: Persist supplier record
+    ✓ valid submission calls addDoc with trimmed payload and resets form (9 ms)
+
+PASS tests/spec/admin/F05-TP3-004_HandlesStaleSupplierSelection.spec.js
+  SPEC F05-TP3-004: Handle stale/invalid supplier selections
+    ✓ Submitting with a stale supplier id is blocked and surfaces warning (33 ms)
+
+PASS tests/spec/admin/F07-TP1-002_RejectsInvalidWhatsAppFormat.spec.js
+  SPEC F07-TP1-002: WhatsApp numbers must be valid and normalized
+    ✓ non-numeric characters produce an inline WhatsApp validation error (10 ms)
+
+PASS tests/spec/admin/F07-TP2-003_PreventDuplicateCustomerEdits.spec.js
+  SPEC F07-TP2-003: Duplicate edits are blocked
+    ✓ editing to a duplicate WhatsApp + country code combination surfaces an error (48 ms)
+
+PASS tests/spec/admin/F05-TP4-001_EditDialogShowsSupplierSelect.spec.js
+  SPEC F05-TP4-001: Edit dialog supplier select
+    ✓ Edit Book dialog contains supplier dropdown with placeholder (35 ms)
+
+PASS tests/spec/admin/F05-TP1-004_RenderNewSupplierInList.spec.js
+  SPEC F05-TP1-004: Render supplier list
+    ✓ renders suppliers sorted alphabetically with name and location (22 ms)
+
+PASS tests/spec/admin/F07-TP2-004_CancelCustomerEdit.spec.js
+  SPEC F07-TP2-004: Cancel clears edit mode
+    ✓ cancel button exits edit mode, clears hidden id, and restores blank form (53 ms)
+
+PASS tests/spec/admin/F05-TP3-003_PersistsSupplierReference.spec.js
+  SPEC F05-TP3-003: Persist supplier reference on add
+    ✓ Valid submission includes supplierId in the Firestore payload (24 ms)
+
+PASS tests/unit/inventory/TP3-004_PurchasePriceFormatting.test.js
+  UNIT TP3-004: Purchase price formatting helper
+    ✓ text uses ₹ prefix with comma separators (10 ms)
+
+PASS tests/spec/admin/TP3-003_ShowsPlaceholderWhenMissing.spec.js
+  SPEC TP3-003: Placeholder when purchase price missing
+    ✓ renders “Purchase price: not set” when value absent (22 ms)
+
+PASS tests/unit/inventory/TP3-002_SoldPurchasePriceElement.test.js
+  UNIT TP3-002: Sold rows keep purchase price element
+    ✓ sold list row includes .purchase-price with rupee amount (36 ms)
+
+PASS tests/spec/admin/TP1-001_AddFormShowsPurchasePrice.spec.js
+  SPEC TP1-001: Purchase price field is visible
+    ✓ add book form includes a numeric purchase price input (63 ms)
+
+PASS tests/spec/admin/TP2-001_EditFormShowsPurchasePrice.spec.js
+  SPEC TP2-001: Edit form exposes purchase price field
+    ✓ pre-fills purchase price input with stored value when opening edit dialog (7 ms)
+
+PASS tests/unit/customers/F07-TP1-001_CustomerHelpers.test.js
+  UNIT F07-TP1 customer helper functions
+    ✓ normalize helpers trim input and collapse whitespace (2 ms)
+    ✓ sanitizeWhatsAppNumber strips separators and country code so only digits remain (1 ms)
+    ✓ buildCustomerPayload normalizes inputs, stores digits, and timestamps the record (1 ms)
+
+PASS tests/spec/admin/F07-TP2-005_BlockInvalidCustomerEdits.spec.js
+  SPEC F07-TP2-005: Edit validation mirrors add form rules
+    ✓ edit mode still requires name and WhatsApp numbers before updateDoc runs (43 ms)
+
+PASS tests/unit/inventory/TP3-001_PurchasePriceElement.test.js
+  UNIT TP3-001: Purchase price element exists for available rows
+    ✓ available row contains .purchase-price element with rupee value (7 ms)
+
+PASS tests/spec/admin/TP3-001_AvailableRowShowsPurchasePrice.spec.js
+  SPEC TP3-001: Available list shows purchase price
+    ✓ renders purchase price text with rupee value for available rows (10 ms)
+
+PASS tests/spec/admin/TP3-004_FormatsPurchasePrice.spec.js
+  SPEC TP3-004: Purchase price formatting
+    ✓ applies rupee prefix and thousand separators (16 ms)
+
+PASS tests/unit/public/TP4-004_CatalogPayloadStripsPurchasePrice.test.js
+  UNIT TP4-004: Catalog payload strips purchase price
+    ✓ subscribeToAllAvailable removes purchasePrice before invoking callback (5 ms)
+
+PASS tests/unit/inventory/TP3-003_PurchasePricePlaceholder.test.js
+  UNIT TP3-003: Placeholder for missing purchase price
+    ✓ renders descriptive placeholder text inside .purchase-price (28 ms)
+
+PASS tests/spec/public/TP4-001_CatalogCardsHidePurchasePrice.spec.js
+  SPEC TP4-001: Catalog cards hide purchase price
+    ✓ rendered cards omit any purchase price labels or values (18 ms)
+
+PASS tests/spec/admin/F05-TP3-001_PopulatesSupplierDropdown.spec.js
+  SPEC F05-TP3-001: Supplier dropdown is present
+    ✓ Add Book form contains a supplier select with a placeholder option (49 ms)
+
+PASS tests/spec/public/TP4-002_SearchResultsHidePurchasePrice.spec.js
+  SPEC TP4-002: Search results hide purchase price
+    ✓ filtered render never mentions purchase price even when sale price is shown (4 ms)
+
+PASS tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js
+  UNIT F05-TP1 helpers
+    ✓ normalizeSupplierName trims whitespace and collapses gaps (1 ms)
+    ✓ isDuplicateSupplierName compares case-insensitively
+    ✓ formatSupplierDisplay returns readable string (1 ms)
+    ✓ buildSupplierPayload trims inputs and adds timestamps (1 ms)
+
+PASS tests/spec/admin/TP3-002_SoldRowShowsPurchasePrice.spec.js
+  SPEC TP3-002: Sold list also shows purchase price
+    ✓ sold rows mirror the purchase price label (10 ms)
+
+PASS tests/unit/customers/F07-TP2-001_EditPayload.test.js
+  UNIT F07-TP2 edit payload helper
+    ✓ normalizes inputs, preserves immutable fields, and refreshes keys (1 ms)
+
+PASS tests/spec/public/TP4-003_PurchaseMessageHidesPurchasePrice.spec.js
+  SPEC TP4-003: WhatsApp message hides purchase price
+    ✓ purchaseMessage ignores purchasePrice field entirely (1 ms)
+
+-------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                           
+-------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------
+All files          |   50.72 |    36.99 |   51.56 |   53.06 |                                                                                                             
+ auth.js           |       0 |        0 |       0 |       0 | 24-79                                                                                                       
+ autoPrice.js      |       0 |        0 |       0 |       0 | 2-25                                                                                                        
+ currency.js       |     100 |     64.7 |     100 |     100 | 5,7,12,17-24,30                                                                                             
+ customerLookup.js |     100 |    33.33 |     100 |     100 | 11-12                                                                                                       
+ customers.js      |   78.78 |    50.85 |   78.94 |    83.6 | 8-9,26-27,74-82,133,168,187,277-281,289-290,295-297,322-323,346,356-357,368,380,393,411-415,437-438,499-502 
+ editor.js         |   70.79 |    68.24 |   73.07 |   72.55 | 46-47,53,93,122-151,155,185,192,199,339,353-371,378-395                                                     
+ inventory.js      |    71.5 |    49.06 |   69.69 |   71.73 | 59,66-68,118-168,190,212,246-249,323-327,342-343,357,360,410-411,417-419                                    
+ lookup.js         |       0 |        0 |       0 |       0 | 11-483                                                                                                      
+ main.js           |       0 |        0 |       0 |       0 | 29-289                                                                                                      
+ requests.js       |       0 |        0 |       0 |       0 | 6-73                                                                                                        
+ suppliers.js      |   81.64 |    57.37 |   85.18 |   86.48 | 15,116-117,136-138,149-151,177-178,190-191,221-224,254-258,267,273-274,295-302                              
+-------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------
+Summary of all failing tests
+FAIL tests/unit/customers/F07-TP3-001_NormalizeLookupQuery.test.js
+  ● UNIT F07-TP3 normalizeLookupQuery helper › trims, collapses whitespace, lowercases, and drops short inputs
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "anil rao"
+    Received: "  Anil   Rao "
+
+      3 | describe('UNIT F07-TP3 normalizeLookupQuery helper', () => {
+      4 |   test('trims, collapses whitespace, lowercases, and drops short inputs', () => {
+    > 5 |     expect(normalizeLookupQuery('  Anil   Rao ')).toBe('anil rao');
+        |                                                   ^
+      6 |     expect(normalizeLookupQuery('  B ')).toBe('');
+      7 |     expect(normalizeLookupQuery('')).toBe('');
+      8 |     expect(normalizeLookupQuery('   ')).toBe('');
+
+      at Object.<anonymous> (tests/unit/customers/F07-TP3-001_NormalizeLookupQuery.test.js:5:51)
+
+FAIL tests/spec/admin/F07-TP3-001_RendersCustomerLookupList.spec.js
+  ● SPEC F07-TP3-001: Customer lookup renders searchable list › snapshot rows render sorted with highlighted query text and metadata
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      4 |   test('snapshot rows render sorted with highlighted query text and metadata', async () => {
+      5 |     const harness = await createCustomerLookupHarness();
+    > 6 |     expect(harness.mocks.onSnapshot).toHaveBeenCalled();
+        |                                      ^
+      7 |
+      8 |     harness.search('Anil');
+      9 |     harness.emitResults([
+
+      at Object.<anonymous> (tests/spec/admin/F07-TP3-001_RendersCustomerLookupList.spec.js:6:38)
+
+FAIL tests/spec/admin/F07-TP3-004_ClearCustomerLookup.spec.js
+  ● SPEC F07-TP3-004: Clearing the lookup resets state › clear button wipes search input, hides list, and notifies consumer
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      11 |       { id: 'cust-10', name: 'Zoya Malik', location: 'Mumbai', whatsApp: '+91 90000 11111' },
+      12 |     ]);
+    > 13 |     expect(harness.rows.length).toBeGreaterThan(0);
+         |                                 ^
+      14 |
+      15 |     harness.clickClear();
+      16 |
+
+      at Object.<anonymous> (tests/spec/admin/F07-TP3-004_ClearCustomerLookup.spec.js:13:33)
+
+FAIL tests/spec/admin/F07-TP3-003_SelectCustomerEmitsEvent.spec.js
+  ● SPEC F07-TP3-003: Selecting a lookup row emits structured payload › clicking select button forwards customer details to onSelect callback
+
+    expect(received).toBeTruthy()
+
+    Received: null
+
+      20 |       'button[data-action="select"][data-customer-id="cust-9"]'
+      21 |     );
+    > 22 |     expect(selectBtn).toBeTruthy();
+         |                       ^
+      23 |     selectBtn?.dispatchEvent(new Event('click', { bubbles: true }));
+      24 |
+      25 |     expect(onSelect).toHaveBeenCalledWith({
+
+      at Object.<anonymous> (tests/spec/admin/F07-TP3-003_SelectCustomerEmitsEvent.spec.js:22:23)
+
+FAIL tests/spec/admin/F07-TP3-002_DebouncedLookupQueries.spec.js
+  ● SPEC F07-TP3-002: Lookup debounces queries before hitting Firestore › typing waits for debounce then queries with normalized keywords and limit
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      17 |     expect(getDocs).not.toHaveBeenCalled();
+      18 |     jest.advanceTimersByTime(100);
+    > 19 |     expect(getDocs).toHaveBeenCalledTimes(1);
+         |                     ^
+      20 |
+      21 |     const keywordCall = where.mock.calls.find(([field]) => field === 'keywords');
+      22 |     expect(keywordCall?.[2]).toBe('anil rao');
+
+      at Object.<anonymous> (tests/spec/admin/F07-TP3-002_DebouncedLookupQueries.spec.js:19:21)
+
+
+Test Suites: 5 failed, 55 passed, 60 total
+Tests:       5 failed, 64 passed, 69 total
+Snapshots:   0 total
+Time:        2.879 s, estimated 3 s
+Ran all test suites.

@@ -105,6 +105,92 @@
           "notes": "Prevent orphan mappings by validating the new supplier still exists; broadcast updates to caching layers if any."
         }
       ]
+    },
+    {
+      "featureId": "F06",
+      "featureTitle": "Book Sale Settlement",
+      "description": "Capture the complete sale outcome for each book, including sale price, inventory status, partner payout shares, and buyer attribution.",
+      "topics": [
+        {
+          "id": "F06-TP1",
+          "title": "Record Sale Status and Price",
+          "area": "Admin / Sales Workflow",
+          "goal": "Let admins toggle in-stock vs sold-out and capture the final sale price in a single action.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "A book exists in the catalog and is ready to be marked as sold.",
+          "when": "The admin switches the sale status and enters a sale price before saving.",
+          "then": "The book document stores the status flag plus a validated sale price (required when sold, optional when still in stock).",
+          "notes": "Enforce positive currency values, prevent marking as sold without a price, and update stock counters in the UI after persistence."
+        },
+        {
+          "id": "F06-TP2",
+          "title": "Compute Revenue Shares",
+          "area": "Admin / Settlement",
+          "goal": "Automatically calculate Srikar's share and the supplier share using sale and cost prices.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["TP1", "F06-TP1"],
+          "given": "The book already stores a cost price and the sale workflow captured a sale price.",
+          "when": "The admin confirms the sale.",
+          "then": "Srikar's share is recorded as (sale price - cost price)/2 and supplier share as cost price + (sale price - cost price)/2 with consistent rounding rules.",
+          "notes": "Guard against sale prices lower than cost, surface computed amounts before commit, and reuse currency-format helpers to keep reports consistent."
+        },
+        {
+          "id": "F06-TP3",
+          "title": "Associate Buyer With Sale",
+          "area": "Admin / Sales Workflow",
+          "goal": "Link each sold book to a buyer drawn from the customer master so downstream reports know who purchased it.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F06-TP1", "F07-TP1"],
+          "given": "Customer records exist and a book is being marked as sold.",
+          "when": "The admin searches for and selects a buyer (or adds one on the fly) within the sale confirmation flow.",
+          "then": "The sale record stores the buyer reference and displays it anywhere the sale appears (history, settlements, receipts).",
+          "notes": "Selection should be mandatory for sold books, support search by name/WhatsApp, and prevent orphaned references if the customer later changes."
+        }
+      ]
+    },
+    {
+      "featureId": "F07",
+      "featureTitle": "Customer Master Management",
+      "description": "Introduce a lightweight customer directory with add/edit flows that capture name, address, location, and WhatsApp number for reuse in sales.",
+      "topics": [
+        {
+          "id": "F07-TP1",
+          "title": "Add Customer Records",
+          "area": "Admin / Customer Master",
+          "goal": "Allow admins to create customers with the required contact fields so that buyers can be tracked.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "An admin opens the Customer Master module.",
+          "when": "They submit the add form with name, address, location, and WhatsApp number.",
+          "then": "A validated customer document is stored with normalized phone data and timestamps.",
+          "notes": "Deduplicate by name + WhatsApp, enforce number formatting, and show inline errors for missing required fields."
+        },
+        {
+          "id": "F07-TP2",
+          "title": "Edit Customer Records",
+          "area": "Admin / Customer Master",
+          "goal": "Let admins update customer details without breaking links to past sales.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F07-TP1"],
+          "given": "A customer already exists in the directory.",
+          "when": "An admin opens the record and amends the address, location, or WhatsApp info.",
+          "then": "Changes persist, update the modified timestamp, and propagate to any sale views that reference the customer.",
+          "notes": "Prevent edits that clear required fields, highlight unsaved changes, and keep references stable via immutable IDs."
+        },
+        {
+          "id": "F07-TP3",
+          "title": "Customer Lookup for Sales",
+          "area": "Admin / Customer Master",
+          "goal": "Expose a searchable customer list so other workflows (like sales settlement) can pick buyers quickly.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F07-TP1"],
+          "given": "An admin is in a workflow that needs to assign a buyer to a sale.",
+          "when": "They search, filter, or paginate through the customer list.",
+          "then": "Matching customer summaries (name, location, WhatsApp) are returned and the selected customer ID is emitted back to the calling workflow.",
+          "notes": "Provide debounced search, highlight exact matches, and coordinate with F06-TP3 so a single selection UI can serve multiple modules."
+        }
+      ]
     }
   ]
 }

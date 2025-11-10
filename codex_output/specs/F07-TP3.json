@@ -1,0 +1,75 @@
+{
+  "topicId": "F07-TP3",
+  "title": "Customer Lookup for Sales",
+  "area": "Admin / Customer Master",
+  "goal": "Expose a searchable customer list so other workflows (like sales settlement) can pick buyers quickly.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F07-TP3-001",
+      "title": "RenderLookupResults",
+      "given": "The lookup widget is initialized and receives customer documents via onSnapshot.",
+      "when": "Results arrive and (optionally) a search term is active.",
+      "then": "The widget renders rows sorted by name with name/location/WhatsApp summary, wraps the matched term in <mark>, and tags each row with data-customer-id.",
+      "test": "/tests/spec/admin/F07-TP3-001_RendersCustomerLookupList.spec.js"
+    },
+    {
+      "id": "F07-TP3-002",
+      "title": "DebouncedSearchQueries",
+      "given": "An admin types into the lookup search input.",
+      "when": "They pause typing for the debounce window.",
+      "then": "The module normalizes the query (trim + lowercase), waits ~300ms, and issues a Firestore query limited to 20 docs using a keywords array match.",
+      "test": "/tests/spec/admin/F07-TP3-002_DebouncedLookupQueries.spec.js"
+    },
+    {
+      "id": "F07-TP3-003",
+      "title": "EmitSelectionPayload",
+      "given": "Lookup results are visible.",
+      "when": "The admin clicks a Select button for a row.",
+      "then": "onSelect receives the customer id/name/location/WhatsApp variants and the row reflects its selected state.",
+      "test": "/tests/spec/admin/F07-TP3-003_SelectCustomerEmitsEvent.spec.js"
+    },
+    {
+      "id": "F07-TP3-004",
+      "title": "ClearLookupState",
+      "given": "A search query and any selection are active.",
+      "when": "The admin hits the clear action.",
+      "then": "Search input resets, results list clears back to the empty copy, and onSelect(null) notifies consumers so dependent workflows can reset.",
+      "test": "/tests/spec/admin/F07-TP3-004_ClearCustomerLookup.spec.js"
+    },
+    {
+      "id": "F07-TP3-005",
+      "title": "NormalizeLookupQueryHelper",
+      "given": "Lookup code needs to normalize user-entered search text.",
+      "when": "normalizeLookupQuery runs.",
+      "then": "It trims, collapses inner whitespace, lowercases, and drops inputs shorter than two characters so Firestore is not queried with junk terms.",
+      "test": "/tests/unit/customers/F07-TP3-001_NormalizeLookupQuery.test.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/customerLookupHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F07-TP3_red.txt",
+    "green": "codex_output/reports/F07-TP3_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F07-TP3_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Suite green via npm test -- --watchAll=false --bail=0 (see codex_output/reports/F07-TP3_green.txt)."
+    }
+  },
+  "changedFiles": [
+    "scripts/admin/customerLookup.js"
+  ],
+  "changeNotes": [
+    "Implemented initCustomerLookup with Firebase snapshot wiring, debounced keyword queries, select/clear interactions, and DOM rendering so all lookup specs pass.",
+    "Addressed code review: snapshot data now feeds a base collection while search results live in a dedicated buffer so filtered lists are not overwritten by realtime updates.",
+    "Aligned the lookup state with the author autocomplete pattern—snapshot data maintains the default list, while keyword queries populate a separate filtered array so clearing the input restores the baseline immediately.",
+    "Fixed selection invalidation by emitting onSelect(null) whenever the component clears a choice automatically and removed the unused isSearchPending flag."
+  ],
+  "notes": "Lookup widget must plug into customer master data, surface highlighted search results, emit selections to other flows (e.g., sales settlement), and share normalized keywords so Firestore queries stay consistent with F06-TP3 consumers."
+}
