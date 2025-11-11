@@ -97,7 +97,7 @@ export function initSalePersist(elements = {}, options = {}) {
     refs.lineStatusList.innerHTML = '';
   }
 
-function renderLineStatuses(lines, state, error) {
+  function renderLineStatuses(lines, state, error) {
     if (!refs.lineStatusList) return;
     clearLineStatuses();
     lines.forEach((line, index) => {

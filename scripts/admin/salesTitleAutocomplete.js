@@ -19,6 +19,7 @@ export function initSaleTitleAutocomplete(elements = {}, options = {}) {
   const deps = {
     loadBooks: options.loadBooks || (() => Promise.resolve([])),
     onBookSelect: typeof options.onBookSelect === 'function' ? options.onBookSelect : () => {},
+    onNoMatch: typeof options.onNoMatch === 'function' ? options.onNoMatch : () => {},
     maxResults: Number.isInteger(options.maxResults) ? options.maxResults : 5,
     debounceMs: Number.isInteger(options.debounceMs) ? options.debounceMs : 0,
   };
@@ -95,9 +96,14 @@ export function initSaleTitleAutocomplete(elements = {}, options = {}) {
       const books = await deps.loadBooks();
       state.index = buildTitleIndex(books);
       const normalizedQuery = normalizeQuery(query);
-    state.filtered = filterMatches(state.index, normalizedQuery, deps.maxResults);
-    state.activeIndex = -1;
-    renderSuggestions();
+      state.filtered = filterMatches(state.index, normalizedQuery, deps.maxResults);
+      state.activeIndex = -1;
+      if (!state.filtered.length) {
+        handleNoMatch(normalizedQuery);
+      } else {
+        clearMessage();
+        renderSuggestions();
+      }
     } catch (error) {
       console.error('title autocomplete lookup failed', error);
       refs.msgEl.textContent = 'Unable to load suggestions right now.';
@@ -145,20 +151,46 @@ export function initSaleTitleAutocomplete(elements = {}, options = {}) {
   }
 
   function selectActive() {
-    if (state.activeIndex < 0 || state.activeIndex >= state.filtered.length) return;
+    if (state.activeIndex < 0 || state.activeIndex >= state.filtered.length) {
+      handleNoMatch(normalizeQuery(refs.input.value));
+      return;
+    }
     handleSelection(state.filtered[state.activeIndex]);
   }
 
 function handleSelection(entry) {
   if (!entry) return;
-  refs.hiddenInput.value = entry.id;
-  refs.summaryEl.textContent = entry.title;
-  refs.summaryEl.dataset.empty = 'false';
-  refs.msgEl.textContent = '';
-  deps.onBookSelect(entry.source);
-  refs.input.value = entry.title;
-  clearSuggestions();
-}
+    refs.hiddenInput.value = entry.id;
+    refs.summaryEl.textContent = entry.title;
+    refs.summaryEl.dataset.empty = 'false';
+    refs.msgEl.textContent = '';
+    deps.onBookSelect(entry.source);
+    refs.input.value = entry.title;
+    clearSuggestions();
+  }
+
+  function handleNoMatch(query) {
+    clearSuggestions();
+    if (refs.msgEl) {
+      refs.msgEl.textContent = 'No catalog match found. Try typing letters from the title.';
+    }
+    if (refs.hiddenInput) {
+      refs.hiddenInput.value = '';
+    }
+    if (refs.summaryEl) {
+      refs.summaryEl.textContent = 'No book selected';
+      refs.summaryEl.dataset.empty = 'true';
+    }
+    if (query) {
+      deps.onNoMatch(query);
+    }
+  }
+
+  function clearMessage() {
+    if (refs.msgEl) {
+      refs.msgEl.textContent = '';
+    }
+  }
 }
 
 export function buildTitleIndex(docs = []) {

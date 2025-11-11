@@ -1,0 +1,74 @@
+{
+  "topicId": "F09-TP4",
+  "title": "No-Match Error Handling",
+  "area": "Admin / Sales Entry",
+  "goal": "Handle unmatched title searches by disabling the line and guiding admins to retype the canonical catalog title.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F09-TP4-001",
+      "title": "ShowNoMatchMessage",
+      "given": "The admin types a title that is not found in the cached catalog results.",
+      "when": "The autocomplete finishes loading suggestions.",
+      "then": "A guidance message such as \"No catalog match. Please retype the title exactly as listed.\" appears, the hidden bookId stays empty, the summary returns to the placeholder, and no book selection callback fires.",
+      "test": "/tests/spec/admin/F09-TP4-001_NoMatchShowsGuidance.spec.js"
+    },
+    {
+      "id": "F09-TP4-002",
+      "title": "BlockEnterWhenNoMatch",
+      "given": "Zero suggestions are available for the current query.",
+      "when": "The admin presses Enter to confirm the typed text.",
+      "then": "The same guidance message repeats, onBookSelect is not triggered, and the hidden bookId remains empty so the sale line stays disabled.",
+      "test": "/tests/spec/admin/F09-TP4-002_EnterWithoutMatch.spec.js"
+    },
+    {
+      "id": "F09-TP4-003",
+      "title": "LogUnmatchedQueries",
+      "given": "The business wants to track commonly mistyped titles.",
+      "when": "An unmatched lookup occurs.",
+      "then": "onNoMatch (or a similar callback) fires once with the normalized query text so downstream logging/telemetry can run.",
+      "test": "/tests/spec/admin/F09-TP4-003_LogsUnmatchedQueries.spec.js"
+    },
+    {
+      "id": "F09-TP4-004",
+      "title": "ClearErrorWhenMatchesAppear",
+      "given": "A no-match warning was just shown.",
+      "when": "The admin types a new query that does return matches.",
+      "then": "The warning clears, suggestions render normally, and the experience transitions back to the standard selection flow without stale errors.",
+      "test": "/tests/spec/admin/F09-TP4-004_NewMatchClearsError.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/salesTitleAutocompleteHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F09-TP4_red.txt",
+    "green": "codex_output/reports/F09-TP4_green.txt"
+  ],
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "status": "GREEN",
+    "report": "codex_output/reports/F09-TP4_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "GREEN suite: npm test -- --watchAll=false --bail=0 (see codex_output/reports/F09-TP4_green.txt). No-match guidance, enter blocking, logging, and error clearing all verified."
+    }
+  },
+  "changedFiles": [
+    "scripts/admin/salesTitleAutocomplete.js",
+    "tests/fixtures/salesTitleAutocompleteHarness.js",
+    "tests/spec/admin/F09-TP4-001_NoMatchShowsGuidance.spec.js",
+    "tests/spec/admin/F09-TP4-002_EnterWithoutMatch.spec.js",
+    "tests/spec/admin/F09-TP4-003_LogsUnmatchedQueries.spec.js",
+    "tests/spec/admin/F09-TP4-004_NewMatchClearsError.spec.js",
+    "codex_output/reports/F09-TP4_green.txt",
+    "codex_output/specs/F09-TP4.json"
+  ],
+  "changeNotes": [
+    "Sales title autocomplete now surfaces \"No catalog match\" guidance, keeps the hidden bookId empty, and replays the warning when Enter is pressed with zero suggestions.",
+    "Normalized unmatched queries trigger the new onNoMatch callback once per attempt so telemetry can track common issues; warnings clear automatically once matches appear.",
+    "Harness + specs updated to exercise the new hooks, and the GREEN Jest run is recorded in codex_output/reports/F09-TP4_green.txt."
+  ],
+  "notes": "F09-TP4 extends the title autocomplete work from F09-TP1/TP2: whenever a query returns zero catalog results, the UI must clearly communicate that no match exists, keep the draft line disabled by leaving the bookId empty, log the attempt for inventory cleanup, and immediately clear the warning once valid titles are found."
+}
