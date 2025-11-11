@@ -50,3 +50,16 @@ Notes:
 - Deduplicate by name + WhatsApp and enforce consistent phone formatting.
 - Editing should warn before clearing required data and keep immutable IDs for references.
 - Lookup service must integrate cleanly with F06-TP3, exposing minimal fields for selection.
+
+# Feature: Sales Entry Management (F08)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F08-TP1 | Capture Sale Header | Require selecting a customer and sale date before adding sold books. | F07-TP1 | An admin launches the Add Sale workflow and customers exist. | They pick a customer and sale date. | The sale form locks those values and blocks progress until both are valid. |
+| F08-TP2 | Add Sale Line Items | Add one line per book sold, storing title, supplier, and selling price. | TP1, F05-TP3, F06-TP1 | The sale header is valid. | The admin searches for books, adds them (allowing duplicates), and enters selling prices. | Each line persists the book reference, supplier snapshot, and validated selling price. |
+| F08-TP3 | Persist Sale and Align UI Copy | Save the sale record and ensure the button label reads "Out of stock". | F08-TP1, F08-TP2 | All validations pass. | The admin submits the sale. | The sale document with header/lines is stored and every prior "Mark as Sold" button label is updated to "Out of stock" without changing inventory automatically. |
+
+Notes:
+- Enforce customer selection and valid sale dates before line items can be added.
+- Line items must show running totals and copy supplier data when a book is chosen.
+- Inventory should not auto-flip yet; only the label changes to "Out of stock" until future inventory rules are defined.

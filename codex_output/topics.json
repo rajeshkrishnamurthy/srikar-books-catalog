@@ -191,6 +191,49 @@
           "notes": "Provide debounced search, highlight exact matches, and coordinate with F06-TP3 so a single selection UI can serve multiple modules."
         }
       ]
+    },
+    {
+      "featureId": "F08",
+      "featureTitle": "Sales Entry Management",
+      "description": "Enable admins to record multi-item sales with customer attribution, per-book pricing, and consistent inventory status labels.",
+      "topics": [
+        {
+          "id": "F08-TP1",
+          "title": "Capture Sale Header",
+          "area": "Admin / Sales Entry",
+          "goal": "Require selecting a customer and sale date before adding sold books.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F07-TP1"],
+          "given": "An admin opens the Add Sale workflow and customer records already exist.",
+          "when": "They search for a buyer and choose a sale date prior to saving.",
+          "then": "The sale form locks in the selected customer ID and sale date, blocking continuation until both values pass validation.",
+          "notes": "Surface inline errors for missing selections, support calendar pickers plus manual entry, and store timestamps in UTC."
+        },
+        {
+          "id": "F08-TP2",
+          "title": "Add Sale Line Items",
+          "area": "Admin / Sales Entry",
+          "goal": "Allow admins to add one line per book sold, capturing title, supplier, and selling price.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["TP1", "F05-TP3", "F06-TP1"],
+          "given": "The sale header is valid and the catalog already tracks purchase prices, suppliers, and stock.",
+          "when": "The admin searches for a book, selects it (possibly multiple times for separate quantities), and enters a selling price for each line.",
+          "then": "Each line stores the book reference, supplier snapshot, and validated selling price while allowing duplicate book entries to represent multiple quantities.",
+          "notes": "Prevent mixing draft lines with missing prices, auto-populate supplier info when a book is chosen, and show running totals."
+        },
+        {
+          "id": "F08-TP3",
+          "title": "Persist Sale and Align UI Copy",
+          "area": "Admin / Sales Entry",
+          "goal": "Save the sale record and ensure the legacy 'Mark as Sold' button now reads 'Out of stock'.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F08-TP1", "F08-TP2"],
+          "given": "All sale header and line item validations pass.",
+          "when": "The admin submits the sale.",
+          "then": "A sale document containing the header and all line items is persisted, and every instance of the old 'Mark as Sold' button label is updated to 'Out of stock' without changing inventory automatically.",
+          "notes": "Delay automatic stock flips until inventory rules mature; still show per-line persistence status and keep the new label consistent across the admin UI."
+        }
+      ]
     }
   ]
 }
