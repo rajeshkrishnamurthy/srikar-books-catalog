@@ -63,3 +63,20 @@ Notes:
 - Enforce customer selection and valid sale dates before line items can be added.
 - Line items must show running totals and copy supplier data when a book is chosen.
 - Inventory should not auto-flip yet; only the label changes to "Out of stock" until future inventory rules are defined.
+
+# Feature: Title-Based Sale Line Entry (F09)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F09-TP1 | Book Title Autocomplete | Let admins search catalog books for sale lines with lightweight title autocomplete. | F08-TP2 | An admin is adding a sale line and catalog titles exist. | They type a few letters into the Book title field. | Matching catalog titles appear, and selecting one locks the book ID without any SKU entry. |
+| F09-TP2 | Auto-Fill Supplier and Price Context | Auto-populate supplier snapshots plus prior selling/purchase price hints once a title is chosen. | F09-TP1, F05-TP3, F06-TP1 | A book has been chosen via autocomplete and stores supplier/price history. | The admin confirms the selection. | Supplier info and the most recent selling/purchase price values prefill (still editable) so the admin can immediately enter the new selling price. |
+| F09-TP3 | Draft Line Workflow and Focus Reset | Keep the inline draft row labeled "Add another book" until the header is valid, then reset and refocus after each line. | F08-TP1, F09-TP1 | The Add Sale experience is open with customer/date validation enforced. | The header is incomplete or a line saves successfully. | The draft row stays disabled until validation passes, and after each saved line it resets and returns focus to Book title for the next entry. |
+| F09-TP4 | No-Match Error Handling | Block unmatched titles and guide admins to retype the canonical catalog title. | F09-TP1 | An admin enters a string with no catalog match. | The autocomplete finds zero matches or the admin tries to confirm the unknown title. | The line remains disabled, showing “No catalog match. Please retype the title exactly as listed.” until a valid title is picked. |
+| F09-TP5 | Inventory Header Entry Point | Add a primary “Record sale” button beside the search box that launches the multi-book sale flow. | F08-TP1, F09-TP1 | An authenticated admin is on the Inventory view with the header actions visible. | They click the Record sale button. | A modal/section opens the sale workflow in-context, matching the header’s action styling and keeping focus within the new experience. |
+
+Notes:
+- Keep autocomplete lightweight (title-only string match) and fully keyboard accessible.
+- Snapshot supplier/price data the moment a title is selected, but allow manual overrides.
+- Inline draft row must respect header validation gates and always return focus to Book title for rapid entry.
+- Unmatched titles should block progression and surface the provided guidance message.
+- The header entry point must be high-visibility, keyboard accessible, and keep admins on the same page when launching the sale modal.

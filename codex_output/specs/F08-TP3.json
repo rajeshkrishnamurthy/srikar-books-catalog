@@ -1,0 +1,84 @@
+{
+  "topicId": "F08-TP3",
+  "title": "Persist Sale and Align UI Copy",
+  "area": "Admin / Sales Entry",
+  "goal": "Save the sale record and ensure the legacy Mark sold copy now reads Out of stock across the admin UI.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F08-TP3-001",
+      "title": "RequireHeaderAndLinesBeforePersist",
+      "given": "The admin finished entering sale details but the header or line items are still missing.",
+      "when": "They press Save sale.",
+      "then": "The module surfaces an inline \"capture the header/line\" warning, keeps the action disabled, and never calls addDoc until both payloads exist.",
+      "test": "/tests/spec/admin/F08-TP3-001_SaleSubmissionRequiresPayload.spec.js"
+    },
+    {
+      "id": "F08-TP3-002",
+      "title": "PersistSaleDocument",
+      "given": "The sale header payload and at least one normalized line item are ready.",
+      "when": "The admin clicks Save sale.",
+      "then": "Firestore addDoc receives a sale document that nests the header, all line payloads, totals, timestamps, and a pending status before showing a success message in the UI.",
+      "test": "/tests/spec/admin/F08-TP3-002_PersistSaleDocument.spec.js"
+    },
+    {
+      "id": "F08-TP3-003",
+      "title": "ShowLinePersistenceStatus",
+      "given": "The sale submit control is triggered after validations pass.",
+      "when": "Sale persistence succeeds or fails.",
+      "then": "The UI renders one status row per line with data-line-id + success/error state labels (Saved/Failed with prices) and communicates errors without crashing on Firestore failures.",
+      "test": "/tests/spec/admin/F08-TP3-003_LineStatusFeedback.spec.js"
+    },
+    {
+      "id": "F08-TP3-004",
+      "title": "RenameMarkSoldButtons",
+      "given": "Legacy inventory rows still show a Mark sold button.",
+      "when": "The sales entry bundle initializes.",
+      "then": "Every button with data-action=\"sold\" flips its text content to \"Out of stock\" (keeping the action attribute) so admins never see the outdated label anywhere.",
+      "test": "/tests/spec/admin/F08-TP3-004_UpdatesMarkSoldCopy.spec.js"
+    },
+    {
+      "id": "F08-TP3-005",
+      "title": "BuildSaleDocumentHelper",
+      "given": "Header and line payloads are ready for persistence.",
+      "when": "buildSaleDocument is invoked.",
+      "then": "It returns a normalized object containing the header, line array, totals (count + amount), a submittedAt timestamp, and a default status of pending so the Firestore write stays consistent.",
+      "test": "/tests/unit/admin/F08-TP3-001_BuildSaleDocument.test.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/salesPersistHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F08-TP3_red.txt",
+    "green": "codex_output/reports/F08-TP3_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "status": "GREEN",
+    "report": "codex_output/reports/F08-TP3_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "GREEN suite: npm test -- --watchAll=false --bail=0 (see codex_output/reports/F08-TP3_green.txt). Sale persistence, line status feedback, and copy updates all pass."
+    }
+  },
+  "changedFiles": [
+    "scripts/admin/salesPersist.js",
+    "tests/fixtures/salesPersistHarness.js",
+    "tests/spec/admin/F08-TP3-001_SaleSubmissionRequiresPayload.spec.js",
+    "tests/spec/admin/F08-TP3-002_PersistSaleDocument.spec.js",
+    "tests/spec/admin/F08-TP3-003_LineStatusFeedback.spec.js",
+    "tests/spec/admin/F08-TP3-004_UpdatesMarkSoldCopy.spec.js",
+    "tests/unit/admin/F08-TP3-001_BuildSaleDocument.test.js",
+    "codex_output/reports/F08-TP3_green.txt",
+    "codex_output/specs/F08-TP3.json"
+  ],
+  "changeNotes": [
+    "Implemented salesPersist.js: the controller now validates header/lines, builds the sale document, calls addDoc(collection(db,'sales')), renders per-line Saved/Failed badges, and relays success/failure messaging.",
+    "Expanded buildSaleDocument helper to echo header/lines, total counts + amounts, stamp submittedAt timestamps, and default the status to pending for Firestore writes.",
+    "Wired updateMarkSoldButtonCopy so every legacy Mark sold button immediately displays Out of stock while keeping its action semantics intact.",
+    "Captured the new Jest specs plus harness wiring in codex_output/reports/F08-TP3_green.txt for downstream agents."
+  ],
+  "notes": "F08-TP3 builds on the sale header + line item flows: the same module must block submission until both payloads exist, compose a normalized sale doc for addDoc(collection(db, 'sales'), ...), render success/error status per line, and immediately rename every legacy Mark sold button to Out of stock without touching inventory quantities."
+}
