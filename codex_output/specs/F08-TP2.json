@@ -1,0 +1,89 @@
+{
+  "topicId": "F08-TP2",
+  "title": "Add Sale Line Items",
+  "area": "Admin / Sales Entry",
+  "goal": "Allow admins to add one line per book sold, capturing title, supplier, and selling price.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F08-TP2-001",
+      "title": "DraftReflectsBookSelection",
+      "given": "The sale header is already valid and the book lookup is available.",
+      "when": "An admin picks a book from the lookup results.",
+      "then": "The draft line summary shows the book title + supplier snapshot, the hidden bookId is populated, supplier metadata is cached, and the add button remains disabled until a price is provided.",
+      "test": "/tests/spec/admin/F08-TP2-001_SaleLineDraftReflectsBookSelection.spec.js"
+    },
+    {
+      "id": "F08-TP2-002",
+      "title": "RequireSellingPriceBeforeAdd",
+      "given": "A book is locked into the draft line.",
+      "when": "The admin tries to add the line with an empty or non-numeric selling price.",
+      "then": "Inline validation explains the missing/invalid price, prevents the submit, keeps the add button disabled, and avoids mutating the line items list or callbacks.",
+      "test": "/tests/spec/admin/F08-TP2-002_SaleLineRequiresSellingPrice.spec.js"
+    },
+    {
+      "id": "F08-TP2-003",
+      "title": "AddLineStoresSnapshot",
+      "given": "A book is selected and a valid price is entered.",
+      "when": "The admin clicks Add line.",
+      "then": "A new table row is appended with a generated lineId, bookId, supplier snapshot, formatted price, and the consumer callback receives a normalized payload containing the same metadata before the draft resets.",
+      "test": "/tests/spec/admin/F08-TP2-003_SaleLineAddsRowWithSnapshot.spec.js"
+    },
+    {
+      "id": "F08-TP2-004",
+      "title": "AllowDuplicatesAndUpdateTotals",
+      "given": "One or more sale lines already exist.",
+      "when": "The admin adds the same book multiple times (to represent separate quantities) or mixes additional books.",
+      "then": "Each addition receives a unique line ID while preserving the bookId, the rendered list shows each entry, and the running totals (count + ₹ amount) update to reflect the sum of all selling prices.",
+      "test": "/tests/spec/admin/F08-TP2-004_SaleLineTotalsAllowDuplicates.spec.js"
+    },
+    {
+      "id": "F08-TP2-005",
+      "title": "SaleLinePayloadHelper",
+      "given": "Firestore helpers need a reusable way to build line-item documents.",
+      "when": "buildSaleLinePayload is invoked with a book snapshot, supplier data, selling price text, and timestamps.",
+      "then": "It trims strings, preserves supplier/book snapshots, converts the selling price to a number, and stamps createdAt/updatedAt values so persistence logic can reuse the result.",
+      "test": "/tests/unit/admin/F08-TP2-001_SaleLinePayload.test.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/salesLineItemsHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F08-TP2_red.txt",
+    "green": "codex_output/reports/F08-TP2_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F08-TP2_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "GREEN suite: npm test -- --watchAll=false --bail=0 (see codex_output/reports/F08-TP2_green.txt). Sale line draft, validation, duplicates, and payload helper specs now pass end-to-end."
+    }
+  },
+  "changedFiles": [
+    "scripts/admin/salesLineItems.js",
+    "tests/fixtures/salesLineItemsHarness.js",
+    "tests/spec/admin/F08-TP2-001_SaleLineDraftReflectsBookSelection.spec.js",
+    "tests/spec/admin/F08-TP2-002_SaleLineRequiresSellingPrice.spec.js",
+    "tests/spec/admin/F08-TP2-003_SaleLineAddsRowWithSnapshot.spec.js",
+    "tests/spec/admin/F08-TP2-004_SaleLineTotalsAllowDuplicates.spec.js",
+    "tests/unit/admin/F08-TP2-001_SaleLinePayload.test.js",
+    "codex_output/specs/F08-TP2.json",
+    "codex_output/reports/F08-TP2_red.txt",
+    "codex_output/reports/F08-TP2_green.txt"
+  ],
+  "changeNotes": [
+    "Added the sales line items harness plus four UI specs and a unit helper spec to lock in lookup selections, price validation, duplicates, totals, and payload contracts.",
+    "Implemented initSaleLineItems with lookup hydration, inline messaging, DOM row rendering, callbacks, and totals so the integration specs simulate real admin flows.",
+    "Expanded buildSaleLinePayload to normalize book/supplier snapshots, trim strings, coerce currency, and stamp timestamps for downstream Firestore writes.",
+    "Documented validation/report targets and captured the GREEN npm test run for traceability.",
+    "Hydrated server-rendered drafts on load and tightened selling-price parsing so stray characters correctly trigger validation."
+  ],
+  "notes": "Sale line items rely on the sale header, customer lookup, catalog search, and supplier metadata: each lookup selection should hydrate the draft with supplier + title, prevent submission until a positive price is entered, emit normalized payloads per line (including duplicates for multi-quantity sales), show running totals, and share a helper for Firestore persistence.",
+  "helpers": {
+    "created": [],
+    "used": []
+  }
+}
