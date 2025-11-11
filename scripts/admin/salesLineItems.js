@@ -358,30 +358,3 @@ function hasRequiredRefs(refs) {
       refs.totalsAmountEl
   );
 }
-
-function extractBookFromDom() {
-  if (!refs?.bookIdInput) return null;
-  const id = (refs.bookIdInput.value || '').trim();
-  if (!id) return null;
-  const dataset = refs.selectedBookSummary?.dataset || {};
-  const hasCustomSummary = dataset.empty === 'false';
-  const title =
-    dataset.bookTitle ||
-    dataset.title ||
-    (hasCustomSummary ? refs.selectedBookSummary?.textContent?.trim() : '');
-  const supplierId = dataset.supplierId || dataset.bookSupplierId || '';
-  const supplierName = dataset.supplierName || '';
-  const supplierLocation = dataset.supplierLocation || '';
-  const supplier = supplierId
-    ? {
-        id: supplierId,
-        name: supplierName,
-        location: supplierLocation,
-      }
-    : null;
-  return {
-    id,
-    title: title && title !== defaultSummary ? title : '',
-    supplier,
-  };
-}
