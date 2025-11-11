@@ -16,18 +16,25 @@ export async function createSalesLineItemsHarness(options = {}) {
     formatCurrency: options.formatCurrency || ((amount) => `₹${Number(amount || 0).toFixed(2)}`),
     buildLineId:
       options.buildLineId || (() => `line-${Math.random().toString(36).slice(2,10)}`),
+    serverTimestamp: options.serverTimestamp || (() => new Date()),
+    headerState: options.headerState || null,
   };
 
   const { initSaleLineItems } = await import(moduleUrl.href);
   const api = initSaleLineItems(
     {
       draftForm: dom.draftForm,
+      draftLabelEl: dom.draftLabelEl,
+      bookTitleInput: dom.bookTitleInput,
       selectedBookSummary: dom.selectedBookSummary,
       bookIdInput: dom.bookIdInput,
       priceInput: dom.priceInput,
       addLineBtn: dom.addLineBtn,
       msgEl: dom.msgEl,
       lineItemsBody: dom.lineItemsBody,
+      supplierHintEl: dom.supplierHintEl,
+      purchaseHintEl: dom.purchaseHintEl,
+      sellingHintEl: dom.sellingHintEl,
       totalsCountEl: dom.totalsCountEl,
       totalsAmountEl: dom.totalsAmountEl,
     },
@@ -38,12 +45,18 @@ export async function createSalesLineItemsHarness(options = {}) {
     api,
     lookup,
     onLinesChange: deps.onLinesChange,
+    draftForm: dom.draftForm,
+    draftLabelEl: dom.draftLabelEl,
+    bookTitleInput: dom.bookTitleInput,
     selectedBookSummary: dom.selectedBookSummary,
     bookIdInput: dom.bookIdInput,
     priceInput: dom.priceInput,
     addLineBtn: dom.addLineBtn,
     msgEl: dom.msgEl,
     lineItemsBody: dom.lineItemsBody,
+    supplierHintEl: dom.supplierHintEl,
+    purchaseHintEl: dom.purchaseHintEl,
+    sellingHintEl: dom.sellingHintEl,
     totalsCountEl: dom.totalsCountEl,
     totalsAmountEl: dom.totalsAmountEl,
     selectBook(book) {
@@ -66,6 +79,14 @@ function buildDom() {
   document.body.innerHTML = `
     <section id="saleLineItemsSection">
       <form id="saleLineDraftForm">
+        <label id="saleLineDraftLabel" for="saleLineBookTitle">Add another book</label>
+        <input
+          id="saleLineBookTitle"
+          name="saleLineBookTitle"
+          type="text"
+          placeholder="Start typing a title"
+          autocomplete="off"
+        />
         <input type="hidden" id="saleLineBookId" name="bookId" value="">
         <p id="saleLineBookSummary" data-empty="true">No book selected</p>
         <label>
@@ -78,6 +99,11 @@ function buildDom() {
       <table>
         <tbody id="saleLineItemsBody"></tbody>
       </table>
+      <div id="saleLineContext">
+        <p id="saleLineSupplierHint" data-empty="true">Supplier: Not set</p>
+        <p id="saleLinePurchaseHint" data-empty="true">Purchase price: Not set</p>
+        <p id="saleLineSellingHint" data-empty="true">Last sold price: Not set</p>
+      </div>
       <div id="saleLineTotals">
         <span id="saleLineTotalsCount">0 lines</span>
         <span id="saleLineTotalsAmount">₹0.00</span>
@@ -87,12 +113,17 @@ function buildDom() {
 
   return {
     draftForm: document.getElementById('saleLineDraftForm'),
+    draftLabelEl: document.getElementById('saleLineDraftLabel'),
+    bookTitleInput: document.getElementById('saleLineBookTitle'),
     selectedBookSummary: document.getElementById('saleLineBookSummary'),
     bookIdInput: document.getElementById('saleLineBookId'),
     priceInput: document.getElementById('saleLinePrice'),
     addLineBtn: document.getElementById('saleLineAddBtn'),
     msgEl: document.getElementById('saleLineMsg'),
     lineItemsBody: document.getElementById('saleLineItemsBody'),
+    supplierHintEl: document.getElementById('saleLineSupplierHint'),
+    purchaseHintEl: document.getElementById('saleLinePurchaseHint'),
+    sellingHintEl: document.getElementById('saleLineSellingHint'),
     totalsCountEl: document.getElementById('saleLineTotalsCount'),
     totalsAmountEl: document.getElementById('saleLineTotalsAmount'),
   };

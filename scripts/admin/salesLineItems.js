@@ -1,4 +1,5 @@
 import { compactText } from '../helpers/text.js';
+import { renderSaleLineHints } from './salesLineHints.js';
 
 const DEFAULT_SUMMARY_TEXT = 'No book selected';
 const PRICE_PATTERN = /^\d+(\.\d{1,2})?$/;
@@ -6,12 +7,17 @@ const PRICE_PATTERN = /^\d+(\.\d{1,2})?$/;
 export function initSaleLineItems(elements = {}, options = {}) {
   const refs = {
     draftForm: elements.draftForm || null,
+    draftLabelEl: elements.draftLabelEl || null,
     selectedBookSummary: elements.selectedBookSummary || null,
+    bookTitleInput: elements.bookTitleInput || elements.bookSearchInput || null,
     bookIdInput: elements.bookIdInput || null,
     priceInput: elements.priceInput || null,
     addLineBtn: elements.addLineBtn || null,
     msgEl: elements.msgEl || null,
     lineItemsBody: elements.lineItemsBody || null,
+    supplierHintEl: elements.supplierHintEl || null,
+    purchaseHintEl: elements.purchaseHintEl || null,
+    sellingHintEl: elements.sellingHintEl || null,
     totalsCountEl: elements.totalsCountEl || null,
     totalsAmountEl: elements.totalsAmountEl || null,
   };
@@ -22,6 +28,8 @@ export function initSaleLineItems(elements = {}, options = {}) {
     );
     return null;
   }
+
+  const headerState = buildHeaderState(options.headerState);
 
   const deps = {
     lookup: options.lookup || null,
@@ -38,6 +46,14 @@ export function initSaleLineItems(elements = {}, options = {}) {
   const state = {
     selectedBook: null,
     lines: [],
+    headerReady: resolveHeaderReady(headerState),
+    lockMessageActive: false,
+  };
+
+  const hintDefaults = {
+    supplier: (refs.supplierHintEl?.textContent || 'Supplier: Not set').trim(),
+    purchase: (refs.purchaseHintEl?.textContent || 'Purchase price: Not set').trim(),
+    selling: (refs.sellingHintEl?.textContent || 'Last sold price: Not set').trim(),
   };
 
   const defaultSummary =
@@ -73,7 +89,19 @@ export function initSaleLineItems(elements = {}, options = {}) {
     }
   }
 
+  if (typeof headerState.onReadyChange === 'function') {
+    const unsubscribeHeader = headerState.onReadyChange((ready) => {
+      const previous = state.headerReady;
+      state.headerReady = Boolean(ready);
+      applyHeaderLock({ previousReady: previous });
+    });
+    if (typeof unsubscribeHeader === 'function') {
+      teardown.push(() => unsubscribeHeader());
+    }
+  }
+
   hydrateInitialBookSelection();
+  applyHeaderLock({ previousReady: state.headerReady });
   updateAddButtonState();
   updateTotals();
 
@@ -97,6 +125,7 @@ export function initSaleLineItems(elements = {}, options = {}) {
     state.selectedBook = normalized;
     if (!normalized) {
       resetDraft({ keepPrice: true });
+      updateSupplierContext(null);
       return;
     }
     refs.bookIdInput.value = normalized.id;
@@ -109,8 +138,20 @@ export function initSaleLineItems(elements = {}, options = {}) {
     }
     refs.selectedBookSummary.textContent = summaryParts.filter(Boolean).join(' • ') || defaultSummary;
     refs.selectedBookSummary.dataset.empty = 'false';
+    refs.selectedBookSummary.dataset.supplierId = normalized.supplier?.id || '';
+    refs.selectedBookSummary.dataset.supplierName = normalized.supplier?.name || '';
+    refs.selectedBookSummary.dataset.supplierLocation = normalized.supplier?.location || '';
+    if (normalized.history) {
+      refs.selectedBookSummary.dataset.bookHistory = JSON.stringify(normalized.history);
+    } else {
+      delete refs.selectedBookSummary.dataset.bookHistory;
+    }
+    if (refs.bookTitleInput) {
+      refs.bookTitleInput.value = normalized.title;
+    }
     clearMessage();
     updateAddButtonState();
+    updateSupplierContext(normalized);
   }
 
   function hydrateInitialBookSelection() {
@@ -144,10 +185,12 @@ export function initSaleLineItems(elements = {}, options = {}) {
           location: supplierLocation,
         }
       : null;
+    const historyData = dataset.bookHistory ? safeParseJson(dataset.bookHistory) : null;
     return {
       id,
       title: title && title !== defaultSummary ? title : '',
       supplier,
+      history: normalizeHistory(historyData),
     };
   }
 
@@ -227,17 +270,31 @@ export function initSaleLineItems(elements = {}, options = {}) {
     refs.bookIdInput.value = '';
     refs.selectedBookSummary.textContent = defaultSummary;
     refs.selectedBookSummary.dataset.empty = 'true';
+    delete refs.selectedBookSummary.dataset.bookHistory;
+    delete refs.selectedBookSummary.dataset.supplierId;
+    delete refs.selectedBookSummary.dataset.supplierName;
+    delete refs.selectedBookSummary.dataset.supplierLocation;
+    if (refs.bookTitleInput) {
+      refs.bookTitleInput.value = '';
+    }
     if (!keepPrice) {
       refs.priceInput.value = '';
     }
     updateAddButtonState();
+    if (!keepPrice) {
+      updateSupplierContext(null);
+    }
+    if (!keepPrice) {
+      focusBookInput();
+    }
   }
 
   function updateAddButtonState() {
     if (!refs.addLineBtn) return;
+    const locked = !state.headerReady;
     const hasBook = Boolean(state.selectedBook?.id);
     const priceOk = normalizeSellingPrice(refs.priceInput.value) != null;
-    refs.addLineBtn.disabled = !(hasBook && priceOk);
+    refs.addLineBtn.disabled = locked || !(hasBook && priceOk);
   }
 
   function updateTotals() {
@@ -250,6 +307,56 @@ export function initSaleLineItems(elements = {}, options = {}) {
     if (refs.totalsAmountEl) {
       refs.totalsAmountEl.textContent = deps.formatCurrency(totalAmount);
     }
+  }
+
+  function applyHeaderLock(options = {}) {
+    const locked = !state.headerReady;
+    if (refs.draftForm) {
+      refs.draftForm.dataset.locked = locked ? 'true' : 'false';
+    }
+    if (refs.bookTitleInput) {
+      refs.bookTitleInput.disabled = locked;
+    }
+    if (refs.priceInput) {
+      refs.priceInput.disabled = locked;
+    }
+    if (locked) {
+      state.lockMessageActive = true;
+      setMessage('Sale header is not ready. Capture the header before adding line items.');
+      if (options.previousReady) {
+        resetDraft();
+      } else {
+        updateSupplierContext(state.selectedBook);
+      }
+    } else if (state.lockMessageActive) {
+      clearMessage();
+      state.lockMessageActive = false;
+    }
+    if (!locked) {
+      focusBookInput();
+    }
+    updateAddButtonState();
+  }
+
+  function focusBookInput() {
+    if (!state.headerReady) return;
+    refs.bookTitleInput?.focus?.();
+  }
+
+  function updateSupplierContext(book) {
+    renderSaleLineHints(
+      {
+        supplierHintEl: refs.supplierHintEl,
+        purchaseHintEl: refs.purchaseHintEl,
+        sellingHintEl: refs.sellingHintEl,
+      },
+      {
+        supplier: book?.supplier || null,
+        history: book?.history || null,
+        defaults: hintDefaults,
+        formatCurrency: deps.formatCurrency,
+      }
+    );
   }
 
   function setMessage(text) {
@@ -299,6 +406,7 @@ function normalizeBookSnapshot(book) {
     id: String(book.id),
     title: compactText(book.title ?? ''),
     supplier,
+    history: normalizeHistory(book.history),
   };
 }
 
@@ -313,18 +421,38 @@ function normalizeSupplierSnapshot(supplier) {
   };
 }
 
-  function normalizeSellingPrice(value) {
-    const trimmed = String(value ?? '').trim();
-    if (!trimmed) return null;
-    if (!PRICE_PATTERN.test(trimmed)) {
-      return null;
-    }
-    const parsed = Number(trimmed);
-    if (!Number.isFinite(parsed) || parsed <= 0) {
-      return null;
-    }
-    return Number(parsed);
+function normalizeSellingPrice(value) {
+  const trimmed = String(value ?? '').trim();
+  if (!trimmed) return null;
+  if (!PRICE_PATTERN.test(trimmed)) {
+    return null;
   }
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return null;
+  }
+  return Number(parsed);
+}
+
+function normalizeHistory(history = null) {
+  if (!history) return null;
+  const purchase =
+    history.purchasePrice != null && !Number.isNaN(Number(history.purchasePrice))
+      ? Number(history.purchasePrice)
+      : null;
+  const selling =
+    history.lastSellingPrice != null && !Number.isNaN(Number(history.lastSellingPrice))
+      ? Number(history.lastSellingPrice)
+      : null;
+  if (purchase == null && selling == null) {
+    return null;
+  }
+  return {
+    purchasePrice: purchase,
+    lastSellingPrice: selling,
+    currency: history.currency || '₹',
+  };
+}
 
 function resolveTimestamp(factory) {
   if (typeof factory === 'function') {
@@ -345,6 +473,14 @@ function formatCurrencyFallback(amount) {
   return `₹${number.toFixed(2)}`;
 }
 
+function safeParseJson(value) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
 function hasRequiredRefs(refs) {
   return Boolean(
     refs.draftForm &&
@@ -357,4 +493,25 @@ function hasRequiredRefs(refs) {
       refs.totalsCountEl &&
       refs.totalsAmountEl
   );
+}
+
+function buildHeaderState(state) {
+  if (
+    state &&
+    typeof state.isReady === 'function' &&
+    typeof state.onReadyChange === 'function'
+  ) {
+    return state;
+  }
+  return {
+    isReady: () => true,
+    onReadyChange: () => () => {},
+  };
+}
+
+function resolveHeaderReady(state) {
+  if (state && typeof state.isReady === 'function') {
+    return Boolean(state.isReady());
+  }
+  return true;
 }

@@ -1,0 +1,74 @@
+{
+  "topicId": "F09-TP3",
+  "title": "Draft Line Workflow and Focus Reset",
+  "area": "Admin / Sales Entry",
+  "goal": "Keep the inline draft row labelled \"Add another book\" until the sale header is valid, then reset and refocus after each committed line.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F09-TP3-001",
+      "title": "DraftLockedUntilHeaderReady",
+      "given": "An admin opens the Add Sale panel but the sale header (customer + date) is still incomplete.",
+      "when": "They view the draft sale line row.",
+      "then": "The book title input, price field, and Add line button remain disabled, the inline legend continues to read \"Add another book\", and the inline message reminds them to finish the sale header first.",
+      "test": "/tests/spec/admin/F09-TP3-001_SaleDraftLockedUntilHeaderReady.spec.js"
+    },
+    {
+      "id": "F09-TP3-002",
+      "title": "HeaderReadyUnlocksDraft",
+      "given": "The admin already selected a book and typed a price while the header was still invalid.",
+      "when": "The header becomes valid (customer and date captured).",
+      "then": "The draft inputs unlock immediately and the Add line button enables without re-entering book data, proving the gating logic watches the header state.",
+      "test": "/tests/spec/admin/F09-TP3-002_HeaderReadyUnlocksDraft.spec.js"
+    },
+    {
+      "id": "F09-TP3-003",
+      "title": "LineSubmitResetsFocus",
+      "given": "The header is valid and the admin adds a sale line.",
+      "when": "The line commits successfully.",
+      "then": "The draft row resets, `bookId` + price inputs clear, the summary returns to the default placeholder, and keyboard focus jumps back to the Book title field so the next book can be entered immediately.",
+      "test": "/tests/spec/admin/F09-TP3-003_LineSubmitResetsFocus.spec.js"
+    },
+    {
+      "id": "F09-TP3-004",
+      "title": "HeaderResetRelocksDraft",
+      "given": "The draft row is unlocked because the header was valid.",
+      "when": "The admin clears or edits the header so it becomes invalid again.",
+      "then": "The draft controls disable, the summary resets, and inline guidance once again points to finishing the sale header, preventing accidental edits after customer/date changes.",
+      "test": "/tests/spec/admin/F09-TP3-004_HeaderResetLocksDraft.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/salesLineItemsHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F09-TP3_red.txt",
+    "green": "codex_output/reports/F09-TP3_green.txt"
+  ],
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "status": "GREEN",
+    "report": "codex_output/reports/F09-TP3_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "GREEN suite: npm test -- --watchAll=false --bail=0 (see codex_output/reports/F09-TP3_green.txt). Draft locking/unlocking, focus reset, and relock behaviors all verified."
+    }
+  },
+  "changedFiles": [
+    "scripts/admin/salesLineItems.js",
+    "scripts/admin/salesLineHints.js",
+    "tests/fixtures/salesLineItemsHarness.js",
+    "tests/spec/admin/F09-TP3-001_SaleDraftLockedUntilHeaderReady.spec.js",
+    "tests/spec/admin/F09-TP3-002_HeaderReadyUnlocksDraft.spec.js",
+    "tests/spec/admin/F09-TP3-003_LineSubmitResetsFocus.spec.js",
+    "tests/spec/admin/F09-TP3-004_HeaderResetLocksDraft.spec.js",
+    "codex_output/specs/F09-TP3.json"
+  ],
+  "changeNotes": [
+    "Wire sale line items to the header-ready state: the draft form, autocomplete input, price field, and Add button now stay disabled until the sale header is valid, relock automatically when the header becomes invalid, and surface inline guidance.",
+    "After each successful line addition the draft resets, hints clear, and keyboard focus returns to the book title input so admins can capture multiple books rapidly.",
+    "Updated the harness plus hint renderer so supplier + price context stay intact across preloaded selections and header transitions, and captured the passing Jest run in codex_output/reports/F09-TP3_green.txt."
+  ],
+  "notes": "F09-TP3 relies on the F08 sale header and the new title autocomplete: the draft line must stay locked until customer + date validations pass, unlock automatically when they do, and after each saved line the UI should reset and focus the title input so admins can add multiple books quickly without touching the mouse."
+}
