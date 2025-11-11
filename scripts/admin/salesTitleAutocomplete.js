@@ -212,6 +212,7 @@ export function buildTitleIndex(docs = []) {
         id: doc.id,
         title: normalized,
         supplier: doc.supplier || null,
+        history: doc.history || null,
       },
     });
   });
