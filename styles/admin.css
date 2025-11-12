@@ -97,6 +97,22 @@ body {
 .panel summary + * {
   margin-top: 1.125rem;
 }
+.sale-date-field {
+  display: grid;
+  gap: 0.45rem;
+}
+.sale-date-field__controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+.sale-date-field__controls input {
+  flex: 1;
+}
+.sale-date-field__button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
 .hint {
   font-size: 0.9rem;
   color: var(--muted);

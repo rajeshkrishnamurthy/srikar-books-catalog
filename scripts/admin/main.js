@@ -85,6 +85,8 @@ const saleHeaderCustomerSummary = document.getElementById('saleHeaderCustomerSum
 const saleHeaderCustomerId = document.getElementById('saleHeaderCustomerId');
 const saleHeaderContinueBtn = document.getElementById('saleHeaderContinue');
 const saleHeaderMsg = document.getElementById('saleHeaderMsg');
+const saleHeaderDatePicker = document.getElementById('saleHeaderDatePicker');
+const saleHeaderDatePickerBtn = document.getElementById('saleHeaderDatePickerBtn');
 const saleCustomerLookupSearch = document.getElementById('saleCustomerLookupSearch');
 const saleCustomerLookupList = document.getElementById('saleCustomerLookupList');
 const saleCustomerLookupEmpty = document.getElementById('saleCustomerLookupEmpty');
@@ -139,6 +141,35 @@ adminNav?.addEventListener('click', (event) => {
   const navKey = button.dataset.nav;
   if (!navKey) return;
   handleAdminNav(navKey, button);
+});
+
+saleHeaderDatePickerBtn?.addEventListener('click', (event) => {
+  event.preventDefault();
+  if (!saleHeaderDatePicker) return;
+  if (!saleHeaderDatePicker.value) {
+    syncPickerFromText();
+  }
+  openNativeDatePicker();
+});
+
+saleHeaderDatePicker?.addEventListener('input', () => {
+  if (!saleHeaderSaleDateInput) return;
+  const isoValue = saleHeaderDatePicker.value;
+  if (!isoValue) return;
+  const formatted = formatIsoToDdMonYy(isoValue);
+  if (!formatted) return;
+  saleHeaderSaleDateInput.value = formatted;
+  saleHeaderSaleDateInput.dispatchEvent(new Event('input', { bubbles: true }));
+});
+
+saleHeaderSaleDateInput?.addEventListener('blur', syncPickerFromText);
+saleHeaderSaleDateInput?.addEventListener('change', syncPickerFromText);
+syncPickerFromText();
+
+saleHeaderForm?.addEventListener('reset', () => {
+  if (saleHeaderDatePicker) {
+    saleHeaderDatePicker.value = '';
+  }
 });
 
 // --- Authors datalist subscription (single definition) ---
@@ -235,6 +266,61 @@ function revealSaleEntryPanel() {
   ensureSaleEntryInitialized();
   scrollPanelIntoView(saleEntryPanel);
   saleHeaderSaleDateInput?.focus?.();
+}
+
+function openNativeDatePicker() {
+  if (!saleHeaderDatePicker) return;
+  if (typeof saleHeaderDatePicker.showPicker === 'function') {
+    saleHeaderDatePicker.showPicker();
+  } else {
+    saleHeaderDatePicker.focus();
+  }
+}
+
+const MONTH_MAP = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+function formatIsoToDdMonYy(isoValue = '') {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoValue);
+  if (!match) return '';
+  const [, year, month, day] = match;
+  const monthIndex = Number(month) - 1;
+  const monthLabel = MONTH_MAP[monthIndex];
+  if (!monthLabel) return '';
+  const shortYear = year.slice(-2);
+  return `${day}-${monthLabel}-${shortYear}`;
+}
+
+function parseDdMonYyToIso(value = '') {
+  const match = /^(\d{2})-([a-z]{3})-(\d{2})$/i.exec(value.trim());
+  if (!match) return '';
+  const [, dd, mon, yy] = match;
+  const monthIndex = MONTH_MAP.findIndex(
+    (label) => label.toLowerCase() === mon.toLowerCase()
+  );
+  if (monthIndex === -1) return '';
+  const fullYear = Number(yy);
+  const normalizedYear = fullYear >= 70 ? 1900 + fullYear : 2000 + fullYear;
+  const month = String(monthIndex + 1).padStart(2, '0');
+  return `${normalizedYear}-${month}-${dd}`;
+}
+
+function syncPickerFromText() {
+  if (!saleHeaderDatePicker || !saleHeaderSaleDateInput) return;
+  const iso = parseDdMonYyToIso(saleHeaderSaleDateInput.value);
+  saleHeaderDatePicker.value = iso || '';
 }
 
 initAuth({
