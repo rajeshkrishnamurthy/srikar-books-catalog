@@ -25,6 +25,7 @@ export async function createSalesLineItemsHarness(options = {}) {
     {
       draftForm: dom.draftForm,
       draftLabelEl: dom.draftLabelEl,
+      supplierSelect: dom.supplierSelect,
       bookTitleInput: dom.bookTitleInput,
       selectedBookSummary: dom.selectedBookSummary,
       bookIdInput: dom.bookIdInput,
@@ -47,6 +48,7 @@ export async function createSalesLineItemsHarness(options = {}) {
     onLinesChange: deps.onLinesChange,
     draftForm: dom.draftForm,
     draftLabelEl: dom.draftLabelEl,
+    supplierSelect: dom.supplierSelect,
     bookTitleInput: dom.bookTitleInput,
     suggestionsList: dom.suggestionsList,
     selectedBookSummary: dom.selectedBookSummary,
@@ -73,6 +75,17 @@ export async function createSalesLineItemsHarness(options = {}) {
     clickAdd() {
       fireEvent.click(dom.addLineBtn);
     },
+    setSupplierOptions(options = []) {
+      api?.setSuppliers?.(options);
+    },
+    selectSupplier(value) {
+      dom.supplierSelect.value = value;
+      fireEvent.change(dom.supplierSelect);
+    },
+    clearSupplierSelection() {
+      dom.supplierSelect.value = '';
+      fireEvent.change(dom.supplierSelect);
+    },
   };
 }
 
@@ -89,6 +102,12 @@ function buildDom() {
           autocomplete="off"
         />
         <ul id="saleLineBookSuggestions" role="listbox" aria-label="Matching titles"></ul>
+        <label>
+          Supplier
+          <select id="saleLineSupplierSelect" name="supplierId">
+            <option value="" selected disabled>Select supplier *</option>
+          </select>
+        </label>
         <input type="hidden" id="saleLineBookId" name="bookId" value="">
         <p id="saleLineBookSummary" data-empty="true">No book selected</p>
         <label>
@@ -116,6 +135,7 @@ function buildDom() {
   return {
     draftForm: document.getElementById('saleLineDraftForm'),
     draftLabelEl: document.getElementById('saleLineDraftLabel'),
+    supplierSelect: document.getElementById('saleLineSupplierSelect'),
     bookTitleInput: document.getElementById('saleLineBookTitle'),
     suggestionsList: document.getElementById('saleLineBookSuggestions'),
     selectedBookSummary: document.getElementById('saleLineBookSummary'),

@@ -31,12 +31,13 @@ export function initCustomerLookup(elements = {}, options = {}, firebaseDeps) {
   };
   const teardown = [];
 
-  function notifySelectionCleared(force = false) {
+function notifySelectionCleared(force = false) {
     if (!force && !state.selectedId) {
       return false;
     }
     state.selectedId = null;
     onSelect(null);
+    clearSelectedRowUi(refs.listEl);
     return true;
   }
 
@@ -91,6 +92,7 @@ export function initCustomerLookup(elements = {}, options = {}, firebaseDeps) {
       if (!selectButton) return;
       const customerId = selectButton.dataset.customerId;
       if (!customerId) return;
+      const row = selectButton.closest('li');
       const selected = getRenderableCustomers(state).find(
         (customer) => customer.id === customerId
       );
@@ -103,7 +105,7 @@ export function initCustomerLookup(elements = {}, options = {}, firebaseDeps) {
         whatsApp: selected.whatsApp || '',
         whatsAppDigits: selected.whatsAppDigits || '',
       });
-      renderLookupList(refs, state);
+      applySelectionStyles(row);
     };
     refs.listEl.addEventListener('click', listClickHandler);
     teardown.push(() => refs.listEl.removeEventListener('click', listClickHandler));
@@ -254,8 +256,13 @@ function renderLookupList(refs, state) {
     if (customer.id) {
       row.dataset.customerId = customer.id;
     }
-    if (state.selectedId && customer.id === state.selectedId) {
+    const isSelected = Boolean(state.selectedId && customer.id === state.selectedId);
+    if (isSelected) {
       row.classList.add('selected');
+      row.dataset.state = 'selected';
+    } else {
+      row.classList.remove('selected');
+      row.dataset.state = 'idle';
     }
 
     const nameEl = document.createElement('p');
@@ -277,7 +284,7 @@ function renderLookupList(refs, state) {
       row.appendChild(meta);
     }
 
-    if (customer.id) {
+    if (customer.id && !isSelected) {
       const selectBtn = document.createElement('button');
       selectBtn.type = 'button';
       selectBtn.textContent = 'Select';
@@ -285,6 +292,12 @@ function renderLookupList(refs, state) {
       selectBtn.dataset.customerId = customer.id;
       selectBtn.classList.add('text-button');
       row.appendChild(selectBtn);
+    } else if (isSelected) {
+      const chip = document.createElement('span');
+      chip.dataset.role = 'selected-chip';
+      chip.classList.add('customer-lookup-selected-chip');
+      chip.textContent = 'Selected';
+      row.appendChild(chip);
     }
 
     fragment.appendChild(row);
@@ -292,6 +305,61 @@ function renderLookupList(refs, state) {
 
   listEl.appendChild(fragment);
 }
+
+function applySelectionStyles(targetRow) {
+  if (!targetRow || !targetRow.ownerDocument) return;
+  const listEl = targetRow.parentElement;
+  if (!listEl) return;
+  const previous = listEl.querySelector('li[data-state="selected"]');
+  if (previous && previous !== targetRow) {
+    setRowAsIdle(previous);
+  }
+  setRowAsSelected(targetRow);
+}
+
+function setRowAsSelected(row) {
+  if (!row) return;
+  row.dataset.state = 'selected';
+  row.classList.add('selected');
+  const selectBtn = row.querySelector('button[data-action="select"]');
+  selectBtn?.remove();
+  let chip = row.querySelector('[data-role="selected-chip"]');
+  if (!chip) {
+    chip = row.ownerDocument.createElement('span');
+    chip.dataset.role = 'selected-chip';
+    chip.classList.add('customer-lookup-selected-chip');
+    chip.textContent = 'Selected';
+    row.appendChild(chip);
+  }
+}
+
+function setRowAsIdle(row) {
+  if (!row) return;
+  row.dataset.state = 'idle';
+  row.classList.remove('selected');
+  const chip = row.querySelector('[data-role="selected-chip"]');
+  chip?.remove();
+  if (!row.querySelector('button[data-action="select"]')) {
+    const btn = row.ownerDocument.createElement('button');
+    btn.type = 'button';
+    btn.textContent = 'Select';
+    btn.dataset.action = 'select';
+    btn.classList.add('text-button');
+    if (row.dataset.customerId) {
+      btn.dataset.customerId = row.dataset.customerId;
+    }
+    row.appendChild(btn);
+  }
+}
+
+function clearSelectedRowUi(listEl) {
+  if (!listEl) return;
+  const selectedRow = listEl.querySelector('li[data-state="selected"]');
+  if (selectedRow) {
+    setRowAsIdle(selectedRow);
+  }
+}
+
 
 function getRenderableCustomers(state) {
   if (state.query) {

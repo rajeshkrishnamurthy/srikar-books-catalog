@@ -8,6 +8,7 @@ export function initSaleLineItems(elements = {}, options = {}) {
   const refs = {
     draftForm: elements.draftForm || null,
     draftLabelEl: elements.draftLabelEl || null,
+    supplierSelect: elements.supplierSelect || null,
     selectedBookSummary: elements.selectedBookSummary || null,
     bookTitleInput: elements.bookTitleInput || elements.bookSearchInput || null,
     bookIdInput: elements.bookIdInput || null,
@@ -24,7 +25,7 @@ export function initSaleLineItems(elements = {}, options = {}) {
 
   if (!hasRequiredRefs(refs)) {
     console.warn(
-      'initSaleLineItems requires draft form, summary, hidden input, price input, button, message, table body, and totals refs.'
+      'initSaleLineItems requires draft form, supplier select, summary, hidden input, price input, button, message, table body, and totals refs.'
     );
     return null;
   }
@@ -45,9 +46,12 @@ export function initSaleLineItems(elements = {}, options = {}) {
 
   const state = {
     selectedBook: null,
+    bookSupplierSnapshot: null,
     lines: [],
     headerReady: resolveHeaderReady(headerState),
     lockMessageActive: false,
+    suppliers: [],
+    selectedSupplier: null,
   };
 
   const hintDefaults = {
@@ -62,6 +66,8 @@ export function initSaleLineItems(elements = {}, options = {}) {
     DEFAULT_SUMMARY_TEXT;
   refs.selectedBookSummary.dataset.defaultSummary = defaultSummary;
   refs.selectedBookSummary.dataset.empty = refs.bookIdInput.value ? 'false' : 'true';
+  const defaultDraftLabelText =
+    refs.draftLabelEl?.textContent?.trim() || 'Add another book';
 
   const teardown = [];
 
@@ -76,13 +82,19 @@ export function initSaleLineItems(elements = {}, options = {}) {
     if (!refs.bookIdInput) return;
     if (!refs.bookIdInput.value) {
       state.selectedBook = null;
+      state.bookSupplierSnapshot = null;
       clearBookSummaryDataset();
       updateSupplierContext(null);
+      clearSupplierSelection();
     }
     updateAddButtonState();
   };
   refs.bookIdInput.addEventListener('input', bookIdInputHandler);
   teardown.push(() => refs.bookIdInput.removeEventListener('input', bookIdInputHandler));
+
+  const supplierChangeHandler = () => handleSupplierChange();
+  refs.supplierSelect.addEventListener('change', supplierChangeHandler);
+  teardown.push(() => refs.supplierSelect.removeEventListener('change', supplierChangeHandler));
 
   const submitHandler = (event) => {
     event.preventDefault();
@@ -131,16 +143,21 @@ export function initSaleLineItems(elements = {}, options = {}) {
     resetDraft: () => resetDraft(),
     clearLines: () => clearLines(),
     getLines: () => [...state.lines],
+    setSuppliers: (list) => setSupplierOptions(list),
   };
 
   function applyBookSelection(rawBook) {
     const normalized = normalizeBookSnapshot(rawBook);
     state.selectedBook = normalized;
     if (!normalized) {
+      setDraftLabelText('');
+      state.bookSupplierSnapshot = null;
       resetDraft({ keepPrice: true });
       updateSupplierContext(null);
       return;
     }
+    setDraftLabelText(normalized.title || '');
+    state.bookSupplierSnapshot = normalized.supplier || null;
     refs.bookIdInput.value = normalized.id;
     const summaryParts = [normalized.title];
     if (normalized.supplier?.name) {
@@ -162,9 +179,19 @@ export function initSaleLineItems(elements = {}, options = {}) {
     if (refs.bookTitleInput) {
       refs.bookTitleInput.value = normalized.title;
     }
-    clearMessage();
+    if (state.headerReady) {
+      setMessage('Book selected. Enter selling price.');
+    } else {
+      clearMessage();
+    }
     updateAddButtonState();
+    if (state.bookSupplierSnapshot) {
+      setSupplierSelection(state.bookSupplierSnapshot);
+    } else {
+      clearSupplierSelection({ keepBookSnapshot: true });
+    }
     updateSupplierContext(normalized);
+    focusPriceInput();
   }
 
   function hydrateInitialBookSelection() {
@@ -219,7 +246,7 @@ export function initSaleLineItems(elements = {}, options = {}) {
     const payload = buildSaleLinePayload({
       lineId,
       book: state.selectedBook,
-      supplier: state.selectedBook?.supplier,
+      supplier: state.selectedSupplier,
       sellingPriceInput: refs.priceInput.value,
       serverTimestamp: deps.serverTimestamp,
     });
@@ -243,6 +270,9 @@ export function initSaleLineItems(elements = {}, options = {}) {
     const sellingPrice = normalizeSellingPrice(refs.priceInput.value);
     if (sellingPrice == null) {
       return { valid: false, message: 'Selling price is required and must be a valid number.' };
+    }
+    if (!state.selectedSupplier?.id) {
+      return { valid: false, message: 'Supplier selection is required.' };
     }
     return { valid: true, sellingPrice, lineId: null };
   }
@@ -280,8 +310,11 @@ export function initSaleLineItems(elements = {}, options = {}) {
   function resetDraft(options = {}) {
     const { keepPrice = false } = options;
     state.selectedBook = null;
+    state.bookSupplierSnapshot = null;
     refs.bookIdInput.value = '';
     resetBookSummaryContent();
+    setDraftLabelText('');
+    clearSupplierSelection({ silent: true });
     if (refs.bookTitleInput) {
       refs.bookTitleInput.value = '';
     }
@@ -308,7 +341,8 @@ export function initSaleLineItems(elements = {}, options = {}) {
     const locked = !state.headerReady;
     const hasBook = Boolean(state.selectedBook?.id && refs.bookIdInput.value);
     const priceOk = normalizeSellingPrice(refs.priceInput.value) != null;
-    refs.addLineBtn.disabled = locked || !(hasBook && priceOk);
+    const hasSupplier = Boolean(state.selectedSupplier?.id);
+    refs.addLineBtn.disabled = locked || !(hasBook && priceOk && hasSupplier);
   }
 
   function updateTotals() {
@@ -330,6 +364,9 @@ export function initSaleLineItems(elements = {}, options = {}) {
     }
     if (refs.bookTitleInput) {
       refs.bookTitleInput.disabled = locked;
+    }
+    if (refs.supplierSelect) {
+      refs.supplierSelect.disabled = locked;
     }
     if (refs.priceInput) {
       refs.priceInput.disabled = locked;
@@ -357,6 +394,11 @@ export function initSaleLineItems(elements = {}, options = {}) {
     refs.bookTitleInput?.focus?.();
   }
 
+  function focusPriceInput() {
+    if (!state.headerReady) return;
+    refs.priceInput?.focus?.();
+  }
+
   function updateSupplierContext(book) {
     renderSaleLineHints(
       {
@@ -382,6 +424,141 @@ export function initSaleLineItems(elements = {}, options = {}) {
     setMessage('');
   }
 
+  function setSupplierOptions(list = []) {
+    state.suppliers = Array.isArray(list)
+      ? list.map((supplier) => normalizeSupplierSnapshot(supplier)).filter(Boolean)
+      : [];
+    renderSupplierOptions();
+    restoreSupplierSelection();
+  }
+
+  function renderSupplierOptions() {
+    if (!refs.supplierSelect) return;
+    const doc = refs.supplierSelect.ownerDocument;
+    const suppliersForRender = getSupplierOptionsWithSnapshots();
+    refs.supplierSelect.innerHTML = '';
+    const placeholder = doc.createElement('option');
+    placeholder.value = '';
+    placeholder.disabled = true;
+    placeholder.textContent = 'Select supplier *';
+    placeholder.selected = !state.selectedSupplier?.id;
+    refs.supplierSelect.appendChild(placeholder);
+    suppliersForRender.forEach((supplier) => {
+      const option = doc.createElement('option');
+      option.value = supplier.id;
+      option.textContent = buildSupplierLabel(supplier);
+      option.dataset.name = supplier.name;
+      option.dataset.location = supplier.location;
+      refs.supplierSelect.appendChild(option);
+    });
+  }
+
+  function restoreSupplierSelection() {
+    if (!refs.supplierSelect) return;
+    const targetSupplier =
+      (state.selectedSupplier?.id && findSupplierById(state.selectedSupplier.id)) ||
+      (state.bookSupplierSnapshot?.id && findSupplierById(state.bookSupplierSnapshot.id)) ||
+      null;
+    if (targetSupplier?.id) {
+      refs.supplierSelect.value = targetSupplier.id;
+      state.selectedSupplier = normalizeSupplierSnapshot(targetSupplier);
+    } else {
+      refs.supplierSelect.value = '';
+      if (!state.selectedSupplier?.id) {
+        state.selectedSupplier = null;
+      }
+    }
+    updateAddButtonState();
+  }
+
+  function handleSupplierChange() {
+    if (!refs.supplierSelect) return;
+    const selectedId = refs.supplierSelect.value;
+    if (!selectedId) {
+      state.selectedSupplier = null;
+      updateAddButtonState();
+      return;
+    }
+    const supplier =
+      findSupplierById(selectedId) ||
+      (state.bookSupplierSnapshot?.id === selectedId ? state.bookSupplierSnapshot : null);
+    state.selectedSupplier = supplier ? normalizeSupplierSnapshot(supplier) : null;
+    clearMessage();
+    updateAddButtonState();
+  }
+
+  function setSupplierSelection(supplier, options = {}) {
+    const normalized = normalizeSupplierSnapshot(supplier);
+    state.selectedSupplier = normalized;
+    if (normalized?.id) {
+      ensureSupplierOption(normalized);
+      refs.supplierSelect.value = normalized.id;
+    } else if (refs.supplierSelect) {
+      refs.supplierSelect.value = '';
+    }
+    if (!options.silent) {
+      updateAddButtonState();
+    }
+  }
+
+  function clearSupplierSelection(options = {}) {
+    const { keepBookSnapshot = false, silent = false } = options;
+    if (!keepBookSnapshot) {
+      state.bookSupplierSnapshot = null;
+    }
+    state.selectedSupplier = null;
+    if (refs.supplierSelect) {
+      refs.supplierSelect.value = '';
+    }
+    if (!silent) {
+      updateAddButtonState();
+    }
+  }
+
+  function findSupplierById(id) {
+    if (!id) return null;
+    return getSupplierOptionsWithSnapshots().find((supplier) => supplier.id === id) || null;
+  }
+
+  function getSupplierOptionsWithSnapshots() {
+    const map = new Map();
+    const addSupplier = (supplier) => {
+      const normalized = normalizeSupplierSnapshot(supplier);
+      if (!normalized?.id || map.has(normalized.id)) {
+        return;
+      }
+      map.set(normalized.id, normalized);
+    };
+    state.suppliers.forEach(addSupplier);
+    addSupplier(state.bookSupplierSnapshot);
+    addSupplier(state.selectedSupplier);
+    return Array.from(map.values());
+  }
+
+  function ensureSupplierOption(supplier) {
+    if (!refs.supplierSelect) return false;
+    if (!supplier?.id) return false;
+    const exists = Array.from(refs.supplierSelect.options || []).some(
+      (option) => option.value === supplier.id
+    );
+    if (exists) {
+      return true;
+    }
+    const option = refs.supplierSelect.ownerDocument.createElement('option');
+    option.value = supplier.id;
+    option.textContent = buildSupplierLabel(supplier);
+    option.dataset.name = supplier.name;
+    option.dataset.location = supplier.location;
+    refs.supplierSelect.appendChild(option);
+    return true;
+  }
+
+  function buildSupplierLabel(supplier) {
+    if (!supplier) return 'Unknown supplier';
+    const name = supplier.name || 'Unknown supplier';
+    return supplier.location ? `${name} — ${supplier.location}` : name;
+  }
+
   function resetBookSummaryContent() {
     refs.selectedBookSummary.textContent = defaultSummary;
     refs.selectedBookSummary.dataset.empty = 'true';
@@ -393,6 +570,15 @@ export function initSaleLineItems(elements = {}, options = {}) {
     delete refs.selectedBookSummary.dataset.supplierId;
     delete refs.selectedBookSummary.dataset.supplierName;
     delete refs.selectedBookSummary.dataset.supplierLocation;
+  }
+
+  function setDraftLabelText(title) {
+    if (!refs.draftLabelEl) return;
+    if (title) {
+      refs.draftLabelEl.textContent = `Selected: ${title}`;
+    } else {
+      refs.draftLabelEl.textContent = defaultDraftLabelText;
+    }
   }
 }
 
@@ -511,6 +697,7 @@ function safeParseJson(value) {
 function hasRequiredRefs(refs) {
   return Boolean(
     refs.draftForm &&
+      refs.supplierSelect &&
       refs.selectedBookSummary &&
       refs.bookIdInput &&
       refs.priceInput &&

@@ -86,6 +86,7 @@ const saleLineDraftForm = document.getElementById('saleLineDraftForm');
 const saleLineDraftLabel = document.getElementById('saleLineDraftLabel');
 const saleLineBookTitle = document.getElementById('saleLineBookTitle');
 const saleLineSuggestions = document.getElementById('saleLineSuggestions');
+const saleLineSupplierSelect = document.getElementById('saleLineSupplierSelect');
 const saleLineBookIdInput = document.getElementById('saleLineBookId');
 const saleLineSummary = document.getElementById('saleLineBookSummary');
 const saleLinePriceInput = document.getElementById('saleLinePrice');
@@ -150,6 +151,7 @@ function subscribeAuthors() {
 function applySuppliersToConsumers() {
   inventoryApi?.setSuppliers(latestSupplierOptions);
   editorApi?.setSuppliers?.(latestSupplierOptions);
+  saleLineItemsApi?.setSuppliers?.(latestSupplierOptions);
 }
 
 function subscribeSuppliersForAdd() {
@@ -383,6 +385,7 @@ function ensureSaleEntryInitialized() {
     !saleLineDraftLabel ||
     !saleLineBookTitle ||
     !saleLineSuggestions ||
+    !saleLineSupplierSelect ||
     !saleLineBookIdInput ||
     !saleLineSummary ||
     !saleLinePriceInput ||
@@ -481,6 +484,7 @@ function ensureSaleEntryInitialized() {
     {
       draftForm: saleLineDraftForm,
       draftLabelEl: saleLineDraftLabel,
+      supplierSelect: saleLineSupplierSelect,
       bookTitleInput: saleLineBookTitle,
       selectedBookSummary: saleLineSummary,
       bookIdInput: saleLineBookIdInput,
@@ -500,6 +504,7 @@ function ensureSaleEntryInitialized() {
       headerState,
     }
   );
+  saleLineItemsApi?.setSuppliers?.(latestSupplierOptions);
 
   salePersistApi = initSalePersist(
     {
