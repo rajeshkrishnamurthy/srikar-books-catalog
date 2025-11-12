@@ -301,15 +301,37 @@
                   </p>
                   <ul id="saleCustomerLookupList" class="admin-list"></ul>
                 </div>
-                <label>
-                  Sale date
+                <label class="sale-date-field">
+                  <span>Sale date</span>
+                  <div class="sale-date-field__controls">
+                    <input
+                      id="saleHeaderSaleDate"
+                      name="saleDate"
+                      type="text"
+                      placeholder="dd-mon-yy"
+                      autocomplete="off"
+                      inputmode="text"
+                      aria-describedby="saleDateHint"
+                    />
+                    <button
+                      type="button"
+                      id="saleHeaderDatePickerBtn"
+                      class="btn btn-secondary sale-date-field__button"
+                      aria-label="Pick sale date"
+                    >
+                      Pick date
+                    </button>
+                  </div>
                   <input
-                    id="saleHeaderSaleDate"
-                    name="saleDate"
-                    type="text"
-                    placeholder="dd-mon-yy"
-                    autocomplete="off"
+                    type="date"
+                    id="saleHeaderDatePicker"
+                    class="sr-only"
+                    tabindex="-1"
+                    aria-hidden="true"
                   />
+                  <span id="saleDateHint" class="hint">
+                    Format: dd-mon-yy (e.g., 05-Feb-24)
+                  </span>
                 </label>
                 <div class="flex" style="gap: 0.5rem">
                   <button id="saleHeaderContinue" type="submit" class="btn">
