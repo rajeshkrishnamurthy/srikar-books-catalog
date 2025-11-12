@@ -1,4 +1,5 @@
 import { compactText } from '../helpers/text.js';
+import { renderSaleLineHints } from './salesLineHints.js';
 
 const DEFAULT_SUMMARY_TEXT = 'No book selected';
 const PRICE_PATTERN = /^\d+(\.\d{1,2})?$/;
@@ -6,22 +7,30 @@ const PRICE_PATTERN = /^\d+(\.\d{1,2})?$/;
 export function initSaleLineItems(elements = {}, options = {}) {
   const refs = {
     draftForm: elements.draftForm || null,
+    draftLabelEl: elements.draftLabelEl || null,
+    supplierSelect: elements.supplierSelect || null,
     selectedBookSummary: elements.selectedBookSummary || null,
+    bookTitleInput: elements.bookTitleInput || elements.bookSearchInput || null,
     bookIdInput: elements.bookIdInput || null,
     priceInput: elements.priceInput || null,
     addLineBtn: elements.addLineBtn || null,
     msgEl: elements.msgEl || null,
     lineItemsBody: elements.lineItemsBody || null,
+    supplierHintEl: elements.supplierHintEl || null,
+    purchaseHintEl: elements.purchaseHintEl || null,
+    sellingHintEl: elements.sellingHintEl || null,
     totalsCountEl: elements.totalsCountEl || null,
     totalsAmountEl: elements.totalsAmountEl || null,
   };
 
   if (!hasRequiredRefs(refs)) {
     console.warn(
-      'initSaleLineItems requires draft form, summary, hidden input, price input, button, message, table body, and totals refs.'
+      'initSaleLineItems requires draft form, supplier select, summary, hidden input, price input, button, message, table body, and totals refs.'
     );
     return null;
   }
+
+  const headerState = buildHeaderState(options.headerState);
 
   const deps = {
     lookup: options.lookup || null,
@@ -37,7 +46,18 @@ export function initSaleLineItems(elements = {}, options = {}) {
 
   const state = {
     selectedBook: null,
+    bookSupplierSnapshot: null,
     lines: [],
+    headerReady: resolveHeaderReady(headerState),
+    lockMessageActive: false,
+    suppliers: [],
+    selectedSupplier: null,
+  };
+
+  const hintDefaults = {
+    supplier: (refs.supplierHintEl?.textContent || 'Supplier: Not set').trim(),
+    purchase: (refs.purchaseHintEl?.textContent || 'Purchase price: Not set').trim(),
+    selling: (refs.sellingHintEl?.textContent || 'Last sold price: Not set').trim(),
   };
 
   const defaultSummary =
@@ -46,6 +66,8 @@ export function initSaleLineItems(elements = {}, options = {}) {
     DEFAULT_SUMMARY_TEXT;
   refs.selectedBookSummary.dataset.defaultSummary = defaultSummary;
   refs.selectedBookSummary.dataset.empty = refs.bookIdInput.value ? 'false' : 'true';
+  const defaultDraftLabelText =
+    refs.draftLabelEl?.textContent?.trim() || 'Add another book';
 
   const teardown = [];
 
@@ -55,6 +77,24 @@ export function initSaleLineItems(elements = {}, options = {}) {
   };
   refs.priceInput.addEventListener('input', priceInputHandler);
   teardown.push(() => refs.priceInput.removeEventListener('input', priceInputHandler));
+
+  const bookIdInputHandler = () => {
+    if (!refs.bookIdInput) return;
+    if (!refs.bookIdInput.value) {
+      state.selectedBook = null;
+      state.bookSupplierSnapshot = null;
+      clearBookSummaryDataset();
+      updateSupplierContext(null);
+      clearSupplierSelection();
+    }
+    updateAddButtonState();
+  };
+  refs.bookIdInput.addEventListener('input', bookIdInputHandler);
+  teardown.push(() => refs.bookIdInput.removeEventListener('input', bookIdInputHandler));
+
+  const supplierChangeHandler = () => handleSupplierChange();
+  refs.supplierSelect.addEventListener('change', supplierChangeHandler);
+  teardown.push(() => refs.supplierSelect.removeEventListener('change', supplierChangeHandler));
 
   const submitHandler = (event) => {
     event.preventDefault();
@@ -73,7 +113,19 @@ export function initSaleLineItems(elements = {}, options = {}) {
     }
   }
 
+  if (typeof headerState.onReadyChange === 'function') {
+    const unsubscribeHeader = headerState.onReadyChange((ready) => {
+      const previous = state.headerReady;
+      state.headerReady = Boolean(ready);
+      applyHeaderLock({ previousReady: previous });
+    });
+    if (typeof unsubscribeHeader === 'function') {
+      teardown.push(() => unsubscribeHeader());
+    }
+  }
+
   hydrateInitialBookSelection();
+  applyHeaderLock({ previousReady: state.headerReady });
   updateAddButtonState();
   updateTotals();
 
@@ -89,16 +141,23 @@ export function initSaleLineItems(elements = {}, options = {}) {
       }
     },
     resetDraft: () => resetDraft(),
+    clearLines: () => clearLines(),
     getLines: () => [...state.lines],
+    setSuppliers: (list) => setSupplierOptions(list),
   };
 
   function applyBookSelection(rawBook) {
     const normalized = normalizeBookSnapshot(rawBook);
     state.selectedBook = normalized;
     if (!normalized) {
+      setDraftLabelText('');
+      state.bookSupplierSnapshot = null;
       resetDraft({ keepPrice: true });
+      updateSupplierContext(null);
       return;
     }
+    setDraftLabelText(normalized.title || '');
+    state.bookSupplierSnapshot = normalized.supplier || null;
     refs.bookIdInput.value = normalized.id;
     const summaryParts = [normalized.title];
     if (normalized.supplier?.name) {
@@ -109,8 +168,30 @@ export function initSaleLineItems(elements = {}, options = {}) {
     }
     refs.selectedBookSummary.textContent = summaryParts.filter(Boolean).join(' • ') || defaultSummary;
     refs.selectedBookSummary.dataset.empty = 'false';
-    clearMessage();
+    refs.selectedBookSummary.dataset.supplierId = normalized.supplier?.id || '';
+    refs.selectedBookSummary.dataset.supplierName = normalized.supplier?.name || '';
+    refs.selectedBookSummary.dataset.supplierLocation = normalized.supplier?.location || '';
+    if (normalized.history) {
+      refs.selectedBookSummary.dataset.bookHistory = JSON.stringify(normalized.history);
+    } else {
+      delete refs.selectedBookSummary.dataset.bookHistory;
+    }
+    if (refs.bookTitleInput) {
+      refs.bookTitleInput.value = normalized.title;
+    }
+    if (state.headerReady) {
+      setMessage('Book selected. Enter selling price.');
+    } else {
+      clearMessage();
+    }
     updateAddButtonState();
+    if (state.bookSupplierSnapshot) {
+      setSupplierSelection(state.bookSupplierSnapshot);
+    } else {
+      clearSupplierSelection({ keepBookSnapshot: true });
+    }
+    updateSupplierContext(normalized);
+    focusPriceInput();
   }
 
   function hydrateInitialBookSelection() {
@@ -144,10 +225,12 @@ export function initSaleLineItems(elements = {}, options = {}) {
           location: supplierLocation,
         }
       : null;
+    const historyData = dataset.bookHistory ? safeParseJson(dataset.bookHistory) : null;
     return {
       id,
       title: title && title !== defaultSummary ? title : '',
       supplier,
+      history: normalizeHistory(historyData),
     };
   }
 
@@ -163,7 +246,7 @@ export function initSaleLineItems(elements = {}, options = {}) {
     const payload = buildSaleLinePayload({
       lineId,
       book: state.selectedBook,
-      supplier: state.selectedBook?.supplier,
+      supplier: state.selectedSupplier,
       sellingPriceInput: refs.priceInput.value,
       serverTimestamp: deps.serverTimestamp,
     });
@@ -187,6 +270,9 @@ export function initSaleLineItems(elements = {}, options = {}) {
     const sellingPrice = normalizeSellingPrice(refs.priceInput.value);
     if (sellingPrice == null) {
       return { valid: false, message: 'Selling price is required and must be a valid number.' };
+    }
+    if (!state.selectedSupplier?.id) {
+      return { valid: false, message: 'Supplier selection is required.' };
     }
     return { valid: true, sellingPrice, lineId: null };
   }
@@ -224,20 +310,39 @@ export function initSaleLineItems(elements = {}, options = {}) {
   function resetDraft(options = {}) {
     const { keepPrice = false } = options;
     state.selectedBook = null;
+    state.bookSupplierSnapshot = null;
     refs.bookIdInput.value = '';
-    refs.selectedBookSummary.textContent = defaultSummary;
-    refs.selectedBookSummary.dataset.empty = 'true';
+    resetBookSummaryContent();
+    setDraftLabelText('');
+    clearSupplierSelection({ silent: true });
+    if (refs.bookTitleInput) {
+      refs.bookTitleInput.value = '';
+    }
     if (!keepPrice) {
       refs.priceInput.value = '';
     }
     updateAddButtonState();
+    if (!keepPrice) {
+      updateSupplierContext(null);
+    }
+    if (!keepPrice) {
+      focusBookInput();
+    }
+  }
+
+  function clearLines() {
+    state.lines = [];
+    refs.lineItemsBody.innerHTML = '';
+    updateTotals();
   }
 
   function updateAddButtonState() {
     if (!refs.addLineBtn) return;
-    const hasBook = Boolean(state.selectedBook?.id);
+    const locked = !state.headerReady;
+    const hasBook = Boolean(state.selectedBook?.id && refs.bookIdInput.value);
     const priceOk = normalizeSellingPrice(refs.priceInput.value) != null;
-    refs.addLineBtn.disabled = !(hasBook && priceOk);
+    const hasSupplier = Boolean(state.selectedSupplier?.id);
+    refs.addLineBtn.disabled = locked || !(hasBook && priceOk && hasSupplier);
   }
 
   function updateTotals() {
@@ -252,6 +357,64 @@ export function initSaleLineItems(elements = {}, options = {}) {
     }
   }
 
+  function applyHeaderLock(options = {}) {
+    const locked = !state.headerReady;
+    if (refs.draftForm) {
+      refs.draftForm.dataset.locked = locked ? 'true' : 'false';
+    }
+    if (refs.bookTitleInput) {
+      refs.bookTitleInput.disabled = locked;
+    }
+    if (refs.supplierSelect) {
+      refs.supplierSelect.disabled = locked;
+    }
+    if (refs.priceInput) {
+      refs.priceInput.disabled = locked;
+    }
+    if (locked) {
+      state.lockMessageActive = true;
+      setMessage('Sale header is not ready. Capture the header before adding line items.');
+      if (options.previousReady) {
+        resetDraft();
+      } else {
+        updateSupplierContext(state.selectedBook);
+      }
+    } else if (state.lockMessageActive) {
+      clearMessage();
+      state.lockMessageActive = false;
+    }
+    if (!locked) {
+      focusBookInput();
+    }
+    updateAddButtonState();
+  }
+
+  function focusBookInput() {
+    if (!state.headerReady) return;
+    refs.bookTitleInput?.focus?.();
+  }
+
+  function focusPriceInput() {
+    if (!state.headerReady) return;
+    refs.priceInput?.focus?.();
+  }
+
+  function updateSupplierContext(book) {
+    renderSaleLineHints(
+      {
+        supplierHintEl: refs.supplierHintEl,
+        purchaseHintEl: refs.purchaseHintEl,
+        sellingHintEl: refs.sellingHintEl,
+      },
+      {
+        supplier: book?.supplier || null,
+        history: book?.history || null,
+        defaults: hintDefaults,
+        formatCurrency: deps.formatCurrency,
+      }
+    );
+  }
+
   function setMessage(text) {
     if (!refs.msgEl) return;
     refs.msgEl.textContent = text || '';
@@ -259,6 +422,163 @@ export function initSaleLineItems(elements = {}, options = {}) {
 
   function clearMessage() {
     setMessage('');
+  }
+
+  function setSupplierOptions(list = []) {
+    state.suppliers = Array.isArray(list)
+      ? list.map((supplier) => normalizeSupplierSnapshot(supplier)).filter(Boolean)
+      : [];
+    renderSupplierOptions();
+    restoreSupplierSelection();
+  }
+
+  function renderSupplierOptions() {
+    if (!refs.supplierSelect) return;
+    const doc = refs.supplierSelect.ownerDocument;
+    const suppliersForRender = getSupplierOptionsWithSnapshots();
+    refs.supplierSelect.innerHTML = '';
+    const placeholder = doc.createElement('option');
+    placeholder.value = '';
+    placeholder.disabled = true;
+    placeholder.textContent = 'Select supplier *';
+    placeholder.selected = !state.selectedSupplier?.id;
+    refs.supplierSelect.appendChild(placeholder);
+    suppliersForRender.forEach((supplier) => {
+      const option = doc.createElement('option');
+      option.value = supplier.id;
+      option.textContent = buildSupplierLabel(supplier);
+      option.dataset.name = supplier.name;
+      option.dataset.location = supplier.location;
+      refs.supplierSelect.appendChild(option);
+    });
+  }
+
+  function restoreSupplierSelection() {
+    if (!refs.supplierSelect) return;
+    const targetSupplier =
+      (state.selectedSupplier?.id && findSupplierById(state.selectedSupplier.id)) ||
+      (state.bookSupplierSnapshot?.id && findSupplierById(state.bookSupplierSnapshot.id)) ||
+      null;
+    if (targetSupplier?.id) {
+      refs.supplierSelect.value = targetSupplier.id;
+      state.selectedSupplier = normalizeSupplierSnapshot(targetSupplier);
+    } else {
+      refs.supplierSelect.value = '';
+      if (!state.selectedSupplier?.id) {
+        state.selectedSupplier = null;
+      }
+    }
+    updateAddButtonState();
+  }
+
+  function handleSupplierChange() {
+    if (!refs.supplierSelect) return;
+    const selectedId = refs.supplierSelect.value;
+    if (!selectedId) {
+      state.selectedSupplier = null;
+      updateAddButtonState();
+      return;
+    }
+    const supplier =
+      findSupplierById(selectedId) ||
+      (state.bookSupplierSnapshot?.id === selectedId ? state.bookSupplierSnapshot : null);
+    state.selectedSupplier = supplier ? normalizeSupplierSnapshot(supplier) : null;
+    clearMessage();
+    updateAddButtonState();
+  }
+
+  function setSupplierSelection(supplier, options = {}) {
+    const normalized = normalizeSupplierSnapshot(supplier);
+    state.selectedSupplier = normalized;
+    if (normalized?.id) {
+      ensureSupplierOption(normalized);
+      refs.supplierSelect.value = normalized.id;
+    } else if (refs.supplierSelect) {
+      refs.supplierSelect.value = '';
+    }
+    if (!options.silent) {
+      updateAddButtonState();
+    }
+  }
+
+  function clearSupplierSelection(options = {}) {
+    const { keepBookSnapshot = false, silent = false } = options;
+    if (!keepBookSnapshot) {
+      state.bookSupplierSnapshot = null;
+    }
+    state.selectedSupplier = null;
+    if (refs.supplierSelect) {
+      refs.supplierSelect.value = '';
+    }
+    if (!silent) {
+      updateAddButtonState();
+    }
+  }
+
+  function findSupplierById(id) {
+    if (!id) return null;
+    return getSupplierOptionsWithSnapshots().find((supplier) => supplier.id === id) || null;
+  }
+
+  function getSupplierOptionsWithSnapshots() {
+    const map = new Map();
+    const addSupplier = (supplier) => {
+      const normalized = normalizeSupplierSnapshot(supplier);
+      if (!normalized?.id || map.has(normalized.id)) {
+        return;
+      }
+      map.set(normalized.id, normalized);
+    };
+    state.suppliers.forEach(addSupplier);
+    addSupplier(state.bookSupplierSnapshot);
+    addSupplier(state.selectedSupplier);
+    return Array.from(map.values());
+  }
+
+  function ensureSupplierOption(supplier) {
+    if (!refs.supplierSelect) return false;
+    if (!supplier?.id) return false;
+    const exists = Array.from(refs.supplierSelect.options || []).some(
+      (option) => option.value === supplier.id
+    );
+    if (exists) {
+      return true;
+    }
+    const option = refs.supplierSelect.ownerDocument.createElement('option');
+    option.value = supplier.id;
+    option.textContent = buildSupplierLabel(supplier);
+    option.dataset.name = supplier.name;
+    option.dataset.location = supplier.location;
+    refs.supplierSelect.appendChild(option);
+    return true;
+  }
+
+  function buildSupplierLabel(supplier) {
+    if (!supplier) return 'Unknown supplier';
+    const name = supplier.name || 'Unknown supplier';
+    return supplier.location ? `${name} — ${supplier.location}` : name;
+  }
+
+  function resetBookSummaryContent() {
+    refs.selectedBookSummary.textContent = defaultSummary;
+    refs.selectedBookSummary.dataset.empty = 'true';
+    clearBookSummaryDataset();
+  }
+
+  function clearBookSummaryDataset() {
+    delete refs.selectedBookSummary.dataset.bookHistory;
+    delete refs.selectedBookSummary.dataset.supplierId;
+    delete refs.selectedBookSummary.dataset.supplierName;
+    delete refs.selectedBookSummary.dataset.supplierLocation;
+  }
+
+  function setDraftLabelText(title) {
+    if (!refs.draftLabelEl) return;
+    if (title) {
+      refs.draftLabelEl.textContent = `Selected: ${title}`;
+    } else {
+      refs.draftLabelEl.textContent = defaultDraftLabelText;
+    }
   }
 }
 
@@ -299,6 +619,7 @@ function normalizeBookSnapshot(book) {
     id: String(book.id),
     title: compactText(book.title ?? ''),
     supplier,
+    history: normalizeHistory(book.history),
   };
 }
 
@@ -313,18 +634,38 @@ function normalizeSupplierSnapshot(supplier) {
   };
 }
 
-  function normalizeSellingPrice(value) {
-    const trimmed = String(value ?? '').trim();
-    if (!trimmed) return null;
-    if (!PRICE_PATTERN.test(trimmed)) {
-      return null;
-    }
-    const parsed = Number(trimmed);
-    if (!Number.isFinite(parsed) || parsed <= 0) {
-      return null;
-    }
-    return Number(parsed);
+function normalizeSellingPrice(value) {
+  const trimmed = String(value ?? '').trim();
+  if (!trimmed) return null;
+  if (!PRICE_PATTERN.test(trimmed)) {
+    return null;
   }
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return null;
+  }
+  return Number(parsed);
+}
+
+function normalizeHistory(history = null) {
+  if (!history) return null;
+  const purchase =
+    history.purchasePrice != null && !Number.isNaN(Number(history.purchasePrice))
+      ? Number(history.purchasePrice)
+      : null;
+  const selling =
+    history.lastSellingPrice != null && !Number.isNaN(Number(history.lastSellingPrice))
+      ? Number(history.lastSellingPrice)
+      : null;
+  if (purchase == null && selling == null) {
+    return null;
+  }
+  return {
+    purchasePrice: purchase,
+    lastSellingPrice: selling,
+    currency: history.currency || '₹',
+  };
+}
 
 function resolveTimestamp(factory) {
   if (typeof factory === 'function') {
@@ -345,9 +686,18 @@ function formatCurrencyFallback(amount) {
   return `₹${number.toFixed(2)}`;
 }
 
+function safeParseJson(value) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
 function hasRequiredRefs(refs) {
   return Boolean(
     refs.draftForm &&
+      refs.supplierSelect &&
       refs.selectedBookSummary &&
       refs.bookIdInput &&
       refs.priceInput &&
@@ -357,4 +707,25 @@ function hasRequiredRefs(refs) {
       refs.totalsCountEl &&
       refs.totalsAmountEl
   );
+}
+
+function buildHeaderState(state) {
+  if (
+    state &&
+    typeof state.isReady === 'function' &&
+    typeof state.onReadyChange === 'function'
+  ) {
+    return state;
+  }
+  return {
+    isReady: () => false,
+    onReadyChange: () => () => {},
+  };
+}
+
+function resolveHeaderReady(state) {
+  if (state && typeof state.isReady === 'function') {
+    return Boolean(state.isReady());
+  }
+  return false;
 }

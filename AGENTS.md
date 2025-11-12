@@ -101,6 +101,7 @@ codex-tdd reads from `codex_output/topics.json`, locates the chosen Topic ID, an
 
    * `/tests/spec/<area>/{SpecId}_{Title}.spec.js`
    * `/tests/unit/<module>/{SpecId}_*.test.js`
+   * For wiring-level coverage, add jsdom-based integration specs that load the real entry bundle/HTML (e.g., `/tests/spec/integration/{SpecId}_*.spec.js`) so Codex can verify modules are initialized on the actual page, not only in lightweight harnesses.
 4. Create minimal fixtures under `/tests/fixtures`.
 5. Ensure tests fail **only by assertion**.
 6. Run RED validation:
@@ -304,6 +305,7 @@ Runs after codex-process-review passes. Reads topic metadata, commit diffs, and 
    * Duplication or deep nesting
    * Reusable abstractions
    * Semantic HTML and accessibility
+   * Wiring completeness — verify that new modules/components are actually imported and initialized in the production entry points (e.g., `scripts/admin/main.js`, page templates) and not only exercised via harness tests.
 4. Identify improvement opportunities and summarize strengths.
 
 **Output**
@@ -362,4 +364,3 @@ tests/
 ---
 
 **End of AGENTS.md**
-

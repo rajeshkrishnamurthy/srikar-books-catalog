@@ -45,6 +45,30 @@
       "when": "buildSaleHeaderPayload is invoked with customer + date input.",
       "then": "It trims strings, copies customer metadata, keeps the dd-mon-yy display string, normalizes the date to ISO/UTC strings, and stamps createdAt/updatedAt values for Firestore writes.",
       "test": "/tests/unit/admin/F08-TP1-001_SaleHeaderPayload.test.js"
+    },
+    {
+      "id": "F08-TP1-006",
+      "title": "CustomerLookupRowSelectedState",
+      "given": "A customer appears in the lookup results.",
+      "when": "An admin clicks Select.",
+      "then": "The row shows a persistent Selected chip (replacing the button) and exposes a selected state so the admin can see which customer was chosen.",
+      "test": "/tests/spec/admin/F08-TP1-006_CustomerLookupSelectionState.spec.js"
+    },
+    {
+      "id": "F08-TP1-007",
+      "title": "SaleHeaderSummaryChip",
+      "given": "A customer is selected.",
+      "when": "The sale header summary updates.",
+      "then": "It lists the customer name, WhatsApp, city, and a Change customer control to reinforce the captured state.",
+      "test": "/tests/spec/admin/F08-TP1-007_SaleHeaderSummaryChip.spec.js"
+    },
+    {
+      "id": "F08-TP1-008",
+      "title": "SaleHeaderButtonCopy",
+      "given": "The header CTA renders.",
+      "when": "The header submits successfully.",
+      "then": "The button text reads “Start line items” and the success message says “Header saved—add books below,” reinforcing the workflow copy.",
+      "test": "/tests/spec/admin/F08-TP1-008_SaleHeaderButtonCopy.spec.js"
     }
   ],
   "fixtures": [
@@ -56,21 +80,28 @@
   },
   "validation": {
     "command": "npm test -- --watchAll=false --bail=0",
+    "status": "GREEN",
     "report": "codex_output/reports/F08-TP1_green.txt",
     "summary": {
       "result": "passed",
-      "details": "GREEN suite: npm test -- --watchAll=false --bail=0 (see codex_output/reports/F08-TP1_green.txt). All F08-TP1 specs now emit sale header payloads, enforce dd-mon-yy validation, and gate the continue button correctly."
+      "details": "Sale header lookup chips, summary contact details, and Start line items CTA copy verified alongside legacy F08 scenarios (see codex_output/reports/F08-TP1_green.txt)."
     }
   },
   "changedFiles": [
     "scripts/admin/salesHeader.js",
+    "scripts/admin/customerLookup.js",
     "tests/fixtures/salesHeaderHarness.js",
     "tests/spec/admin/F08-TP1-001_SaleHeaderRequiresCustomer.spec.js",
     "tests/spec/admin/F08-TP1-002_SaleHeaderRequiresDate.spec.js",
     "tests/spec/admin/F08-TP1-003_SaleHeaderEmitsPayload.spec.js",
     "tests/spec/admin/F08-TP1-004_SaleHeaderLocksLineItems.spec.js",
+    "tests/spec/admin/F08-TP1-005_CustomerLookupSelectionState.spec.js",
+    "tests/spec/admin/F08-TP1-006_CustomerLookupSelectionState.spec.js",
+    "tests/spec/admin/F08-TP1-007_SaleHeaderSummaryChip.spec.js",
+    "tests/spec/admin/F08-TP1-008_SaleHeaderButtonCopy.spec.js",
     "tests/unit/admin/F08-TP1-001_SaleHeaderPayload.test.js",
-    "codex_output/reports/F08-TP1_green.txt"
+    "codex_output/reports/F08-TP1_green.txt",
+    "codex_output/specs/F08-TP1.json"
   ],
   "changeNotes": [
     "Scaffolded salesHeader module placeholder so Jest can import it.",
@@ -83,7 +114,9 @@
     "Cloned server timestamps so createdAt/updatedAt no longer share a mutable Date instance and allowed already parsed sale-date state to flow into buildSaleHeaderPayload to keep parsing logic single-sourced.",
     "Clock helpers accept a todayIso override and the ahead-of-UTC spec now injects it so timezone differences no longer break the Jest suite.",
     "Captured the customer lookup disposer, made the inline message element mandatory, gave the harness an offSelect/cleanup path, and fed dd-mon-yy data into the \"requires customer\" spec so date parsing stays realistic.",
-    "Hydrated sale-header state from preloaded DOM values and merged custom clock overrides so todayIso-only injections keep future-date gating accurate without user re-entry."
+    "Hydrated sale-header state from preloaded DOM values and merged custom clock overrides so todayIso-only injections keep future-date gating accurate without user re-entry.",
+    "Lookup rows now store dataset state, swap the Select button for a Selected chip, and expose accessible chips so admins always see which customer is active.",
+    "Sale header summary renders name/location/WhatsApp metadata, adds a Change customer button that bubbles a salesHeader:changeCustomer event, and updates CTA/success copy to the approved \"Start line items\" and \"Header saved—add books below\" wording."
   ],
   "notes": "Sale header UI must integrate with the existing customer lookup widget, block access to sale line items until both customer and sale date are present, emit normalized metadata for downstream persistence, and reset itself after a header is captured."
 }

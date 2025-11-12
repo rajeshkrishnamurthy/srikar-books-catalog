@@ -43,12 +43,18 @@ export function initSaleHeader(elements = {}, options = {}) {
 
   const defaultSummary = resolveDefaultSummary();
   refs.customerSummary.dataset.defaultSummary = defaultSummary;
+  if (!refs.customerSummary.textContent) {
+    refs.customerSummary.textContent = defaultSummary;
+  }
+  refs.continueBtn.textContent = 'Start line items';
   refs.continueBtn.disabled = true;
 
   const state = {
     customer: null,
     saleDate: parseSaleDate(refs.saleDateInput.value),
   };
+  let changeCustomerButton = null;
+  let detachChangeCustomerButton = null;
 
   hydrateInitialCustomer();
 
@@ -90,6 +96,7 @@ export function initSaleHeader(elements = {}, options = {}) {
   return {
     reset: () => resetHeader(),
     dispose: () => {
+      removeChangeCustomerButton();
       while (teardown.length) {
         const cleanup = teardown.pop();
         try {
@@ -121,7 +128,7 @@ export function initSaleHeader(elements = {}, options = {}) {
       serverTimestamp: deps.serverTimestamp,
     });
     deps.onHeaderReady(payload);
-    setMessage('Sale header captured. You can add line items now.');
+    setMessage('Header saved—add books below.');
     resetHeader({ clearMessage: false });
   }
 
@@ -130,14 +137,12 @@ export function initSaleHeader(elements = {}, options = {}) {
     state.customer = normalized;
     if (!normalized) {
       refs.customerIdInput.value = '';
-      refs.customerSummary.textContent = defaultSummary;
-      refs.customerSummary.dataset.empty = 'true';
+      renderCustomerSummary(null);
       updateContinueState();
       return;
     }
     refs.customerIdInput.value = normalized.id;
-    refs.customerSummary.textContent = buildSummaryText(normalized, defaultSummary);
-    refs.customerSummary.dataset.empty = 'false';
+    renderCustomerSummary(normalized);
     clearMessage();
     updateContinueState();
   }
@@ -148,8 +153,7 @@ export function initSaleHeader(elements = {}, options = {}) {
     state.saleDate = parseSaleDate('');
     refs.customerIdInput.value = '';
     refs.saleDateInput.value = '';
-    refs.customerSummary.textContent = defaultSummary;
-    refs.customerSummary.dataset.empty = 'true';
+    renderCustomerSummary(null);
     if (shouldClearMsg) {
       clearMessage();
     }
@@ -191,8 +195,11 @@ export function initSaleHeader(elements = {}, options = {}) {
         dataset.whatsapp ||
         '',
     };
+    const datasetClaimsSelection = dataset.empty === 'false';
     if (!candidate.name && !candidate.location && !candidate.whatsApp) {
-      return null;
+      if (!datasetClaimsSelection) {
+        return null;
+      }
     }
     return candidate;
   }
@@ -224,6 +231,85 @@ export function initSaleHeader(elements = {}, options = {}) {
   function clearMessage() {
     if (!refs.msgEl) return;
     refs.msgEl.textContent = '';
+  }
+
+  function renderCustomerSummary(customer) {
+    if (!refs.customerSummary) return;
+    removeChangeCustomerButton();
+    refs.customerSummary.innerHTML = '';
+    if (!customer) {
+      refs.customerSummary.textContent = defaultSummary;
+      refs.customerSummary.dataset.empty = 'true';
+      clearCustomerSummaryDataset();
+      return;
+    }
+    refs.customerSummary.dataset.empty = 'false';
+    setCustomerSummaryDataset(customer);
+    const nameEl = refs.customerSummary.ownerDocument.createElement('span');
+    nameEl.className = 'customer-summary-name';
+    nameEl.textContent = customer.name || 'Customer selected';
+    refs.customerSummary.appendChild(nameEl);
+
+    const metaParts = [];
+    if (customer.location) metaParts.push(customer.location);
+    const contact = buildCustomerContact(customer);
+    if (contact) metaParts.push(contact);
+    if (metaParts.length) {
+      const metaEl = refs.customerSummary.ownerDocument.createElement('span');
+      metaEl.className = 'customer-summary-meta';
+      metaEl.textContent = metaParts.join(' • ');
+      refs.customerSummary.appendChild(metaEl);
+    }
+    attachChangeCustomerButton();
+  }
+
+  function setCustomerSummaryDataset(customer) {
+    refs.customerSummary.dataset.customerName = customer.name || '';
+    refs.customerSummary.dataset.customerLocation = customer.location || '';
+    refs.customerSummary.dataset.customerWhatsapp = customer.whatsApp || '';
+    refs.customerSummary.dataset.customerWhatsappdigits = customer.whatsAppDigits || '';
+  }
+
+  function clearCustomerSummaryDataset() {
+    delete refs.customerSummary.dataset.customerName;
+    delete refs.customerSummary.dataset.customerLocation;
+    delete refs.customerSummary.dataset.customerWhatsapp;
+    delete refs.customerSummary.dataset.customerWhatsappdigits;
+  }
+
+  function attachChangeCustomerButton() {
+    if (!refs.customerSummary) return;
+    const button = refs.customerSummary.ownerDocument.createElement('button');
+    button.type = 'button';
+    button.textContent = 'Change customer';
+    button.className = 'customer-summary-change';
+    const handler = (event) => {
+      event.preventDefault();
+      refs.customerSummary.dispatchEvent(
+        new CustomEvent('salesHeader:changeCustomer', { bubbles: true })
+      );
+    };
+    button.addEventListener('click', handler);
+    changeCustomerButton = button;
+    detachChangeCustomerButton = () => {
+      button.removeEventListener('click', handler);
+      button.remove();
+      changeCustomerButton = null;
+      detachChangeCustomerButton = null;
+    };
+    refs.customerSummary.appendChild(button);
+  }
+
+  function removeChangeCustomerButton() {
+    if (typeof detachChangeCustomerButton === 'function') {
+      detachChangeCustomerButton();
+      return;
+    }
+    if (changeCustomerButton) {
+      changeCustomerButton.remove();
+      changeCustomerButton = null;
+    }
+    detachChangeCustomerButton = null;
   }
 }
 
@@ -266,9 +352,8 @@ function normalizeCustomer(customer = null) {
   };
 }
 
-function buildSummaryText(customer, fallback) {
-  const parts = [customer.name, customer.location].filter(Boolean);
-  return parts.length ? parts.join(' — ') : fallback;
+function buildCustomerContact(customer) {
+  return customer.whatsApp || customer.whatsAppDigits || '';
 }
 
 function isSaleDateReady(dateState, clock) {
@@ -337,26 +422,27 @@ function buildUtcMidnightIso(dateIso) {
 function hasRequiredRefs(refs = {}) {
   return Boolean(
     refs.form &&
-    refs.saleDateInput &&
-    refs.customerSummary &&
-    refs.customerIdInput &&
-    refs.continueBtn &&
-    refs.msgEl
+      refs.saleDateInput &&
+      refs.customerSummary &&
+      refs.customerIdInput &&
+      refs.continueBtn &&
+      refs.msgEl
   );
 }
 
-  function buildClock(clock) {
-    if (clock && typeof clock === 'object') {
-      const overrides = { ...clock };
-      if (typeof overrides.now !== 'function') {
-        overrides.now = () => new Date();
-      }
-      return overrides;
+function buildClock(clock) {
+  const defaultClock = {
+    now: () => new Date(),
+  };
+  if (clock && typeof clock === 'object') {
+    const overrides = { ...clock };
+    if (typeof overrides.now !== 'function') {
+      overrides.now = defaultClock.now;
     }
-    return {
-      now: () => new Date(),
-    };
+    return overrides;
   }
+  return defaultClock;
+}
 
 function parseSaleDate(value) {
   const raw = sanitizeSaleDateInput(value);
