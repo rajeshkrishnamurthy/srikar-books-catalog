@@ -39,6 +39,13 @@ const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const authError = document.getElementById('authError');
 const signOutBtn = document.getElementById('signOutBtn');
+const adminNav = document.getElementById('adminNav');
+const manageBooksAnchor = document.getElementById('manageBooksAnchor');
+const addBookPanel = document.getElementById('addBookPanel');
+const availableBooksPanel = document.getElementById('availableBooksPanel');
+const soldBooksPanel = document.getElementById('soldBooksPanel');
+const bookRequestsPanel = document.getElementById('bookRequestsPanel');
+const suppliersPanel = document.getElementById('suppliersPanel');
 
 const addForm = document.getElementById('addForm');
 const addMsg = document.getElementById('addMsg');
@@ -126,6 +133,14 @@ adminSearch?.addEventListener('input', () => {
   inventoryApi?.setFilter(adminSearch.value);
 });
 
+adminNav?.addEventListener('click', (event) => {
+  const button = event.target?.closest('button[data-nav]');
+  if (!button) return;
+  const navKey = button.dataset.nav;
+  if (!navKey) return;
+  handleAdminNav(navKey, button);
+});
+
 // --- Authors datalist subscription (single definition) ---
 function subscribeAuthors() {
   const qAuthors = query(collection(db, 'authors'), orderBy('name'));
@@ -168,6 +183,58 @@ function subscribeSuppliersForAdd() {
     },
     (err) => console.error('suppliers select snapshot error:', err)
   );
+}
+
+function handleAdminNav(navKey, button) {
+  if (!navKey || !button) return;
+  setActiveNav(button);
+  switch (navKey) {
+    case 'manageBooks':
+      ensurePanelVisible(addBookPanel);
+      ensurePanelVisible(availableBooksPanel);
+      ensurePanelVisible(soldBooksPanel);
+      scrollPanelIntoView(manageBooksAnchor || addBookPanel);
+      break;
+    case 'recordSale':
+      revealSaleEntryPanel();
+      break;
+    case 'bookRequests':
+      ensurePanelVisible(bookRequestsPanel);
+      scrollPanelIntoView(bookRequestsPanel);
+      break;
+    case 'suppliers':
+      ensurePanelVisible(suppliersPanel);
+      scrollPanelIntoView(suppliersPanel);
+      break;
+    default:
+      break;
+  }
+}
+
+function setActiveNav(activeButton) {
+  if (!adminNav) return;
+  adminNav.querySelectorAll('.admin-nav__item').forEach((btn) => {
+    btn.classList.toggle('is-active', btn === activeButton);
+  });
+}
+
+function ensurePanelVisible(panel) {
+  if (!panel) return;
+  panel.removeAttribute?.('hidden');
+  if (panel.tagName === 'DETAILS') {
+    panel.open = true;
+  }
+}
+
+function scrollPanelIntoView(target) {
+  target?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+}
+
+function revealSaleEntryPanel() {
+  ensurePanelVisible(saleEntryPanel);
+  ensureSaleEntryInitialized();
+  scrollPanelIntoView(saleEntryPanel);
+  saleHeaderSaleDateInput?.focus?.();
 }
 
 initAuth({
