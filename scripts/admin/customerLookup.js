@@ -44,8 +44,9 @@ function notifySelectionCleared(force = false) {
   const searchHandler = (event) => {
     const rawValue = event?.target?.value ?? '';
     const nextQuery = normalizeLookupQuery(rawValue);
+    const clearingQuery = !nextQuery && Boolean(state.query);
 
-    if (state.query !== nextQuery) {
+    if (state.query !== nextQuery && !clearingQuery && nextQuery) {
       notifySelectionCleared();
     }
 
@@ -55,7 +56,7 @@ function notifySelectionCleared(force = false) {
       state.filteredCustomers = [];
       state.filteredQuery = '';
       state.customers = [...state.baseCustomers];
-      state.forceEmptyView = true;
+      state.forceEmptyView = false;
       renderLookupList(refs, state);
       return;
     }
@@ -229,6 +230,7 @@ function buildCustomersFromDocs(docs = []) {
       id: doc?.id || data.id || '',
       name: data.name || '',
       location: data.location || '',
+      address: data.address || '',
       whatsApp: data.whatsApp || '',
       whatsAppDigits: data.whatsAppDigits || '',
     };
@@ -265,39 +267,33 @@ function renderLookupList(refs, state) {
       row.dataset.state = 'idle';
     }
 
-    const nameEl = document.createElement('p');
+    const textWrap = document.createElement('div');
+    textWrap.classList.add('customer-lookup-text');
+
+    const nameEl = document.createElement('span');
     nameEl.classList.add('customer-lookup-name');
     nameEl.appendChild(buildHighlightedNodes(customer.name || '(no name)', state.query));
-    row.appendChild(nameEl);
+    textWrap.appendChild(nameEl);
 
-    const details = [];
-    if (customer.location) details.push(customer.location);
-    if (customer.whatsApp) {
-      details.push(customer.whatsApp);
-    } else if (customer.whatsAppDigits) {
-      details.push(customer.whatsAppDigits);
+    const detailSegments = [];
+    if (customer.location) detailSegments.push(customer.location);
+    if (customer.address) detailSegments.push(customer.address);
+    if (!customer.address && (customer.whatsApp || customer.whatsAppDigits)) {
+      detailSegments.push(customer.whatsApp || customer.whatsAppDigits);
     }
-    if (details.length) {
-      const meta = document.createElement('p');
+    if (detailSegments.length) {
+      const meta = document.createElement('span');
       meta.classList.add('customer-lookup-meta');
-      meta.textContent = details.join(' • ');
-      row.appendChild(meta);
+      meta.textContent = detailSegments.join(' • ');
+      textWrap.appendChild(meta);
     }
+
+    row.appendChild(textWrap);
 
     if (customer.id && !isSelected) {
-      const selectBtn = document.createElement('button');
-      selectBtn.type = 'button';
-      selectBtn.textContent = 'Select';
-      selectBtn.dataset.action = 'select';
-      selectBtn.dataset.customerId = customer.id;
-      selectBtn.classList.add('text-button');
-      row.appendChild(selectBtn);
+      row.appendChild(createSelectButton(row.ownerDocument, customer.id));
     } else if (isSelected) {
-      const chip = document.createElement('span');
-      chip.dataset.role = 'selected-chip';
-      chip.classList.add('customer-lookup-selected-chip');
-      chip.textContent = 'Selected';
-      row.appendChild(chip);
+      row.appendChild(createSelectedChip(row.ownerDocument));
     }
 
     fragment.appendChild(row);
@@ -325,10 +321,7 @@ function setRowAsSelected(row) {
   selectBtn?.remove();
   let chip = row.querySelector('[data-role="selected-chip"]');
   if (!chip) {
-    chip = row.ownerDocument.createElement('span');
-    chip.dataset.role = 'selected-chip';
-    chip.classList.add('customer-lookup-selected-chip');
-    chip.textContent = 'Selected';
+    chip = createSelectedChip(row.ownerDocument);
     row.appendChild(chip);
   }
 }
@@ -340,14 +333,7 @@ function setRowAsIdle(row) {
   const chip = row.querySelector('[data-role="selected-chip"]');
   chip?.remove();
   if (!row.querySelector('button[data-action="select"]')) {
-    const btn = row.ownerDocument.createElement('button');
-    btn.type = 'button';
-    btn.textContent = 'Select';
-    btn.dataset.action = 'select';
-    btn.classList.add('text-button');
-    if (row.dataset.customerId) {
-      btn.dataset.customerId = row.dataset.customerId;
-    }
+    const btn = createSelectButton(row.ownerDocument, row.dataset.customerId);
     row.appendChild(btn);
   }
 }
@@ -359,7 +345,6 @@ function clearSelectedRowUi(listEl) {
     setRowAsIdle(selectedRow);
   }
 }
-
 
 function getRenderableCustomers(state) {
   if (state.query) {
@@ -421,4 +406,25 @@ function clearScheduledLookup(state) {
     clearTimeout(state.debounceHandle);
     state.debounceHandle = null;
   }
+}
+
+function createSelectButton(doc, customerId) {
+  const btn = doc.createElement('button');
+  btn.type = 'button';
+  btn.dataset.action = 'select';
+  btn.classList.add('customer-lookup-select');
+  btn.innerHTML =
+    '<span class="sr-only">Select customer</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.29 6.71a1 1 0 0 1 1.42 0l5 5a1 1 0 0 1 0 1.42l-5 5a1 1 0 0 1-1.42-1.42L13.59 12 9.29 7.71a1 1 0 0 1 0-1.42z"/></svg>';
+  if (customerId) {
+    btn.dataset.customerId = customerId;
+  }
+  return btn;
+}
+
+function createSelectedChip(doc) {
+  const chip = doc.createElement('span');
+  chip.dataset.role = 'selected-chip';
+  chip.classList.add('customer-lookup-selected-chip');
+  chip.textContent = 'Selected';
+  return chip;
 }

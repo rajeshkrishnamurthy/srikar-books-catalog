@@ -23,6 +23,7 @@ export function initSaleHeader(elements = {}, options = {}) {
     saleDateInput: elements.saleDateInput || null,
     customerSummary: elements.customerSummary || null,
     customerIdInput: elements.customerIdInput || null,
+    changeCustomerBtn: elements.changeCustomerBtn || null,
     continueBtn: elements.continueBtn || null,
     msgEl: elements.msgEl || null,
   };
@@ -53,7 +54,8 @@ export function initSaleHeader(elements = {}, options = {}) {
     customer: null,
     saleDate: parseSaleDate(refs.saleDateInput.value),
   };
-  let changeCustomerButton = null;
+  const providedChangeButton = refs.changeCustomerBtn || null;
+  let changeCustomerButton = providedChangeButton || null;
   let detachChangeCustomerButton = null;
 
   hydrateInitialCustomer();
@@ -136,9 +138,7 @@ export function initSaleHeader(elements = {}, options = {}) {
     const normalized = normalizeCustomer(rawCustomer);
     state.customer = normalized;
     if (!normalized) {
-      refs.customerIdInput.value = '';
-      renderCustomerSummary(null);
-      updateContinueState();
+      clearCustomerSelection({ notifyLookup: false });
       return;
     }
     refs.customerIdInput.value = normalized.id;
@@ -149,11 +149,9 @@ export function initSaleHeader(elements = {}, options = {}) {
 
   function resetHeader(options = {}) {
     const { clearMessage: shouldClearMsg = true } = options;
-    state.customer = null;
     state.saleDate = parseSaleDate('');
-    refs.customerIdInput.value = '';
     refs.saleDateInput.value = '';
-    renderCustomerSummary(null);
+    clearCustomerSelection({ notifyLookup: false });
     if (shouldClearMsg) {
       clearMessage();
     }
@@ -233,14 +231,33 @@ export function initSaleHeader(elements = {}, options = {}) {
     refs.msgEl.textContent = '';
   }
 
+  function clearCustomerSelection(options = {}) {
+    const { notifyLookup = false } = options;
+    state.customer = null;
+    refs.customerIdInput.value = '';
+    renderCustomerSummary(null);
+    updateContinueState();
+    if (notifyLookup && deps.lookup && typeof deps.lookup.emit === 'function') {
+      deps.lookup.emit(null);
+    }
+  }
+
   function renderCustomerSummary(customer) {
     if (!refs.customerSummary) return;
+    const shouldPreserveButton =
+      providedChangeButton && providedChangeButton.parentElement === refs.customerSummary;
     removeChangeCustomerButton();
+    if (shouldPreserveButton && providedChangeButton.parentElement === refs.customerSummary) {
+      providedChangeButton.remove();
+    }
     refs.customerSummary.innerHTML = '';
     if (!customer) {
       refs.customerSummary.textContent = defaultSummary;
       refs.customerSummary.dataset.empty = 'true';
       clearCustomerSummaryDataset();
+      if (shouldPreserveButton) {
+        refs.customerSummary.appendChild(providedChangeButton);
+      }
       return;
     }
     refs.customerSummary.dataset.empty = 'false';
@@ -259,6 +276,9 @@ export function initSaleHeader(elements = {}, options = {}) {
       metaEl.className = 'customer-summary-meta';
       metaEl.textContent = metaParts.join(' • ');
       refs.customerSummary.appendChild(metaEl);
+    }
+    if (shouldPreserveButton) {
+      refs.customerSummary.appendChild(providedChangeButton);
     }
     attachChangeCustomerButton();
   }
@@ -279,12 +299,17 @@ export function initSaleHeader(elements = {}, options = {}) {
 
   function attachChangeCustomerButton() {
     if (!refs.customerSummary) return;
-    const button = refs.customerSummary.ownerDocument.createElement('button');
+    const isProvided = Boolean(providedChangeButton);
+    const button =
+      providedChangeButton ||
+      refs.customerSummary.ownerDocument.createElement('button');
     button.type = 'button';
-    button.textContent = 'Change customer';
-    button.className = 'customer-summary-change';
+    button.textContent = button.textContent || 'Change customer';
+    button.className = button.className || 'customer-summary-change';
+    button.hidden = false;
     const handler = (event) => {
       event.preventDefault();
+      clearCustomerSelection({ notifyLookup: true });
       refs.customerSummary.dispatchEvent(
         new CustomEvent('salesHeader:changeCustomer', { bubbles: true })
       );
@@ -293,11 +318,18 @@ export function initSaleHeader(elements = {}, options = {}) {
     changeCustomerButton = button;
     detachChangeCustomerButton = () => {
       button.removeEventListener('click', handler);
-      button.remove();
-      changeCustomerButton = null;
+      if (isProvided) {
+        button.hidden = true;
+        changeCustomerButton = providedChangeButton;
+      } else if (button.isConnected) {
+        button.remove();
+        changeCustomerButton = null;
+      }
       detachChangeCustomerButton = null;
     };
-    refs.customerSummary.appendChild(button);
+    if (!isProvided) {
+      refs.customerSummary.appendChild(button);
+    }
   }
 
   function removeChangeCustomerButton() {
@@ -305,9 +337,12 @@ export function initSaleHeader(elements = {}, options = {}) {
       detachChangeCustomerButton();
       return;
     }
-    if (changeCustomerButton) {
+    if (!providedChangeButton && changeCustomerButton) {
       changeCustomerButton.remove();
       changeCustomerButton = null;
+    }
+    if (providedChangeButton) {
+      providedChangeButton.hidden = true;
     }
     detachChangeCustomerButton = null;
   }
