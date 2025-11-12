@@ -95,7 +95,7 @@ body {
   font-weight: 600;
 }
 .panel summary + * {
-  margin-top: 0.75rem;
+  margin-top: 1.125rem;
 }
 .hint {
   font-size: 0.9rem;
