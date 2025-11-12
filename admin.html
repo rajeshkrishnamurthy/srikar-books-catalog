@@ -275,67 +275,70 @@
           <summary><strong>Record a sale</strong></summary>
           <div class="sale-entry-grid">
             <div>
-              <form id="saleHeaderForm" class="stack">
-                <h3>Sale header</h3>
+              <form id="saleHeaderForm" class="stack sale-header-form">
                 <input type="hidden" id="saleHeaderCustomerId" />
-                <p
-                  id="saleHeaderCustomerSummary"
-                  data-empty="true"
-                  data-default-summary="No customer selected"
-                >
-                  No customer selected
-                </p>
-                <div id="saleCustomerLookup">
-                  <label class="sr-only" for="saleCustomerLookupSearch"
-                    >Search customers</label
-                  >
-                  <input
-                    id="saleCustomerLookupSearch"
-                    type="search"
-                    placeholder="Search customers"
-                    autocomplete="off"
-                  />
-                  <button type="button" id="saleCustomerLookupClear">Clear</button>
-                  <p id="saleCustomerLookupEmpty" class="muted">
-                    Start typing to search customers.
-                  </p>
-                  <ul id="saleCustomerLookupList" class="admin-list"></ul>
-                </div>
-                <label class="sale-date-field">
-                  <span>Sale date</span>
-                  <div class="sale-date-field__controls">
-                    <input
-                      id="saleHeaderSaleDate"
-                      name="saleDate"
-                      type="text"
-                      placeholder="dd-mon-yy"
-                      autocomplete="off"
-                      inputmode="text"
-                      aria-describedby="saleDateHint"
-                    />
-                    <div class="sale-date-picker-trigger">
-                      <svg
-                        class="sale-date-picker-icon"
-                        viewBox="0 0 24 24"
-                        role="presentation"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M7 3a1 1 0 0 1 1 1v1h8V4a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1V4a1 1 0 0 1 1-1zm12 8H5v8h14zm-2-6H7v1a1 1 0 0 1-2 0V5H5a1 1 0 0 0-1 1v3h16V6a1 1 0 0 0-1-1h-.17v1a1 1 0 1 1-2 0z"
-                        />
-                      </svg>
+                <div class="sale-header-row">
+                  <div class="sale-customer-field">
+                    <label class="field-label" for="saleCustomerLookupSearch"
+                      >Customer</label
+                    >
+                    <p
+                      id="saleHeaderCustomerSummary"
+                      class="sale-customer-summary"
+                      data-empty="true"
+                      data-default-summary="No customer selected"
+                    >
+                      No customer selected
+                    </p>
+                    <div id="saleCustomerLookup" class="sale-customer-lookup">
                       <input
-                        type="date"
-                        id="saleHeaderDatePicker"
-                        class="sale-date-picker-input"
-                        aria-label="Pick sale date"
+                        id="saleCustomerLookupSearch"
+                        type="search"
+                        placeholder="Search customers"
+                        autocomplete="off"
                       />
+                      <p id="saleCustomerLookupEmpty" class="muted">
+                        Start typing to search customers.
+                      </p>
+                      <ul id="saleCustomerLookupList" class="admin-list"></ul>
                     </div>
                   </div>
-                  <span id="saleDateHint" class="hint">
-                    Format: dd-mon-yy (e.g., 05-Feb-24)
-                  </span>
-                </label>
+                  <div class="sale-date-field">
+                    <label class="field-label" for="saleHeaderSaleDate">Sale date</label>
+                    <div class="sale-date-field__controls">
+                      <input
+                        id="saleHeaderSaleDate"
+                        name="saleDate"
+                        type="text"
+                        placeholder="dd-mon-yy"
+                        autocomplete="off"
+                        inputmode="text"
+                        aria-describedby="saleDateHint"
+                      />
+                      <div class="sale-date-picker-trigger">
+                        <svg
+                          class="sale-date-picker-icon"
+                          viewBox="0 0 24 24"
+                          role="presentation"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M7 3a1 1 0 0 1 1 1v1h8V4a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1V4a1 1 0 0 1 1-1zm12 8H5v8h14zm-2-6H7v1a1 1 0 0 1-2 0V5H5a1 1 0 0 0-1 1v3h16V6a1 1 0 0 0-1-1h-.17v1a1 1 0 1 1-2 0z"
+                          />
+                        </svg>
+                        <input
+                          type="date"
+                          id="saleHeaderDatePicker"
+                          class="sale-date-picker-input"
+                          aria-label="Pick sale date"
+                        />
+                      </div>
+                    </div>
+                    <span id="saleDateHint" class="hint">
+                      Format: dd-mon-yy (e.g., 05-Feb-24)
+                    </span>
+                  </div>
+                </div>
                 <div class="flex" style="gap: 0.5rem">
                   <button id="saleHeaderContinue" type="submit" class="btn">
                     Capture header
