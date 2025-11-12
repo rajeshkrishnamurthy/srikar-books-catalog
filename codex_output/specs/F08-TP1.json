@@ -1,0 +1,122 @@
+{
+  "topicId": "F08-TP1",
+  "title": "Capture Sale Header",
+  "area": "Admin / Sales Entry",
+  "goal": "Require selecting a customer and sale date before adding sold books.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F08-TP1-001",
+      "title": "RequireCustomerSelection",
+      "given": "An admin opens the sale header form.",
+      "when": "They trigger the customer lookup without choosing anyone.",
+      "then": "Inline errors block submission and the hidden customerId remains empty until a lookup selection populates the summary.",
+      "test": "/tests/spec/admin/F08-TP1-001_SaleHeaderRequiresCustomer.spec.js"
+    },
+    {
+      "id": "F08-TP1-002",
+      "title": "RequireValidSaleDate",
+      "given": "The form is in edit mode with or without a selected customer.",
+      "when": "The admin submits without a date, supplies the wrong format, or picks a future date.",
+      "then": "Validation explains the required dd-mon-yy format (e.g., 10-Feb-24), rejects future dates, and ensures values are normalized to UTC midnight before proceeding.",
+      "test": "/tests/spec/admin/F08-TP1-002_SaleHeaderRequiresDate.spec.js"
+    },
+    {
+      "id": "F08-TP1-003",
+      "title": "EmitNormalizedHeaderPayload",
+      "given": "A customer is selected and the date is valid.",
+      "when": "The admin submits the header.",
+      "then": "onHeaderReady receives a payload with customerId, trimmed summary fields, the original dd-mon-yy display string, a normalized ISO yyyy-mm-dd value, a UTC timestamp at 00:00, and createdAt timestamps.",
+      "test": "/tests/spec/admin/F08-TP1-003_SaleHeaderEmitsPayload.spec.js"
+    },
+    {
+      "id": "F08-TP1-004",
+      "title": "GateLineItemsUntilHeaderValid",
+      "given": "The header controls guard access to the line-item section.",
+      "when": "Customer and date fields change between valid/invalid states.",
+      "then": "The continue button stays disabled until a customer is selected and a dd-mon-yy date passes UTC validation, then disables again and resets after the payload is emitted to prevent duplicate submissions.",
+      "test": "/tests/spec/admin/F08-TP1-004_SaleHeaderLocksLineItems.spec.js"
+    },
+    {
+      "id": "F08-TP1-005",
+      "title": "SaleHeaderPayloadHelper",
+      "given": "Apps need a reusable helper to build sale header documents.",
+      "when": "buildSaleHeaderPayload is invoked with customer + date input.",
+      "then": "It trims strings, copies customer metadata, keeps the dd-mon-yy display string, normalizes the date to ISO/UTC strings, and stamps createdAt/updatedAt values for Firestore writes.",
+      "test": "/tests/unit/admin/F08-TP1-001_SaleHeaderPayload.test.js"
+    },
+    {
+      "id": "F08-TP1-006",
+      "title": "CustomerLookupRowSelectedState",
+      "given": "A customer appears in the lookup results.",
+      "when": "An admin clicks Select.",
+      "then": "The row shows a persistent Selected chip (replacing the button) and exposes a selected state so the admin can see which customer was chosen.",
+      "test": "/tests/spec/admin/F08-TP1-006_CustomerLookupSelectionState.spec.js"
+    },
+    {
+      "id": "F08-TP1-007",
+      "title": "SaleHeaderSummaryChip",
+      "given": "A customer is selected.",
+      "when": "The sale header summary updates.",
+      "then": "It lists the customer name, WhatsApp, city, and a Change customer control to reinforce the captured state.",
+      "test": "/tests/spec/admin/F08-TP1-007_SaleHeaderSummaryChip.spec.js"
+    },
+    {
+      "id": "F08-TP1-008",
+      "title": "SaleHeaderButtonCopy",
+      "given": "The header CTA renders.",
+      "when": "The header submits successfully.",
+      "then": "The button text reads “Start line items” and the success message says “Header saved—add books below,” reinforcing the workflow copy.",
+      "test": "/tests/spec/admin/F08-TP1-008_SaleHeaderButtonCopy.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/salesHeaderHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F08-TP1_red.txt",
+    "green": "codex_output/reports/F08-TP1_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "status": "GREEN",
+    "report": "codex_output/reports/F08-TP1_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Sale header lookup chips, summary contact details, and Start line items CTA copy verified alongside legacy F08 scenarios (see codex_output/reports/F08-TP1_green.txt)."
+    }
+  },
+  "changedFiles": [
+    "scripts/admin/salesHeader.js",
+    "scripts/admin/customerLookup.js",
+    "tests/fixtures/salesHeaderHarness.js",
+    "tests/spec/admin/F08-TP1-001_SaleHeaderRequiresCustomer.spec.js",
+    "tests/spec/admin/F08-TP1-002_SaleHeaderRequiresDate.spec.js",
+    "tests/spec/admin/F08-TP1-003_SaleHeaderEmitsPayload.spec.js",
+    "tests/spec/admin/F08-TP1-004_SaleHeaderLocksLineItems.spec.js",
+    "tests/spec/admin/F08-TP1-005_CustomerLookupSelectionState.spec.js",
+    "tests/spec/admin/F08-TP1-006_CustomerLookupSelectionState.spec.js",
+    "tests/spec/admin/F08-TP1-007_SaleHeaderSummaryChip.spec.js",
+    "tests/spec/admin/F08-TP1-008_SaleHeaderButtonCopy.spec.js",
+    "tests/unit/admin/F08-TP1-001_SaleHeaderPayload.test.js",
+    "codex_output/reports/F08-TP1_green.txt",
+    "codex_output/specs/F08-TP1.json"
+  ],
+  "changeNotes": [
+    "Scaffolded salesHeader module placeholder so Jest can import it.",
+    "Added DOM + lookup harness for sale header interactions.",
+    "Introduced four integration specs covering customer selection, date validation, payload emission, and button gating.",
+    "Created a unit test for the payload helper to ensure UTC timestamps and trimmed customer summary.",
+    "Expanded specs/tests to enforce dd-mon-yy date entry, UTC rollover validation, and display string expectations, including a guard that east-of-UTC calendars are not treated as future dates.",
+    "Implemented dd-mon-yy parsing + future-date tolerance in scripts/admin/salesHeader.js so the continue button only unlocks once customer + valid date are present and inline errors mention the exact format.",
+    "Updated buildSaleHeaderPayload to reuse the parser, preserve the display string, emit ISO/UTC timestamps, and stamp identical createdAt/updatedAt values to satisfy the helper unit test.",
+    "Cloned server timestamps so createdAt/updatedAt no longer share a mutable Date instance and allowed already parsed sale-date state to flow into buildSaleHeaderPayload to keep parsing logic single-sourced.",
+    "Clock helpers accept a todayIso override and the ahead-of-UTC spec now injects it so timezone differences no longer break the Jest suite.",
+    "Captured the customer lookup disposer, made the inline message element mandatory, gave the harness an offSelect/cleanup path, and fed dd-mon-yy data into the \"requires customer\" spec so date parsing stays realistic.",
+    "Hydrated sale-header state from preloaded DOM values and merged custom clock overrides so todayIso-only injections keep future-date gating accurate without user re-entry.",
+    "Lookup rows now store dataset state, swap the Select button for a Selected chip, and expose accessible chips so admins always see which customer is active.",
+    "Sale header summary renders name/location/WhatsApp metadata, adds a Change customer button that bubbles a salesHeader:changeCustomer event, and updates CTA/success copy to the approved \"Start line items\" and \"Header saved—add books below\" wording."
+  ],
+  "notes": "Sale header UI must integrate with the existing customer lookup widget, block access to sale line items until both customer and sale date are present, emit normalized metadata for downstream persistence, and reset itself after a header is captured."
+}

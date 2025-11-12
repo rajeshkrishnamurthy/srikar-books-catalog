@@ -1,0 +1,68 @@
+{
+  "topicId": "F09-TP5",
+  "title": "Inventory Header Entry Point",
+  "area": "Admin / Inventory Header",
+  "goal": "Expose a primary 'Record sale' button beside the search box that opens the multi-book sale experience in one click.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "RED",
+  "specs": [
+    {
+      "id": "F09-TP5-001",
+      "title": "RecordSaleButtonRendersBesideSearch",
+      "given": "An authenticated admin views the inventory header.",
+      "when": "admin.html renders the header actions row.",
+      "then": "A primary button labeled 'Record sale' appears next to the `#adminSearch` input, carries `aria-controls=\"saleEntryPanel\"`, and matches the `.btn` styling.",
+      "test": "/tests/spec/admin/F09-TP5-001_RecordSaleButtonInHeader.spec.js"
+    },
+    {
+      "id": "F09-TP5-002",
+      "title": "ClickOpensSalePanel",
+      "given": "The Record sale button is rendered but the sale panel is collapsed.",
+      "when": "An admin clicks the button.",
+      "then": "The panel opens (sets the `open` attribute), scrolls into view, and focuses the sale header date field so the F08/F09 workflow is ready immediately.",
+      "test": "/tests/spec/admin/F09-TP5-002_ButtonOpensSalePanel.spec.js"
+    },
+    {
+      "id": "F09-TP5-003",
+      "title": "InitializeWorkflowOnce",
+      "given": "The launcher wires up the sale header/line/persist modules.",
+      "when": "The Record sale button is clicked multiple times.",
+      "then": "The provided `startSaleWorkflow` (wrapping initSaleHeader/initSaleLineItems/etc.) runs only on the first activation so modules are not re-instantiated per click.",
+      "test": "/tests/spec/admin/F09-TP5-003_LauncherInitializesWorkflowOnce.spec.js"
+    },
+    {
+      "id": "F09-TP5-004",
+      "title": "PreserveSearchContext",
+      "given": "An admin has typed into `#adminSearch`.",
+      "when": "They launch the Record sale flow using the header button.",
+      "then": "The search field retains its value and the button's `aria-controls` attribute continues to target `saleEntryPanel`, ensuring no context loss for the inventory filter.",
+      "test": "/tests/spec/admin/F09-TP5-004_SearchValuePreserved.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/salesEntryLauncherHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F09-TP5_red.txt",
+    "green": "codex_output/reports/F09-TP5_green.txt"
+  ],
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "status": "RED",
+    "report": "codex_output/reports/F09-TP5_red.txt"
+  },
+  "changedFiles": [
+    "scripts/admin/salesEntryLauncher.js",
+    "tests/fixtures/salesEntryLauncherHarness.js",
+    "tests/spec/admin/F09-TP5-001_RecordSaleButtonInHeader.spec.js",
+    "tests/spec/admin/F09-TP5-002_ButtonOpensSalePanel.spec.js",
+    "tests/spec/admin/F09-TP5-003_LauncherInitializesWorkflowOnce.spec.js",
+    "tests/spec/admin/F09-TP5-004_SearchValuePreserved.spec.js",
+    "codex_output/specs/F09-TP5.json"
+  ],
+  "changeNotes": [
+    "Documented the expectation that admin.html exposes a primary Record sale button adjacent to the search input.",
+    "Defined launcher-level wiring specs/harness to ensure the button opens the sale panel, focuses the header date input, invokes workflow wiring once, and preserves search context."
+  ],
+  "notes": "F09-TP5 ties the existing F08 sale header/line experience into the inventory header. The Record sale button must live next to the search box, control the `saleEntryPanel`, focus the header date field on activation, and rely on a single workflow bootstrap so repeated clicks don’t recreate modules."
+}

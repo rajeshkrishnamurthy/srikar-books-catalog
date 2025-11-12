@@ -50,3 +50,33 @@ Notes:
 - Deduplicate by name + WhatsApp and enforce consistent phone formatting.
 - Editing should warn before clearing required data and keep immutable IDs for references.
 - Lookup service must integrate cleanly with F06-TP3, exposing minimal fields for selection.
+
+# Feature: Sales Entry Management (F08)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F08-TP1 | Capture Sale Header | Require selecting a customer and sale date before adding sold books. | F07-TP1 | An admin launches the Add Sale workflow and customers exist. | They pick a customer and sale date. | The sale form locks those values and blocks progress until both are valid. |
+| F08-TP2 | Add Sale Line Items | Add one line per book sold, storing title, supplier, and selling price. | TP1, F05-TP3, F06-TP1 | The sale header is valid. | The admin searches for books, adds them (allowing duplicates), and enters selling prices. | Each line persists the book reference, supplier snapshot, and validated selling price. |
+| F08-TP3 | Persist Sale and Align UI Copy | Save the sale record and ensure the button label reads "Out of stock". | F08-TP1, F08-TP2 | All validations pass. | The admin submits the sale. | The sale document with header/lines is stored and every prior "Mark as Sold" button label is updated to "Out of stock" without changing inventory automatically. |
+
+Notes:
+- Enforce customer selection and valid sale dates before line items can be added.
+- Line items must show running totals and copy supplier data when a book is chosen.
+- Inventory should not auto-flip yet; only the label changes to "Out of stock" until future inventory rules are defined.
+
+# Feature: Title-Based Sale Line Entry (F09)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F09-TP1 | Title Autocomplete Experience | Make the title picker feel clickable with card-style suggestions, keyboard nav, and selection feedback. | F08-TP2 | An admin is adding a sale line and catalog titles exist. | They type and move through the suggestion list. | Each option renders as a card with badges + caret, hover/focus + aria-selected highlight the active item, selecting a book shows a confirmation chip, fires a “Book selected” toast, moves focus to selling price, and no-match cases keep the line disabled with guidance. |
+| F09-TP2 | Auto-Fill Supplier and Price Context | Auto-populate supplier snapshots plus prior selling/purchase price hints once a title is chosen. | F09-TP1, F05-TP3, F06-TP1 | A book has been chosen via autocomplete and stores supplier/price history. | The draft line resolves the selection. | Supplier info and the most recent purchase/selling prices prefill the row and chip yet stay editable so the admin can confirm the new selling price immediately. |
+| F09-TP3 | Header CTA and Draft Flow Alignment | Rename the header CTA, keep Persist sale disabled, and sync the draft label with the current selection. | F08-TP1, F09-TP1 | The sale header form is visible. | The admin selects customer/date, presses the CTA, or picks a book. | The primary CTA reads “Start line items” beside a disabled Persist sale button plus helper text, unlocks only after both fields validate, flashes “Header saved—add books below” on success, updates #saleLineDraftLabel to “Selected: <Title> — enter selling price,” and reverts/focuses back once the line saves. |
+| F09-TP4 | Customer Selection Feedback | Highlight the chosen customer row and mirror the state in the sale header summary pill. | F07-TP3, F08-TP1 | An admin is using the customer lookup list. | They click Select on a customer and the ID saves. | The row gains a filled background, the button becomes a “Selected” checkmark chip, and #saleHeaderCustomerSummary swaps to the customer’s name/WhatsApp/city with a “Change customer” text button. |
+| F09-TP5 | Sale Panel Access and Visual Hierarchy | Add a primary Record sale entry point and restyle the sale panel with elevated inputs and sticky sections. | F08-TP1, F09-TP1 | The inventory header (search + actions) is visible. | The admin clicks the Record sale button. | The header action matches primary button styling, opens/scroll-focuses the sale modal, inputs use a raised token with outline/glow focus states, sticky headers separate header vs line forms, and icon-backed empty states explain what metadata will auto-fill. |
+
+Notes:
+- Keep autocomplete lightweight (title-only string match) yet visually differentiate suggestions and announce counts for screen readers.
+- Snapshot supplier/purchase/selling price data at selection time but allow overrides without losing the stored snapshot.
+- “Start line items” CTA + helper text must gate book entry until customer/date validate and reflect success via updated copy.
+- Customer selection should always show the confirmed state in both the lookup row and the summary pill, with a quick “Change customer” affordance.
+- The Record sale button plus sale panel styling (raised inputs, sticky headers, empty states) must keep the workflow visible, accessible, and one tap away.
