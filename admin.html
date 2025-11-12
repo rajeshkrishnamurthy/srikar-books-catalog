@@ -44,30 +44,65 @@
 
       <!-- Admin app -->
       <section class="admin" id="admin" style="display: none">
-        <div class="flex between">
-          <h2>Inventory</h2>
-          <div class="flex" style="gap: 0.5rem; align-items: center">
+        <div class="admin-hero">
+          <div>
+            <p class="admin-hero__eyebrow">Srikar’s Books</p>
+            <h2 class="admin-hero__title">Admin workspace</h2>
+          </div>
+          <div class="admin-hero__actions">
+            <label class="sr-only" for="adminSearch">Search inventory</label>
             <input
               id="adminSearch"
               type="search"
               placeholder="Search title or author…"
               aria-label="Search inventory"
             />
-            <button
-              type="button"
-              id="recordSaleBtn"
-              class="btn btn-secondary"
-              aria-controls="saleEntryPanel"
-              aria-expanded="false"
-            >
-              Record sale
-            </button>
             <button id="signOutBtn" class="btn btn-secondary">Sign out</button>
           </div>
         </div>
 
+        <nav class="admin-nav" id="adminNav" aria-label="Admin sections">
+          <button
+            type="button"
+            class="admin-nav__item is-active"
+            data-nav="manageBooks"
+          >
+            <span class="admin-nav__title">Manage books</span>
+            <span class="admin-nav__meta">Add &amp; stock</span>
+          </button>
+          <button
+            type="button"
+            class="admin-nav__item"
+            data-nav="recordSale"
+            id="recordSaleBtn"
+            aria-controls="saleEntryPanel"
+            aria-expanded="false"
+          >
+            <span class="admin-nav__title">Record sale</span>
+            <span class="admin-nav__meta">Multi-book orders</span>
+          </button>
+          <button
+            type="button"
+            class="admin-nav__item"
+            data-nav="bookRequests"
+          >
+            <span class="admin-nav__title">Book requests</span>
+            <span class="admin-nav__meta">Inbox</span>
+          </button>
+          <button
+            type="button"
+            class="admin-nav__item"
+            data-nav="suppliers"
+          >
+            <span class="admin-nav__title">Suppliers</span>
+            <span class="admin-nav__meta">Add &amp; manage</span>
+          </button>
+        </nav>
+
+        <div id="manageBooksAnchor" class="panel-anchor" aria-hidden="true"></div>
+
         <!-- Add book -->
-        <details class="panel" open>
+        <details class="panel" id="addBookPanel" open>
           <summary><strong>Add a book</strong></summary>
 
           <!-- Lookup helper -->
@@ -206,17 +241,17 @@
           </form>
         </details>
 
-        <details class="panel" open>
+        <details class="panel" id="availableBooksPanel" open>
           <summary><strong>Available</strong></summary>
           <div id="availList" class="admin-list"></div>
         </details>
 
-        <details class="panel">
+        <details class="panel" id="soldBooksPanel">
           <summary><strong>Sold</strong></summary>
           <div id="soldList" class="admin-list"></div>
         </details>
 
-        <details class="panel" open>
+        <details class="panel" id="bookRequestsPanel" open>
           <summary><strong>Book Requests</strong></summary>
           <div class="muted" style="margin-bottom: 0.4rem">
             Requests sent from the catalog.
@@ -367,7 +402,7 @@
           </div>
         </details>
 
-        <details class="panel" open>
+        <details class="panel" id="suppliersPanel" open>
           <summary><strong>Suppliers</strong></summary>
           <p class="muted">
             Track trusted suppliers so you can reference their inventory quickly.

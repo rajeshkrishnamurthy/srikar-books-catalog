@@ -12,6 +12,84 @@ body {
   max-width: 420px;
   margin: 2rem auto;
 }
+.admin-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 1.5rem 0 1rem;
+}
+.admin-hero__eyebrow {
+  margin: 0 0 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.admin-hero__title {
+  margin: 0;
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
+}
+.admin-hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+.admin-hero__actions input[type='search'] {
+  width: min(280px, 100%);
+}
+.admin-nav {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  margin-bottom: 0.5rem;
+}
+.admin-nav__item {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 0.85rem 1.1rem;
+  min-width: 170px;
+  text-align: left;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+.admin-nav__item:hover {
+  border-color: var(--brand);
+  transform: translateY(-1px);
+}
+.admin-nav__item:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+.admin-nav__item.is-active {
+  border-color: var(--brand);
+  background: rgba(79, 140, 255, 0.18);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+.admin-nav__title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.admin-nav__meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.panel-anchor {
+  display: block;
+  height: 1px;
+}
+.panel-anchor,
+.panel {
+  scroll-margin-top: 90px;
+}
 .hint {
   font-size: 0.9rem;
   color: var(--muted);
