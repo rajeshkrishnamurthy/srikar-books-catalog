@@ -109,9 +109,43 @@ body {
 .sale-date-field__controls input {
   flex: 1;
 }
-.sale-date-field__button {
+.sale-date-field__controls input[type='text'] {
+  max-width: 170px;
+}
+.sale-date-picker-trigger {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  white-space: nowrap;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.sale-date-picker-trigger:hover {
+  border-color: var(--brand);
+}
+.sale-date-picker-trigger:focus-within {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.sale-date-picker-icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  pointer-events: none;
+}
+.sale-date-picker-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
 }
 .hint {
   font-size: 0.9rem;
