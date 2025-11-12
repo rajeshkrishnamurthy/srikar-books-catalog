@@ -90,6 +90,13 @@ body {
 .panel {
   scroll-margin-top: 90px;
 }
+.panel summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.panel summary + * {
+  margin-top: 0.75rem;
+}
 .hint {
   font-size: 0.9rem;
   color: var(--muted);
