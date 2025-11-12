@@ -86,7 +86,6 @@ const saleHeaderCustomerId = document.getElementById('saleHeaderCustomerId');
 const saleHeaderContinueBtn = document.getElementById('saleHeaderContinue');
 const saleHeaderMsg = document.getElementById('saleHeaderMsg');
 const saleHeaderDatePicker = document.getElementById('saleHeaderDatePicker');
-const saleHeaderDatePickerBtn = document.getElementById('saleHeaderDatePickerBtn');
 const saleCustomerLookupSearch = document.getElementById('saleCustomerLookupSearch');
 const saleCustomerLookupList = document.getElementById('saleCustomerLookupList');
 const saleCustomerLookupEmpty = document.getElementById('saleCustomerLookupEmpty');
@@ -141,15 +140,6 @@ adminNav?.addEventListener('click', (event) => {
   const navKey = button.dataset.nav;
   if (!navKey) return;
   handleAdminNav(navKey, button);
-});
-
-saleHeaderDatePickerBtn?.addEventListener('click', (event) => {
-  event.preventDefault();
-  if (!saleHeaderDatePicker) return;
-  if (!saleHeaderDatePicker.value) {
-    syncPickerFromText();
-  }
-  openNativeDatePicker();
 });
 
 saleHeaderDatePicker?.addEventListener('input', () => {
@@ -266,15 +256,6 @@ function revealSaleEntryPanel() {
   ensureSaleEntryInitialized();
   scrollPanelIntoView(saleEntryPanel);
   saleHeaderSaleDateInput?.focus?.();
-}
-
-function openNativeDatePicker() {
-  if (!saleHeaderDatePicker) return;
-  if (typeof saleHeaderDatePicker.showPicker === 'function') {
-    saleHeaderDatePicker.showPicker();
-  } else {
-    saleHeaderDatePicker.focus();
-  }
 }
 
 const MONTH_MAP = [

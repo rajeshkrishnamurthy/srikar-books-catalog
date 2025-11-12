@@ -313,22 +313,25 @@
                       inputmode="text"
                       aria-describedby="saleDateHint"
                     />
-                    <button
-                      type="button"
-                      id="saleHeaderDatePickerBtn"
-                      class="btn btn-secondary sale-date-field__button"
-                      aria-label="Pick sale date"
-                    >
-                      Pick date
-                    </button>
+                    <div class="sale-date-picker-trigger">
+                      <svg
+                        class="sale-date-picker-icon"
+                        viewBox="0 0 24 24"
+                        role="presentation"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M7 3a1 1 0 0 1 1 1v1h8V4a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1V4a1 1 0 0 1 1-1zm12 8H5v8h14zm-2-6H7v1a1 1 0 0 1-2 0V5H5a1 1 0 0 0-1 1v3h16V6a1 1 0 0 0-1-1h-.17v1a1 1 0 1 1-2 0z"
+                        />
+                      </svg>
+                      <input
+                        type="date"
+                        id="saleHeaderDatePicker"
+                        class="sale-date-picker-input"
+                        aria-label="Pick sale date"
+                      />
+                    </div>
                   </div>
-                  <input
-                    type="date"
-                    id="saleHeaderDatePicker"
-                    class="sr-only"
-                    tabindex="-1"
-                    aria-hidden="true"
-                  />
                   <span id="saleDateHint" class="hint">
                     Format: dd-mon-yy (e.g., 05-Feb-24)
                   </span>
