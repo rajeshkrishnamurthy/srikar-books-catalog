@@ -290,6 +290,14 @@
                     >
                       No customer selected
                     </p>
+                    <button
+                      type="button"
+                      id="saleCustomerChangeBtn"
+                      class="sale-customer-change btn btn-link"
+                      hidden
+                    >
+                      Change customer
+                    </button>
                     <div id="saleCustomerLookup" class="sale-customer-lookup">
                       <input
                         id="saleCustomerLookupSearch"
@@ -307,15 +315,14 @@
                     <label class="field-label" for="saleHeaderSaleDate">Sale date</label>
                     <div class="sale-date-field__controls">
                       <input
-                        id="saleHeaderSaleDate"
-                        name="saleDate"
-                        type="text"
-                        placeholder="dd-mon-yy"
-                        autocomplete="off"
-                        inputmode="text"
-                        aria-describedby="saleDateHint"
-                      />
-                      <div class="sale-date-picker-trigger">
+                      id="saleHeaderSaleDate"
+                      name="saleDate"
+                      type="text"
+                      placeholder="dd-mon-yy"
+                      autocomplete="off"
+                      inputmode="text"
+                    />
+                    <div class="sale-date-picker-trigger">
                         <svg
                           class="sale-date-picker-icon"
                           viewBox="0 0 24 24"
@@ -334,14 +341,11 @@
                         />
                       </div>
                     </div>
-                    <span id="saleDateHint" class="hint">
-                      Format: dd-mon-yy (e.g., 05-Feb-24)
-                    </span>
                   </div>
                 </div>
                 <div class="flex" style="gap: 0.5rem">
                   <button id="saleHeaderContinue" type="submit" class="btn">
-                    Capture header
+                    Start line items
                   </button>
                   <button type="reset" class="btn btn-secondary">Reset</button>
                 </div>

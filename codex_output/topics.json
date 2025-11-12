@@ -185,10 +185,10 @@
           "goal": "Expose a searchable customer list so other workflows (like sales settlement) can pick buyers quickly.",
           "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
           "dependencies": ["F07-TP1"],
-          "given": "An admin is in a workflow that needs to assign a buyer to a sale.",
-          "when": "They search, filter, or paginate through the customer list.",
-          "then": "Matching customer summaries (name, location, WhatsApp) are returned and the selected customer ID is emitted back to the calling workflow.",
-          "notes": "Provide debounced search, highlight exact matches, and coordinate with F06-TP3 so a single selection UI can serve multiple modules."
+          "given": "An admin opens the customer lookup without any filter applied.",
+          "when": "They enter a search term (e.g., name or WhatsApp) and submit/filter.",
+          "then": "Until text is entered the list stays empty with guidance; once a query is provided, only matching customer summaries (name, location, WhatsApp) appear and the selected customer ID is emitted back to the calling workflow.",
+          "notes": "Keep the pre-search state blank with helper text, require at least a few characters before querying, provide debounced search, highlight exact matches, and coordinate with F06-TP3 so a single selection UI can serve multiple modules."
         }
       ]
     },
@@ -290,6 +290,18 @@
         },
         {
           "id": "F09-TP5",
+          "title": "Persistent Customer Selection",
+          "area": "Admin / Sales Entry",
+          "goal": "Ensure a chosen customer remains selected even if the lookup input is cleared, only changing when a new customer is picked.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F09-TP4"],
+          "given": "An admin has successfully selected a customer and sees the summary pill populated.",
+          "when": "They clear the lookup search field or type a new string without confirming another customer.",
+          "then": "The previously selected customer stays locked in (highlight + summary pill intact) until another customer is explicitly selected, with an optional clear-selection control to reset the state.",
+          "notes": "Debounce search input reset so it never wipes the stored selection, show a subtle notice that a customer is already selected, and require an explicit 'Change customer' action before replacing the selection."
+        },
+        {
+          "id": "F09-TP6",
           "title": "Sale Panel Access and Visual Hierarchy",
           "area": "Admin / Inventory Header",
           "goal": "Add a primary Record sale entry point and restyle the sale panel with elevated inputs, sticky sections, and informative empty states.",

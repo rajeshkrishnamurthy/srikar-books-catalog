@@ -31,6 +31,7 @@ export async function createSalesHeaderHarness(options = {}) {
       saleDateInput: dom.saleDateInput,
       customerSummary: dom.customerSummary,
       customerIdInput: dom.customerIdInput,
+      changeCustomerBtn: dom.changeCustomerBtn,
       continueBtn: dom.continueBtn,
       msgEl: dom.msgEl,
     },
@@ -42,6 +43,7 @@ export async function createSalesHeaderHarness(options = {}) {
     form: dom.form,
     saleDateInput: dom.saleDateInput,
     customerSummary: dom.customerSummary,
+    changeCustomerBtn: dom.changeCustomerBtn,
     customerIdInput: dom.customerIdInput,
     continueBtn: dom.continueBtn,
     msgEl: dom.msgEl,
@@ -65,7 +67,10 @@ function buildDom() {
     <section>
       <form id="saleHeaderForm">
         <input type="hidden" id="saleCustomerId" name="customerId" />
-        <div id="saleCustomerSummary" data-empty="true">No customer selected</div>
+        <div id="saleCustomerSummary" data-empty="true">
+          <span id="saleCustomerSummaryText">No customer selected</span>
+          <button type="button" id="saleCustomerChangeBtn" hidden>Change customer</button>
+        </div>
         <button type="button" id="saleCustomerLookupBtn">Find customer</button>
         <label>
           <span class="sr-only">Sale date</span>
@@ -81,6 +86,8 @@ function buildDom() {
     form: document.getElementById('saleHeaderForm'),
     saleDateInput: document.getElementById('saleDateInput'),
     customerSummary: document.getElementById('saleCustomerSummary'),
+    customerSummaryText: document.getElementById('saleCustomerSummaryText'),
+    changeCustomerBtn: document.getElementById('saleCustomerChangeBtn'),
     customerIdInput: document.getElementById('saleCustomerId'),
     continueBtn: document.getElementById('saleHeaderContinue'),
     msgEl: document.getElementById('saleHeaderMsg'),

@@ -176,7 +176,76 @@ body {
   width: 100%;
 }
 .sale-header-row .sale-date-field {
-  flex: 1 1 200px;
+  flex: 1 1 240px;
+  max-width: 320px;
+}
+.customer-lookup-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  margin: 0.25rem 0;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.customer-lookup-row:hover {
+  border-color: var(--brand);
+}
+.customer-lookup-row.selected {
+  border-color: var(--brand);
+  background: rgba(79, 140, 255, 0.15);
+}
+.customer-lookup-text {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+}
+.customer-lookup-name {
+  font-weight: 600;
+}
+.customer-lookup-meta {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.customer-lookup-select {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.customer-lookup-select:hover,
+.customer-lookup-select:focus-visible {
+  color: var(--brand);
+  background: rgba(79, 140, 255, 0.15);
+  outline: none;
+}
+.customer-lookup-select svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+.customer-lookup-selected-chip {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(79, 140, 255, 0.2);
+  color: var(--brand);
+  border: 1px solid rgba(79, 140, 255, 0.5);
 }
 .hint {
   font-size: 0.9rem;

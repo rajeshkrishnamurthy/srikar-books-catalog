@@ -83,6 +83,7 @@ const saleHeaderForm = document.getElementById('saleHeaderForm');
 const saleHeaderSaleDateInput = document.getElementById('saleHeaderSaleDate');
 const saleHeaderCustomerSummary = document.getElementById('saleHeaderCustomerSummary');
 const saleHeaderCustomerId = document.getElementById('saleHeaderCustomerId');
+const saleCustomerChangeBtn = document.getElementById('saleCustomerChangeBtn');
 const saleHeaderContinueBtn = document.getElementById('saleHeaderContinue');
 const saleHeaderMsg = document.getElementById('saleHeaderMsg');
 const saleHeaderDatePicker = document.getElementById('saleHeaderDatePicker');
@@ -572,6 +573,7 @@ function ensureSaleEntryInitialized() {
       saleDateInput: saleHeaderSaleDateInput,
       customerSummary: saleHeaderCustomerSummary,
       customerIdInput: saleHeaderCustomerId,
+      changeCustomerBtn: saleCustomerChangeBtn,
       continueBtn: saleHeaderContinueBtn,
       msgEl: saleHeaderMsg,
     },
