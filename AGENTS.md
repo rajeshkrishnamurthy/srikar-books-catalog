@@ -305,6 +305,7 @@ Runs after codex-process-review passes. Reads topic metadata, commit diffs, and 
    * Duplication or deep nesting
    * Reusable abstractions
    * Semantic HTML and accessibility
+   * Wiring completeness — verify that new modules/components are actually imported and initialized in the production entry points (e.g., `scripts/admin/main.js`, page templates) and not only exercised via harness tests.
 4. Identify improvement opportunities and summarize strengths.
 
 **Output**

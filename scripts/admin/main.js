@@ -13,6 +13,7 @@ import { initSaleLineItems } from './salesLineItems.js';
 import { initSaleTitleAutocomplete } from './salesTitleAutocomplete.js';
 import { initSalePersist } from './salesPersist.js';
 import { initCustomerLookup } from './customerLookup.js';
+import { initSaleEntryLauncher } from './salesEntryLauncher.js';
 import {
   db,
   collection,
@@ -320,25 +321,25 @@ initAuth({
   onSignOut() {
     unsubscribeSuppliers?.();
     unsubscribeSuppliers = null;
-  inventoryApi?.dispose?.();
-  inventoryApi = null;
-  editorApi = null;
-  supplierMasterApi?.dispose?.();
-  supplierMasterApi = null;
-  customerMasterApi?.dispose?.();
-  customerMasterApi = null;
-  saleEntryLauncherApi?.dispose?.();
-  saleEntryLauncherApi = null;
-  disposeSaleEntry?.();
-  disposeSaleEntry = null;
-  saleEntryInitialized = false;
-  saleHeaderApi = null;
-  saleCustomerLookupApi = null;
-  saleLineItemsApi = null;
-  saleTitleAutocompleteApi = null;
-  salePersistApi = null;
-  latestSaleHeaderPayload = null;
-},
+    inventoryApi?.dispose?.();
+    inventoryApi = null;
+    editorApi = null;
+    supplierMasterApi?.dispose?.();
+    supplierMasterApi = null;
+    customerMasterApi?.dispose?.();
+    customerMasterApi = null;
+    saleEntryLauncherApi?.dispose?.();
+    saleEntryLauncherApi = null;
+    disposeSaleEntry?.();
+    disposeSaleEntry = null;
+    saleEntryInitialized = false;
+    saleHeaderApi = null;
+    saleCustomerLookupApi = null;
+    saleLineItemsApi = null;
+    saleTitleAutocompleteApi = null;
+    salePersistApi = null;
+    latestSaleHeaderPayload = null;
+  },
 });
 
 // ---- Search cover image helper ----
