@@ -53,6 +53,15 @@
               placeholder="Search title or author…"
               aria-label="Search inventory"
             />
+            <button
+              type="button"
+              id="recordSaleBtn"
+              class="btn btn-secondary"
+              aria-controls="saleEntryPanel"
+              aria-expanded="false"
+            >
+              Record sale
+            </button>
             <button id="signOutBtn" class="btn btn-secondary">Sign out</button>
           </div>
         </div>
@@ -225,6 +234,127 @@
             <strong>Closed</strong>
           </div>
           <div id="reqClosed" class="admin-list"></div>
+        </details>
+
+        <details class="panel" id="saleEntryPanel" hidden>
+          <summary><strong>Record a sale</strong></summary>
+          <div class="sale-entry-grid">
+            <div>
+              <form id="saleHeaderForm" class="stack">
+                <h3>Sale header</h3>
+                <input type="hidden" id="saleHeaderCustomerId" />
+                <p
+                  id="saleHeaderCustomerSummary"
+                  data-empty="true"
+                  data-default-summary="No customer selected"
+                >
+                  No customer selected
+                </p>
+                <div id="saleCustomerLookup">
+                  <label class="sr-only" for="saleCustomerLookupSearch"
+                    >Search customers</label
+                  >
+                  <input
+                    id="saleCustomerLookupSearch"
+                    type="search"
+                    placeholder="Search customers"
+                    autocomplete="off"
+                  />
+                  <button type="button" id="saleCustomerLookupClear">Clear</button>
+                  <p id="saleCustomerLookupEmpty" class="muted">
+                    Start typing to search customers.
+                  </p>
+                  <ul id="saleCustomerLookupList" class="admin-list"></ul>
+                </div>
+                <label>
+                  Sale date
+                  <input
+                    id="saleHeaderSaleDate"
+                    name="saleDate"
+                    type="text"
+                    placeholder="dd-mon-yy"
+                    autocomplete="off"
+                  />
+                </label>
+                <div class="flex" style="gap: 0.5rem">
+                  <button id="saleHeaderContinue" type="submit" class="btn">
+                    Capture header
+                  </button>
+                  <button type="reset" class="btn btn-secondary">Reset</button>
+                </div>
+                <p id="saleHeaderMsg" class="muted" aria-live="polite"></p>
+              </form>
+            </div>
+
+            <div>
+              <form id="saleLineDraftForm" class="stack">
+                <label id="saleLineDraftLabel" for="saleLineBookTitle">
+                  Add another book
+                </label>
+                <input
+                  id="saleLineBookTitle"
+                  name="saleLineBookTitle"
+                  type="text"
+                  placeholder="Start typing a title"
+                  autocomplete="off"
+                  aria-autocomplete="list"
+                  aria-expanded="false"
+                  aria-controls="saleLineSuggestions"
+                />
+                <ul
+                  id="saleLineSuggestions"
+                  role="listbox"
+                  aria-label="Matching titles"
+                ></ul>
+                <input type="hidden" id="saleLineBookId" name="bookId" value="" />
+                <p
+                  id="saleLineBookSummary"
+                  data-empty="true"
+                  data-default-summary="No book selected"
+                >
+                  No book selected
+                </p>
+                <label>
+                  <span>Selling price</span>
+                  <input
+                    id="saleLinePrice"
+                    name="sellingPrice"
+                    type="text"
+                    autocomplete="off"
+                    inputmode="numeric"
+                  />
+                </label>
+                <button type="submit" id="saleLineAddBtn" class="btn" disabled>
+                  Add line
+                </button>
+                <p id="saleTitleMsg" class="muted" aria-live="polite"></p>
+                <p id="saleLineMsg" class="muted" aria-live="polite"></p>
+              </form>
+              <table class="admin-table">
+                <tbody id="saleLineItemsBody"></tbody>
+              </table>
+              <div id="saleLineContext" class="muted">
+                <p id="saleLineSupplierHint" data-empty="true">Supplier: Not set</p>
+                <p id="saleLinePurchaseHint" data-empty="true">
+                  Purchase price: Not set
+                </p>
+                <p id="saleLineSellingHint" data-empty="true">
+                  Last sold price: Not set
+                </p>
+              </div>
+              <div id="saleLineTotals" class="flex" style="gap: 0.5rem">
+                <span id="saleLineTotalsCount">0 lines</span>
+                <span id="saleLineTotalsAmount">₹0.00</span>
+              </div>
+            </div>
+          </div>
+          <div class="stack" style="margin-top: 1rem">
+            <div class="flex" style="gap: 0.5rem; align-items: center">
+              <button id="salePersistBtn" class="btn">Persist sale</button>
+              <p id="salePersistMsg" class="muted" aria-live="polite"></p>
+            </div>
+            <ul id="saleLineStatusList" class="stack" style="gap: 0.4rem"></ul>
+          </div>
         </details>
 
         <details class="panel" open>

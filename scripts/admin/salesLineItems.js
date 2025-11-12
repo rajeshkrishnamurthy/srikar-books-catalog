@@ -72,6 +72,18 @@ export function initSaleLineItems(elements = {}, options = {}) {
   refs.priceInput.addEventListener('input', priceInputHandler);
   teardown.push(() => refs.priceInput.removeEventListener('input', priceInputHandler));
 
+  const bookIdInputHandler = () => {
+    if (!refs.bookIdInput) return;
+    if (!refs.bookIdInput.value) {
+      state.selectedBook = null;
+      clearBookSummaryDataset();
+      updateSupplierContext(null);
+    }
+    updateAddButtonState();
+  };
+  refs.bookIdInput.addEventListener('input', bookIdInputHandler);
+  teardown.push(() => refs.bookIdInput.removeEventListener('input', bookIdInputHandler));
+
   const submitHandler = (event) => {
     event.preventDefault();
     handleAddLine();
@@ -117,6 +129,7 @@ export function initSaleLineItems(elements = {}, options = {}) {
       }
     },
     resetDraft: () => resetDraft(),
+    clearLines: () => clearLines(),
     getLines: () => [...state.lines],
   };
 
@@ -268,12 +281,7 @@ export function initSaleLineItems(elements = {}, options = {}) {
     const { keepPrice = false } = options;
     state.selectedBook = null;
     refs.bookIdInput.value = '';
-    refs.selectedBookSummary.textContent = defaultSummary;
-    refs.selectedBookSummary.dataset.empty = 'true';
-    delete refs.selectedBookSummary.dataset.bookHistory;
-    delete refs.selectedBookSummary.dataset.supplierId;
-    delete refs.selectedBookSummary.dataset.supplierName;
-    delete refs.selectedBookSummary.dataset.supplierLocation;
+    resetBookSummaryContent();
     if (refs.bookTitleInput) {
       refs.bookTitleInput.value = '';
     }
@@ -289,10 +297,16 @@ export function initSaleLineItems(elements = {}, options = {}) {
     }
   }
 
+  function clearLines() {
+    state.lines = [];
+    refs.lineItemsBody.innerHTML = '';
+    updateTotals();
+  }
+
   function updateAddButtonState() {
     if (!refs.addLineBtn) return;
     const locked = !state.headerReady;
-    const hasBook = Boolean(state.selectedBook?.id);
+    const hasBook = Boolean(state.selectedBook?.id && refs.bookIdInput.value);
     const priceOk = normalizeSellingPrice(refs.priceInput.value) != null;
     refs.addLineBtn.disabled = locked || !(hasBook && priceOk);
   }
@@ -366,6 +380,19 @@ export function initSaleLineItems(elements = {}, options = {}) {
 
   function clearMessage() {
     setMessage('');
+  }
+
+  function resetBookSummaryContent() {
+    refs.selectedBookSummary.textContent = defaultSummary;
+    refs.selectedBookSummary.dataset.empty = 'true';
+    clearBookSummaryDataset();
+  }
+
+  function clearBookSummaryDataset() {
+    delete refs.selectedBookSummary.dataset.bookHistory;
+    delete refs.selectedBookSummary.dataset.supplierId;
+    delete refs.selectedBookSummary.dataset.supplierName;
+    delete refs.selectedBookSummary.dataset.supplierLocation;
   }
 }
 
@@ -504,7 +531,7 @@ function buildHeaderState(state) {
     return state;
   }
   return {
-    isReady: () => true,
+    isReady: () => false,
     onReadyChange: () => () => {},
   };
 }
@@ -513,5 +540,5 @@ function resolveHeaderReady(state) {
   if (state && typeof state.isReady === 'function') {
     return Boolean(state.isReady());
   }
-  return true;
+  return false;
 }

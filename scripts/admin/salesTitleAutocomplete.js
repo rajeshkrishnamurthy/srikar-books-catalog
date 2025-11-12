@@ -30,19 +30,31 @@ export function initSaleTitleAutocomplete(elements = {}, options = {}) {
     activeIndex: -1,
     debounceHandle: null,
     loading: false,
+    hasSelection:
+      (refs.summaryEl?.dataset?.empty || '') === 'false' || Boolean(refs.hiddenInput?.value),
   };
 
   const inputHandler = (event) => {
     const query = String(event?.target?.value ?? '').trim();
     if (!isValidQuery(query)) {
       clearSuggestions();
-      refs.msgEl.textContent = 'Type at least two letters to search titles.';
+      if (refs.msgEl) {
+        refs.msgEl.textContent = 'Type at least two letters to search titles.';
+      }
+      const hadBook = state.hasSelection || Boolean(refs.hiddenInput?.value);
       refs.hiddenInput.value = '';
+      notifyHiddenInputChange();
       refs.summaryEl.textContent = 'No book selected';
       refs.summaryEl.dataset.empty = 'true';
+      if (hadBook) {
+        state.hasSelection = false;
+        deps.onBookSelect(null);
+      }
       return;
     }
-    refs.msgEl.textContent = '';
+    if (refs.msgEl) {
+      refs.msgEl.textContent = '';
+    }
     scheduleLookup(query);
   };
 
@@ -158,12 +170,16 @@ export function initSaleTitleAutocomplete(elements = {}, options = {}) {
     handleSelection(state.filtered[state.activeIndex]);
   }
 
-function handleSelection(entry) {
-  if (!entry) return;
+  function handleSelection(entry) {
+    if (!entry) return;
+    state.hasSelection = true;
     refs.hiddenInput.value = entry.id;
+    notifyHiddenInputChange();
     refs.summaryEl.textContent = entry.title;
     refs.summaryEl.dataset.empty = 'false';
-    refs.msgEl.textContent = '';
+    if (refs.msgEl) {
+      refs.msgEl.textContent = '';
+    }
     deps.onBookSelect(entry.source);
     refs.input.value = entry.title;
     clearSuggestions();
@@ -171,16 +187,22 @@ function handleSelection(entry) {
 
   function handleNoMatch(query) {
     clearSuggestions();
+    const hadBook = state.hasSelection || Boolean(refs.hiddenInput?.value);
     if (refs.msgEl) {
       refs.msgEl.textContent = 'No catalog match found. Try typing letters from the title.';
     }
     if (refs.hiddenInput) {
       refs.hiddenInput.value = '';
+      notifyHiddenInputChange();
     }
     if (refs.summaryEl) {
       refs.summaryEl.textContent = 'No book selected';
       refs.summaryEl.dataset.empty = 'true';
     }
+    if (hadBook) {
+      deps.onBookSelect(null);
+    }
+    state.hasSelection = false;
     if (query) {
       deps.onNoMatch(query);
     }
@@ -190,6 +212,12 @@ function handleSelection(entry) {
     if (refs.msgEl) {
       refs.msgEl.textContent = '';
     }
+  }
+
+  function notifyHiddenInputChange() {
+    if (!refs.hiddenInput) return;
+    const event = new Event('input', { bubbles: true });
+    refs.hiddenInput.dispatchEvent(event);
   }
 }
 

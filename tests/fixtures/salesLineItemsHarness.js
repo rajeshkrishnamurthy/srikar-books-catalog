@@ -48,6 +48,7 @@ export async function createSalesLineItemsHarness(options = {}) {
     draftForm: dom.draftForm,
     draftLabelEl: dom.draftLabelEl,
     bookTitleInput: dom.bookTitleInput,
+    suggestionsList: dom.suggestionsList,
     selectedBookSummary: dom.selectedBookSummary,
     bookIdInput: dom.bookIdInput,
     priceInput: dom.priceInput,
@@ -87,6 +88,7 @@ function buildDom() {
           placeholder="Start typing a title"
           autocomplete="off"
         />
+        <ul id="saleLineBookSuggestions" role="listbox" aria-label="Matching titles"></ul>
         <input type="hidden" id="saleLineBookId" name="bookId" value="">
         <p id="saleLineBookSummary" data-empty="true">No book selected</p>
         <label>
@@ -115,6 +117,7 @@ function buildDom() {
     draftForm: document.getElementById('saleLineDraftForm'),
     draftLabelEl: document.getElementById('saleLineDraftLabel'),
     bookTitleInput: document.getElementById('saleLineBookTitle'),
+    suggestionsList: document.getElementById('saleLineBookSuggestions'),
     selectedBookSummary: document.getElementById('saleLineBookSummary'),
     bookIdInput: document.getElementById('saleLineBookId'),
     priceInput: document.getElementById('saleLinePrice'),

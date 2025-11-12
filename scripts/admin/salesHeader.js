@@ -191,8 +191,11 @@ export function initSaleHeader(elements = {}, options = {}) {
         dataset.whatsapp ||
         '',
     };
+    const datasetClaimsSelection = dataset.empty === 'false';
     if (!candidate.name && !candidate.location && !candidate.whatsApp) {
-      return null;
+      if (!datasetClaimsSelection) {
+        return null;
+      }
     }
     return candidate;
   }
@@ -337,26 +340,27 @@ function buildUtcMidnightIso(dateIso) {
 function hasRequiredRefs(refs = {}) {
   return Boolean(
     refs.form &&
-    refs.saleDateInput &&
-    refs.customerSummary &&
-    refs.customerIdInput &&
-    refs.continueBtn &&
-    refs.msgEl
+      refs.saleDateInput &&
+      refs.customerSummary &&
+      refs.customerIdInput &&
+      refs.continueBtn &&
+      refs.msgEl
   );
 }
 
-  function buildClock(clock) {
-    if (clock && typeof clock === 'object') {
-      const overrides = { ...clock };
-      if (typeof overrides.now !== 'function') {
-        overrides.now = () => new Date();
-      }
-      return overrides;
+function buildClock(clock) {
+  const defaultClock = {
+    now: () => new Date(),
+  };
+  if (clock && typeof clock === 'object') {
+    const overrides = { ...clock };
+    if (typeof overrides.now !== 'function') {
+      overrides.now = defaultClock.now;
     }
-    return {
-      now: () => new Date(),
-    };
+    return overrides;
   }
+  return defaultClock;
+}
 
 function parseSaleDate(value) {
   const raw = sanitizeSaleDateInput(value);

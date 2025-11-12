@@ -101,6 +101,7 @@ codex-tdd reads from `codex_output/topics.json`, locates the chosen Topic ID, an
 
    * `/tests/spec/<area>/{SpecId}_{Title}.spec.js`
    * `/tests/unit/<module>/{SpecId}_*.test.js`
+   * For wiring-level coverage, add jsdom-based integration specs that load the real entry bundle/HTML (e.g., `/tests/spec/integration/{SpecId}_*.spec.js`) so Codex can verify modules are initialized on the actual page, not only in lightweight harnesses.
 4. Create minimal fixtures under `/tests/fixtures`.
 5. Ensure tests fail **only by assertion**.
 6. Run RED validation:
@@ -362,4 +363,3 @@ tests/
 ---
 
 **End of AGENTS.md**
-

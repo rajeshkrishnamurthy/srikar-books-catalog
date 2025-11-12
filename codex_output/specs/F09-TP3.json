@@ -56,6 +56,8 @@
     }
   },
   "changedFiles": [
+    "admin.html",
+    "scripts/admin/main.js",
     "scripts/admin/salesLineItems.js",
     "scripts/admin/salesLineHints.js",
     "tests/fixtures/salesLineItemsHarness.js",

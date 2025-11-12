@@ -8,6 +8,11 @@ import { initRequests } from './requests.js';
 import { initEditor } from './editor.js';
 import { initSupplierMaster } from './suppliers.js';
 import { initCustomerMaster } from './customers.js';
+import { initSaleHeader } from './salesHeader.js';
+import { initSaleLineItems } from './salesLineItems.js';
+import { initSaleTitleAutocomplete } from './salesTitleAutocomplete.js';
+import { initSalePersist } from './salesPersist.js';
+import { initCustomerLookup } from './customerLookup.js';
 import {
   db,
   collection,
@@ -66,12 +71,53 @@ const customerMsg = document.getElementById('customerMsg');
 const customerList = document.getElementById('customerList');
 const customerIdInput = document.getElementById('customerIdInput');
 const customerCancelBtn = document.getElementById('customerCancelBtn');
+const saleHeaderForm = document.getElementById('saleHeaderForm');
+const saleHeaderSaleDateInput = document.getElementById('saleHeaderSaleDate');
+const saleHeaderCustomerSummary = document.getElementById('saleHeaderCustomerSummary');
+const saleHeaderCustomerId = document.getElementById('saleHeaderCustomerId');
+const saleHeaderContinueBtn = document.getElementById('saleHeaderContinue');
+const saleHeaderMsg = document.getElementById('saleHeaderMsg');
+const saleCustomerLookupSearch = document.getElementById('saleCustomerLookupSearch');
+const saleCustomerLookupList = document.getElementById('saleCustomerLookupList');
+const saleCustomerLookupEmpty = document.getElementById('saleCustomerLookupEmpty');
+const saleCustomerLookupClear = document.getElementById('saleCustomerLookupClear');
+const saleLineDraftForm = document.getElementById('saleLineDraftForm');
+const saleLineDraftLabel = document.getElementById('saleLineDraftLabel');
+const saleLineBookTitle = document.getElementById('saleLineBookTitle');
+const saleLineSuggestions = document.getElementById('saleLineSuggestions');
+const saleLineBookIdInput = document.getElementById('saleLineBookId');
+const saleLineSummary = document.getElementById('saleLineBookSummary');
+const saleLinePriceInput = document.getElementById('saleLinePrice');
+const saleLineAddBtn = document.getElementById('saleLineAddBtn');
+const saleTitleMsg = document.getElementById('saleTitleMsg');
+const saleLineMsg = document.getElementById('saleLineMsg');
+const saleLineItemsBody = document.getElementById('saleLineItemsBody');
+const saleLineSupplierHint = document.getElementById('saleLineSupplierHint');
+const saleLinePurchaseHint = document.getElementById('saleLinePurchaseHint');
+const saleLineSellingHint = document.getElementById('saleLineSellingHint');
+const saleLineTotalsCount = document.getElementById('saleLineTotalsCount');
+const saleLineTotalsAmount = document.getElementById('saleLineTotalsAmount');
+const salePersistBtn = document.getElementById('salePersistBtn');
+const salePersistMsg = document.getElementById('salePersistMsg');
+const saleLineStatusList = document.getElementById('saleLineStatusList');
+const saleLineBookTitleMsg = saleTitleMsg;
+const recordSaleBtn = document.getElementById('recordSaleBtn');
+const saleEntryPanel = document.getElementById('saleEntryPanel');
 let inventoryApi = null; // <-- make it visible to the search handler
 let editorApi = null;
 let supplierMasterApi = null;
 let customerMasterApi = null;
+let saleHeaderApi = null;
+let saleCustomerLookupApi = null;
+let saleLineItemsApi = null;
+let saleTitleAutocompleteApi = null;
+let salePersistApi = null;
 let latestSupplierOptions = [];
 let unsubscribeSuppliers = null;
+let disposeSaleEntry = null;
+let latestSaleHeaderPayload = null;
+let saleEntryLauncherApi = null;
+let saleEntryInitialized = false;
 
 adminSearch?.addEventListener('input', () => {
   // guard: before auth, inventoryApi is null and the admin section is hidden anyway
@@ -252,18 +298,47 @@ initAuth({
         serverTimestamp,
       }
     );
+
+    if (recordSaleBtn && saleEntryPanel && saleHeaderSaleDateInput) {
+      saleEntryLauncherApi?.dispose?.();
+      saleEntryLauncherApi = initSaleEntryLauncher(
+        {
+          button: recordSaleBtn,
+          searchInput: adminSearch,
+          panel: saleEntryPanel,
+          focusTarget: saleHeaderSaleDateInput,
+        },
+        {
+          startSaleWorkflow: () => {
+            ensureSaleEntryInitialized();
+          },
+        }
+      );
+    }
+
   },
   onSignOut() {
     unsubscribeSuppliers?.();
     unsubscribeSuppliers = null;
-    inventoryApi?.dispose?.();
-    inventoryApi = null;
-    editorApi = null;
-    supplierMasterApi?.dispose?.();
-    supplierMasterApi = null;
-    customerMasterApi?.dispose?.();
-    customerMasterApi = null;
-  },
+  inventoryApi?.dispose?.();
+  inventoryApi = null;
+  editorApi = null;
+  supplierMasterApi?.dispose?.();
+  supplierMasterApi = null;
+  customerMasterApi?.dispose?.();
+  customerMasterApi = null;
+  saleEntryLauncherApi?.dispose?.();
+  saleEntryLauncherApi = null;
+  disposeSaleEntry?.();
+  disposeSaleEntry = null;
+  saleEntryInitialized = false;
+  saleHeaderApi = null;
+  saleCustomerLookupApi = null;
+  saleLineItemsApi = null;
+  saleTitleAutocompleteApi = null;
+  salePersistApi = null;
+  latestSaleHeaderPayload = null;
+},
 });
 
 // ---- Search cover image helper ----
@@ -287,3 +362,250 @@ function openCoverSearch() {
   window.open(url, '_blank', 'noopener');
 }
 searchCoverBtn?.addEventListener('click', openCoverSearch);
+
+function ensureSaleEntryInitialized() {
+  if (saleEntryInitialized) {
+    return;
+  }
+  saleEntryInitialized = true;
+  if (
+    !saleHeaderForm ||
+    !saleHeaderSaleDateInput ||
+    !saleHeaderCustomerSummary ||
+    !saleHeaderCustomerId ||
+    !saleHeaderContinueBtn ||
+    !saleHeaderMsg ||
+    !saleCustomerLookupSearch ||
+    !saleCustomerLookupList ||
+    !saleCustomerLookupEmpty ||
+    !saleLineDraftForm ||
+    !saleLineDraftLabel ||
+    !saleLineBookTitle ||
+    !saleLineSuggestions ||
+    !saleLineBookIdInput ||
+    !saleLineSummary ||
+    !saleLinePriceInput ||
+    !saleLineAddBtn ||
+    !saleLineMsg ||
+    !saleLineItemsBody ||
+    !saleLineTotalsCount ||
+    !saleLineTotalsAmount ||
+    !salePersistBtn ||
+    !salePersistMsg ||
+    !saleLineStatusList
+  ) {
+    saleEntryInitialized = false;
+    return;
+  }
+
+  disposeSaleEntry?.();
+  const cleanup = [];
+  const headerState = createHeaderStateController();
+  latestSaleHeaderPayload = null;
+
+  const customerBridge = createSelectionBridge();
+  const firebaseDeps = {
+    db,
+    collection,
+    query,
+    where,
+    orderBy,
+    limit,
+    getDocs,
+    onSnapshot,
+  };
+
+  saleCustomerLookupApi = initCustomerLookup(
+    {
+      searchInput: saleCustomerLookupSearch,
+      listEl: saleCustomerLookupList,
+      emptyEl: saleCustomerLookupEmpty,
+      clearBtn: saleCustomerLookupClear,
+    },
+    {
+      onSelect(customer) {
+        customerBridge.emit(customer);
+      },
+    },
+    firebaseDeps
+  );
+
+  saleHeaderApi = initSaleHeader(
+    {
+      form: saleHeaderForm,
+      saleDateInput: saleHeaderSaleDateInput,
+      customerSummary: saleHeaderCustomerSummary,
+      customerIdInput: saleHeaderCustomerId,
+      continueBtn: saleHeaderContinueBtn,
+      msgEl: saleHeaderMsg,
+    },
+    {
+      lookup: customerBridge,
+      onHeaderReady(payload) {
+        latestSaleHeaderPayload = payload;
+        headerState.setReady(true);
+      },
+      serverTimestamp,
+    }
+  );
+
+  const headerResetHandler = () => {
+    latestSaleHeaderPayload = null;
+    headerState.setReady(false);
+  };
+  saleHeaderForm.addEventListener('reset', headerResetHandler);
+  cleanup.push(() => saleHeaderForm.removeEventListener('reset', headerResetHandler));
+
+  const bookBridge = createSelectionBridge();
+  saleTitleAutocompleteApi = initSaleTitleAutocomplete(
+    {
+      input: saleLineBookTitle,
+      list: saleLineSuggestions,
+      hiddenInput: saleLineBookIdInput,
+      summaryEl: saleLineSummary,
+      msgEl: saleLineBookTitleMsg,
+    },
+    {
+      loadBooks: loadSaleBooks,
+      onBookSelect(book) {
+        bookBridge.emit(book);
+      },
+      onNoMatch(query) {
+        console.info('No catalog match for query:', query);
+      },
+    }
+  );
+
+  saleLineItemsApi = initSaleLineItems(
+    {
+      draftForm: saleLineDraftForm,
+      draftLabelEl: saleLineDraftLabel,
+      bookTitleInput: saleLineBookTitle,
+      selectedBookSummary: saleLineSummary,
+      bookIdInput: saleLineBookIdInput,
+      priceInput: saleLinePriceInput,
+      addLineBtn: saleLineAddBtn,
+      msgEl: saleLineMsg,
+      lineItemsBody: saleLineItemsBody,
+      supplierHintEl: saleLineSupplierHint,
+      purchaseHintEl: saleLinePurchaseHint,
+      sellingHintEl: saleLineSellingHint,
+      totalsCountEl: saleLineTotalsCount,
+      totalsAmountEl: saleLineTotalsAmount,
+    },
+    {
+      lookup: bookBridge,
+      formatCurrency: formatSaleCurrency,
+      headerState,
+    }
+  );
+
+  salePersistApi = initSalePersist(
+    {
+      submitBtn: salePersistBtn,
+      msgEl: salePersistMsg,
+      lineStatusList: saleLineStatusList,
+    },
+    {
+      db,
+      collection,
+      addDoc,
+      serverTimestamp,
+      formatCurrency: formatSaleCurrency,
+      getHeaderPayload: () => latestSaleHeaderPayload,
+      getLineItems: () => saleLineItemsApi?.getLines?.() || [],
+      onPersisted() {
+        latestSaleHeaderPayload = null;
+        headerState.setReady(false);
+        saleHeaderForm.reset();
+        saleLineItemsApi?.clearLines?.();
+        saleLineItemsApi?.resetDraft?.();
+      },
+    }
+  );
+
+  disposeSaleEntry = () => {
+    cleanup.forEach((fn) => {
+      try {
+        fn();
+      } catch (error) {
+        console.error('sale entry cleanup error', error);
+      }
+    });
+    saleHeaderApi?.dispose?.();
+    saleCustomerLookupApi?.dispose?.();
+    saleLineItemsApi?.dispose?.();
+    saleTitleAutocompleteApi?.dispose?.();
+    salePersistApi?.dispose?.();
+  };
+}
+
+async function loadSaleBooks() {
+  try {
+    const booksRef = collection(db, 'books');
+    const queryRef =
+      typeof query === 'function' && typeof orderBy === 'function' && typeof limit === 'function'
+        ? query(booksRef, orderBy('title'), limit(200))
+        : booksRef;
+    const snapshot = await getDocs(queryRef);
+    return snapshot.docs
+      .map((docSnap) => ({ id: docSnap.id, ...(docSnap.data() || {}) }))
+      .filter((book) => (book.status || 'available') !== 'sold');
+  } catch (error) {
+    console.error('Failed to load catalog titles for sale entry', error);
+    return [];
+  }
+}
+
+function formatSaleCurrency(amount) {
+  const value = Number(amount || 0);
+  if (!Number.isFinite(value)) {
+    return '₹0.00';
+  }
+  return `₹${value.toFixed(2)}`;
+}
+
+function createSelectionBridge() {
+  const listeners = new Set();
+  return {
+    onSelect(cb) {
+      if (typeof cb !== 'function') return () => {};
+      listeners.add(cb);
+      return () => listeners.delete(cb);
+    },
+    offSelect(cb) {
+      listeners.delete(cb);
+    },
+    emit(payload) {
+      listeners.forEach((listener) => {
+        try {
+          listener(payload);
+        } catch (error) {
+          console.error('sale selection listener failed', error);
+        }
+      });
+    },
+  };
+}
+
+function createHeaderStateController() {
+  let ready = false;
+  const listeners = new Set();
+  return {
+    isReady: () => ready,
+    onReadyChange(cb = () => {}) {
+      listeners.add(cb);
+      return () => listeners.delete(cb);
+    },
+    setReady(nextReady) {
+      ready = Boolean(nextReady);
+      listeners.forEach((listener) => {
+        try {
+          listener(ready);
+        } catch (error) {
+          console.error('sale header state listener failed', error);
+        }
+      });
+    },
+  };
+}
