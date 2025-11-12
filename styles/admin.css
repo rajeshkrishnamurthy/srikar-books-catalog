@@ -146,6 +146,37 @@ body {
   opacity: 0;
   cursor: pointer;
 }
+.sale-header-form .field-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.sale-header-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.sale-customer-field {
+  flex: 2 1 320px;
+}
+.sale-customer-summary {
+  margin: 0.2rem 0 0.6rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 0.95rem;
+}
+.sale-customer-summary[data-empty='true'] {
+  color: var(--muted);
+}
+.sale-customer-lookup input {
+  width: 100%;
+}
+.sale-header-row .sale-date-field {
+  flex: 1 1 200px;
 }
 .hint {
   font-size: 0.9rem;

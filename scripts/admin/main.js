@@ -89,7 +89,6 @@ const saleHeaderDatePicker = document.getElementById('saleHeaderDatePicker');
 const saleCustomerLookupSearch = document.getElementById('saleCustomerLookupSearch');
 const saleCustomerLookupList = document.getElementById('saleCustomerLookupList');
 const saleCustomerLookupEmpty = document.getElementById('saleCustomerLookupEmpty');
-const saleCustomerLookupClear = document.getElementById('saleCustomerLookupClear');
 const saleLineDraftForm = document.getElementById('saleLineDraftForm');
 const saleLineDraftLabel = document.getElementById('saleLineDraftLabel');
 const saleLineBookTitle = document.getElementById('saleLineBookTitle');
@@ -558,7 +557,6 @@ function ensureSaleEntryInitialized() {
       searchInput: saleCustomerLookupSearch,
       listEl: saleCustomerLookupList,
       emptyEl: saleCustomerLookupEmpty,
-      clearBtn: saleCustomerLookupClear,
     },
     {
       onSelect(customer) {
