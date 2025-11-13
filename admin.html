@@ -317,10 +317,8 @@
                       id="saleHeaderCustomerSummary"
                       class="sale-customer-summary"
                       data-empty="true"
-                      data-default-summary="No customer selected"
-                    >
-                      No customer selected
-                    </p>
+                      data-default-summary=""
+                    ></p>
                     <div id="saleCustomerLookup" class="sale-customer-lookup">
                       <input
                         id="saleCustomerLookupSearch"
@@ -344,65 +342,86 @@
             </div>
 
             <div>
-              <form id="saleLineDraftForm" class="stack">
-                <label id="saleLineDraftLabel" for="saleLineBookTitle">
+              <form id="saleLineDraftForm" class="stack sale-line-draft">
+                <span id="saleLineDraftLabel" class="sale-line-draft__title">
                   Add another book
-                </label>
-                <input
-                  id="saleLineBookTitle"
-                  name="saleLineBookTitle"
-                  type="text"
-                  placeholder="Start typing a title"
-                  autocomplete="off"
-                  aria-autocomplete="list"
-                  aria-expanded="false"
-                  aria-controls="saleLineSuggestions"
-                />
-                <ul
-                  id="saleLineSuggestions"
-                  role="listbox"
-                  aria-label="Matching titles"
-                ></ul>
-                <label>
-                  Supplier
-                  <select
-                    id="saleLineSupplierSelect"
-                    name="saleLineSupplierId"
-                    required
-                  >
-                    <option value="" selected disabled>Select supplier *</option>
-                  </select>
-                </label>
+                </span>
+                <div class="sale-line-grid">
+                  <div class="sale-line-field sale-line-field--title">
+                    <label class="sale-line-field__label" for="saleLineBookTitle">
+                      Title
+                    </label>
+                    <input
+                      id="saleLineBookTitle"
+                      name="saleLineBookTitle"
+                      type="text"
+                      placeholder="Start typing a title"
+                      autocomplete="off"
+                      aria-autocomplete="list"
+                      aria-expanded="false"
+                      aria-controls="saleLineSuggestions"
+                    />
+                    <ul
+                      id="saleLineSuggestions"
+                      role="listbox"
+                      aria-label="Matching titles"
+                    ></ul>
+                  </div>
+                  <div class="sale-line-field sale-line-field--price">
+                    <label class="sale-line-field__label" for="saleLinePrice">
+                      Selling price
+                    </label>
+                    <input
+                      id="saleLinePrice"
+                      name="sellingPrice"
+                      type="text"
+                      autocomplete="off"
+                      inputmode="numeric"
+                    />
+                  </div>
+                  <div class="sale-line-field sale-line-field--supplier">
+                    <label class="sale-line-field__label" for="saleLineSupplierSelect">
+                      Supplier
+                    </label>
+                    <select
+                      id="saleLineSupplierSelect"
+                      name="saleLineSupplierId"
+                      required
+                    >
+                      <option value="" selected disabled>Select supplier *</option>
+                    </select>
+                  </div>
+                </div>
                 <input type="hidden" id="saleLineBookId" name="bookId" value="" />
                 <p
                   id="saleLineBookSummary"
+                  class="sr-only"
                   data-empty="true"
                   data-default-summary="No book selected"
                 >
                   No book selected
                 </p>
-                <label>
-                  <span>Selling price</span>
-                  <input
-                    id="saleLinePrice"
-                    name="sellingPrice"
-                    type="text"
-                    autocomplete="off"
-                    inputmode="numeric"
-                  />
-                </label>
-                <button
-                  type="submit"
-                  id="saleLineAddBtn"
-                  class="btn btn-ghost sale-line-submit"
-                  disabled
-                >
-                  Submit
-                </button>
+                <div class="sale-line-actions">
+                  <button
+                    type="submit"
+                    id="saleLineAddBtn"
+                    class="btn btn-ghost sale-line-submit"
+                    disabled
+                  >
+                    Submit
+                  </button>
+                </div>
                 <p id="saleTitleMsg" class="muted" aria-live="polite"></p>
                 <p id="saleLineMsg" class="muted" aria-live="polite"></p>
               </form>
-              <table class="admin-table">
+              <table class="admin-table sale-line-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Supplier</th>
+                    <th scope="col" class="numeric">Price</th>
+                  </tr>
+                </thead>
                 <tbody id="saleLineItemsBody"></tbody>
               </table>
               <div id="saleLineContext" class="muted">

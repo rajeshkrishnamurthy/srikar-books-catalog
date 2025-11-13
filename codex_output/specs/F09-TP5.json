@@ -11,7 +11,7 @@
       "title": "ChangeCustomerControlClearsSelection",
       "given": "A customer is already selected and shown in the sale header summary pill.",
       "when": "The admin clicks the explicit Change customer control.",
-      "then": "The summary resets to “No customer selected,” the hidden customerId clears, and the lookup is ready for a new selection.",
+      "then": "The summary resets to an empty state, the hidden customerId clears, and the lookup is ready for a new selection.",
       "test": "/tests/spec/admin/F09-TP5-002_ChangeCustomerClearsSelection.spec.js"
     }
   ],

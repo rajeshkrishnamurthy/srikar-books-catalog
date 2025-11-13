@@ -1,0 +1,39 @@
+{
+  "topicId": "F09-TP7",
+  "title": "Clear Lookup After Selection",
+  "area": "Admin / Sales Entry",
+  "goal": "Automatically reset the customer search field and collapse results after a customer is selected.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "RED",
+  "specs": [
+    {
+      "id": "F09-TP7-001",
+      "title": "LookupClearsAfterSelection",
+      "given": "An admin selects a customer from the lookup list.",
+      "when": "The selection confirmation event fires.",
+      "then": "The search input clears, the results list disappears (helper text returns), and the selection remains locked in the summary pill.",
+      "test": "/tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/customerLookupHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F09-TP7_red.txt",
+    "green": "codex_output/reports/F09-TP7_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --runTestsByPath tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js",
+    "status": "RED",
+    "report": "codex_output/reports/F09-TP7_red.txt"
+  },
+  "changedFiles": [
+    "tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js",
+    "tests/spec/admin/F09-TP7-002_SaleHeaderFocusShifts.spec.js",
+    "codex_output/specs/F09-TP7.json"
+  ],
+  "changeNotes": [
+    "Added a RED test to enforce clearing the customer lookup input/list after a selection, and formally skipped the older focus-shift spec per updated requirements."
+  ],
+  "notes": "Customer lookup should clear its query/results once a selection is made so admins can move on quickly while the previously selected summary stays locked until Change customer is used."
+}

@@ -65,9 +65,7 @@ function buildDom() {
     <section>
       <form id="saleHeaderForm">
         <input type="hidden" id="saleCustomerId" name="customerId" />
-        <div id="saleCustomerSummary" data-empty="true">
-          <span id="saleCustomerSummaryText">No customer selected</span>
-        </div>
+        <div id="saleCustomerSummary" data-empty="true" data-default-summary=""></div>
         <button type="button" id="saleCustomerLookupBtn">Find customer</button>
         <label>
           <span class="sr-only">Sale date</span>
@@ -83,7 +81,6 @@ function buildDom() {
     form: document.getElementById('saleHeaderForm'),
     saleDateInput: document.getElementById('saleDateInput'),
     customerSummary: document.getElementById('saleCustomerSummary'),
-    customerSummaryText: document.getElementById('saleCustomerSummaryText'),
     customerIdInput: document.getElementById('saleCustomerId'),
     continueBtn: document.getElementById('saleHeaderContinue'),
     msgEl: document.getElementById('saleHeaderMsg'),

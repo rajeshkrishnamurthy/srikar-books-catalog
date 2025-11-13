@@ -103,17 +103,17 @@ function buildDom() {
         />
         <ul id="saleLineBookSuggestions" role="listbox" aria-label="Matching titles"></ul>
         <label>
+          <span>Selling price</span>
+          <input id="saleLinePrice" name="sellingPrice" type="text" autocomplete="off" />
+        </label>
+        <label>
           Supplier
           <select id="saleLineSupplierSelect" name="supplierId">
             <option value="" selected disabled>Select supplier *</option>
           </select>
         </label>
         <input type="hidden" id="saleLineBookId" name="bookId" value="">
-        <p id="saleLineBookSummary" data-empty="true">No book selected</p>
-        <label>
-          <span>Selling price</span>
-          <input id="saleLinePrice" name="sellingPrice" type="text" autocomplete="off" />
-        </label>
+        <p id="saleLineBookSummary" class="sr-only" data-empty="true">No book selected</p>
         <button type="submit" id="saleLineAddBtn" class="btn btn-ghost sale-line-submit" disabled>Submit</button>
         <p id="saleLineMsg"></p>
       </form>

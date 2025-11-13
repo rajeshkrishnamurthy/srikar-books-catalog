@@ -125,8 +125,8 @@ const refs = {
       serverTimestamp: deps.serverTimestamp,
     });
     deps.onHeaderReady(payload);
-    setMessage('Header saved—add books below.');
-    resetHeader({ clearMessage: false });
+    clearMessage();
+    refs.continueBtn.disabled = true;
   }
 
   function applyCustomerSelection(rawCustomer) {
@@ -200,15 +200,15 @@ const refs = {
 
   function resolveDefaultSummary() {
     const dataset = refs.customerSummary.dataset || {};
-    if (dataset.defaultSummary) {
-      return dataset.defaultSummary;
+    if (Object.prototype.hasOwnProperty.call(dataset, 'defaultSummary')) {
+      return dataset.defaultSummary || '';
     }
     const hasPreloadedCustomer =
       dataset.empty === 'false' || Boolean(refs.customerIdInput.value);
     if (!hasPreloadedCustomer && refs.customerSummary.textContent) {
       return refs.customerSummary.textContent;
     }
-    return 'No customer selected';
+    return '';
   }
 
   function updateContinueState() {
@@ -236,6 +236,10 @@ const refs = {
     if (notifyLookup && deps.lookup && typeof deps.lookup.emit === 'function') {
       deps.lookup.emit(null);
     }
+  }
+
+  function focusSaleDateInput() {
+    refs.saleDateInput?.focus?.();
   }
 
 function renderCustomerSummary(customer) {

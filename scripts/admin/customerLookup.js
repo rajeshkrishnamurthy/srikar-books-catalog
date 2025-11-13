@@ -104,6 +104,7 @@ export function initCustomerLookup(elements = {}, options = {}, firebaseDeps) {
         whatsAppDigits: selected.whatsAppDigits || '',
       });
       applySelectionStyles(row);
+      resetLookupSearch();
     };
     refs.listEl.addEventListener('click', listClickHandler);
     teardown.push(() => refs.listEl.removeEventListener('click', listClickHandler));
@@ -142,6 +143,16 @@ export function initCustomerLookup(elements = {}, options = {}, firebaseDeps) {
       }
     },
   };
+
+  function resetLookupSearch() {
+    if (!refs.searchInput) return;
+    refs.searchInput.value = '';
+    state.query = '';
+    state.filteredCustomers = [];
+    state.filteredQuery = '';
+    state.forceEmptyView = true;
+    renderLookupList(refs, state);
+  }
 
   function scheduleLookup(keyword) {
     clearScheduledLookup(state);
