@@ -14,6 +14,7 @@ export function initSaleLineItems(elements = {}, options = {}) {
     priceInput: elements.priceInput || null,
     addLineBtn: elements.addLineBtn || null,
     msgEl: elements.msgEl || null,
+    removalStatusEl: elements.removalStatusEl || null,
     lineItemsBody: elements.lineItemsBody || null,
     totalsCountEl: elements.totalsCountEl || null,
     totalsAmountEl: elements.totalsAmountEl || null,
@@ -48,6 +49,8 @@ export function initSaleLineItems(elements = {}, options = {}) {
     lockMessageActive: false,
     suppliers: [],
     selectedSupplier: null,
+    lineEntries: new Map(),
+    removalPendingId: null,
   };
 
   const defaultSummary =
@@ -122,6 +125,7 @@ export function initSaleLineItems(elements = {}, options = {}) {
   applyHeaderLock({ previousReady: state.headerReady });
   updateAddButtonState();
   updateTotals();
+  setRemovalStatus('');
 
   return {
     dispose() {
@@ -311,8 +315,27 @@ export function initSaleLineItems(elements = {}, options = {}) {
     priceCell.className = 'sale-line-book__price numeric';
     priceCell.textContent = deps.formatCurrency(line.sellingPrice);
 
-    row.append(titleCell, supplierCell, priceCell);
+    const actionsCell = document.createElement('td');
+    actionsCell.className = 'sale-line-actions';
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn btn-link sale-line-remove';
+    removeBtn.textContent = 'Remove';
+    removeBtn.setAttribute('aria-label', buildRemoveLabel(line.bookTitle, false));
+    const handleClick = () => handleRemoveClick(line.lineId);
+    removeBtn.addEventListener('click', handleClick);
+    actionsCell.appendChild(removeBtn);
+
+    row.append(titleCell, supplierCell, priceCell, actionsCell);
     refs.lineItemsBody.appendChild(row);
+
+    registerLineEntry(line.lineId, {
+      row,
+      removeBtn,
+      line,
+      dispose: () => removeBtn.removeEventListener('click', handleClick),
+    });
+    updateRemoveControlsLock();
   }
 
   function resetDraft(options = {}) {
@@ -338,6 +361,10 @@ export function initSaleLineItems(elements = {}, options = {}) {
   function clearLines() {
     state.lines = [];
     refs.lineItemsBody.innerHTML = '';
+    state.lineEntries.forEach((_, lineId) => unregisterLineEntry(lineId));
+    state.lineEntries.clear();
+    clearRemovalPending({ silent: true });
+    setRemovalStatus('');
     updateTotals();
   }
 
@@ -360,6 +387,82 @@ export function initSaleLineItems(elements = {}, options = {}) {
       const amountText = deps.formatCurrency(totalAmount);
       refs.totalsAmountEl.textContent = count ? amountText : '';
     }
+  }
+
+  function handleRemoveClick(lineId) {
+    if (!state.headerReady) return;
+    if (!lineId) return;
+    if (state.removalPendingId === lineId) {
+      return;
+    }
+    setRemovalPending(lineId);
+  }
+
+  function setRemovalPending(lineId) {
+    if (!lineId) return;
+    clearRemovalPending({ silent: true });
+    const entry = state.lineEntries.get(lineId);
+    if (!entry) return;
+    state.removalPendingId = lineId;
+    entry.row.dataset.removePending = 'true';
+    entry.removeBtn.textContent = 'Confirm remove';
+    entry.removeBtn.setAttribute('aria-label', buildRemoveLabel(entry.line.bookTitle, true));
+    setRemovalStatus(
+      `Removal pending for "${entry.line.bookTitle || entry.line.bookId || 'selected line'}"`
+    );
+  }
+
+  function clearRemovalPending(options = {}) {
+    const { silent = false } = options;
+    const pendingId = state.removalPendingId;
+    if (!pendingId) {
+      if (!silent) {
+        setRemovalStatus('');
+      }
+      return;
+    }
+    const entry = state.lineEntries.get(pendingId);
+    state.removalPendingId = null;
+    if (entry) {
+      delete entry.row.dataset.removePending;
+      entry.removeBtn.textContent = 'Remove';
+      entry.removeBtn.setAttribute('aria-label', buildRemoveLabel(entry.line.bookTitle, false));
+    }
+    if (!silent) {
+      setRemovalStatus('');
+    }
+  }
+
+  function updateRemoveControlsLock() {
+    const locked = !state.headerReady;
+    state.lineEntries.forEach(({ removeBtn }) => {
+      if (!removeBtn) return;
+      removeBtn.disabled = locked;
+      if (locked) {
+        removeBtn.setAttribute('aria-disabled', 'true');
+      } else {
+        removeBtn.removeAttribute('aria-disabled');
+      }
+    });
+    if (locked) {
+      clearRemovalPending();
+    }
+  }
+
+  function registerLineEntry(lineId, entry) {
+    if (!lineId || !entry) return;
+    state.lineEntries.set(lineId, entry);
+  }
+
+  function unregisterLineEntry(lineId) {
+    if (!lineId) return;
+    const entry = state.lineEntries.get(lineId);
+    if (!entry) return;
+    if (state.removalPendingId === lineId) {
+      clearRemovalPending({ silent: true });
+    }
+    entry.dispose?.();
+    state.lineEntries.delete(lineId);
   }
 
   function applyHeaderLock(options = {}) {
@@ -389,6 +492,7 @@ export function initSaleLineItems(elements = {}, options = {}) {
       focusBookInput();
     }
     updateAddButtonState();
+    updateRemoveControlsLock();
   }
 
   function focusBookInput() {
@@ -408,6 +512,11 @@ export function initSaleLineItems(elements = {}, options = {}) {
 
   function clearMessage() {
     setMessage('');
+  }
+
+  function setRemovalStatus(text) {
+    if (!refs.removalStatusEl) return;
+    refs.removalStatusEl.textContent = text || '';
   }
 
   function setSupplierOptions(list = []) {
@@ -543,6 +652,13 @@ export function initSaleLineItems(elements = {}, options = {}) {
     if (!supplier) return 'Unknown supplier';
     const name = supplier.name || 'Unknown supplier';
     return supplier.location ? `${name} — ${supplier.location}` : name;
+  }
+
+  function buildRemoveLabel(title, confirming) {
+    const safeTitle = title || 'this book';
+    return confirming
+      ? `Confirm remove ${safeTitle} from sale`
+      : `Remove ${safeTitle} from sale`;
   }
 
   function resetBookSummaryContent() {
@@ -718,6 +834,7 @@ function hasRequiredRefs(refs) {
       refs.priceInput &&
       refs.addLineBtn &&
       refs.msgEl &&
+      refs.removalStatusEl &&
       refs.lineItemsBody &&
       refs.totalsCountEl &&
       refs.totalsAmountEl

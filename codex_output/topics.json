@@ -325,6 +325,71 @@
           "notes": "Reuse existing currency-validation helpers, keep keyboard navigation (Tab, Backspace) functional, and announce validation errors to assistive tech users."
         }
       ]
+<<<<<<< Updated upstream
+=======
+    },
+    {
+      "featureId": "F10",
+      "featureTitle": "Inventory Search Experience",
+      "description": "Keep the admin inventory search responsive by surfacing the Available panel results whenever a query is entered.",
+      "topics": [
+        {
+          "id": "F10-TP1",
+          "title": "Header Search Filters Available Panel",
+          "area": "Admin / Inventory",
+          "goal": "Embed the title/author search inside the Available accordion header so admins filter Available results in place with accessible feedback.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "An authenticated admin is on admin.html and sees the Available accordion summary row containing the Search by title or author field.",
+          "when": "They enter at least two characters into the header search (or edit the query) while the Available list is on the page.",
+          "then": "The Available accordion keeps its current open/closed state, filters the list in place, and announces the filtered results via aria-live messaging scoped to the panel without forcing focus or scrolling.",
+          "notes": "The search input, label, and aria-live node move inside the Available summary/header (e.g., `#availableSearchInput`, `#availableSearchLabel`, `#availableSearchStatus`). Keep the <2 character guard scoped to this header search, tie the label/aria-controls to the Available panel, ensure the field is keyboard accessible, and drop the prior debounce, auto-scroll, and reduced-motion behaviors."
+        }
+      ]
+    },
+    {
+      "featureId": "F11",
+      "featureTitle": "Sale Line Item Removal",
+      "description": "Let admins remove mistakenly added books from the Record sale accordion before persisting an order, mirroring common cart/order editing patterns.",
+      "topics": [
+        {
+          "id": "F11-TP1",
+          "title": "Expose Remove Controls Per Line",
+          "area": "Admin / Sales Entry",
+          "goal": "Surface an accessible remove affordance on every sale line row so admins can initiate deletion like they would in commerce order tables.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F09-TP3"],
+          "given": "The Record sale table already lists at least one book line and the sale header is marked ready.",
+          "when": "An admin focuses, hovers, or activates the delete control for a specific line (mouse, keyboard, or touch).",
+          "then": "Each row reveals a trash icon + text button with an aria-label naming the book, uses the same hit target width across desktop/mobile, and triggers a confirmation pattern (inline dialog or two-step button) before removal proceeds.",
+          "notes": "Keep controls visible on focus (not hover-only), announce pending removal via aria-live, and prevent the delete control while the header is locked."
+        },
+        {
+          "id": "F11-TP2",
+          "title": "Remove Line and Recalculate Draft State",
+          "area": "Admin / Sales Entry",
+          "goal": "When removal is confirmed, delete the line from local state, update totals, and reset the draft inputs so another book can be added immediately.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F11-TP1"],
+          "given": "A sale draft contains one or more line items and the admin confirms a removal event for a particular line.",
+          "when": "The removal confirmation completes.",
+          "then": "The line disappears from the table, totals and amount chips recompute, the supplier snapshot/book summary clear if that book was active, focus returns to the book input, and removing the final line resets the draft label plus disables Persist sale until a new line is added.",
+          "notes": "Log the change in the inline status list, reuse the existing draft reset helper, and ensure undo/redo shortcuts do not re-add the line accidentally."
+        },
+        {
+          "id": "F11-TP3",
+          "title": "Persist Clean Payload After Removals",
+          "area": "Admin / Sales Entry",
+          "goal": "Guarantee that Persist sale only sends the currently visible lines and blocks submission if all lines were deleted.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F11-TP2", "F08-TP3"],
+          "given": "One or more lines have been removed (possibly leaving zero lines) and the admin proceeds to Persist sale.",
+          "when": "The Persist sale action runs validation and prepares the Firestore payload.",
+          "then": "Only remaining lines are serialized, removed entries never reach Firestore, Persist sale is disabled with guidance when no lines remain, and the success toast/status list mentions how many line items were ultimately saved.",
+          "notes": "Audit logs should note removed line IDs when available, and integration tests should assert the payload omits deleted lines even if their book IDs still exist in autocomplete history."
+        }
+      ]
+>>>>>>> Stashed changes
     }
   ]
 }

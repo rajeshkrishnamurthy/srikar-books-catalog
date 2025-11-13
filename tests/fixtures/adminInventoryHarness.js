@@ -18,9 +18,20 @@ export async function createAdminInventoryHarness(options = {}) {
     addMsg: null,
     availList: dom.availList,
     soldList: dom.soldList,
+<<<<<<< Updated upstream
   });
 
   return {
+=======
+    availableSearchInput: dom.availableSearchInput,
+    searchStatus: dom.searchStatus,
+  });
+
+  return {
+    scrollIntoViewMock: onScrollIntoView,
+    availablePanel: dom.availablePanel,
+    availableSearchInput: dom.availableSearchInput,
+>>>>>>> Stashed changes
     availList: dom.availList,
     soldList: dom.soldList,
     mocks: firebase.mocks,
@@ -38,12 +49,46 @@ export async function createAdminInventoryHarness(options = {}) {
 
 function buildDom() {
   document.body.innerHTML = `
+<<<<<<< Updated upstream
     <div id="availList"></div>
     <div id="soldList"></div>
+=======
+    <details id="availableBooksPanel" open>
+      <summary>
+        <div class="available-summary">
+          <strong>Available</strong>
+          <label id="availableSearchLabel" class="sr-only" for="availableSearchInput">
+            Search available books
+          </label>
+          <input
+            id="availableSearchInput"
+            type="search"
+            placeholder="Search title or author"
+            aria-labelledby="availableSearchLabel"
+          />
+        </div>
+      </summary>
+      <p id="availableSearchStatus" aria-live="polite" class="sr-only"></p>
+      <div id="availList"></div>
+    </details>
+    <details id="soldBooksPanel">
+      <summary>Sold</summary>
+      <div id="soldList"></div>
+    </details>
+>>>>>>> Stashed changes
   `;
   return {
+<<<<<<< Updated upstream
+=======
+    availablePanel,
+    availableSearchInput: document.getElementById('availableSearchInput'),
+>>>>>>> Stashed changes
     availList: document.getElementById('availList'),
     soldList: document.getElementById('soldList'),
+<<<<<<< Updated upstream
+=======
+    searchStatus: document.getElementById('availableSearchStatus'),
+>>>>>>> Stashed changes
   };
 }
 

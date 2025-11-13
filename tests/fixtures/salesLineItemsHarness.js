@@ -32,9 +32,13 @@ export async function createSalesLineItemsHarness(options = {}) {
       priceInput: dom.priceInput,
       addLineBtn: dom.addLineBtn,
       msgEl: dom.msgEl,
+      removalStatusEl: dom.removalStatusEl,
       lineItemsBody: dom.lineItemsBody,
       totalsCountEl: dom.totalsCountEl,
       totalsAmountEl: dom.totalsAmountEl,
+      statusList: dom.statusList,
+      persistBtn: dom.persistBtn,
+      persistMsg: dom.persistMsg,
     },
     deps
   );
@@ -53,9 +57,13 @@ export async function createSalesLineItemsHarness(options = {}) {
     priceInput: dom.priceInput,
     addLineBtn: dom.addLineBtn,
     msgEl: dom.msgEl,
+    removalStatusEl: dom.removalStatusEl,
     lineItemsBody: dom.lineItemsBody,
     totalsCountEl: dom.totalsCountEl,
     totalsAmountEl: dom.totalsAmountEl,
+    statusList: dom.statusList,
+    persistBtn: dom.persistBtn,
+    persistMsg: dom.persistMsg,
     selectBook(book) {
       lookup.emitSelection(book);
     },
@@ -118,6 +126,12 @@ function buildDom() {
         <span id="saleLineTotalsCount">0 lines</span>
         <span id="saleLineTotalsAmount">₹0.00</span>
       </div>
+      <p id="saleLineRemovalStatus" aria-live="polite" class="sr-only"></p>
+      <div class="persist-controls">
+        <button id="salePersistBtn" type="button">Persist sale</button>
+        <p id="salePersistMsg" class="muted" aria-live="polite"></p>
+      </div>
+      <ul id="saleLineStatusList" class="stack"></ul>
     </section>
   `;
 
@@ -132,9 +146,13 @@ function buildDom() {
     priceInput: document.getElementById('saleLinePrice'),
     addLineBtn: document.getElementById('saleLineAddBtn'),
     msgEl: document.getElementById('saleLineMsg'),
+    removalStatusEl: document.getElementById('saleLineRemovalStatus'),
     lineItemsBody: document.getElementById('saleLineItemsBody'),
     totalsCountEl: document.getElementById('saleLineTotalsCount'),
     totalsAmountEl: document.getElementById('saleLineTotalsAmount'),
+    statusList: document.getElementById('saleLineStatusList'),
+    persistBtn: document.getElementById('salePersistBtn'),
+    persistMsg: document.getElementById('salePersistMsg'),
   };
 }
 
