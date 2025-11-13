@@ -1,8 +1,7 @@
-import { fireEvent } from '@testing-library/dom';
 import { createSalesHeaderHarness } from '../../fixtures/salesHeaderHarness.js';
 
-describe('SPEC F09-TP5-002: Change customer control clears the selection explicitly', () => {
-  test('clicking Change customer resets the summary pill and hidden customer ID', async () => {
+describe('SPEC F09-TP5-002: Selecting a new customer replaces the previous summary', () => {
+  test('choosing another customer overwrites the hidden ID and summary text', async () => {
     const harness = await createSalesHeaderHarness();
     harness.selectCustomer({
       id: 'cust-2',
@@ -13,13 +12,16 @@ describe('SPEC F09-TP5-002: Change customer control clears the selection explici
     expect(harness.customerIdInput.value).toBe('cust-2');
     expect(harness.customerSummary.dataset.empty).toBe('false');
 
-    const changeBtn = harness.changeCustomerBtn;
-    expect(changeBtn).not.toBeNull();
-    changeBtn.hidden = false;
-    fireEvent.click(changeBtn);
+    harness.selectCustomer({
+      id: 'cust-8',
+      name: 'Arnav',
+      location: 'Mumbai',
+      whatsApp: '+91 90000 11111',
+    });
 
-    expect(harness.customerIdInput.value).toBe('');
-    expect(harness.customerSummary.dataset.empty).toBe('true');
-    expect(harness.customerSummary.textContent).toMatch(/No customer selected/i);
+    expect(harness.customerIdInput.value).toBe('cust-8');
+    expect(harness.customerSummary.textContent).toContain('Arnav');
+    expect(harness.customerSummary.textContent).toContain('Mumbai');
+    expect(harness.customerSummary.dataset.empty).toBe('false');
   });
 });

@@ -59,7 +59,7 @@
       "title": "RequireSupplierSelectionAndAllowOverrides",
       "given": "Supplier selection must be captured for each sale line.",
       "when": "The admin clears the supplier dropdown or picks a different supplier.",
-      "then": "Clearing the field disables Add line with an inline supplier error, while choosing another supplier persists that supplier snapshot in the payload.",
+      "then": "Clearing the field disables Submit with an inline supplier error, while choosing another supplier persists that supplier snapshot in the payload.",
       "test": "/tests/spec/admin/F09-TP2-007_SupplierSelectionRequired.spec.js"
     }
   ],
@@ -98,7 +98,7 @@
   "changeNotes": [
     "Hooked salesLineItems into salesLineHints so supplier, purchase, and last-sold context panes hydrate on selection, clear on reset, and never mutate the stored supplier snapshot.",
     "Implemented salesLineHints helpers (render + formatPriceHint) and wired them to use the shared formatCurrency fallback for ₹ amounts and Not set fallbacks.",
-    "Expanded the sales line draft with a required supplier dropdown: the book’s supplier auto-selects, admins can override via the dropdown, clearing it disables Add line with inline messaging, and persisted payloads now carry the chosen supplier snapshot."
+    "Expanded the sales line draft with a required supplier dropdown: the book’s supplier auto-selects, admins can override via the dropdown, clearing it disables Submit with inline messaging, and persisted payloads now carry the chosen supplier snapshot."
   ],
   "notes": "F09-TP2 layers on top of F09-TP1/F08-TP2 by showing immediate supplier + pricing context when a title is chosen. Hints must reflect historical data, clear when the selection is removed, and leave the underlying supplier snapshot untouched so persistence remains reliable."
 }

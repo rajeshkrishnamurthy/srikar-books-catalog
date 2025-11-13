@@ -11,7 +11,7 @@
       "title": "DraftLockedUntilHeaderReady",
       "given": "An admin opens the Add Sale panel but the sale header (customer + date) is still incomplete.",
       "when": "They view the draft sale line row.",
-      "then": "The book title input, price field, and Add line button remain disabled, the inline legend continues to read \"Add another book\", and the inline message reminds them to finish the sale header first.",
+      "then": "The book title input, price field, and Submit button remain disabled, the inline legend continues to read \"Add another book\", and the inline message reminds them to finish the sale header first.",
       "test": "/tests/spec/admin/F09-TP3-001_SaleDraftLockedUntilHeaderReady.spec.js"
     },
     {
@@ -19,7 +19,7 @@
       "title": "HeaderReadyUnlocksDraft",
       "given": "The admin already selected a book and typed a price while the header was still invalid.",
       "when": "The header becomes valid (customer and date captured).",
-      "then": "The draft inputs unlock immediately and the Add line button enables without re-entering book data, proving the gating logic watches the header state.",
+      "then": "The draft inputs unlock immediately and the Submit button enables without re-entering book data, proving the gating logic watches the header state.",
       "test": "/tests/spec/admin/F09-TP3-002_HeaderReadyUnlocksDraft.spec.js"
     },
     {

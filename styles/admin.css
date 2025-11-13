@@ -82,6 +82,23 @@ body {
   font-size: 0.85rem;
   color: var(--muted);
 }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: transparent;
+}
+.sale-line-submit {
+  min-width: 120px;
+  justify-self: flex-start;
+}
 .panel-anchor {
   display: block;
   height: 1px;
@@ -111,6 +128,12 @@ body {
 }
 .sale-date-field__controls input[type='text'] {
   max-width: 170px;
+}
+.sale-date-field--full .sale-date-field__controls {
+  justify-content: flex-start;
+}
+.sale-date-field--full .sale-date-field__controls input[type='text'] {
+  max-width: 160px;
 }
 .sale-date-picker-trigger {
   position: relative;
@@ -163,17 +186,28 @@ body {
 }
 .sale-customer-summary {
   margin: 0.2rem 0 0.6rem;
-  padding: 0.5rem 0.7rem;
+  padding: 0.6rem 0.75rem;
   border: 1px dashed var(--border);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.02);
   font-size: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 .sale-customer-summary[data-empty='true'] {
   color: var(--muted);
 }
 .sale-customer-lookup input {
   width: 100%;
+}
+.customer-summary-name {
+  font-weight: 600;
+  display: block;
+}
+.customer-summary-meta {
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 .sale-header-row .sale-date-field {
   flex: 1 1 240px;
@@ -215,30 +249,6 @@ body {
   text-overflow: ellipsis;
   max-width: 100%;
 }
-.customer-lookup-select {
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: color 0.2s ease, background 0.2s ease;
-}
-.customer-lookup-select:hover,
-.customer-lookup-select:focus-visible {
-  color: var(--brand);
-  background: rgba(79, 140, 255, 0.15);
-  outline: none;
-}
-.customer-lookup-select svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
-}
 .customer-lookup-selected-chip {
   font-size: 0.75rem;
   padding: 0.2rem 0.6rem;
@@ -246,6 +256,9 @@ body {
   background: rgba(79, 140, 255, 0.2);
   color: var(--brand);
   border: 1px solid rgba(79, 140, 255, 0.5);
+}
+.customer-lookup-selected-chip--inline {
+  margin-left: auto;
 }
 .hint {
   font-size: 0.9rem;
