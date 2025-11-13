@@ -93,7 +93,6 @@ const refs = {
   return {
     reset: () => resetHeader(),
     dispose: () => {
-      removeChangeCustomerButton();
       while (teardown.length) {
         const cleanup = teardown.pop();
         try {

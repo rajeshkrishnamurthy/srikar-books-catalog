@@ -1,0 +1,64 @@
+{
+  "topicId": "F11-TP2",
+  "title": "Remove Line and Recalculate Draft State",
+  "area": "Admin / Sales Entry",
+  "goal": "When removal is confirmed, delete the line from local state, update totals, clear draft state, and keep focus ready for the next entry.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "RED",
+  "specs": [
+    {
+      "id": "F11-TP2-001",
+      "title": "ConfirmRemovalDeletesRow",
+      "given": "At least two sale lines exist and the header is ready.",
+      "when": "An admin clicks the Remove control twice (remove + confirm) for a specific row.",
+      "then": "That row disappears from `#saleLineItemsBody`, `getLines()` no longer includes the lineId, and the inline status list logs a message such as “Removed Astrophysics 101 from sale”.",
+      "test": "/tests/spec/admin/F11-TP2-001_ConfirmRemovalDeletesRow.spec.js"
+    },
+    {
+      "id": "F11-TP2-002",
+      "title": "TotalsRecalculateAfterRemoval",
+      "given": "Multiple lines with different prices exist.",
+      "when": "One line is removed via the confirm step.",
+      "then": "The totals count/amount elements (`#saleLineTotalsCount`, `#saleLineTotalsAmount`) recompute immediately and match the remaining lines’ sum.",
+      "test": "/tests/spec/admin/F11-TP2-002_TotalsRecalculateAfterRemoval.spec.js"
+    },
+    {
+      "id": "F11-TP2-003",
+      "title": "FinalRemovalResetsDraft",
+      "given": "Exactly one line remains and the admin confirms its removal.",
+      "when": "The confirmation completes.",
+      "then": "The draft form resets: supplier select clears, book summary reverts to the default, the draft label shows “Add another book”, focus returns to the book title input, and the Persist sale button becomes disabled because no lines exist.",
+      "test": "/tests/spec/admin/F11-TP2-003_FinalRemovalResetsDraft.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/salesLineItemsHarness.js",
+    "/tests/fixtures/salesEntryPersistHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F11-TP2_red.txt",
+    "green": "codex_output/reports/F11-TP2_green.txt"
+  },
+  "validation": {
+    "status": "RED",
+    "command": "npm test -- --watchAll=false",
+    "report": "codex_output/reports/F11-TP2_red.txt",
+    "summary": {
+      "result": "failed",
+      "details": "F11-TP2 specs fail because confirmed removal does not delete rows, totals stay stale, and the draft state / Persist button remain active after the final line is removed."
+    }
+  },
+  "changedFiles": [
+    "codex_output/reports/F11-TP2_red.txt",
+    "codex_output/specs/F11-TP2.json",
+    "tests/fixtures/salesEntryPersistHarness.js",
+    "tests/spec/admin/F11-TP2-001_ConfirmRemovalDeletesRow.spec.js",
+    "tests/spec/admin/F11-TP2-002_TotalsRecalculateAfterRemoval.spec.js",
+    "tests/spec/admin/F11-TP2-003_FinalRemovalResetsDraft.spec.js"
+  ],
+  "changeNotes": [
+    "Documented the confirm-remove behaviors for deleting rows, recalculating totals, and resetting the draft on the final removal, then codified them into RED-phase Jest specs.",
+    "Added a lightweight salesEntryPersistHarness shim plus extended the sales line harness DOM so tests can observe removal status, totals, and persist button state."
+  ],
+  "notes": "These specs build on F11-TP1: Remove buttons already exist—F11-TP2 enforces the data/state updates once a removal is confirmed."
+}
