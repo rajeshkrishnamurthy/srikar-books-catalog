@@ -1,0 +1,64 @@
+{
+  "topicId": "F10-TP1",
+  "title": "Available Header Search",
+  "area": "Admin / Inventory",
+  "goal": "Move the inventory search control into the Available accordion header so filtering happens in place with clear announcements.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F10-TP1-001",
+      "title": "HeaderSearchFiltersAvailable",
+      "given": "The Available accordion summary renders its embedded title/author search input.",
+      "when": "An admin types at least two characters into that header field.",
+      "then": "The rows inside `#availList` immediately filter to the matching subset without auto-opening or scrolling another panel.",
+      "test": "/tests/spec/admin/F10-TP1-001_HeaderSearchFiltersAvailable.spec.js"
+    },
+    {
+      "id": "F10-TP1-002",
+      "title": "IgnoreShortQueries",
+      "given": "The admin taps the Available header search.",
+      "when": "They enter fewer than two non-space characters or clear the input entirely.",
+      "then": "No filtering occurs and the aria-live status stays empty so accidental single keystrokes do not disturb the list.",
+      "test": "/tests/spec/admin/F10-TP1-002_IgnoreShortQueries.spec.js"
+    },
+    {
+      "id": "F10-TP1-003",
+      "title": "AnnounceFilteredResults",
+      "given": "The Available panel exposes an aria-live polite status element for search feedback.",
+      "when": "A qualifying term filters the list to N matches.",
+      "then": "The status announces `Filtered N results for 'term'` so assistive tech hears the outcome alongside the Available list.",
+      "test": "/tests/spec/admin/F10-TP1-003_AnnounceFilteredResults.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminInventoryHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F10-TP1_red.txt",
+    "green": "codex_output/reports/F10-TP1_green.txt"
+  },
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F10-TP1_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Full Jest suite is green after wiring the Available header search input, filtering logic, <2-character guard, and aria-live announcements."
+    }
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/inventory.js",
+    "scripts/admin/main.js",
+    "tests/fixtures/adminInventoryHarness.js",
+    "codex_output/reports/F10-TP1_green.txt",
+    "codex_output/specs/F10-TP1.json"
+  ],
+  "changeNotes": [
+    "Embedded the title/author search input plus aria-live status directly inside the Available summary in admin.html so the control lives with the panel it filters.",
+    "Reworked scripts/admin/inventory.js (and main.js wiring) to listen to the new header search, guard inputs shorter than two non-space characters, filter immediately, and announce counts with the in-panel polite status.",
+    "Refreshed the admin inventory harness to expose the new DOM nodes and captured the passing Jest run in codex_output/reports/F10-TP1_green.txt."
+  ],
+  "notes": "Previous tests about auto-expanding/scrolling the Available panel were removed. The new search lives directly in the Available summary, keeps the accordion state untouched, and must announce filtered counts via an aria-live element located within the panel."
+}

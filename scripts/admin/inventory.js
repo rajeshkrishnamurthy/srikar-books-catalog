@@ -27,7 +27,6 @@ import { bookMatchesQuery } from '../helpers/bookSearch.js';
 import { readCurrencyField } from './currency.js';
 
 // ---- small utils ----
-const norm = (s = '') => String(s).toLowerCase();
 const onlyDigitsX = (v = '') => (v || '').toString().replace(/[^\dxX]/g, '');
 const normalizeAuthorName = (str = '') =>
   String(str)
@@ -173,12 +172,26 @@ function wireRowButtons(container, docsMap, onEdit) {
   });
 }
 
+<<<<<<< Updated upstream
+=======
+const HEADER_SEARCH_MIN_CHARS = 2;
+
+function hasSufficientSearchChars(term = '') {
+  return term.replace(/\s+/g, '').length >= HEADER_SEARCH_MIN_CHARS;
+}
+
+>>>>>>> Stashed changes
 // ---- public API ----
 export function initInventory({
   addForm,
   addMsg,
   availList,
   soldList,
+<<<<<<< Updated upstream
+=======
+  availableSearchInput = document.getElementById('availableSearchInput'),
+  searchStatus = document.getElementById('availableSearchStatus'),
+>>>>>>> Stashed changes
   supplierSelect,
   onEdit, // optional
 }) {
@@ -352,6 +365,10 @@ export function initInventory({
   let currentFilter = ''; // search text
   let availDocs = []; // latest available docs
   let soldDocs = []; // latest sold docs
+<<<<<<< Updated upstream
+=======
+  let lastAnnouncedTerm = '';
+>>>>>>> Stashed changes
 
   function renderLists() {
     const isSearching = !!currentFilter;
@@ -407,10 +424,25 @@ export function initInventory({
   });
 
   // expose to main.js
+  const handleAvailableSearchInput = (event) => {
+    const value = event?.target?.value ?? '';
+    applyHeaderSearch(value);
+  };
+
+  availableSearchInput?.addEventListener('input', handleAvailableSearchInput);
+  if (availableSearchInput?.value) {
+    applyHeaderSearch(availableSearchInput.value, { announce: false });
+  }
+
   return {
+<<<<<<< Updated upstream
     setFilter(term = '') {
       currentFilter = String(term).trim().toLowerCase();
       renderLists();
+=======
+    setFilter(term = '', options = {}) {
+      applyHeaderSearch(term, options);
+>>>>>>> Stashed changes
     },
     setSuppliers(list = []) {
       syncSuppliers(list);
@@ -419,6 +451,50 @@ export function initInventory({
       addForm?.removeEventListener('submit', handleSubmit);
       unsubscribeAvail?.();
       unsubscribeSold?.();
+<<<<<<< Updated upstream
+=======
+      availableSearchInput?.removeEventListener(
+        'input',
+        handleAvailableSearchInput
+      );
+>>>>>>> Stashed changes
     },
   };
+
+  function applyHeaderSearch(term = '', options = {}) {
+    const rawTerm = String(term ?? '');
+    const trimmedTerm = rawTerm.trim();
+    const normalizedTerm = trimmedTerm.toLowerCase();
+    const isLongEnough = hasSufficientSearchChars(trimmedTerm);
+    const announce = options.announce ?? true;
+
+    if (!isLongEnough) {
+      currentFilter = '';
+      renderLists();
+      if (announce) {
+        clearSearchStatus();
+      }
+      return;
+    }
+
+    currentFilter = normalizedTerm;
+    const matchesCount = availDocs.filter((d) => matches(d, normalizedTerm)).length;
+    renderLists();
+    if (announce) {
+      announceFilteredResults(trimmedTerm, matchesCount);
+    }
+  }
+
+  function announceFilteredResults(term, count) {
+    if (!searchStatus) return;
+    searchStatus.textContent = `Filtered ${count} results for '${term}'`;
+    lastAnnouncedTerm = term;
+  }
+
+  function clearSearchStatus() {
+    if (!searchStatus) return;
+    if (!lastAnnouncedTerm && !searchStatus.textContent) return;
+    searchStatus.textContent = '';
+    lastAnnouncedTerm = '';
+  }
 }
