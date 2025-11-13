@@ -361,11 +361,11 @@ export function initSaleLineItems(elements = {}, options = {}) {
     const count = state.lines.length;
     const totalAmount = state.lines.reduce((sum, line) => sum + (line.sellingPrice || 0), 0);
     if (refs.totalsCountEl) {
-      const suffix = count === 1 ? 'line' : 'lines';
-      refs.totalsCountEl.textContent = `${count} ${suffix}`;
+      refs.totalsCountEl.textContent = count ? `Order total` : '';
     }
     if (refs.totalsAmountEl) {
-      refs.totalsAmountEl.textContent = deps.formatCurrency(totalAmount);
+      const amountText = deps.formatCurrency(totalAmount);
+      refs.totalsAmountEl.textContent = count ? amountText : '';
     }
   }
 

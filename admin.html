@@ -308,27 +308,28 @@
                     </div>
                   </div>
                 </div>
-                <div class="sale-header-row">
-                  <div class="sale-customer-field">
-                    <label class="field-label" for="saleCustomerLookupSearch"
-                      >Customer</label
-                    >
+                <div class="sale-customer-row">
+                  <div id="saleCustomerLookup" class="sale-customer-lookup">
+                    <label class="field-label" for="saleCustomerLookupSearch">
+                      Search customers
+                    </label>
+                    <input
+                      id="saleCustomerLookupSearch"
+                      type="search"
+                      placeholder="Start typing a name"
+                      autocomplete="off"
+                    />
+                    <p id="saleCustomerLookupEmpty" hidden></p>
+                    <ul id="saleCustomerLookupList" class="admin-list"></ul>
+                  </div>
+                  <div class="sale-customer-summary-wrap">
+                    <label class="field-label">Selected customer</label>
                     <p
                       id="saleHeaderCustomerSummary"
                       class="sale-customer-summary"
                       data-empty="true"
                       data-default-summary=""
                     ></p>
-                    <div id="saleCustomerLookup" class="sale-customer-lookup">
-                      <input
-                        id="saleCustomerLookupSearch"
-                        type="search"
-                        placeholder="Search customers"
-                        autocomplete="off"
-                      />
-                      <p id="saleCustomerLookupEmpty" hidden></p>
-                      <ul id="saleCustomerLookupList" class="admin-list"></ul>
-                    </div>
                   </div>
                 </div>
                 <div class="flex" style="gap: 0.5rem">
@@ -408,7 +409,7 @@
                     class="btn btn-ghost sale-line-submit"
                     disabled
                   >
-                    Submit
+                    Add
                   </button>
                 </div>
                 <p id="saleTitleMsg" class="muted" aria-live="polite"></p>
@@ -434,8 +435,8 @@
                 </p>
               </div>
               <div id="saleLineTotals" class="flex" style="gap: 0.5rem">
-                <span id="saleLineTotalsCount">0 lines</span>
-                <span id="saleLineTotalsAmount">₹0.00</span>
+                <span id="saleLineTotalsCount"></span>
+                <span id="saleLineTotalsAmount"></span>
               </div>
             </div>
           </div>

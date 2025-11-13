@@ -184,6 +184,17 @@ body {
 .sale-customer-field {
   flex: 2 1 320px;
 }
+.sale-customer-row {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(260px, 1.5fr);
+  gap: 1rem;
+  align-items: start;
+}
+.sale-customer-summary-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
 .sale-customer-summary {
   margin: 0.2rem 0 0.6rem;
   padding: 0.6rem 0.75rem;
@@ -199,7 +210,10 @@ body {
   color: var(--muted);
 }
 .sale-customer-lookup input {
-  width: min(360px, 100%);
+  width: 100%;
+}
+.sale-customer-lookup label.field-label {
+  margin-bottom: 0.35rem;
 }
 .customer-summary-name {
   font-weight: 600;
@@ -381,6 +395,11 @@ dialog::backdrop {
   font-weight: 600;
   font-size: 1rem;
 }
+.sale-line-draft {
+  margin-bottom: 0.1rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
 .sale-line-grid {
   display: grid;
   gap: 0.75rem;
@@ -408,12 +427,13 @@ dialog::backdrop {
 }
 .sale-line-actions {
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
 }
 .sale-line-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 0 0.4rem;
+  border-spacing: 0 0.3rem;
+  margin-top: 0.5rem; /* ~8px gap from the CTA */
 }
 .sale-line-table thead th {
   text-align: left;
@@ -446,6 +466,12 @@ dialog::backdrop {
 @media (max-width: 720px) {
   .sale-line-grid {
     grid-template-columns: 1fr;
+  }
+  .sale-customer-row {
+    grid-template-columns: 1fr;
+  }
+  .sale-line-actions {
+    justify-content: flex-start;
   }
   .sale-line-table thead {
     display: none;
