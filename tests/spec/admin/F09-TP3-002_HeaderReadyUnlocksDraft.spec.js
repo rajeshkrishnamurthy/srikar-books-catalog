@@ -17,7 +17,7 @@ function buildHeaderState(initialReady = false) {
 }
 
 describe('SPEC F09-TP3-002: Unlock draft when header becomes valid', () => {
-  test('header ready state gates the Add line button even when book + price exist', async () => {
+  test('header ready state gates the Submit button even when book + price exist', async () => {
     const headerState = buildHeaderState(false);
     const harness = await createSalesLineItemsHarness({ headerState });
     const book = {

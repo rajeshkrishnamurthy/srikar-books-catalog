@@ -18,7 +18,7 @@ const MONTH_LOOKUP = {
 };
 
 export function initSaleHeader(elements = {}, options = {}) {
-  const refs = {
+const refs = {
     form: elements.form || null,
     saleDateInput: elements.saleDateInput || null,
     customerSummary: elements.customerSummary || null,
@@ -46,16 +46,13 @@ export function initSaleHeader(elements = {}, options = {}) {
   if (!refs.customerSummary.textContent) {
     refs.customerSummary.textContent = defaultSummary;
   }
-  refs.continueBtn.textContent = 'Start line items';
+  refs.continueBtn.textContent = 'Add books';
   refs.continueBtn.disabled = true;
 
   const state = {
     customer: null,
     saleDate: parseSaleDate(refs.saleDateInput.value),
   };
-  let changeCustomerButton = null;
-  let detachChangeCustomerButton = null;
-
   hydrateInitialCustomer();
 
   const teardown = [];
@@ -96,7 +93,6 @@ export function initSaleHeader(elements = {}, options = {}) {
   return {
     reset: () => resetHeader(),
     dispose: () => {
-      removeChangeCustomerButton();
       while (teardown.length) {
         const cleanup = teardown.pop();
         try {
@@ -128,17 +124,15 @@ export function initSaleHeader(elements = {}, options = {}) {
       serverTimestamp: deps.serverTimestamp,
     });
     deps.onHeaderReady(payload);
-    setMessage('Header saved—add books below.');
-    resetHeader({ clearMessage: false });
+    clearMessage();
+    refs.continueBtn.disabled = true;
   }
 
   function applyCustomerSelection(rawCustomer) {
     const normalized = normalizeCustomer(rawCustomer);
     state.customer = normalized;
     if (!normalized) {
-      refs.customerIdInput.value = '';
-      renderCustomerSummary(null);
-      updateContinueState();
+      clearCustomerSelection({ notifyLookup: false });
       return;
     }
     refs.customerIdInput.value = normalized.id;
@@ -149,11 +143,9 @@ export function initSaleHeader(elements = {}, options = {}) {
 
   function resetHeader(options = {}) {
     const { clearMessage: shouldClearMsg = true } = options;
-    state.customer = null;
     state.saleDate = parseSaleDate('');
-    refs.customerIdInput.value = '';
     refs.saleDateInput.value = '';
-    renderCustomerSummary(null);
+    clearCustomerSelection({ notifyLookup: false });
     if (shouldClearMsg) {
       clearMessage();
     }
@@ -188,6 +180,7 @@ export function initSaleHeader(elements = {}, options = {}) {
         (!isDefaultSummary ? summaryText : '') ||
         '',
       location: dataset.customerLocation || dataset.location || '',
+      address: dataset.customerAddress || dataset.address || '',
       whatsApp:
         dataset.customerWhatsapp ||
         dataset.customerWhatsApp ||
@@ -206,15 +199,15 @@ export function initSaleHeader(elements = {}, options = {}) {
 
   function resolveDefaultSummary() {
     const dataset = refs.customerSummary.dataset || {};
-    if (dataset.defaultSummary) {
-      return dataset.defaultSummary;
+    if (Object.prototype.hasOwnProperty.call(dataset, 'defaultSummary')) {
+      return dataset.defaultSummary || '';
     }
     const hasPreloadedCustomer =
       dataset.empty === 'false' || Boolean(refs.customerIdInput.value);
     if (!hasPreloadedCustomer && refs.customerSummary.textContent) {
       return refs.customerSummary.textContent;
     }
-    return 'No customer selected';
+    return '';
   }
 
   function updateContinueState() {
@@ -233,9 +226,23 @@ export function initSaleHeader(elements = {}, options = {}) {
     refs.msgEl.textContent = '';
   }
 
-  function renderCustomerSummary(customer) {
+  function clearCustomerSelection(options = {}) {
+    const { notifyLookup = false } = options;
+    state.customer = null;
+    refs.customerIdInput.value = '';
+    renderCustomerSummary(null);
+    updateContinueState();
+    if (notifyLookup && deps.lookup && typeof deps.lookup.emit === 'function') {
+      deps.lookup.emit(null);
+    }
+  }
+
+  function focusSaleDateInput() {
+    refs.saleDateInput?.focus?.();
+  }
+
+function renderCustomerSummary(customer) {
     if (!refs.customerSummary) return;
-    removeChangeCustomerButton();
     refs.customerSummary.innerHTML = '';
     if (!customer) {
       refs.customerSummary.textContent = defaultSummary;
@@ -252,6 +259,7 @@ export function initSaleHeader(elements = {}, options = {}) {
 
     const metaParts = [];
     if (customer.location) metaParts.push(customer.location);
+    if (customer.address) metaParts.push(customer.address);
     const contact = buildCustomerContact(customer);
     if (contact) metaParts.push(contact);
     if (metaParts.length) {
@@ -260,57 +268,24 @@ export function initSaleHeader(elements = {}, options = {}) {
       metaEl.textContent = metaParts.join(' • ');
       refs.customerSummary.appendChild(metaEl);
     }
-    attachChangeCustomerButton();
   }
 
-  function setCustomerSummaryDataset(customer) {
-    refs.customerSummary.dataset.customerName = customer.name || '';
-    refs.customerSummary.dataset.customerLocation = customer.location || '';
-    refs.customerSummary.dataset.customerWhatsapp = customer.whatsApp || '';
-    refs.customerSummary.dataset.customerWhatsappdigits = customer.whatsAppDigits || '';
-  }
+function setCustomerSummaryDataset(customer) {
+  refs.customerSummary.dataset.customerName = customer.name || '';
+  refs.customerSummary.dataset.customerLocation = customer.location || '';
+  refs.customerSummary.dataset.customerAddress = customer.address || '';
+  refs.customerSummary.dataset.customerWhatsapp = customer.whatsApp || '';
+  refs.customerSummary.dataset.customerWhatsappdigits = customer.whatsAppDigits || '';
+}
 
-  function clearCustomerSummaryDataset() {
-    delete refs.customerSummary.dataset.customerName;
-    delete refs.customerSummary.dataset.customerLocation;
-    delete refs.customerSummary.dataset.customerWhatsapp;
-    delete refs.customerSummary.dataset.customerWhatsappdigits;
-  }
+function clearCustomerSummaryDataset() {
+  delete refs.customerSummary.dataset.customerName;
+  delete refs.customerSummary.dataset.customerLocation;
+  delete refs.customerSummary.dataset.customerAddress;
+  delete refs.customerSummary.dataset.customerWhatsapp;
+  delete refs.customerSummary.dataset.customerWhatsappdigits;
+}
 
-  function attachChangeCustomerButton() {
-    if (!refs.customerSummary) return;
-    const button = refs.customerSummary.ownerDocument.createElement('button');
-    button.type = 'button';
-    button.textContent = 'Change customer';
-    button.className = 'customer-summary-change';
-    const handler = (event) => {
-      event.preventDefault();
-      refs.customerSummary.dispatchEvent(
-        new CustomEvent('salesHeader:changeCustomer', { bubbles: true })
-      );
-    };
-    button.addEventListener('click', handler);
-    changeCustomerButton = button;
-    detachChangeCustomerButton = () => {
-      button.removeEventListener('click', handler);
-      button.remove();
-      changeCustomerButton = null;
-      detachChangeCustomerButton = null;
-    };
-    refs.customerSummary.appendChild(button);
-  }
-
-  function removeChangeCustomerButton() {
-    if (typeof detachChangeCustomerButton === 'function') {
-      detachChangeCustomerButton();
-      return;
-    }
-    if (changeCustomerButton) {
-      changeCustomerButton.remove();
-      changeCustomerButton = null;
-    }
-    detachChangeCustomerButton = null;
-  }
 }
 
 export function buildSaleHeaderPayload(options = {}) {
@@ -330,6 +305,7 @@ export function buildSaleHeaderPayload(options = {}) {
     customerSummary: {
       name: normalizedCustomer.name,
       location: normalizedCustomer.location,
+      address: normalizedCustomer.address,
       whatsApp: normalizedCustomer.whatsApp,
     },
     saleDateDisplay: parsedSaleDate.display,
@@ -348,6 +324,7 @@ function normalizeCustomer(customer = null) {
     id: String(customer.id),
     name: compactText(customer.name ?? ''),
     location: compactText(customer.location ?? ''),
+    address: compactText(customer.address ?? ''),
     whatsApp: compactText(customer.whatsApp ?? ''),
   };
 }

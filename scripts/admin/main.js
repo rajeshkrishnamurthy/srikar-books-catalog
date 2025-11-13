@@ -85,10 +85,10 @@ const saleHeaderCustomerSummary = document.getElementById('saleHeaderCustomerSum
 const saleHeaderCustomerId = document.getElementById('saleHeaderCustomerId');
 const saleHeaderContinueBtn = document.getElementById('saleHeaderContinue');
 const saleHeaderMsg = document.getElementById('saleHeaderMsg');
+const saleHeaderDatePicker = document.getElementById('saleHeaderDatePicker');
 const saleCustomerLookupSearch = document.getElementById('saleCustomerLookupSearch');
 const saleCustomerLookupList = document.getElementById('saleCustomerLookupList');
 const saleCustomerLookupEmpty = document.getElementById('saleCustomerLookupEmpty');
-const saleCustomerLookupClear = document.getElementById('saleCustomerLookupClear');
 const saleLineDraftForm = document.getElementById('saleLineDraftForm');
 const saleLineDraftLabel = document.getElementById('saleLineDraftLabel');
 const saleLineBookTitle = document.getElementById('saleLineBookTitle');
@@ -101,9 +101,6 @@ const saleLineAddBtn = document.getElementById('saleLineAddBtn');
 const saleTitleMsg = document.getElementById('saleTitleMsg');
 const saleLineMsg = document.getElementById('saleLineMsg');
 const saleLineItemsBody = document.getElementById('saleLineItemsBody');
-const saleLineSupplierHint = document.getElementById('saleLineSupplierHint');
-const saleLinePurchaseHint = document.getElementById('saleLinePurchaseHint');
-const saleLineSellingHint = document.getElementById('saleLineSellingHint');
 const saleLineTotalsCount = document.getElementById('saleLineTotalsCount');
 const saleLineTotalsAmount = document.getElementById('saleLineTotalsAmount');
 const salePersistBtn = document.getElementById('salePersistBtn');
@@ -139,6 +136,26 @@ adminNav?.addEventListener('click', (event) => {
   const navKey = button.dataset.nav;
   if (!navKey) return;
   handleAdminNav(navKey, button);
+});
+
+saleHeaderDatePicker?.addEventListener('input', () => {
+  if (!saleHeaderSaleDateInput) return;
+  const isoValue = saleHeaderDatePicker.value;
+  if (!isoValue) return;
+  const formatted = formatIsoToDdMonYy(isoValue);
+  if (!formatted) return;
+  saleHeaderSaleDateInput.value = formatted;
+  saleHeaderSaleDateInput.dispatchEvent(new Event('input', { bubbles: true }));
+});
+
+saleHeaderSaleDateInput?.addEventListener('blur', syncPickerFromText);
+saleHeaderSaleDateInput?.addEventListener('change', syncPickerFromText);
+syncPickerFromText();
+
+saleHeaderForm?.addEventListener('reset', () => {
+  if (saleHeaderDatePicker) {
+    saleHeaderDatePicker.value = '';
+  }
 });
 
 // --- Authors datalist subscription (single definition) ---
@@ -235,6 +252,52 @@ function revealSaleEntryPanel() {
   ensureSaleEntryInitialized();
   scrollPanelIntoView(saleEntryPanel);
   saleHeaderSaleDateInput?.focus?.();
+}
+
+const MONTH_MAP = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+function formatIsoToDdMonYy(isoValue = '') {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoValue);
+  if (!match) return '';
+  const [, year, month, day] = match;
+  const monthIndex = Number(month) - 1;
+  const monthLabel = MONTH_MAP[monthIndex];
+  if (!monthLabel) return '';
+  const shortYear = year.slice(-2);
+  return `${day}-${monthLabel}-${shortYear}`;
+}
+
+function parseDdMonYyToIso(value = '') {
+  const match = /^(\d{2})-([a-z]{3})-(\d{2})$/i.exec(value.trim());
+  if (!match) return '';
+  const [, dd, mon, yy] = match;
+  const monthIndex = MONTH_MAP.findIndex(
+    (label) => label.toLowerCase() === mon.toLowerCase()
+  );
+  if (monthIndex === -1) return '';
+  const fullYear = Number(yy);
+  const normalizedYear = fullYear >= 70 ? 1900 + fullYear : 2000 + fullYear;
+  const month = String(monthIndex + 1).padStart(2, '0');
+  return `${normalizedYear}-${month}-${dd}`;
+}
+
+function syncPickerFromText() {
+  if (!saleHeaderDatePicker || !saleHeaderSaleDateInput) return;
+  const iso = parseDdMonYyToIso(saleHeaderSaleDateInput.value);
+  saleHeaderDatePicker.value = iso || '';
 }
 
 initAuth({
@@ -491,7 +554,6 @@ function ensureSaleEntryInitialized() {
       searchInput: saleCustomerLookupSearch,
       listEl: saleCustomerLookupList,
       emptyEl: saleCustomerLookupEmpty,
-      clearBtn: saleCustomerLookupClear,
     },
     {
       onSelect(customer) {
@@ -559,9 +621,6 @@ function ensureSaleEntryInitialized() {
       addLineBtn: saleLineAddBtn,
       msgEl: saleLineMsg,
       lineItemsBody: saleLineItemsBody,
-      supplierHintEl: saleLineSupplierHint,
-      purchaseHintEl: saleLinePurchaseHint,
-      sellingHintEl: saleLineSellingHint,
       totalsCountEl: saleLineTotalsCount,
       totalsAmountEl: saleLineTotalsAmount,
     },

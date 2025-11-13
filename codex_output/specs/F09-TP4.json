@@ -43,7 +43,7 @@
       "title": "NoMatchKeepsDraftDisabled",
       "given": "The sale header is valid so the draft row is unlocked, but the admin types a title that produces no matches.",
       "when": "The autocomplete reports zero results.",
-      "then": "The shared hidden bookId remains empty, the Add line button stays disabled inside the sale line module, and the inline guidance message persists until a real title is selected, proving the wiring between autocomplete and line draft works end-to-end.",
+      "then": "The shared hidden bookId remains empty, the Submit button stays disabled inside the sale line module, and the inline guidance message persists until a real title is selected, proving the wiring between autocomplete and line draft works end-to-end.",
       "test": "/tests/spec/admin/F09-TP4-005_WiringNoMatchKeepsDraftDisabled.spec.js"
     }
   ],
@@ -78,7 +78,7 @@
   "changeNotes": [
     "Sales title autocomplete now surfaces \"No catalog match\" guidance, keeps the hidden bookId empty, and replays the warning when Enter is pressed with zero suggestions.",
     "Normalized unmatched queries trigger the new onNoMatch callback once per attempt so telemetry can track common issues; warnings clear automatically once matches appear.",
-    "Sale line draft listens for hidden-input change events, clears stale summary datasets/hints, and re-disables the Add line button whenever the autocomplete emits a no-match so the wiring stays true to spec.",
+    "Sale line draft listens for hidden-input change events, clears stale summary datasets/hints, and re-disables the Submit button whenever the autocomplete emits a no-match so the wiring stays true to spec.",
     "Harness + specs updated to exercise the new hooks, and the GREEN Jest run is recorded in codex_output/reports/F09-TP4_green.txt."
   ],
   "notes": "F09-TP4 extends the title autocomplete work from F09-TP1/TP2: whenever a query returns zero catalog results, the UI must clearly communicate that no match exists, keep the draft line disabled by leaving the bookId empty, log the attempt for inventory cleanup, and immediately clear the warning once valid titles are found."

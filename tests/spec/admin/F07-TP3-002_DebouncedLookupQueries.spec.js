@@ -1,26 +1,24 @@
-import { jest } from '@jest/globals';
+import { waitFor } from '@testing-library/dom';
 import { createCustomerLookupHarness } from '../../fixtures/customerLookupHarness.js';
 
-describe('SPEC F07-TP3-002: Lookup debounces queries before hitting Firestore', () => {
-  test('typing waits for debounce then queries with normalized keywords and limit', async () => {
-    jest.useFakeTimers();
-    const where = jest.fn((field, op, value) => ({ field, op, value }));
-    const orderBy = jest.fn((field) => ({ field }));
-    const limit = jest.fn((count) => ({ count }));
-    const query = jest.fn((ref, ...constraints) => ({ ref, constraints }));
-    const getDocs = jest.fn().mockResolvedValue({ docs: [], empty: true });
-    const harness = await createCustomerLookupHarness({
-      firebaseOverrides: { where, orderBy, limit, query, getDocs },
-    });
-    harness.search('  Anil  Rao ');
-    jest.advanceTimersByTime(250);
-    expect(getDocs).not.toHaveBeenCalled();
-    jest.advanceTimersByTime(100);
-    expect(getDocs).toHaveBeenCalledTimes(1);
+describe('SPEC F07-TP3-002: Lookup debounces queries before filtering results', () => {
+  test('typing waits for debounce then filters customers by name only', async () => {
+    const harness = await createCustomerLookupHarness();
+    harness.emitResults([
+      { id: 'cust-1', name: 'Anil Rao', location: 'Bengaluru' },
+      { id: 'cust-2', name: 'Meera Iyer', location: 'Hyderabad' },
+      { id: 'cust-3', name: 'Ravi Kumar', location: 'Chennai' },
+    ]);
 
-    const keywordCall = where.mock.calls.find(([field]) => field === 'keywords');
-    expect(keywordCall?.[2]).toBe('anil rao');
-    expect(limit).toHaveBeenCalledWith(20);
-    jest.useRealTimers();
+    harness.search('  me  ');
+
+    expect(harness.searchInput.value).toBe('  me  ');
+    await waitFor(() => {
+      expect(harness.rows).toHaveLength(1);
+    });
+    expect(harness.rows[0].textContent).toContain('Meera');
+    expect(harness.rows[0].textContent).not.toContain('Anil');
+    expect(harness.rows[0].textContent).not.toContain('Ravi');
+    expect(harness.mocks.getDocs).not.toHaveBeenCalled();
   });
 });

@@ -185,10 +185,10 @@
           "goal": "Expose a searchable customer list so other workflows (like sales settlement) can pick buyers quickly.",
           "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
           "dependencies": ["F07-TP1"],
-          "given": "An admin is in a workflow that needs to assign a buyer to a sale.",
-          "when": "They search, filter, or paginate through the customer list.",
-          "then": "Matching customer summaries (name, location, WhatsApp) are returned and the selected customer ID is emitted back to the calling workflow.",
-          "notes": "Provide debounced search, highlight exact matches, and coordinate with F06-TP3 so a single selection UI can serve multiple modules."
+          "given": "An admin opens the customer lookup without any filter applied.",
+          "when": "They enter a search term (e.g., name or WhatsApp) and submit/filter.",
+          "then": "Until text is entered the list stays empty with guidance; once a query is provided, only matching customer summaries (name, location, WhatsApp) appear and the selected customer ID is emitted back to the calling workflow.",
+          "notes": "Keep the pre-search state blank with helper text, require at least a few characters before querying, provide debounced search, highlight exact matches, and coordinate with F06-TP3 so a single selection UI can serve multiple modules."
         }
       ]
     },
@@ -253,18 +253,6 @@
           "notes": "Use the title-only search, add solid backgrounds plus outline for the focused item, support ESC to dismiss, and announce the number of matches for assistive tech."
         },
         {
-          "id": "F09-TP2",
-          "title": "Auto-Fill Supplier and Price Context",
-          "area": "Admin / Sales Entry",
-          "goal": "Populate supplier snapshots plus historical selling/purchase price hints as soon as a title is selected.",
-          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-          "dependencies": ["F09-TP1", "F05-TP3", "F06-TP1"],
-          "given": "A book has been chosen via the title autocomplete and its catalog record stores supplier and price history.",
-          "when": "The draft sale line resolves the selection.",
-          "then": "Supplier info plus the most recent purchase and selling prices auto-fill the row, populate the confirmation chip under #saleLineBookSummary, and remain editable so the admin can immediately enter a new selling price.",
-          "notes": "Capture the snapshot at selection time, differentiate between historical purchase vs selling price, and allow manual overrides without losing the stored reference."
-        },
-        {
           "id": "F09-TP3",
           "title": "Header CTA and Draft Flow Alignment",
           "area": "Admin / Sales Entry",
@@ -273,7 +261,7 @@
           "dependencies": ["F08-TP1", "F09-TP1"],
           "given": "The sale header form is visible inside the sale entry experience.",
           "when": "The admin interacts with the header (selecting customer/date, pressing the CTA) or selects a book for the draft line.",
-          "then": "The primary CTA reads “Start line items” (beside a disabled Persist sale button) with helper text “Customer + date unlocks book entry,” stays disabled until both fields validate, and on success shows “Header saved—add books below”; the draft label updates to “Selected: <Title> — enter selling price” after a book is chosen, reverts to “Add another book” once the line saves, and focus hops back to the Book title field.",
+          "then": "The primary CTA reads “Add books” (beside a disabled Persist sale button) with helper text “Customer + date unlocks book entry,” stays disabled until both fields validate, and on success silently resets the form without extra banners; the draft label stays “Add another book,” while focus hops to the price field after a selection and returns to the book input once the line saves.",
           "notes": "Keep helper copy inline beneath the CTA, briefly show a success state on the CTA before re-enabling, and ensure keyboard users perceive the label changes."
         },
         {
@@ -290,6 +278,18 @@
         },
         {
           "id": "F09-TP5",
+          "title": "Persistent Customer Selection",
+          "area": "Admin / Sales Entry",
+          "goal": "Ensure a chosen customer remains selected even if the lookup input is cleared, only changing when a new customer is picked.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F09-TP4"],
+          "given": "An admin has successfully selected a customer and sees the summary pill populated.",
+          "when": "They clear the lookup search field or type a new string without confirming another customer.",
+          "then": "The previously selected customer stays locked in (highlight + summary pill intact) until another customer is explicitly selected, with an optional clear-selection control to reset the state.",
+          "notes": "Debounce search input reset so it never wipes the stored selection, show a subtle notice that a customer is already selected, and require an explicit 'Change customer' action before replacing the selection."
+        },
+        {
+          "id": "F09-TP6",
           "title": "Sale Panel Access and Visual Hierarchy",
           "area": "Admin / Inventory Header",
           "goal": "Add a primary Record sale entry point and restyle the sale panel with elevated inputs, sticky sections, and informative empty states.",
@@ -297,8 +297,32 @@
           "dependencies": ["F08-TP1", "F09-TP1"],
           "given": "An authenticated admin is on admin.html with the inventory header (search + actions) visible.",
           "when": "They click the Record sale button beside the search box.",
-          "then": "The button (matching other primary actions) scroll-focuses or opens the sale panel/modal, #saleEntryPanel inputs use a raised token with lighter background plus outline/glow focus states, sticky section headers keep the sale header and line form separated, and empty-state hints with icons explain what supplier/price data will auto-fill.",
+          "then": "The button (matching other primary actions) scroll-focuses or opens the sale panel/modal, #saleEntryPanel inputs use a raised token with lighter background plus outline/glow focus states, sticky section headers keep the sale header and line form separated, and concise empty-state hints clarify what totals or metadata will appear after books are added.",
           "notes": "Ensure the Record sale action is one tap away on desktop/mobile, trap focus inside the modal when open, keep the panel visible by default for keyboard access, and provide the “Customer + date unlocks book entry” reminder near the CTA."
+        },
+        {
+          "id": "F09-TP7",
+          "title": "Clear Lookup After Selection",
+          "area": "Admin / Sales Entry",
+          "goal": "Automatically reset the customer search field and collapse results after a customer is selected.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F09-TP4", "F09-TP5"],
+          "given": "A customer selection succeeds and the summary pill shows the chosen buyer.",
+          "when": "The selection confirmation event fires (button press or keyboard action).",
+          "then": "The lookup input clears its text, the autocomplete results list disappears, focus shifts to the next logical control (e.g., sale date), and the previously selected customer remains locked in until Change customer is invoked.",
+          "notes": "Announce the reset for assistive tech, prevent accidental clearing if selection fails, and re-open the search automatically when Change customer is pressed."
+        },
+        {
+          "id": "F09-TP8",
+          "title": "Selling Price Input Guardrails",
+          "area": "Admin / Sales Entry",
+          "goal": "Restrict the selling price field to numeric entry with immediate validation feedback.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F08-TP2"],
+          "given": "An admin is entering a selling price for a sale line.",
+          "when": "They type characters into the selling price input or attempt to submit a non-numeric/negative value.",
+          "then": "Only digits (and a single optional decimal separator) are accepted, invalid keystrokes are ignored, and inline validation explains that the selling price must be a positive number before the line can be saved.",
+          "notes": "Reuse existing currency-validation helpers, keep keyboard navigation (Tab, Backspace) functional, and announce validation errors to assistive tech users."
         }
       ]
     }

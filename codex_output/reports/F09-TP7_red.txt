@@ -1,0 +1,133 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false --runTestsByPath tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js
+
+  console.error
+    Error: Uncaught [ReferenceError: refs is not defined]
+        at reportException (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
+        at innerInvokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+        at invokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+        at HTMLLIElementImpl._dispatch (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+        at HTMLLIElementImpl.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+        at HTMLLIElement.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+        at /Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:19:20
+        at Object.eventWrapper (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/config.js:25:23)
+        at fireEvent (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:12:35)
+        at fireEvent.<computed> [as click] (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:110:36)
+        at Object.<anonymous> (/Users/rajeshk/Downloads/catalog/tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js:14:15)
+        at processTicksAndRejections (node:internal/process/task_queues:103:5) {
+      detail: ReferenceError: refs is not defined
+          at clearSearchInput (/Users/rajeshk/Downloads/catalog/scripts/admin/customerLookup.js:316:3)
+          at HTMLUListElement.clearSearchInput (/Users/rajeshk/Downloads/catalog/scripts/admin/customerLookup.js:107:7)
+          at HTMLUListElement.callTheUserObjectsOperation (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+          at innerInvokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+          at invokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+          at HTMLLIElementImpl._dispatch (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+          at HTMLLIElementImpl.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+          at HTMLLIElement.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+          at /Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:19:20
+          at Object.eventWrapper (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/config.js:25:23)
+          at fireEvent (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:12:35)
+          at fireEvent.<computed> [as click] (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:110:36)
+          at Object.<anonymous> (/Users/rajeshk/Downloads/catalog/tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js:14:15)
+          at processTicksAndRejections (node:internal/process/task_queues:103:5),
+      type: 'unhandled exception'
+    }
+
+      12 |     await waitFor(() => expect(harness.rows).toHaveLength(1));
+      13 |
+    > 14 |     fireEvent.click(harness.rows[0]);
+         |               ^
+      15 |
+      16 |     expect(harness.searchInput.value).toBe('');
+      17 |     expect(harness.listEl.children).toHaveLength(0);
+
+      at VirtualConsole.<anonymous> (node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at reportException (node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:70:28)
+      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLLIElementImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLLIElementImpl.dispatchEvent (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLLIElement.dispatchEvent (node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at node_modules/@testing-library/dom/dist/events.js:19:20
+      at Object.eventWrapper (node_modules/@testing-library/dom/dist/config.js:25:23)
+      at fireEvent (node_modules/@testing-library/dom/dist/events.js:12:35)
+      at fireEvent.<computed> [as click] (node_modules/@testing-library/dom/dist/events.js:110:36)
+      at Object.<anonymous> (tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js:14:15)
+
+(node:31750) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js
+  SPEC F09-TP7-001: Customer lookup clears search input after selection
+    ✕ selecting a result clears the input, hides the list, and keeps helper copy visible (42 ms)
+
+  ● SPEC F09-TP7-001: Customer lookup clears search input after selection › selecting a result clears the input, hides the list, and keeps helper copy visible
+
+    ReferenceError: refs is not defined
+
+      314 |
+      315 | function clearSearchInput() {
+    > 316 |   if (!refs.searchInput) return;
+          |   ^
+      317 |   refs.searchInput.value = '';
+      318 |   state.query = '';
+      319 |   state.filteredCustomers = [];
+
+      at clearSearchInput (scripts/admin/customerLookup.js:316:3)
+      at HTMLUListElement.clearSearchInput (scripts/admin/customerLookup.js:107:7)
+      at HTMLUListElement.callTheUserObjectsOperation (node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLLIElementImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLLIElementImpl.dispatchEvent (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLLIElement.dispatchEvent (node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at node_modules/@testing-library/dom/dist/events.js:19:20
+      at Object.eventWrapper (node_modules/@testing-library/dom/dist/config.js:25:23)
+      at fireEvent (node_modules/@testing-library/dom/dist/events.js:12:35)
+      at fireEvent.<computed> [as click] (node_modules/@testing-library/dom/dist/events.js:110:36)
+      at Object.<anonymous> (tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js:14:15)
+
+  ● SPEC F09-TP7-001: Customer lookup clears search input after selection › selecting a result clears the input, hides the list, and keeps helper copy visible
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: ""
+    Received: "an"
+
+      14 |     fireEvent.click(harness.rows[0]);
+      15 |
+    > 16 |     expect(harness.searchInput.value).toBe('');
+         |                                       ^
+      17 |     expect(harness.listEl.children).toHaveLength(0);
+      18 |     expect(harness.emptyEl.hidden).toBe(false);
+      19 |   });
+
+      at Object.<anonymous> (tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js:16:39)
+
+---------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                   
+---------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------
+All files                  |    5.98 |     4.22 |    6.12 |    6.33 |                                                                                                                     
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79                                                                                                               
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                                                                                                                
+ currency.js               |       0 |        0 |       0 |       0 | 6-31                                                                                                                
+ customerLookup.js         |   65.76 |    48.93 |   71.79 |   71.36 | 17-18,37-43,52-58,73-80,135-141,151-152,174,234-235,265-267,282,300-311,317-325,338,344-348,357-358,364-365,385-386 
+ customers.js              |       0 |        0 |       0 |       0 | 3-520                                                                                                               
+ editor.js                 |       0 |        0 |       0 |       0 | 27-411                                                                                                              
+ inventory.js              |       0 |        0 |       0 |       0 | 29-419                                                                                                              
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483                                                                                                              
+ main.js                   |       0 |        0 |       0 |       0 | 35-744                                                                                                              
+ requests.js               |       0 |        0 |       0 |       0 | 6-73                                                                                                                
+ salesEntryLauncher.js     |       0 |        0 |       0 |       0 | 2-60                                                                                                                
+ salesHeader.js            |       0 |        0 |       0 |       0 | 3-506                                                                                                               
+ salesLineHints.js         |       0 |        0 |       0 |       0 | 1-74                                                                                                                
+ salesLineItems.js         |       0 |        0 |       0 |       0 | 4-730                                                                                                               
+ salesPersist.js           |       0 |        0 |       0 |       0 | 1-164                                                                                                               
+ salesTitleAutocomplete.js |       0 |        0 |       0 |       0 | 4-296                                                                                                               
+ suppliers.js              |       0 |        0 |       0 |       0 | 13-319                                                                                                              
+---------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        1.365 s, estimated 2 s
+Ran all test suites within paths "tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js".

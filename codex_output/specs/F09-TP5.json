@@ -1,68 +1,49 @@
 {
   "topicId": "F09-TP5",
-  "title": "Inventory Header Entry Point",
-  "area": "Admin / Inventory Header",
-  "goal": "Expose a primary 'Record sale' button beside the search box that opens the multi-book sale experience in one click.",
+  "title": "Persistent Customer Selection",
+  "area": "Admin / Sales Entry",
+  "goal": "Ensure a chosen customer remains selected even if the lookup input is cleared, only changing when a new customer is picked.",
   "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-  "status": "RED",
+  "status": "GREEN",
   "specs": [
     {
-      "id": "F09-TP5-001",
-      "title": "RecordSaleButtonRendersBesideSearch",
-      "given": "An authenticated admin views the inventory header.",
-      "when": "admin.html renders the header actions row.",
-      "then": "A primary button labeled 'Record sale' appears next to the `#adminSearch` input, carries `aria-controls=\"saleEntryPanel\"`, and matches the `.btn` styling.",
-      "test": "/tests/spec/admin/F09-TP5-001_RecordSaleButtonInHeader.spec.js"
-    },
-    {
       "id": "F09-TP5-002",
-      "title": "ClickOpensSalePanel",
-      "given": "The Record sale button is rendered but the sale panel is collapsed.",
-      "when": "An admin clicks the button.",
-      "then": "The panel opens (sets the `open` attribute), scrolls into view, and focuses the sale header date field so the F08/F09 workflow is ready immediately.",
-      "test": "/tests/spec/admin/F09-TP5-002_ButtonOpensSalePanel.spec.js"
-    },
-    {
-      "id": "F09-TP5-003",
-      "title": "InitializeWorkflowOnce",
-      "given": "The launcher wires up the sale header/line/persist modules.",
-      "when": "The Record sale button is clicked multiple times.",
-      "then": "The provided `startSaleWorkflow` (wrapping initSaleHeader/initSaleLineItems/etc.) runs only on the first activation so modules are not re-instantiated per click.",
-      "test": "/tests/spec/admin/F09-TP5-003_LauncherInitializesWorkflowOnce.spec.js"
-    },
-    {
-      "id": "F09-TP5-004",
-      "title": "PreserveSearchContext",
-      "given": "An admin has typed into `#adminSearch`.",
-      "when": "They launch the Record sale flow using the header button.",
-      "then": "The search field retains its value and the button's `aria-controls` attribute continues to target `saleEntryPanel`, ensuring no context loss for the inventory filter.",
-      "test": "/tests/spec/admin/F09-TP5-004_SearchValuePreserved.spec.js"
+      "title": "ChangeCustomerControlClearsSelection",
+      "given": "A customer is already selected and shown in the sale header summary pill.",
+      "when": "The admin clicks the explicit Change customer control.",
+      "then": "The summary resets to an empty state, the hidden customerId clears, and the lookup is ready for a new selection.",
+      "test": "/tests/spec/admin/F09-TP5-002_ChangeCustomerClearsSelection.spec.js"
     }
   ],
   "fixtures": [
-    "/tests/fixtures/salesEntryLauncherHarness.js"
+    "/tests/fixtures/customerLookupHarness.js",
+    "/tests/fixtures/salesHeaderHarness.js"
   ],
   "reports": {
     "red": "codex_output/reports/F09-TP5_red.txt",
     "green": "codex_output/reports/F09-TP5_green.txt"
-  ],
+  },
   "validation": {
     "command": "npm test -- --watchAll=false --bail=0",
-    "status": "RED",
-    "report": "codex_output/reports/F09-TP5_red.txt"
+    "status": "GREEN",
+    "report": "codex_output/reports/F09-TP5_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Change customer control verified across the updated Jest suite (see codex_output/reports/F09-TP5_green.txt)."
+    }
   },
   "changedFiles": [
-    "scripts/admin/salesEntryLauncher.js",
-    "tests/fixtures/salesEntryLauncherHarness.js",
-    "tests/spec/admin/F09-TP5-001_RecordSaleButtonInHeader.spec.js",
-    "tests/spec/admin/F09-TP5-002_ButtonOpensSalePanel.spec.js",
-    "tests/spec/admin/F09-TP5-003_LauncherInitializesWorkflowOnce.spec.js",
-    "tests/spec/admin/F09-TP5-004_SearchValuePreserved.spec.js",
+    "admin.html",
+    "scripts/admin/main.js",
+    "scripts/admin/salesHeader.js",
+    "scripts/admin/customerLookup.js",
+    "tests/fixtures/salesHeaderHarness.js",
+    "tests/spec/admin/F09-TP5-002_ChangeCustomerClearsSelection.spec.js",
+    "codex_output/reports/F09-TP5_green.txt",
     "codex_output/specs/F09-TP5.json"
   ],
   "changeNotes": [
-    "Documented the expectation that admin.html exposes a primary Record sale button adjacent to the search input.",
-    "Defined launcher-level wiring specs/harness to ensure the button opens the sale panel, focuses the header date input, invokes workflow wiring once, and preserves search context."
+    "Change customer control is wired into salesHeader.js and admin.html, clearing the hidden customerId, summary pill, and downstream state without needing to reopen the lookup."
   ],
-  "notes": "F09-TP5 ties the existing F08 sale header/line experience into the inventory header. The Record sale button must live next to the search box, control the `saleEntryPanel`, focus the header date field on activation, and rely on a single workflow bootstrap so repeated clicks don’t recreate modules."
+  "notes": "F09-TP5 builds on the customer lookup and sale header modules by persisting the selected customer until the admin explicitly changes it. Clearing the search box or typing a new query must not drop the selection; only selecting a different row or hitting the Change customer button should reset the state."
 }

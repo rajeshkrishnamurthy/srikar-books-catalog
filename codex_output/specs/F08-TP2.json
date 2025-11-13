@@ -26,7 +26,7 @@
       "id": "F08-TP2-003",
       "title": "AddLineStoresSnapshot",
       "given": "A book is selected and a valid price is entered.",
-      "when": "The admin clicks Add line.",
+      "when": "The admin clicks Submit.",
       "then": "A new table row is appended with a generated lineId, bookId, supplier snapshot, formatted price, and the consumer callback receives a normalized payload containing the same metadata before the draft resets.",
       "test": "/tests/spec/admin/F08-TP2-003_SaleLineAddsRowWithSnapshot.spec.js"
     },

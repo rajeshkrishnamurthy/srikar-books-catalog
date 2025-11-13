@@ -33,9 +33,6 @@ export async function createSalesLineItemsHarness(options = {}) {
       addLineBtn: dom.addLineBtn,
       msgEl: dom.msgEl,
       lineItemsBody: dom.lineItemsBody,
-      supplierHintEl: dom.supplierHintEl,
-      purchaseHintEl: dom.purchaseHintEl,
-      sellingHintEl: dom.sellingHintEl,
       totalsCountEl: dom.totalsCountEl,
       totalsAmountEl: dom.totalsAmountEl,
     },
@@ -57,9 +54,6 @@ export async function createSalesLineItemsHarness(options = {}) {
     addLineBtn: dom.addLineBtn,
     msgEl: dom.msgEl,
     lineItemsBody: dom.lineItemsBody,
-    supplierHintEl: dom.supplierHintEl,
-    purchaseHintEl: dom.purchaseHintEl,
-    sellingHintEl: dom.sellingHintEl,
     totalsCountEl: dom.totalsCountEl,
     totalsAmountEl: dom.totalsAmountEl,
     selectBook(book) {
@@ -103,28 +97,23 @@ function buildDom() {
         />
         <ul id="saleLineBookSuggestions" role="listbox" aria-label="Matching titles"></ul>
         <label>
+          <span>Selling price</span>
+          <input id="saleLinePrice" name="sellingPrice" type="text" autocomplete="off" />
+        </label>
+        <label>
           Supplier
           <select id="saleLineSupplierSelect" name="supplierId">
             <option value="" selected disabled>Select supplier *</option>
           </select>
         </label>
         <input type="hidden" id="saleLineBookId" name="bookId" value="">
-        <p id="saleLineBookSummary" data-empty="true">No book selected</p>
-        <label>
-          <span>Selling price</span>
-          <input id="saleLinePrice" name="sellingPrice" type="text" autocomplete="off" />
-        </label>
-        <button type="submit" id="saleLineAddBtn" disabled>Add line</button>
+        <p id="saleLineBookSummary" class="sr-only" data-empty="true">No book selected</p>
+        <button type="submit" id="saleLineAddBtn" class="btn btn-ghost sale-line-submit" disabled>Submit</button>
         <p id="saleLineMsg"></p>
       </form>
       <table>
         <tbody id="saleLineItemsBody"></tbody>
       </table>
-      <div id="saleLineContext">
-        <p id="saleLineSupplierHint" data-empty="true">Supplier: Not set</p>
-        <p id="saleLinePurchaseHint" data-empty="true">Purchase price: Not set</p>
-        <p id="saleLineSellingHint" data-empty="true">Last sold price: Not set</p>
-      </div>
       <div id="saleLineTotals">
         <span id="saleLineTotalsCount">0 lines</span>
         <span id="saleLineTotalsAmount">₹0.00</span>
@@ -144,9 +133,6 @@ function buildDom() {
     addLineBtn: document.getElementById('saleLineAddBtn'),
     msgEl: document.getElementById('saleLineMsg'),
     lineItemsBody: document.getElementById('saleLineItemsBody'),
-    supplierHintEl: document.getElementById('saleLineSupplierHint'),
-    purchaseHintEl: document.getElementById('saleLinePurchaseHint'),
-    sellingHintEl: document.getElementById('saleLineSellingHint'),
     totalsCountEl: document.getElementById('saleLineTotalsCount'),
     totalsAmountEl: document.getElementById('saleLineTotalsAmount'),
   };

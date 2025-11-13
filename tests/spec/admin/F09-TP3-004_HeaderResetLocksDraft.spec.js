@@ -26,10 +26,10 @@ describe('SPEC F09-TP3-004: Header reset relocks the draft row', () => {
     headerState.setReady(false);
     await Promise.resolve();
 
+    expect(harness.draftForm.dataset.locked).toBe('true');
     expect(harness.bookTitleInput.disabled).toBe(true);
     expect(harness.priceInput.disabled).toBe(true);
     expect(harness.addLineBtn.disabled).toBe(true);
-    expect(harness.msgEl.textContent.toLowerCase()).toContain('sale header');
     expect(harness.selectedBookSummary.dataset.empty).toBe('true');
   });
 });

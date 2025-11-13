@@ -10,8 +10,8 @@ function buildReadyHeaderState() {
   };
 }
 
-describe('SPEC F09-TP1-005: Draft label updates after book selection', () => {
-  test('selecting a title updates the draft label and shifts focus to the price input', async () => {
+describe('SPEC F09-TP1-005: Draft label stays stable after book selection', () => {
+  test('selecting a title keeps the label static and shifts focus to the price input', async () => {
     const harness = await createSalesLineItemsHarness({
       headerState: buildReadyHeaderState(),
     });
@@ -22,7 +22,7 @@ describe('SPEC F09-TP1-005: Draft label updates after book selection', () => {
       supplier: { id: 'sup-7', name: 'Rare Reads' },
     });
 
-    expect(harness.draftLabelEl.textContent).toMatch(/Selected: Design Systems Handbook/i);
+    expect(harness.draftLabelEl.textContent).toMatch(/Add another book/i);
     expect(document.activeElement).toBe(harness.priceInput);
     expect(harness.msgEl.textContent.toLowerCase()).toContain('book selected');
   });

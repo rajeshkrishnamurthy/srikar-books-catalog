@@ -65,7 +65,7 @@ function buildDom() {
     <section>
       <form id="saleHeaderForm">
         <input type="hidden" id="saleCustomerId" name="customerId" />
-        <div id="saleCustomerSummary" data-empty="true">No customer selected</div>
+        <div id="saleCustomerSummary" data-empty="true" data-default-summary=""></div>
         <button type="button" id="saleCustomerLookupBtn">Find customer</button>
         <label>
           <span class="sr-only">Sale date</span>

@@ -1,8 +1,7 @@
 import { compactText } from '../helpers/text.js';
 
 const COLLECTION_PATH = 'customers';
-const SEARCH_RESULT_LIMIT = 20;
-const DEBOUNCE_MS = 300;
+const DEBOUNCE_MS = 200;
 
 export function initCustomerLookup(elements = {}, options = {}, firebaseDeps) {
   const refs = {
@@ -27,35 +26,34 @@ export function initCustomerLookup(elements = {}, options = {}, firebaseDeps) {
     query: '',
     selectedId: null,
     debounceHandle: null,
-    forceEmptyView: false,
+    forceEmptyView: true,
   };
   const teardown = [];
 
-function notifySelectionCleared(force = false) {
+  function notifySelectionCleared(force = false) {
     if (!force && !state.selectedId) {
       return false;
     }
     state.selectedId = null;
     onSelect(null);
     clearSelectedRowUi(refs.listEl);
+    if (!state.query) {
+      state.forceEmptyView = true;
+    }
     return true;
   }
 
   const searchHandler = (event) => {
     const rawValue = event?.target?.value ?? '';
     const nextQuery = normalizeLookupQuery(rawValue);
-
-    if (state.query !== nextQuery) {
-      notifySelectionCleared();
-    }
+    const clearingQuery = !nextQuery && Boolean(state.query);
 
     if (!nextQuery) {
       clearScheduledLookup(state);
       state.query = '';
       state.filteredCustomers = [];
       state.filteredQuery = '';
-      state.customers = [...state.baseCustomers];
-      state.forceEmptyView = true;
+      state.forceEmptyView = !state.selectedId;
       renderLookupList(refs, state);
       return;
     }
@@ -77,7 +75,6 @@ function notifySelectionCleared(force = false) {
       state.query = '';
       state.filteredCustomers = [];
       state.filteredQuery = '';
-      state.customers = [...state.baseCustomers];
       state.forceEmptyView = true;
       notifySelectionCleared(true);
       renderLookupList(refs, state);
@@ -88,24 +85,26 @@ function notifySelectionCleared(force = false) {
 
   if (refs.listEl) {
     const listClickHandler = (event) => {
-      const selectButton = event.target?.closest?.('button[data-action="select"]');
-      if (!selectButton) return;
-      const customerId = selectButton.dataset.customerId;
+      const row = event.target?.closest?.('li.customer-lookup-row');
+      if (!row) return;
+      const customerId = row.dataset.customerId;
       if (!customerId) return;
-      const row = selectButton.closest('li');
       const selected = getRenderableCustomers(state).find(
         (customer) => customer.id === customerId
       );
       if (!selected) return;
       state.selectedId = customerId;
+      state.forceEmptyView = false;
       onSelect({
         id: selected.id,
         name: selected.name || '',
         location: selected.location || '',
+        address: selected.address || '',
         whatsApp: selected.whatsApp || '',
         whatsAppDigits: selected.whatsAppDigits || '',
       });
       applySelectionStyles(row);
+      resetLookupSearch();
     };
     refs.listEl.addEventListener('click', listClickHandler);
     teardown.push(() => refs.listEl.removeEventListener('click', listClickHandler));
@@ -116,12 +115,12 @@ function notifySelectionCleared(force = false) {
     if (!customers.some((customer) => customer.id === state.selectedId)) {
       notifySelectionCleared();
     }
-    const shouldRenderSnapshot =
-      !state.query || state.filteredQuery !== state.query;
-    if (!state.query) {
-      state.customers = [...customers];
-    }
-    if (shouldRenderSnapshot) {
+    if (state.query) {
+      applyClientFilter(state.query);
+    } else {
+      state.filteredCustomers = [];
+      state.filteredQuery = '';
+      state.forceEmptyView = true;
       renderLookupList(refs, state);
     }
   });
@@ -145,50 +144,33 @@ function notifySelectionCleared(force = false) {
     },
   };
 
+  function resetLookupSearch() {
+    if (!refs.searchInput) return;
+    refs.searchInput.value = '';
+    state.query = '';
+    state.filteredCustomers = [];
+    state.filteredQuery = '';
+    state.forceEmptyView = true;
+    renderLookupList(refs, state);
+  }
+
   function scheduleLookup(keyword) {
     clearScheduledLookup(state);
     if (!keyword) return;
     state.debounceHandle = setTimeout(() => {
       state.debounceHandle = null;
-      runLookupQuery(keyword);
+      applyClientFilter(keyword);
     }, DEBOUNCE_MS);
   }
 
-  async function runLookupQuery(keyword) {
-    if (!deps.collection || !deps.query || !deps.getDocs) return;
-    try {
-      const customersRef = deps.collection(deps.db, COLLECTION_PATH);
-      const constraints = [];
-      if (typeof deps.where === 'function') {
-        constraints.push(deps.where('keywords', 'array-contains', keyword));
-      }
-      if (typeof deps.orderBy === 'function') {
-        constraints.push(deps.orderBy('name'));
-      }
-      if (typeof deps.limit === 'function') {
-        constraints.push(deps.limit(SEARCH_RESULT_LIMIT));
-      }
-      const lookupRef =
-        constraints.length > 0
-          ? deps.query(customersRef, ...constraints)
-          : deps.query(customersRef);
-      const snapshot = await deps.getDocs(lookupRef);
-      const docs = Array.isArray(snapshot?.docs) ? snapshot.docs : [];
-      if (state.query !== keyword) {
-        return;
-      }
-      state.filteredCustomers = buildCustomersFromDocs(docs);
-      state.filteredQuery = keyword;
-      if (
-        state.selectedId &&
-        !state.filteredCustomers.some((customer) => customer.id === state.selectedId)
-      ) {
-        notifySelectionCleared();
-      }
-      renderLookupList(refs, state);
-    } catch (error) {
-      console.error('customer lookup query failed', error);
-    }
+  function applyClientFilter(keyword) {
+    if (!keyword) return;
+    const normalized = keyword.toLowerCase();
+    state.filteredCustomers = state.baseCustomers.filter((customer) =>
+      (customer.name || '').toLowerCase().includes(normalized)
+    );
+    state.filteredQuery = keyword;
+    renderLookupList(refs, state);
   }
 }
 
@@ -229,6 +211,7 @@ function buildCustomersFromDocs(docs = []) {
       id: doc?.id || data.id || '',
       name: data.name || '',
       location: data.location || '',
+      address: data.address || '',
       whatsApp: data.whatsApp || '',
       whatsAppDigits: data.whatsAppDigits || '',
     };
@@ -265,38 +248,32 @@ function renderLookupList(refs, state) {
       row.dataset.state = 'idle';
     }
 
-    const nameEl = document.createElement('p');
+    const textWrap = document.createElement('div');
+    textWrap.classList.add('customer-lookup-text');
+
+    const nameEl = document.createElement('span');
     nameEl.classList.add('customer-lookup-name');
     nameEl.appendChild(buildHighlightedNodes(customer.name || '(no name)', state.query));
-    row.appendChild(nameEl);
+    textWrap.appendChild(nameEl);
 
-    const details = [];
-    if (customer.location) details.push(customer.location);
-    if (customer.whatsApp) {
-      details.push(customer.whatsApp);
-    } else if (customer.whatsAppDigits) {
-      details.push(customer.whatsAppDigits);
+    const detailSegments = [];
+    if (customer.location) detailSegments.push(customer.location);
+    if (customer.address) detailSegments.push(customer.address);
+    if (!customer.address && (customer.whatsApp || customer.whatsAppDigits)) {
+      detailSegments.push(customer.whatsApp || customer.whatsAppDigits);
     }
-    if (details.length) {
-      const meta = document.createElement('p');
+    if (detailSegments.length) {
+      const meta = document.createElement('span');
       meta.classList.add('customer-lookup-meta');
-      meta.textContent = details.join(' • ');
-      row.appendChild(meta);
+      meta.textContent = detailSegments.join(' • ');
+      textWrap.appendChild(meta);
     }
 
-    if (customer.id && !isSelected) {
-      const selectBtn = document.createElement('button');
-      selectBtn.type = 'button';
-      selectBtn.textContent = 'Select';
-      selectBtn.dataset.action = 'select';
-      selectBtn.dataset.customerId = customer.id;
-      selectBtn.classList.add('text-button');
-      row.appendChild(selectBtn);
-    } else if (isSelected) {
-      const chip = document.createElement('span');
-      chip.dataset.role = 'selected-chip';
-      chip.classList.add('customer-lookup-selected-chip');
-      chip.textContent = 'Selected';
+    row.appendChild(textWrap);
+
+    if (isSelected) {
+      const chip = createSelectedChip(row.ownerDocument);
+      chip.classList.add('customer-lookup-selected-chip--inline');
       row.appendChild(chip);
     }
 
@@ -321,13 +298,9 @@ function setRowAsSelected(row) {
   if (!row) return;
   row.dataset.state = 'selected';
   row.classList.add('selected');
-  const selectBtn = row.querySelector('button[data-action="select"]');
-  selectBtn?.remove();
   let chip = row.querySelector('[data-role="selected-chip"]');
   if (!chip) {
-    chip = row.ownerDocument.createElement('span');
-    chip.dataset.role = 'selected-chip';
-    chip.classList.add('customer-lookup-selected-chip');
+    chip = createSelectedChip(row.ownerDocument);
     chip.textContent = 'Selected';
     row.appendChild(chip);
   }
@@ -339,17 +312,6 @@ function setRowAsIdle(row) {
   row.classList.remove('selected');
   const chip = row.querySelector('[data-role="selected-chip"]');
   chip?.remove();
-  if (!row.querySelector('button[data-action="select"]')) {
-    const btn = row.ownerDocument.createElement('button');
-    btn.type = 'button';
-    btn.textContent = 'Select';
-    btn.dataset.action = 'select';
-    btn.classList.add('text-button');
-    if (row.dataset.customerId) {
-      btn.dataset.customerId = row.dataset.customerId;
-    }
-    row.appendChild(btn);
-  }
 }
 
 function clearSelectedRowUi(listEl) {
@@ -360,18 +322,17 @@ function clearSelectedRowUi(listEl) {
   }
 }
 
-
 function getRenderableCustomers(state) {
   if (state.query) {
     if (state.filteredQuery === state.query) {
       return state.filteredCustomers;
     }
-    return state.baseCustomers;
+    return [];
   }
   if (state.forceEmptyView) {
     return [];
   }
-  return state.customers;
+  return [];
 }
 
 function sortCustomers(customers = []) {
@@ -421,4 +382,12 @@ function clearScheduledLookup(state) {
     clearTimeout(state.debounceHandle);
     state.debounceHandle = null;
   }
+}
+
+function createSelectedChip(doc) {
+  const chip = doc.createElement('span');
+  chip.dataset.role = 'selected-chip';
+  chip.classList.add('customer-lookup-selected-chip');
+  chip.textContent = 'Selected';
+  return chip;
 }
