@@ -33,9 +33,6 @@ export async function createSalesLineItemsHarness(options = {}) {
       addLineBtn: dom.addLineBtn,
       msgEl: dom.msgEl,
       lineItemsBody: dom.lineItemsBody,
-      supplierHintEl: dom.supplierHintEl,
-      purchaseHintEl: dom.purchaseHintEl,
-      sellingHintEl: dom.sellingHintEl,
       totalsCountEl: dom.totalsCountEl,
       totalsAmountEl: dom.totalsAmountEl,
     },
@@ -57,9 +54,6 @@ export async function createSalesLineItemsHarness(options = {}) {
     addLineBtn: dom.addLineBtn,
     msgEl: dom.msgEl,
     lineItemsBody: dom.lineItemsBody,
-    supplierHintEl: dom.supplierHintEl,
-    purchaseHintEl: dom.purchaseHintEl,
-    sellingHintEl: dom.sellingHintEl,
     totalsCountEl: dom.totalsCountEl,
     totalsAmountEl: dom.totalsAmountEl,
     selectBook(book) {
@@ -120,11 +114,6 @@ function buildDom() {
       <table>
         <tbody id="saleLineItemsBody"></tbody>
       </table>
-      <div id="saleLineContext">
-        <p id="saleLineSupplierHint" data-empty="true">Supplier: Not set</p>
-        <p id="saleLinePurchaseHint" data-empty="true">Purchase price: Not set</p>
-        <p id="saleLineSellingHint" data-empty="true">Last sold price: Not set</p>
-      </div>
       <div id="saleLineTotals">
         <span id="saleLineTotalsCount">0 lines</span>
         <span id="saleLineTotalsAmount">₹0.00</span>
@@ -144,9 +133,6 @@ function buildDom() {
     addLineBtn: document.getElementById('saleLineAddBtn'),
     msgEl: document.getElementById('saleLineMsg'),
     lineItemsBody: document.getElementById('saleLineItemsBody'),
-    supplierHintEl: document.getElementById('saleLineSupplierHint'),
-    purchaseHintEl: document.getElementById('saleLinePurchaseHint'),
-    sellingHintEl: document.getElementById('saleLineSellingHint'),
     totalsCountEl: document.getElementById('saleLineTotalsCount'),
     totalsAmountEl: document.getElementById('saleLineTotalsAmount'),
   };

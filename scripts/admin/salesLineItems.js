@@ -1,5 +1,4 @@
 import { compactText } from '../helpers/text.js';
-import { renderSaleLineHints } from './salesLineHints.js';
 
 const DEFAULT_SUMMARY_TEXT = 'No book selected';
 const PRICE_PATTERN = /^\d+(\.\d{1,2})?$/;
@@ -16,9 +15,6 @@ export function initSaleLineItems(elements = {}, options = {}) {
     addLineBtn: elements.addLineBtn || null,
     msgEl: elements.msgEl || null,
     lineItemsBody: elements.lineItemsBody || null,
-    supplierHintEl: elements.supplierHintEl || null,
-    purchaseHintEl: elements.purchaseHintEl || null,
-    sellingHintEl: elements.sellingHintEl || null,
     totalsCountEl: elements.totalsCountEl || null,
     totalsAmountEl: elements.totalsAmountEl || null,
   };
@@ -54,12 +50,6 @@ export function initSaleLineItems(elements = {}, options = {}) {
     selectedSupplier: null,
   };
 
-  const hintDefaults = {
-    supplier: (refs.supplierHintEl?.textContent || 'Supplier: Not set').trim(),
-    purchase: (refs.purchaseHintEl?.textContent || 'Purchase price: Not set').trim(),
-    selling: (refs.sellingHintEl?.textContent || 'Last sold price: Not set').trim(),
-  };
-
   const defaultSummary =
     refs.selectedBookSummary.dataset.defaultSummary ||
     refs.selectedBookSummary.textContent?.trim() ||
@@ -84,7 +74,6 @@ export function initSaleLineItems(elements = {}, options = {}) {
       state.selectedBook = null;
       state.bookSupplierSnapshot = null;
       clearBookSummaryDataset();
-      updateSupplierContext(null);
       clearSupplierSelection();
     }
     updateAddButtonState();
@@ -153,7 +142,6 @@ export function initSaleLineItems(elements = {}, options = {}) {
       setDraftLabelText('');
       state.bookSupplierSnapshot = null;
       resetDraft({ keepPrice: true });
-      updateSupplierContext(null);
       return;
     }
     setDraftLabelText('');
@@ -190,7 +178,6 @@ export function initSaleLineItems(elements = {}, options = {}) {
     } else {
       clearSupplierSelection({ keepBookSnapshot: true });
     }
-    updateSupplierContext(normalized);
     focusPriceInput();
   }
 
@@ -335,9 +322,6 @@ export function initSaleLineItems(elements = {}, options = {}) {
     }
     updateAddButtonState();
     if (!keepPrice) {
-      updateSupplierContext(null);
-    }
-    if (!keepPrice) {
       focusBookInput();
     }
   }
@@ -387,8 +371,6 @@ export function initSaleLineItems(elements = {}, options = {}) {
       state.lockMessageActive = true;
       if (options.previousReady) {
         resetDraft();
-      } else {
-        updateSupplierContext(state.selectedBook);
       }
     } else if (state.lockMessageActive) {
       clearMessage();
@@ -408,22 +390,6 @@ export function initSaleLineItems(elements = {}, options = {}) {
   function focusPriceInput() {
     if (!state.headerReady) return;
     refs.priceInput?.focus?.();
-  }
-
-  function updateSupplierContext(book) {
-    renderSaleLineHints(
-      {
-        supplierHintEl: refs.supplierHintEl,
-        purchaseHintEl: refs.purchaseHintEl,
-        sellingHintEl: refs.sellingHintEl,
-      },
-      {
-        supplier: book?.supplier || null,
-        history: book?.history || null,
-        defaults: hintDefaults,
-        formatCurrency: deps.formatCurrency,
-      }
-    );
   }
 
   function setMessage(text) {
