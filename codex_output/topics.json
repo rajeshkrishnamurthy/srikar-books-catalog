@@ -325,8 +325,6 @@
           "notes": "Reuse existing currency-validation helpers, keep keyboard navigation (Tab, Backspace) functional, and announce validation errors to assistive tech users."
         }
       ]
-<<<<<<< Updated upstream
-=======
     },
     {
       "featureId": "F10",
@@ -389,7 +387,6 @@
           "notes": "Audit logs should note removed line IDs when available, and integration tests should assert the payload omits deleted lines even if their book IDs still exist in autocomplete history."
         }
       ]
->>>>>>> Stashed changes
     }
   ]
 }

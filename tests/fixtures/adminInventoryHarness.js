@@ -3,12 +3,12 @@ import { jest } from '@jest/globals';
 const inventoryModuleUrl = new URL('../../scripts/admin/inventory.js', import.meta.url);
 
 export async function createAdminInventoryHarness(options = {}) {
-  const { firebaseOverrides = {} } = options;
+  const { firebaseOverrides = {}, onScrollIntoView = jest.fn() } = options;
 
   jest.resetModules();
   jest.clearAllMocks();
 
-  const dom = buildDom();
+  const dom = buildDom(onScrollIntoView);
   const firebase = buildFirebaseMocks(firebaseOverrides);
   globalThis.__firebaseMocks = firebase;
 
@@ -16,13 +16,10 @@ export async function createAdminInventoryHarness(options = {}) {
   const inventoryApi = initInventory({
     addForm: null,
     addMsg: null,
+    availablePanel: dom.availablePanel,
     availList: dom.availList,
+    soldPanel: dom.soldPanel,
     soldList: dom.soldList,
-<<<<<<< Updated upstream
-  });
-
-  return {
-=======
     availableSearchInput: dom.availableSearchInput,
     searchStatus: dom.searchStatus,
   });
@@ -31,9 +28,9 @@ export async function createAdminInventoryHarness(options = {}) {
     scrollIntoViewMock: onScrollIntoView,
     availablePanel: dom.availablePanel,
     availableSearchInput: dom.availableSearchInput,
->>>>>>> Stashed changes
     availList: dom.availList,
     soldList: dom.soldList,
+    searchStatus: dom.searchStatus,
     mocks: firebase.mocks,
     inventoryApi,
     emitAvailableDocs(docs = []) {
@@ -47,12 +44,8 @@ export async function createAdminInventoryHarness(options = {}) {
   };
 }
 
-function buildDom() {
+function buildDom(onScrollIntoView) {
   document.body.innerHTML = `
-<<<<<<< Updated upstream
-    <div id="availList"></div>
-    <div id="soldList"></div>
-=======
     <details id="availableBooksPanel" open>
       <summary>
         <div class="available-summary">
@@ -75,20 +68,16 @@ function buildDom() {
       <summary>Sold</summary>
       <div id="soldList"></div>
     </details>
->>>>>>> Stashed changes
   `;
+  const availablePanel = document.getElementById('availableBooksPanel');
+  availablePanel.scrollIntoView = onScrollIntoView;
   return {
-<<<<<<< Updated upstream
-=======
     availablePanel,
     availableSearchInput: document.getElementById('availableSearchInput'),
->>>>>>> Stashed changes
     availList: document.getElementById('availList'),
+    soldPanel: document.getElementById('soldBooksPanel'),
     soldList: document.getElementById('soldList'),
-<<<<<<< Updated upstream
-=======
     searchStatus: document.getElementById('availableSearchStatus'),
->>>>>>> Stashed changes
   };
 }
 

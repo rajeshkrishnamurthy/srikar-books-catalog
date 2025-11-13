@@ -18,6 +18,9 @@ export function initSaleLineItems(elements = {}, options = {}) {
     lineItemsBody: elements.lineItemsBody || null,
     totalsCountEl: elements.totalsCountEl || null,
     totalsAmountEl: elements.totalsAmountEl || null,
+    statusList: elements.statusList || null,
+    persistBtn: elements.persistBtn || null,
+    persistMsg: elements.persistMsg || null,
   };
 
   if (!hasRequiredRefs(refs)) {
@@ -393,6 +396,7 @@ export function initSaleLineItems(elements = {}, options = {}) {
     if (!state.headerReady) return;
     if (!lineId) return;
     if (state.removalPendingId === lineId) {
+      confirmRemoval(lineId);
       return;
     }
     setRemovalPending(lineId);
@@ -430,6 +434,28 @@ export function initSaleLineItems(elements = {}, options = {}) {
     }
     if (!silent) {
       setRemovalStatus('');
+    }
+  }
+
+  function confirmRemoval(lineId) {
+    const entry = state.lineEntries.get(lineId);
+    state.removalPendingId = null;
+    if (!entry) {
+      setRemovalStatus('');
+      return;
+    }
+    entry.dispose?.();
+    entry.row.remove();
+    state.lineEntries.delete(lineId);
+    const title = entry.line.bookTitle || entry.line.bookId || 'selected line';
+    state.lines = state.lines.filter((line) => line.lineId !== lineId);
+    updateTotals();
+    deps.onLinesChange([...state.lines]);
+    setRemovalStatus(`Removed "${title}" from sale`);
+    logRemovalStatus(title);
+    if (state.lines.length === 0) {
+      resetDraft();
+      disablePersistButton();
     }
   }
 
@@ -517,6 +543,21 @@ export function initSaleLineItems(elements = {}, options = {}) {
   function setRemovalStatus(text) {
     if (!refs.removalStatusEl) return;
     refs.removalStatusEl.textContent = text || '';
+  }
+
+  function logRemovalStatus(title) {
+    if (!refs.statusList) return;
+    const item = refs.statusList.ownerDocument.createElement('li');
+    item.textContent = `Removed ${title}`;
+    refs.statusList.appendChild(item);
+  }
+
+  function disablePersistButton() {
+    if (!refs.persistBtn) return;
+    refs.persistBtn.disabled = true;
+    if (refs.persistMsg) {
+      refs.persistMsg.textContent = '';
+    }
   }
 
   function setSupplierOptions(list = []) {
