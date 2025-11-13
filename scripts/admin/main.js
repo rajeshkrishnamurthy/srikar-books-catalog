@@ -57,11 +57,8 @@ const lookupResults = document.getElementById('lookupResults');
 const coverInput = document.getElementById('coverInput');
 const availList = document.getElementById('availList');
 const soldList = document.getElementById('soldList');
-<<<<<<< Updated upstream
-=======
 const availableSearchInput = document.getElementById('availableSearchInput');
 const availableSearchStatus = document.getElementById('availableSearchStatus');
->>>>>>> Stashed changes
 const reqOpen = document.getElementById('reqOpen');
 const reqClosed = document.getElementById('reqClosed');
 const searchCoverBtn = document.getElementById('searchCoverBtn');
@@ -360,12 +357,8 @@ initAuth({
       authorList,
       availList,
       soldList,
-<<<<<<< Updated upstream
-=======
-      availablePanel: availableBooksPanel,
       availableSearchInput,
       searchStatus: availableSearchStatus,
->>>>>>> Stashed changes
       supplierSelect,
       onEdit: editor.open,
     });
@@ -623,6 +616,9 @@ function ensureSaleEntryInitialized() {
       lineItemsBody: saleLineItemsBody,
       totalsCountEl: saleLineTotalsCount,
       totalsAmountEl: saleLineTotalsAmount,
+      statusList: saleLineStatusList,
+      persistBtn: salePersistBtn,
+      persistMsg: salePersistMsg,
     },
     {
       lookup: bookBridge,

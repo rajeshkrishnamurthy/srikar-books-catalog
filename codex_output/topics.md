@@ -82,8 +82,6 @@ Notes:
 - Customer selection should always show the confirmed state in both the lookup row and the summary pill, persist even when the search field clears, automatically clear the lookup UI after selection, and offer a quick “Change customer” affordance.
 - The Record sale button plus sale panel styling (raised inputs, sticky headers, empty states) must keep the workflow visible, accessible, and one tap away.
 - Selling price fields must block non-numeric input, ignore invalid keystrokes, and surface accessible validation when the value isn’t a positive number.
-<<<<<<< Updated upstream
-=======
 
 # Feature: Inventory Search Experience (F10)
 
@@ -108,4 +106,3 @@ Notes:
 - Remove controls must stay keyboard-focusable, announce pending deletion, and remain disabled whenever the sale header is locked.
 - Totals, draft labels, and focus flow should mirror the existing “Add another book” experience so admins can keep entering books without reloading the panel.
 - Persist sale should treat zero-line drafts as invalid and log how many lines were removed vs saved for audit/status history.
->>>>>>> Stashed changes

@@ -172,26 +172,20 @@ function wireRowButtons(container, docsMap, onEdit) {
   });
 }
 
-<<<<<<< Updated upstream
-=======
 const HEADER_SEARCH_MIN_CHARS = 2;
 
 function hasSufficientSearchChars(term = '') {
   return term.replace(/\s+/g, '').length >= HEADER_SEARCH_MIN_CHARS;
 }
 
->>>>>>> Stashed changes
 // ---- public API ----
 export function initInventory({
   addForm,
   addMsg,
   availList,
   soldList,
-<<<<<<< Updated upstream
-=======
   availableSearchInput = document.getElementById('availableSearchInput'),
   searchStatus = document.getElementById('availableSearchStatus'),
->>>>>>> Stashed changes
   supplierSelect,
   onEdit, // optional
 }) {
@@ -365,10 +359,7 @@ export function initInventory({
   let currentFilter = ''; // search text
   let availDocs = []; // latest available docs
   let soldDocs = []; // latest sold docs
-<<<<<<< Updated upstream
-=======
   let lastAnnouncedTerm = '';
->>>>>>> Stashed changes
 
   function renderLists() {
     const isSearching = !!currentFilter;
@@ -435,14 +426,8 @@ export function initInventory({
   }
 
   return {
-<<<<<<< Updated upstream
-    setFilter(term = '') {
-      currentFilter = String(term).trim().toLowerCase();
-      renderLists();
-=======
     setFilter(term = '', options = {}) {
       applyHeaderSearch(term, options);
->>>>>>> Stashed changes
     },
     setSuppliers(list = []) {
       syncSuppliers(list);
@@ -451,13 +436,10 @@ export function initInventory({
       addForm?.removeEventListener('submit', handleSubmit);
       unsubscribeAvail?.();
       unsubscribeSold?.();
-<<<<<<< Updated upstream
-=======
       availableSearchInput?.removeEventListener(
         'input',
         handleAvailableSearchInput
       );
->>>>>>> Stashed changes
     },
   };
 
