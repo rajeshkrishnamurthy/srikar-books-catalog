@@ -1,0 +1,76 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false --runTestsByPath tests/spec/admin/F09-TP8-001_BlockNonNumericSellingPrice.spec.js tests/spec/admin/F09-TP8-002_RejectNegativeSellingPrice.spec.js
+
+(node:46109) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F09-TP8-002_RejectNegativeSellingPrice.spec.js
+  SPEC F09-TP8-002: Selling price rejects negative values with positive-number guidance
+    ✕ submitting a negative price shows positive-number validation and does not add the line (40 ms)
+
+  ● SPEC F09-TP8-002: Selling price rejects negative values with positive-number guidance › submitting a negative price shows positive-number validation and does not add the line
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "positive"
+    Received string:    "selling price is required and must be a valid number."
+
+      25 |
+      26 |     expect(harness.lineItemsBody.children).toHaveLength(0);
+    > 27 |     expect(harness.msgEl.textContent.toLowerCase()).toContain('positive');
+         |                                                     ^
+      28 |   });
+      29 | });
+      30 |
+
+      at Object.<anonymous> (tests/spec/admin/F09-TP8-002_RejectNegativeSellingPrice.spec.js:27:53)
+
+(node:46110) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F09-TP8-001_BlockNonNumericSellingPrice.spec.js
+  SPEC F09-TP8-001: Selling price input strips non-numeric characters
+    ✕ typing alpha characters is ignored so the field only keeps digits/decimal separator (42 ms)
+
+  ● SPEC F09-TP8-001: Selling price input strips non-numeric characters › typing alpha characters is ignored so the field only keeps digits/decimal separator
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "12"
+    Received: "12ab"
+
+      25 |     fireEvent.input(harness.priceInput, { target: { value: '12ab' } });
+      26 |
+    > 27 |     expect(harness.priceInput.value).toBe('12');
+         |                                      ^
+      28 |   });
+      29 | });
+      30 |
+
+      at Object.<anonymous> (tests/spec/admin/F09-TP8-001_BlockNonNumericSellingPrice.spec.js:27:38)
+
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                             
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                  |    5.22 |     5.14 |    5.75 |     5.5 |                                                                                                                                                                               
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                                         
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                                          
+ currency.js               |       0 |        0 |       0 |       0 | 6-31                                                                                                                                                                          
+ customerLookup.js         |       0 |        0 |       0 |       0 | 3-392                                                                                                                                                                         
+ customers.js              |       0 |        0 |       0 |       0 | 3-520                                                                                                                                                                         
+ editor.js                 |       0 |        0 |       0 |       0 | 27-411                                                                                                                                                                        
+ inventory.js              |       0 |        0 |       0 |       0 | 29-419                                                                                                                                                                        
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                                        
+ main.js                   |       0 |        0 |       0 |       0 | 35-738                                                                                                                                                                        
+ requests.js               |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                                          
+ salesEntryLauncher.js     |       0 |        0 |       0 |       0 | 2-60                                                                                                                                                                          
+ salesHeader.js            |       0 |        0 |       0 |       0 | 3-506                                                                                                                                                                         
+ salesLineItems.js         |   36.84 |    32.63 |   36.61 |   38.44 | 23-26,38-40,72-79,100-101,123-135,142-145,152-155,163,173,177,193,199-216,232-250,255,261-332,371-373,376-377,405-477,484,496-549,565-575,588,603,616-620,626-666,693-695,703 
+ salesPersist.js           |       0 |        0 |       0 |       0 | 1-164                                                                                                                                                                         
+ salesTitleAutocomplete.js |       0 |        0 |       0 |       0 | 4-296                                                                                                                                                                         
+ suppliers.js              |       0 |        0 |       0 |       0 | 13-319                                                                                                                                                                        
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 2 failed, 2 total
+Tests:       2 failed, 2 total
+Snapshots:   0 total
+Time:        2.498 s
+Ran all test suites within paths "tests/spec/admin/F09-TP8-001_BlockNonNumericSellingPrice.spec.js", "tests/spec/admin/F09-TP8-002_RejectNegativeSellingPrice.spec.js".

@@ -1,4 +1,9 @@
-import { compactText } from '../helpers/text.js';
+import {
+  buildBookSearchIndex,
+  rankBookMatches,
+  isValidBookQuery,
+  normalizeBookQuery,
+} from '../helpers/bookSearch.js';
 
 export function initSaleTitleAutocomplete(elements = {}, options = {}) {
   const refs = {
@@ -36,7 +41,7 @@ export function initSaleTitleAutocomplete(elements = {}, options = {}) {
 
   const inputHandler = (event) => {
     const query = String(event?.target?.value ?? '').trim();
-    if (!isValidQuery(query)) {
+    if (!isValidBookQuery(query)) {
       clearSuggestions();
       if (refs.msgEl) {
         refs.msgEl.textContent = 'Type at least two letters to search titles.';
@@ -106,9 +111,9 @@ export function initSaleTitleAutocomplete(elements = {}, options = {}) {
     try {
       state.loading = true;
       const books = await deps.loadBooks();
-      state.index = buildTitleIndex(books);
-      const normalizedQuery = normalizeQuery(query);
-      state.filtered = filterMatches(state.index, normalizedQuery, deps.maxResults);
+      state.index = buildBookSearchIndex(books);
+      const normalizedQuery = normalizeBookQuery(query);
+      state.filtered = rankBookMatches(state.index, normalizedQuery, deps.maxResults);
       state.activeIndex = -1;
       if (!state.filtered.length) {
         handleNoMatch(normalizedQuery);
@@ -220,78 +225,4 @@ export function initSaleTitleAutocomplete(elements = {}, options = {}) {
     refs.hiddenInput.dispatchEvent(event);
   }
 }
-
-export function buildTitleIndex(docs = []) {
-  const seen = new Set();
-  const result = [];
-  docs.forEach((doc) => {
-    if (!doc || !doc.id) return;
-    const normalized = compactText(doc.title || '');
-    if (!normalized) return;
-    const key = normalized.toLowerCase();
-    if (seen.has(key)) return;
-    seen.add(key);
-    result.push({
-      id: doc.id,
-      title: normalized,
-      tokens: key.split(/\s+/),
-      titleLower: key,
-      source: {
-        id: doc.id,
-        title: normalized,
-        supplier: doc.supplier || null,
-        history: doc.history || null,
-      },
-    });
-  });
-  return result;
-}
-
-function normalizeQuery(value) {
-  return compactText(value || '').toLowerCase();
-}
-
-function isValidQuery(value) {
-  const normalized = normalizeQuery(value);
-  return normalized.length >= 2 && /[a-z]/i.test(normalized);
-}
-
-function filterMatches(index, query, maxResults) {
-  if (!query) return index.slice(0, maxResults);
-  const startsWithMatches = [];
-  const containsMatches = [];
-  index.forEach((entry) => {
-    if (entry.tokens.some((token) => token.startsWith(query))) {
-      startsWithMatches.push(entry);
-    } else if (entry.titleLower.includes(query)) {
-      containsMatches.push(entry);
-    }
-  });
-  const combined = [...startsWithMatches, ...containsMatches];
-  const results = [];
-  const seen = new Set();
-  combined.forEach((entry) => {
-    if (seen.has(entry.id) || results.length >= maxResults) return;
-    seen.add(entry.id);
-    results.push(entry);
-  });
-  if (results.length < maxResults) {
-    const firstChar = query.charAt(0);
-    const sameFirstLetter = [];
-    const others = [];
-    index.forEach((entry) => {
-      if (seen.has(entry.id)) return;
-      if (entry.titleLower.startsWith(firstChar)) {
-        sameFirstLetter.push(entry);
-      } else {
-        others.push(entry);
-      }
-    });
-    [...sameFirstLetter, ...others].forEach((entry) => {
-      if (results.length >= maxResults) return;
-      seen.add(entry.id);
-      results.push(entry);
-    });
-  }
-  return results.slice(0, maxResults);
-}
+export { buildBookSearchIndex as buildTitleIndex };

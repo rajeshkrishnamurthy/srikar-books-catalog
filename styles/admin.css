@@ -463,6 +463,23 @@ dialog::backdrop {
   text-align: right;
   font-weight: 600;
 }
+.sale-line-totals {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+.sale-line-totals__label {
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.sale-line-totals__amount {
+  font-size: 1rem;
+  font-weight: 600;
+}
 @media (max-width: 720px) {
   .sale-line-grid {
     grid-template-columns: 1fr;

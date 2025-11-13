@@ -23,6 +23,7 @@ import {
   deleteObject,
 } from '../lib/firebase.js';
 import { stripHtmlAndSquash } from '../helpers/text.js';
+import { bookMatchesQuery } from '../helpers/bookSearch.js';
 import { readCurrencyField } from './currency.js';
 
 // ---- small utils ----
@@ -63,12 +64,13 @@ function formatPurchasePriceText(value) {
 }
 
 function matches(doc, term) {
-  if (!term) return true;
-  const t = norm(term);
-  return (
-    norm(doc.title || '').includes(t) ||
-    norm(doc.author || '').includes(t) ||
-    norm(doc.isbn || '').includes(t)
+  return bookMatchesQuery(
+    {
+      title: doc.title,
+      author: doc.author,
+      isbn: doc.isbn,
+    },
+    term
   );
 }
 

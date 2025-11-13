@@ -61,7 +61,12 @@ export function initSaleLineItems(elements = {}, options = {}) {
 
   const teardown = [];
 
-  const priceInputHandler = () => {
+  const priceInputHandler = (event) => {
+    const target = event?.target || refs.priceInput;
+    const sanitized = sanitizeSellingPriceInput(target?.value ?? '');
+    if (target && target.value !== sanitized) {
+      target.value = sanitized;
+    }
     clearMessage();
     updateAddButtonState();
   };
@@ -254,7 +259,11 @@ export function initSaleLineItems(elements = {}, options = {}) {
     if (!state.selectedBook?.id) {
       return { valid: false, message: 'Select a book before adding a line.' };
     }
-    const sellingPrice = normalizeSellingPrice(refs.priceInput.value);
+    const rawPrice = refs.priceInput.value;
+    if (isNegativePrice(rawPrice)) {
+      return { valid: false, message: 'Selling price must be a positive number.' };
+    }
+    const sellingPrice = normalizeSellingPrice(rawPrice);
     if (sellingPrice == null) {
       return { valid: false, message: 'Selling price is required and must be a valid number.' };
     }
@@ -581,6 +590,39 @@ export function buildSaleLinePayload(options = {}) {
     createdAt,
     updatedAt,
   };
+}
+
+function sanitizeSellingPriceInput(value) {
+  const input = typeof value === 'string' ? value : String(value ?? '');
+  let sanitized = '';
+  let dotUsed = false;
+  let minusUsed = false;
+  for (let index = 0; index < input.length; index += 1) {
+    const char = input[index];
+    if (char >= '0' && char <= '9') {
+      sanitized += char;
+      continue;
+    }
+    if (char === '.' && !dotUsed) {
+      sanitized += char;
+      dotUsed = true;
+      continue;
+    }
+    if (char === '-' && index === 0 && !minusUsed) {
+      sanitized += char;
+      minusUsed = true;
+    }
+  }
+  return sanitized;
+}
+
+function isNegativePrice(value) {
+  const sanitized = sanitizeSellingPriceInput(value).trim();
+  if (!sanitized || sanitized === '-') {
+    return false;
+  }
+  const parsed = Number(sanitized);
+  return Number.isFinite(parsed) && parsed < 0;
 }
 
 function normalizeBookSnapshot(book) {

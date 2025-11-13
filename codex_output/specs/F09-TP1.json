@@ -53,6 +53,14 @@
       "when": "An admin selects a book via the autocomplete.",
       "then": "The draft label stays “Add another book,” a “Book selected” toast appears, and focus shifts to the selling price input.",
       "test": "/tests/spec/admin/F09-TP1-005_SaleLineDraftLabelUpdates.spec.js"
+    },
+    {
+      "id": "F09-TP1-007",
+      "title": "SearchMatchesInventoryFilter",
+      "given": "The same catalog books power both the admin search and the sale entry autocomplete.",
+      "when": "An admin types a query into the sale entry lookup.",
+      "then": "Only the books that would match the main inventory filter (title/author/ISBN contains the term) appear in suggestions—no extra or missing results.",
+      "test": "/tests/spec/admin/F09-TP1-006_SaleLookupMatchesInventoryFilter.spec.js"
     }
   ],
   "fixtures": [
@@ -73,12 +81,15 @@
   },
   "changedFiles": [
     "scripts/admin/salesTitleAutocomplete.js",
+    "scripts/admin/inventory.js",
+    "scripts/helpers/bookSearch.js",
     "tests/fixtures/salesTitleAutocompleteHarness.js",
     "tests/spec/admin/F09-TP1-001_CatalogTitleAutocompleteFilters.spec.js",
     "tests/spec/admin/F09-TP1-002_SelectingSuggestionLocksBook.spec.js",
     "tests/spec/admin/F09-TP1-003_KeyboardNavigationFocus.spec.js",
     "tests/spec/admin/F09-TP1-004_IgnoreNonTitleTokens.spec.js",
     "tests/spec/admin/F09-TP1-005_SaleLineDraftLabelUpdates.spec.js",
+    "tests/spec/admin/F09-TP1-006_SaleLookupMatchesInventoryFilter.spec.js",
     "tests/unit/admin/F09-TP1-001_BuildTitleIndex.test.js",
     "scripts/admin/salesLineItems.js",
     "tests/fixtures/salesLineItemsHarness.js",
@@ -90,7 +101,14 @@
     "Added defensive validation for numeric/SKU input, inline guidance messaging, and graceful fallback ordering so suggestions stay intuitive even with limited matches.",
     "Expanded buildTitleIndex to normalize titles, store lower-cased tokens, and carry the original supplier payload for downstream selection callbacks.",
     "Added a wiring spec to ensure book selection updates the draft label, shows confirmation messaging, and focuses the selling price field.",
+    "Added a parity spec ensuring sale-entry lookup results mirror the admin inventory search filter logic, now backed by a shared bookSearch helper consumed by both modules.",
     "salesLineItems focuses the price input and surfaces a positive inline status once the header unlocks the draft, while the label continues to read “Add another book.”"
   ],
+  "helpers": {
+    "created": [
+      "scripts/helpers/bookSearch.js"
+    ],
+    "used": []
+  },
   "notes": "F09-TP1 builds on the F08 sale line infrastructure by providing a first-class book title autocomplete: it must keep searches local/cached, honor keyboard usage, feed directly into the same hidden bookId/summary fields that salesLineItems.js already watches, and refuse to treat raw SKUs or numeric tokens as valid matches."
 }

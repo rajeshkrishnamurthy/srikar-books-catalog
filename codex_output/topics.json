@@ -311,6 +311,18 @@
           "when": "The selection confirmation event fires (button press or keyboard action).",
           "then": "The lookup input clears its text, the autocomplete results list disappears, focus shifts to the next logical control (e.g., sale date), and the previously selected customer remains locked in until Change customer is invoked.",
           "notes": "Announce the reset for assistive tech, prevent accidental clearing if selection fails, and re-open the search automatically when Change customer is pressed."
+        },
+        {
+          "id": "F09-TP8",
+          "title": "Selling Price Input Guardrails",
+          "area": "Admin / Sales Entry",
+          "goal": "Restrict the selling price field to numeric entry with immediate validation feedback.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F08-TP2"],
+          "given": "An admin is entering a selling price for a sale line.",
+          "when": "They type characters into the selling price input or attempt to submit a non-numeric/negative value.",
+          "then": "Only digits (and a single optional decimal separator) are accepted, invalid keystrokes are ignored, and inline validation explains that the selling price must be a positive number before the line can be saved.",
+          "notes": "Reuse existing currency-validation helpers, keep keyboard navigation (Tab, Backspace) functional, and announce validation errors to assistive tech users."
         }
       ]
     }
