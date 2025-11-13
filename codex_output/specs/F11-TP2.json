@@ -4,7 +4,7 @@
   "area": "Admin / Sales Entry",
   "goal": "When removal is confirmed, delete the line from local state, update totals, clear draft state, and keep focus ready for the next entry.",
   "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-  "status": "GREEN",
+  "status": "RED",
   "specs": [
     {
       "id": "F11-TP2-001",
@@ -40,26 +40,25 @@
     "green": "codex_output/reports/F11-TP2_green.txt"
   },
   "validation": {
-    "status": "GREEN",
-    "command": "npm test -- --watchAll=false --bail=0",
-    "report": "codex_output/reports/F11-TP2_green.txt",
+    "status": "RED",
+    "command": "npm test -- --watchAll=false",
+    "report": "codex_output/reports/F11-TP2_red.txt",
     "summary": {
-      "result": "passed",
-      "details": "Confirmed removal now deletes the row, recalculates totals, logs status updates, and resets the draft/persist state after the final line."
+      "result": "failed",
+      "details": "F11-TP2 specs fail because confirmed removal does not delete rows, totals stay stale, and the draft state / Persist button remain active after the final line is removed."
     }
   },
   "changedFiles": [
-    "admin.html",
-    "scripts/admin/main.js",
-    "scripts/admin/salesLineItems.js",
-    "tests/fixtures/adminInventoryHarness.js",
-    "tests/fixtures/salesLineItemsHarness.js",
-    "codex_output/reports/F11-TP2_green.txt",
-    "codex_output/specs/F11-TP2.json"
+    "codex_output/reports/F11-TP2_red.txt",
+    "codex_output/specs/F11-TP2.json",
+    "tests/fixtures/salesEntryPersistHarness.js",
+    "tests/spec/admin/F11-TP2-001_ConfirmRemovalDeletesRow.spec.js",
+    "tests/spec/admin/F11-TP2-002_TotalsRecalculateAfterRemoval.spec.js",
+    "tests/spec/admin/F11-TP2-003_FinalRemovalResetsDraft.spec.js"
   ],
   "changeNotes": [
-    "Embedded the removal status live region and wired the sale line module to log removals, update totals, and disable Persist sale when the last line is deleted.",
-    "Updated the sales line harness + main wiring to pass the new search + status nodes so the Jest specs can observe removal state transitions."
+    "Documented the confirm-remove behaviors for deleting rows, recalculating totals, and resetting the draft on the final removal, then codified them into RED-phase Jest specs.",
+    "Added a lightweight salesEntryPersistHarness shim plus extended the sales line harness DOM so tests can observe removal status, totals, and persist button state."
   ],
   "notes": "These specs build on F11-TP1: Remove buttons already exist—F11-TP2 enforces the data/state updates once a removal is confirmed."
 }

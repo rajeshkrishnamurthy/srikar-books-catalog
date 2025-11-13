@@ -254,12 +254,13 @@ export function initSaleLineItems(elements = {}, options = {}) {
       return;
     }
 
-    state.lines.push(payload);
-    appendLineRow(payload);
-    updateTotals();
-    deps.onLinesChange([...state.lines]);
-    clearMessage();
-    resetDraft();
+  state.lines.push(payload);
+  appendLineRow(payload);
+  updateTotals();
+  deps.onLinesChange([...state.lines]);
+  clearMessage();
+  resetDraft();
+  enablePersistButton();
   }
 
   function validateDraft() {
@@ -369,6 +370,7 @@ export function initSaleLineItems(elements = {}, options = {}) {
     clearRemovalPending({ silent: true });
     setRemovalStatus('');
     updateTotals();
+    disablePersistButton({ reason: 'no-lines' });
   }
 
   function updateAddButtonState() {
@@ -455,7 +457,7 @@ export function initSaleLineItems(elements = {}, options = {}) {
     logRemovalStatus(title);
     if (state.lines.length === 0) {
       resetDraft();
-      disablePersistButton();
+      disablePersistButton({ reason: 'no-lines' });
     }
   }
 
@@ -552,12 +554,21 @@ export function initSaleLineItems(elements = {}, options = {}) {
     refs.statusList.appendChild(item);
   }
 
-  function disablePersistButton() {
+  function disablePersistButton(options = {}) {
     if (!refs.persistBtn) return;
     refs.persistBtn.disabled = true;
-    if (refs.persistMsg) {
-      refs.persistMsg.textContent = '';
+    refs.persistBtn.setAttribute('aria-disabled', 'true');
+    if (options.reason === 'no-lines' && refs.persistMsg) {
+      refs.persistMsg.textContent = 'Add at least one line item before saving.';
+    } else if (options.message && refs.persistMsg) {
+      refs.persistMsg.textContent = options.message;
     }
+  }
+
+  function enablePersistButton() {
+    if (!refs.persistBtn) return;
+    refs.persistBtn.disabled = false;
+    refs.persistBtn.removeAttribute('aria-disabled');
   }
 
   function setSupplierOptions(list = []) {
