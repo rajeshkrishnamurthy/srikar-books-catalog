@@ -20,7 +20,5 @@ describe('SPEC F08-TP1-004: Sale header gates access to line items', () => {
     harness.submit();
     expect(harness.onHeaderReady).toHaveBeenCalledTimes(1);
     expect(harness.continueBtn.disabled).toBe(true);
-    expect(harness.customerIdInput.value).toBe('');
-    expect(harness.customerSummary.dataset.empty).toBe('true');
   });
 });

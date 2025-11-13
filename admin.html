@@ -308,29 +308,28 @@
                     </div>
                   </div>
                 </div>
-                <div class="sale-header-row">
-                  <div class="sale-customer-field">
-                    <label class="field-label" for="saleCustomerLookupSearch"
-                      >Customer</label
-                    >
+                <div class="sale-customer-row">
+                  <div id="saleCustomerLookup" class="sale-customer-lookup">
+                    <label class="field-label" for="saleCustomerLookupSearch">
+                      Search customers
+                    </label>
+                    <input
+                      id="saleCustomerLookupSearch"
+                      type="search"
+                      placeholder="Start typing a name"
+                      autocomplete="off"
+                    />
+                    <p id="saleCustomerLookupEmpty" hidden></p>
+                    <ul id="saleCustomerLookupList" class="admin-list"></ul>
+                  </div>
+                  <div class="sale-customer-summary-wrap">
+                    <label class="field-label">Selected customer</label>
                     <p
                       id="saleHeaderCustomerSummary"
                       class="sale-customer-summary"
                       data-empty="true"
-                      data-default-summary="No customer selected"
-                    >
-                      No customer selected
-                    </p>
-                    <div id="saleCustomerLookup" class="sale-customer-lookup">
-                      <input
-                        id="saleCustomerLookupSearch"
-                        type="search"
-                        placeholder="Search customers"
-                        autocomplete="off"
-                      />
-                      <p id="saleCustomerLookupEmpty" hidden></p>
-                      <ul id="saleCustomerLookupList" class="admin-list"></ul>
-                    </div>
+                      data-default-summary=""
+                    ></p>
                   </div>
                 </div>
                 <div class="flex" style="gap: 0.5rem">
@@ -344,79 +343,91 @@
             </div>
 
             <div>
-              <form id="saleLineDraftForm" class="stack">
-                <label id="saleLineDraftLabel" for="saleLineBookTitle">
+              <form id="saleLineDraftForm" class="stack sale-line-draft">
+                <span id="saleLineDraftLabel" class="sale-line-draft__title">
                   Add another book
-                </label>
-                <input
-                  id="saleLineBookTitle"
-                  name="saleLineBookTitle"
-                  type="text"
-                  placeholder="Start typing a title"
-                  autocomplete="off"
-                  aria-autocomplete="list"
-                  aria-expanded="false"
-                  aria-controls="saleLineSuggestions"
-                />
-                <ul
-                  id="saleLineSuggestions"
-                  role="listbox"
-                  aria-label="Matching titles"
-                ></ul>
-                <label>
-                  Supplier
-                  <select
-                    id="saleLineSupplierSelect"
-                    name="saleLineSupplierId"
-                    required
-                  >
-                    <option value="" selected disabled>Select supplier *</option>
-                  </select>
-                </label>
+                </span>
+                <div class="sale-line-grid">
+                  <div class="sale-line-field sale-line-field--title">
+                    <label class="sale-line-field__label" for="saleLineBookTitle">
+                      Title
+                    </label>
+                    <input
+                      id="saleLineBookTitle"
+                      name="saleLineBookTitle"
+                      type="text"
+                      placeholder="Start typing a title"
+                      autocomplete="off"
+                      aria-autocomplete="list"
+                      aria-expanded="false"
+                      aria-controls="saleLineSuggestions"
+                    />
+                    <ul
+                      id="saleLineSuggestions"
+                      role="listbox"
+                      aria-label="Matching titles"
+                    ></ul>
+                  </div>
+                  <div class="sale-line-field sale-line-field--price">
+                    <label class="sale-line-field__label" for="saleLinePrice">
+                      Selling price
+                    </label>
+                    <input
+                      id="saleLinePrice"
+                      name="sellingPrice"
+                      type="text"
+                      autocomplete="off"
+                      inputmode="numeric"
+                    />
+                  </div>
+                  <div class="sale-line-field sale-line-field--supplier">
+                    <label class="sale-line-field__label" for="saleLineSupplierSelect">
+                      Supplier
+                    </label>
+                    <select
+                      id="saleLineSupplierSelect"
+                      name="saleLineSupplierId"
+                      required
+                    >
+                      <option value="" selected disabled>Select supplier *</option>
+                    </select>
+                  </div>
+                </div>
                 <input type="hidden" id="saleLineBookId" name="bookId" value="" />
                 <p
                   id="saleLineBookSummary"
+                  class="sr-only"
                   data-empty="true"
                   data-default-summary="No book selected"
                 >
                   No book selected
                 </p>
-                <label>
-                  <span>Selling price</span>
-                  <input
-                    id="saleLinePrice"
-                    name="sellingPrice"
-                    type="text"
-                    autocomplete="off"
-                    inputmode="numeric"
-                  />
-                </label>
-                <button
-                  type="submit"
-                  id="saleLineAddBtn"
-                  class="btn btn-ghost sale-line-submit"
-                  disabled
-                >
-                  Submit
-                </button>
+                <div class="sale-line-actions">
+                  <button
+                    type="submit"
+                    id="saleLineAddBtn"
+                    class="btn btn-ghost sale-line-submit"
+                    disabled
+                  >
+                    Add
+                  </button>
+                </div>
                 <p id="saleTitleMsg" class="muted" aria-live="polite"></p>
                 <p id="saleLineMsg" class="muted" aria-live="polite"></p>
               </form>
-              <table class="admin-table">
+              <table class="admin-table sale-line-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Supplier</th>
+                    <th scope="col" class="numeric">Price</th>
+                  </tr>
+                </thead>
                 <tbody id="saleLineItemsBody"></tbody>
               </table>
-              <div id="saleLineContext" class="muted">
-                <p id="saleLineSupplierHint" data-empty="true">Supplier: Not set</p>
-                <p id="saleLinePurchaseHint" data-empty="true">
-                  Purchase price: Not set
-                </p>
-                <p id="saleLineSellingHint" data-empty="true">
-                  Last sold price: Not set
-                </p>
-              </div>
-              <div id="saleLineTotals" class="flex" style="gap: 0.5rem">
-                <span id="saleLineTotalsCount">0 lines</span>
-                <span id="saleLineTotalsAmount">₹0.00</span>
+              <div id="saleLineTotals" class="sale-line-totals">
+                <span id="saleLineTotalsCount" class="sale-line-totals__label"></span>
+                <span id="saleLineTotalsAmount" class="sale-line-totals__amount"></span>
               </div>
             </div>
           </div>

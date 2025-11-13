@@ -70,7 +70,8 @@
   "changeNotes": [
     "Wire sale line items to the header-ready state: the draft form, autocomplete input, price field, and Add button now stay disabled until the sale header is valid, relock automatically when the header becomes invalid, and surface inline guidance.",
     "After each successful line addition the draft resets, hints clear, and keyboard focus returns to the book title input so admins can capture multiple books rapidly.",
-    "Updated the harness plus hint renderer so supplier + price context stay intact across preloaded selections and header transitions, and captured the passing Jest run in codex_output/reports/F09-TP3_green.txt."
+    "Updated the harness plus hint renderer so supplier + price context stay intact across preloaded selections and header transitions, and captured the passing Jest run in codex_output/reports/F09-TP3_green.txt.",
+    "Removed the sale line context hints (Supplier/Purchase price/Last sold price) and their renderer so Record Sale reflects the simplified design."
   ],
   "notes": "F09-TP3 relies on the F08 sale header and the new title autocomplete: the draft line must stay locked until customer + date validations pass, unlock automatically when they do, and after each saved line the UI should reset and focus the title input so admins can add multiple books quickly without touching the mouse."
 }

@@ -101,9 +101,6 @@ const saleLineAddBtn = document.getElementById('saleLineAddBtn');
 const saleTitleMsg = document.getElementById('saleTitleMsg');
 const saleLineMsg = document.getElementById('saleLineMsg');
 const saleLineItemsBody = document.getElementById('saleLineItemsBody');
-const saleLineSupplierHint = document.getElementById('saleLineSupplierHint');
-const saleLinePurchaseHint = document.getElementById('saleLinePurchaseHint');
-const saleLineSellingHint = document.getElementById('saleLineSellingHint');
 const saleLineTotalsCount = document.getElementById('saleLineTotalsCount');
 const saleLineTotalsAmount = document.getElementById('saleLineTotalsAmount');
 const salePersistBtn = document.getElementById('salePersistBtn');
@@ -624,9 +621,6 @@ function ensureSaleEntryInitialized() {
       addLineBtn: saleLineAddBtn,
       msgEl: saleLineMsg,
       lineItemsBody: saleLineItemsBody,
-      supplierHintEl: saleLineSupplierHint,
-      purchaseHintEl: saleLinePurchaseHint,
-      sellingHintEl: saleLineSellingHint,
       totalsCountEl: saleLineTotalsCount,
       totalsAmountEl: saleLineTotalsAmount,
     },

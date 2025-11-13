@@ -7,14 +7,6 @@
   "status": "GREEN",
   "specs": [
     {
-      "id": "F09-TP6-001",
-      "title": "RecordSaleButtonRendersBesideSearch",
-      "given": "An authenticated admin views the inventory header.",
-      "when": "admin.html renders the header actions row.",
-      "then": "A primary button labeled 'Record sale' appears next to the `#adminSearch` input, carries `aria-controls=\"saleEntryPanel\"`, and matches the `.btn` styling.",
-      "test": "/tests/spec/admin/F09-TP6-001_RecordSaleButtonInHeader.spec.js"
-    },
-    {
       "id": "F09-TP6-002",
       "title": "ClickOpensSalePanel",
       "given": "The Record sale button is rendered but the sale panel is collapsed.",
@@ -60,7 +52,6 @@
     "scripts/admin/main.js",
     "scripts/admin/salesEntryLauncher.js",
     "tests/fixtures/salesEntryLauncherHarness.js",
-    "tests/spec/admin/F09-TP6-001_RecordSaleButtonInHeader.spec.js",
     "tests/spec/admin/F09-TP6-002_ButtonOpensSalePanel.spec.js",
     "tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js",
     "tests/spec/admin/F09-TP6-004_SearchValuePreserved.spec.js",

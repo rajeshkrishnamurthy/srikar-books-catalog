@@ -1,0 +1,54 @@
+{
+  "topicId": "F09-TP8",
+  "title": "Selling Price Input Guardrails",
+  "area": "Admin / Sales Entry",
+  "goal": "Restrict the selling price field to numeric entry with immediate validation feedback.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F09-TP8-001",
+      "title": "BlockNonNumericKeystrokes",
+      "given": "An admin is typing into the selling price field.",
+      "when": "They enter alphabetic characters.",
+      "then": "Those characters are ignored so the input retains only digits/one decimal separator.",
+      "test": "/tests/spec/admin/F09-TP8-001_BlockNonNumericSellingPrice.spec.js"
+    },
+    {
+      "id": "F09-TP8-002",
+      "title": "RejectNegativeValues",
+      "given": "The admin has entered a negative selling price.",
+      "when": "They attempt to submit the sale line.",
+      "then": "The line is blocked, the inline message mentions that the price must be positive, and no line rows are appended.",
+      "test": "/tests/spec/admin/F09-TP8-002_RejectNegativeSellingPrice.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/salesLineItemsHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F09-TP8_red.txt",
+    "green": "codex_output/reports/F09-TP8_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "status": "GREEN",
+    "report": "codex_output/reports/F09-TP8_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "GREEN suite: npm test -- --watchAll=false --bail=0 (see codex_output/reports/F09-TP8_green.txt). Selling price input now strips alpha characters and rejects negative submissions."
+    }
+  },
+  "changedFiles": [
+    "scripts/admin/salesLineItems.js",
+    "tests/spec/admin/F09-TP8-001_BlockNonNumericSellingPrice.spec.js",
+    "tests/spec/admin/F09-TP8-002_RejectNegativeSellingPrice.spec.js",
+    "codex_output/specs/F09-TP8.json"
+  ],
+  "changeNotes": [
+    "Sanitized the selling price input handler so alphabetic characters are dropped immediately, preserving digits and a single decimal for admins.",
+    "Negative selling prices now surface a positive-number validation message and block submitting the draft line.",
+    "Captured the GREEN Jest run in codex_output/reports/F09-TP8_green.txt for downstream agents."
+  ],
+  "notes": "Guardrails keep the sale line selling price field numeric-only and ensure negative values never slip into persisted line items."
+}

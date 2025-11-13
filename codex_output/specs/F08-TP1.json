@@ -53,14 +53,6 @@
       "when": "The sale header summary updates.",
       "then": "It lists the customer name, WhatsApp, city, and a Change customer control to reinforce the captured state.",
       "test": "/tests/spec/admin/F08-TP1-007_SaleHeaderSummaryChip.spec.js"
-    },
-    {
-      "id": "F08-TP1-008",
-      "title": "SaleHeaderButtonCopy",
-      "given": "The header CTA renders.",
-      "when": "The header submits successfully.",
-      "then": "The button text reads “Add books” and the success message says “Header saved—add books below,” reinforcing the workflow copy.",
-      "test": "/tests/spec/admin/F08-TP1-008_SaleHeaderButtonCopy.spec.js"
     }
   ],
   "fixtures": [
@@ -89,7 +81,6 @@
     "tests/spec/admin/F08-TP1-004_SaleHeaderLocksLineItems.spec.js",
     "tests/spec/admin/F08-TP1-005_CustomerLookupSelectionState.spec.js",
     "tests/spec/admin/F08-TP1-007_SaleHeaderSummaryChip.spec.js",
-    "tests/spec/admin/F08-TP1-008_SaleHeaderButtonCopy.spec.js",
     "tests/unit/admin/F08-TP1-001_SaleHeaderPayload.test.js",
     "codex_output/reports/F08-TP1_green.txt",
     "codex_output/specs/F08-TP1.json"
@@ -107,7 +98,7 @@
     "Captured the customer lookup disposer, made the inline message element mandatory, gave the harness an offSelect/cleanup path, and fed dd-mon-yy data into the \"requires customer\" spec so date parsing stays realistic.",
     "Hydrated sale-header state from preloaded DOM values and merged custom clock overrides so todayIso-only injections keep future-date gating accurate without user re-entry.",
     "Lookup rows now store dataset state, swap the Select button for a Selected chip, and expose accessible chips so admins always see which customer is active.",
-    "Sale header summary renders name/location/address/WhatsApp metadata and keeps the CTA/success copy aligned with the approved \"Add books\" and \"Header saved—add books below\" wording."
+    "Sale header summary renders name/location/address/WhatsApp metadata and keeps the CTA copy aligned with the approved \"Add books\" wording without showing a persistent success banner."
   ],
   "notes": "Sale header UI must integrate with the existing customer lookup widget, block access to sale line items until both customer and sale date are present, emit normalized metadata for downstream persistence, and reset itself after a header is captured."
 }

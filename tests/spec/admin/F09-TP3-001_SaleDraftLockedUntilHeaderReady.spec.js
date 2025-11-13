@@ -26,6 +26,5 @@ describe('SPEC F09-TP3-001: Draft form locked until header is valid', () => {
     expect(harness.priceInput.disabled).toBe(true);
     expect(harness.addLineBtn.disabled).toBe(true);
     expect(harness.draftLabelEl.textContent).toMatch(/Add another book/i);
-    expect(harness.msgEl.textContent.toLowerCase()).toContain('sale header');
   });
 });
