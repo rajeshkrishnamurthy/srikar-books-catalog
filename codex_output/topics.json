@@ -273,7 +273,7 @@
           "dependencies": ["F08-TP1", "F09-TP1"],
           "given": "The sale header form is visible inside the sale entry experience.",
           "when": "The admin interacts with the header (selecting customer/date, pressing the CTA) or selects a book for the draft line.",
-          "then": "The primary CTA reads “Start line items” (beside a disabled Persist sale button) with helper text “Customer + date unlocks book entry,” stays disabled until both fields validate, and on success shows “Header saved—add books below”; the draft label updates to “Selected: <Title> — enter selling price” after a book is chosen, reverts to “Add another book” once the line saves, and focus hops back to the Book title field.",
+          "then": "The primary CTA reads “Add books” (beside a disabled Persist sale button) with helper text “Customer + date unlocks book entry,” stays disabled until both fields validate, and on success shows “Header saved—add books below”; the draft label updates to “Selected: <Title> — enter selling price” after a book is chosen, reverts to “Add another book” once the line saves, and focus hops back to the Book title field.",
           "notes": "Keep helper copy inline beneath the CTA, briefly show a success state on the CTA before re-enabling, and ensure keyboard users perceive the label changes."
         },
         {
@@ -311,6 +311,18 @@
           "when": "They click the Record sale button beside the search box.",
           "then": "The button (matching other primary actions) scroll-focuses or opens the sale panel/modal, #saleEntryPanel inputs use a raised token with lighter background plus outline/glow focus states, sticky section headers keep the sale header and line form separated, and empty-state hints with icons explain what supplier/price data will auto-fill.",
           "notes": "Ensure the Record sale action is one tap away on desktop/mobile, trap focus inside the modal when open, keep the panel visible by default for keyboard access, and provide the “Customer + date unlocks book entry” reminder near the CTA."
+        },
+        {
+          "id": "F09-TP7",
+          "title": "Clear Lookup After Selection",
+          "area": "Admin / Sales Entry",
+          "goal": "Automatically reset the customer search field and collapse results after a customer is selected.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": ["F09-TP4", "F09-TP5"],
+          "given": "A customer selection succeeds and the summary pill shows the chosen buyer.",
+          "when": "The selection confirmation event fires (button press or keyboard action).",
+          "then": "The lookup input clears its text, the autocomplete results list disappears, focus shifts to the next logical control (e.g., sale date), and the previously selected customer remains locked in until Change customer is invoked.",
+          "notes": "Announce the reset for assistive tech, prevent accidental clearing if selection fails, and re-open the search automatically when Change customer is pressed."
         }
       ]
     }

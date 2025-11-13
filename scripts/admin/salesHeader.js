@@ -18,12 +18,11 @@ const MONTH_LOOKUP = {
 };
 
 export function initSaleHeader(elements = {}, options = {}) {
-  const refs = {
+const refs = {
     form: elements.form || null,
     saleDateInput: elements.saleDateInput || null,
     customerSummary: elements.customerSummary || null,
     customerIdInput: elements.customerIdInput || null,
-    changeCustomerBtn: elements.changeCustomerBtn || null,
     continueBtn: elements.continueBtn || null,
     msgEl: elements.msgEl || null,
   };
@@ -47,17 +46,13 @@ export function initSaleHeader(elements = {}, options = {}) {
   if (!refs.customerSummary.textContent) {
     refs.customerSummary.textContent = defaultSummary;
   }
-  refs.continueBtn.textContent = 'Start line items';
+  refs.continueBtn.textContent = 'Add books';
   refs.continueBtn.disabled = true;
 
   const state = {
     customer: null,
     saleDate: parseSaleDate(refs.saleDateInput.value),
   };
-  const providedChangeButton = refs.changeCustomerBtn || null;
-  let changeCustomerButton = providedChangeButton || null;
-  let detachChangeCustomerButton = null;
-
   hydrateInitialCustomer();
 
   const teardown = [];
@@ -186,6 +181,7 @@ export function initSaleHeader(elements = {}, options = {}) {
         (!isDefaultSummary ? summaryText : '') ||
         '',
       location: dataset.customerLocation || dataset.location || '',
+      address: dataset.customerAddress || dataset.address || '',
       whatsApp:
         dataset.customerWhatsapp ||
         dataset.customerWhatsApp ||
@@ -242,22 +238,13 @@ export function initSaleHeader(elements = {}, options = {}) {
     }
   }
 
-  function renderCustomerSummary(customer) {
+function renderCustomerSummary(customer) {
     if (!refs.customerSummary) return;
-    const shouldPreserveButton =
-      providedChangeButton && providedChangeButton.parentElement === refs.customerSummary;
-    removeChangeCustomerButton();
-    if (shouldPreserveButton && providedChangeButton.parentElement === refs.customerSummary) {
-      providedChangeButton.remove();
-    }
     refs.customerSummary.innerHTML = '';
     if (!customer) {
       refs.customerSummary.textContent = defaultSummary;
       refs.customerSummary.dataset.empty = 'true';
       clearCustomerSummaryDataset();
-      if (shouldPreserveButton) {
-        refs.customerSummary.appendChild(providedChangeButton);
-      }
       return;
     }
     refs.customerSummary.dataset.empty = 'false';
@@ -269,6 +256,7 @@ export function initSaleHeader(elements = {}, options = {}) {
 
     const metaParts = [];
     if (customer.location) metaParts.push(customer.location);
+    if (customer.address) metaParts.push(customer.address);
     const contact = buildCustomerContact(customer);
     if (contact) metaParts.push(contact);
     if (metaParts.length) {
@@ -277,75 +265,24 @@ export function initSaleHeader(elements = {}, options = {}) {
       metaEl.textContent = metaParts.join(' • ');
       refs.customerSummary.appendChild(metaEl);
     }
-    if (shouldPreserveButton) {
-      refs.customerSummary.appendChild(providedChangeButton);
-    }
-    attachChangeCustomerButton();
   }
 
-  function setCustomerSummaryDataset(customer) {
-    refs.customerSummary.dataset.customerName = customer.name || '';
-    refs.customerSummary.dataset.customerLocation = customer.location || '';
-    refs.customerSummary.dataset.customerWhatsapp = customer.whatsApp || '';
-    refs.customerSummary.dataset.customerWhatsappdigits = customer.whatsAppDigits || '';
-  }
+function setCustomerSummaryDataset(customer) {
+  refs.customerSummary.dataset.customerName = customer.name || '';
+  refs.customerSummary.dataset.customerLocation = customer.location || '';
+  refs.customerSummary.dataset.customerAddress = customer.address || '';
+  refs.customerSummary.dataset.customerWhatsapp = customer.whatsApp || '';
+  refs.customerSummary.dataset.customerWhatsappdigits = customer.whatsAppDigits || '';
+}
 
-  function clearCustomerSummaryDataset() {
-    delete refs.customerSummary.dataset.customerName;
-    delete refs.customerSummary.dataset.customerLocation;
-    delete refs.customerSummary.dataset.customerWhatsapp;
-    delete refs.customerSummary.dataset.customerWhatsappdigits;
-  }
+function clearCustomerSummaryDataset() {
+  delete refs.customerSummary.dataset.customerName;
+  delete refs.customerSummary.dataset.customerLocation;
+  delete refs.customerSummary.dataset.customerAddress;
+  delete refs.customerSummary.dataset.customerWhatsapp;
+  delete refs.customerSummary.dataset.customerWhatsappdigits;
+}
 
-  function attachChangeCustomerButton() {
-    if (!refs.customerSummary) return;
-    const isProvided = Boolean(providedChangeButton);
-    const button =
-      providedChangeButton ||
-      refs.customerSummary.ownerDocument.createElement('button');
-    button.type = 'button';
-    button.textContent = button.textContent || 'Change customer';
-    button.className = button.className || 'customer-summary-change';
-    button.hidden = false;
-    const handler = (event) => {
-      event.preventDefault();
-      clearCustomerSelection({ notifyLookup: true });
-      refs.customerSummary.dispatchEvent(
-        new CustomEvent('salesHeader:changeCustomer', { bubbles: true })
-      );
-    };
-    button.addEventListener('click', handler);
-    changeCustomerButton = button;
-    detachChangeCustomerButton = () => {
-      button.removeEventListener('click', handler);
-      if (isProvided) {
-        button.hidden = true;
-        changeCustomerButton = providedChangeButton;
-      } else if (button.isConnected) {
-        button.remove();
-        changeCustomerButton = null;
-      }
-      detachChangeCustomerButton = null;
-    };
-    if (!isProvided) {
-      refs.customerSummary.appendChild(button);
-    }
-  }
-
-  function removeChangeCustomerButton() {
-    if (typeof detachChangeCustomerButton === 'function') {
-      detachChangeCustomerButton();
-      return;
-    }
-    if (!providedChangeButton && changeCustomerButton) {
-      changeCustomerButton.remove();
-      changeCustomerButton = null;
-    }
-    if (providedChangeButton) {
-      providedChangeButton.hidden = true;
-    }
-    detachChangeCustomerButton = null;
-  }
 }
 
 export function buildSaleHeaderPayload(options = {}) {
@@ -365,6 +302,7 @@ export function buildSaleHeaderPayload(options = {}) {
     customerSummary: {
       name: normalizedCustomer.name,
       location: normalizedCustomer.location,
+      address: normalizedCustomer.address,
       whatsApp: normalizedCustomer.whatsApp,
     },
     saleDateDisplay: parsedSaleDate.display,
@@ -383,6 +321,7 @@ function normalizeCustomer(customer = null) {
     id: String(customer.id),
     name: compactText(customer.name ?? ''),
     location: compactText(customer.location ?? ''),
+    address: compactText(customer.address ?? ''),
     whatsApp: compactText(customer.whatsApp ?? ''),
   };
 }

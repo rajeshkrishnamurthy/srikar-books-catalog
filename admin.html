@@ -277,6 +277,37 @@
             <div>
               <form id="saleHeaderForm" class="stack sale-header-form">
                 <input type="hidden" id="saleHeaderCustomerId" />
+                <div class="sale-date-field sale-date-field--full">
+                  <label class="field-label" for="saleHeaderSaleDate">Sale date</label>
+                  <div class="sale-date-field__controls">
+                    <input
+                      id="saleHeaderSaleDate"
+                      name="saleDate"
+                      type="text"
+                      placeholder="dd-mon-yy"
+                      autocomplete="off"
+                      inputmode="text"
+                    />
+                    <div class="sale-date-picker-trigger">
+                      <svg
+                        class="sale-date-picker-icon"
+                        viewBox="0 0 24 24"
+                        role="presentation"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M7 3a1 1 0 0 1 1 1v1h8V4a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1V4a1 1 0 0 1 1-1zm12 8H5v8h14zm-2-6H7v1a1 1 0 0 1-2 0V5H5a1 1 0 0 0-1 1v3h16V6a1 1 0 0 0-1-1h-.17v1a1 1 0 1 1-2 0z"
+                        />
+                      </svg>
+                      <input
+                        type="date"
+                        id="saleHeaderDatePicker"
+                        class="sale-date-picker-input"
+                        aria-label="Pick sale date"
+                      />
+                    </div>
+                  </div>
+                </div>
                 <div class="sale-header-row">
                   <div class="sale-customer-field">
                     <label class="field-label" for="saleCustomerLookupSearch"
@@ -290,14 +321,6 @@
                     >
                       No customer selected
                     </p>
-                    <button
-                      type="button"
-                      id="saleCustomerChangeBtn"
-                      class="sale-customer-change btn btn-link"
-                      hidden
-                    >
-                      Change customer
-                    </button>
                     <div id="saleCustomerLookup" class="sale-customer-lookup">
                       <input
                         id="saleCustomerLookupSearch"
@@ -305,47 +328,14 @@
                         placeholder="Search customers"
                         autocomplete="off"
                       />
-                      <p id="saleCustomerLookupEmpty" class="muted">
-                        Start typing to search customers.
-                      </p>
+                      <p id="saleCustomerLookupEmpty" hidden></p>
                       <ul id="saleCustomerLookupList" class="admin-list"></ul>
-                    </div>
-                  </div>
-                  <div class="sale-date-field">
-                    <label class="field-label" for="saleHeaderSaleDate">Sale date</label>
-                    <div class="sale-date-field__controls">
-                      <input
-                      id="saleHeaderSaleDate"
-                      name="saleDate"
-                      type="text"
-                      placeholder="dd-mon-yy"
-                      autocomplete="off"
-                      inputmode="text"
-                    />
-                    <div class="sale-date-picker-trigger">
-                        <svg
-                          class="sale-date-picker-icon"
-                          viewBox="0 0 24 24"
-                          role="presentation"
-                          aria-hidden="true"
-                        >
-                          <path
-                            d="M7 3a1 1 0 0 1 1 1v1h8V4a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1V4a1 1 0 0 1 1-1zm12 8H5v8h14zm-2-6H7v1a1 1 0 0 1-2 0V5H5a1 1 0 0 0-1 1v3h16V6a1 1 0 0 0-1-1h-.17v1a1 1 0 1 1-2 0z"
-                          />
-                        </svg>
-                        <input
-                          type="date"
-                          id="saleHeaderDatePicker"
-                          class="sale-date-picker-input"
-                          aria-label="Pick sale date"
-                        />
-                      </div>
                     </div>
                   </div>
                 </div>
                 <div class="flex" style="gap: 0.5rem">
                   <button id="saleHeaderContinue" type="submit" class="btn">
-                    Start line items
+                    Add books
                   </button>
                   <button type="reset" class="btn btn-secondary">Reset</button>
                 </div>
@@ -401,8 +391,13 @@
                     inputmode="numeric"
                   />
                 </label>
-                <button type="submit" id="saleLineAddBtn" class="btn" disabled>
-                  Add line
+                <button
+                  type="submit"
+                  id="saleLineAddBtn"
+                  class="btn btn-ghost sale-line-submit"
+                  disabled
+                >
+                  Submit
                 </button>
                 <p id="saleTitleMsg" class="muted" aria-live="polite"></p>
                 <p id="saleLineMsg" class="muted" aria-live="polite"></p>

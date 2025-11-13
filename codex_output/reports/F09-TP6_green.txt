@@ -1,0 +1,49 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false --runTestsByPath tests/spec/admin/F09-TP6-001_RecordSaleButtonInHeader.spec.js tests/spec/admin/F09-TP6-002_ButtonOpensSalePanel.spec.js tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js tests/spec/admin/F09-TP6-004_SearchValuePreserved.spec.js
+
+(node:4467) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/F09-TP6-002_ButtonOpensSalePanel.spec.js
+  SPEC F09-TP5-002: Record sale button opens the sale panel
+    ✓ clicking the button opens the panel, scrolls it into view, and focuses the sale header date input (10 ms)
+
+PASS tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js
+  SPEC F09-TP5-003: Launcher initializes sale workflow once on first activation
+    ✓ startSaleWorkflow runs only after the first click and not on repeated activations (5 ms)
+
+PASS tests/spec/admin/F09-TP6-004_SearchValuePreserved.spec.js
+  SPEC F09-TP5-004: Search field retains value and context while launching sale flow
+    ✓ typing in search and launching Record sale keeps the search field untouched and button aria-controls points to the panel (4 ms)
+
+PASS tests/spec/admin/F09-TP6-001_RecordSaleButtonInHeader.spec.js
+  SPEC F09-TP5-001: Record sale button appears beside search in admin header
+    ✓ admin.html header contains a Record sale button next to the inventory search field (26 ms)
+
+---------------------------|---------|----------|---------|---------|-------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+---------------------------|---------|----------|---------|---------|-------------------
+All files                  |    1.02 |     0.62 |    1.08 |    1.11 |                   
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79             
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25              
+ currency.js               |       0 |        0 |       0 |       0 | 6-31              
+ customerLookup.js         |       0 |        0 |       0 |       0 | 3-433             
+ customers.js              |       0 |        0 |       0 |       0 | 3-520             
+ editor.js                 |       0 |        0 |       0 |       0 | 27-411            
+ inventory.js              |       0 |        0 |       0 |       0 | 29-419            
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483            
+ main.js                   |       0 |        0 |       0 |       0 | 35-746            
+ requests.js               |       0 |        0 |       0 |       0 | 6-73              
+ salesEntryLauncher.js     |   85.71 |       56 |   71.42 |   85.71 | 8-11,30,41-42     
+ salesHeader.js            |       0 |        0 |       0 |       0 | 3-563             
+ salesLineHints.js         |       0 |        0 |       0 |       0 | 1-74              
+ salesLineItems.js         |       0 |        0 |       0 |       0 | 4-730             
+ salesPersist.js           |       0 |        0 |       0 |       0 | 1-164             
+ salesTitleAutocomplete.js |       0 |        0 |       0 |       0 | 4-296             
+ suppliers.js              |       0 |        0 |       0 |       0 | 13-319            
+---------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 4 passed, 4 total
+Tests:       4 passed, 4 total
+Snapshots:   0 total
+Time:        1.567 s
+Ran all test suites within paths "tests/spec/admin/F09-TP6-001_RecordSaleButtonInHeader.spec.js", "tests/spec/admin/F09-TP6-002_ButtonOpensSalePanel.spec.js", "tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js", "tests/spec/admin/F09-TP6-004_SearchValuePreserved.spec.js".

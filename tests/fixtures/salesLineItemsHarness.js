@@ -114,7 +114,7 @@ function buildDom() {
           <span>Selling price</span>
           <input id="saleLinePrice" name="sellingPrice" type="text" autocomplete="off" />
         </label>
-        <button type="submit" id="saleLineAddBtn" disabled>Add line</button>
+        <button type="submit" id="saleLineAddBtn" class="btn btn-ghost sale-line-submit" disabled>Submit</button>
         <p id="saleLineMsg"></p>
       </form>
       <table>

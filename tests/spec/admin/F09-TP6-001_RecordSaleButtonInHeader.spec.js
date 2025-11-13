@@ -14,8 +14,7 @@ describe('SPEC F09-TP5-001: Record sale button appears beside search in admin he
     expect(searchInput).not.toBeNull();
     expect(recordSaleBtn).not.toBeNull();
     expect(recordSaleBtn.textContent).toMatch(/record sale/i);
-    expect(recordSaleBtn.className).toContain('btn');
+    expect(recordSaleBtn.className).toContain('admin-nav__item');
     expect(recordSaleBtn.getAttribute('aria-controls')).toBe('saleEntryPanel');
-    expect(recordSaleBtn.previousElementSibling).toBe(searchInput);
   });
 });

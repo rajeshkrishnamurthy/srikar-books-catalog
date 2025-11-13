@@ -12,7 +12,7 @@ function buildReadyHeaderState() {
 }
 
 describe('SPEC F09-TP2-007: Supplier selection is mandatory but overridable', () => {
-  test('clearing the supplier selection disables the Add line button and surfaces an inline error', async () => {
+  test('clearing the supplier selection disables the Submit button and surfaces an inline error', async () => {
     const harness = await createSalesLineItemsHarness({
       headerState: buildReadyHeaderState(),
     });
