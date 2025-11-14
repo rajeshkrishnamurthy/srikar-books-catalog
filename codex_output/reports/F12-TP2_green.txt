@@ -1,0 +1,28 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --runTestsByPath tests/spec/admin/F12-TP2-004_PublishButtonsDisableMatchingStatus.spec.js --watchAll=false
+
+---------------------------|---------|----------|---------|---------|----------------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s          
+---------------------------|---------|----------|---------|---------|----------------------------
+All files                  |    0.82 |     0.48 |     0.8 |    0.89 |                            
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79                      
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                       
+ bundleList.js             |       0 |        0 |       0 |       0 | 2-436                      
+ bundleStatus.js           |   60.78 |       40 |   38.46 |   65.95 | 18-19,22-23,34,49-53,68-80 
+ bundles.js                |       0 |        0 |       0 |       0 | 3-480                      
+ currency.js               |       0 |        0 |       0 |       0 | 6-31                       
+ customerLookup.js         |       0 |        0 |       0 |       0 | 3-392                      
+ customers.js              |       0 |        0 |       0 |       0 | 3-520                      
+ editor.js                 |       0 |        0 |       0 |       0 | 27-411                     
+ inventory.js              |       0 |        0 |       0 |       0 | 30-522                     
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483                     
+ main.js                   |       0 |        0 |       0 |       0 | 38-1195                    
+ requests.js               |       0 |        0 |       0 |       0 | 6-73                       
+ salesEntryLauncher.js     |       0 |        0 |       0 |       0 | 2-60                       
+ salesHeader.js            |       0 |        0 |       0 |       0 | 3-505                      
+ salesLineItems.js         |       0 |        0 |       0 |       0 | 3-914                      
+ salesPersist.js           |       0 |        0 |       0 |       0 | 1-170                      
+ salesTitleAutocomplete.js |       0 |        0 |       0 |       0 | 9-225                      
+ suppliers.js              |       0 |        0 |       0 |       0 | 13-319                     
+---------------------------|---------|----------|---------|---------|----------------------------

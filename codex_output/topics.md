@@ -106,3 +106,26 @@ Notes:
 - Remove controls must stay keyboard-focusable, announce pending deletion, and remain disabled whenever the sale header is locked.
 - Totals, draft labels, and focus flow should mirror the existing “Add another book” experience so admins can keep entering books without reloading the panel.
 - Persist sale should treat zero-line drafts as invalid and log how many lines were removed vs saved for audit/status history.
+
+# Feature: Book Bundle Management (F12)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F12-TP1 | Create Supplier-Scoped Bundles | Let admins lock a supplier, add ≥2 of that supplier’s books, and capture a rupee price that defaults to 25% off the combined book prices. | F05-TP3, F13-TP1 | The Create Bundle panel is open and supplier master already has entries. | Admin selects a supplier (locking the picker), adds at least two unique books via the supplier-scoped autocomplete, and keeps the price within 1..total. | Submit persists a Draft bundle containing supplier metadata, ordered bookIds/books, total/recommended/bundle rupee fields, and createdBy data; validation blocks duplicates and out-of-range prices. |
+| F12-TP2 | Publish or Unpublish Bundles | Provide publish/unpublish controls while keeping bundle content immutable post-save. | F12-TP1 | A Draft or Published bundle is loaded in the status panel. | Admin clicks Publish/Unpublish and may try editing title or price fields. | Only the status toggles in Firestore and UI; immutable fields snap back with warnings so title/books/price never change after creation. |
+| F12-TP3 | List Bundles + Search by Book | Surface a bundles list driven by book autocomplete selection plus supplier/status filters, with metadata and publish actions per row. | F12-TP1, F12-TP2 | Existing bundles are available and the admin opens the Existing Bundles panel. | Admin types into the bundle search autocomplete, selects a book suggestion (optionally narrows by supplier/status), or clears the selection. | The list shows only bundles containing the selected book ID (combined with any supplier/status filter), displays title/supplier/price/book-count/status with publish controls, and shows an empty state when no matches remain; clearing the selection restores the full list. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F12 topics.
+- Book search in F12-TP3 must reuse the shared autocomplete helper and hydrate legacy bundles missing embedded book metadata.
+
+# Feature: Pricing Integrity (F13)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F13-TP1 | Require Book Price, MRP, and Purchase Price | Ensure Add Book treats Price, MRP, and Purchase price as mandatory numeric inputs before save. | TP1, F05-TP3 | An admin fills the Add Book form. | They attempt to submit without one or more price fields. | Inline validation blocks submission until all three values are present and valid; persisted books always carry the trio. |
+| F13-TP2 | Bundle Price Must Be Entered | Prevent bundle creation unless bundle price input holds a rupee value within the allowed 1..sum range. | F12-TP1 | Admin locks a supplier, selects books, and reaches the bundle price step. | They leave the price blank or clear it after the recommendation. | Submit stays disabled, inline copy explains the requirement, and persisted bundle documents always include bundlePriceRupees. |
+
+Notes:
+- Update admin forms/tests to treat Price, MRP, and Purchase price as mandatory on creation/edit; surface clear error messaging.
+- Bundle creator should never rely solely on the recommended value—admins must explicitly enter a price before Save, and Firestore payloads must include it.

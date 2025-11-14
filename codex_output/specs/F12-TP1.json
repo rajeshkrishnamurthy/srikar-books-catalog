@@ -1,0 +1,108 @@
+{
+  "topicId": "F12-TP1",
+  "featureId": "F12",
+  "title": "Create Bundle (Supplier-Scoped + Default Pricing)",
+  "area": "Admin / Bundles",
+  "goal": "Allow admins to create immutable Draft bundles by selecting a supplier, picking 2+ unique books scoped to that supplier, and capturing a bundle price that defaults to a 25% discount off the combined book prices.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F12-TP1-001",
+      "title": "SupplierScopedBookLookup",
+      "given": "The admin opens the Create Bundle panel before choosing a supplier.",
+      "when": "They pick Supplier A from the supplier dropdown (and optionally use Reset to start over).",
+      "then": "The book lookup initializes only after the supplier is chosen, the supplier selection locks until Reset is pressed, and resetting clears previously selected books before allowing a new supplier + lookup instance.",
+      "test": "/tests/spec/admin/F12-TP1-001_SupplierScopedBookLookup.spec.js"
+    },
+    {
+      "id": "F12-TP1-002",
+      "title": "RequireTwoUniqueBooksBeforeSave",
+      "given": "A supplier and bundle title are set but fewer than two unique books are selected.",
+      "when": "The admin selects books using the existing sale book selector (including duplicate clicks).",
+      "then": "The Create bundle action stays disabled until two unique book IDs exist and duplicate selections are ignored so the book list never contains repeats.",
+      "test": "/tests/spec/admin/F12-TP1-002_BundleRequiresTwoUniqueBooks.spec.js"
+    },
+    {
+      "id": "F12-TP1-003",
+      "title": "RecommendedPriceAndBounds",
+      "given": "At least two supplier-scoped books with price data are selected.",
+      "when": "The creator auto-calculates the recommended bundle price and the admin optionally edits the price field.",
+      "then": "The default equals a 25% discount off the combined book prices (rounded half-up to whole rupees) and validation enforces 1 \u2264 price \u2264 total, surfacing inline errors while disabling submit when out of bounds.",
+      "test": "/tests/spec/admin/F12-TP1-003_RecommendedPriceDefaultAndValidation.spec.js"
+    },
+    {
+      "id": "F12-TP1-004",
+      "title": "PersistDraftBundleDocument",
+      "given": "Supplier, title, two books, and a valid bundle price are present.",
+      "when": "The admin submits the Create bundle form.",
+      "then": "Firestore receives a Draft bundle document containing supplierId/name, ordered bookIds, immutable bundlePriceRupees (\u2264 totalListPriceRupees), recommendedPriceRupees, totalListPriceRupees, and createdBy/createdAt metadata.",
+      "test": "/tests/spec/admin/F12-TP1-004_PersistDraftBundlePayload.spec.js"
+    },
+    {
+      "id": "F12-TP1-005",
+      "title": "UseBookPriceFieldForTotals",
+      "given": "Supplier books store their rupee amount in the Price field (with sellingPrice/mrp only as fallbacks).",
+      "when": "An admin locks a supplier and adds at least two of those books to the bundle selection.",
+      "then": "Each selected row and the auto-calculated totals/recommended price use the Price field value (converted to whole rupees) so totals never stay at \u20b90 when Price exists, and only fall back to sellingPrice/mrp when Price is missing.",
+      "test": "/tests/spec/admin/F12-TP1-005_BundleUsesPriceField.spec.js"
+    },
+    {
+      "id": "F12-TP1-006",
+      "title": "PersistEmbeddedBookMetadata",
+      "given": "A bundle is ready to be saved with supplier-scoped books selected via autocomplete.",
+      "when": "The admin submits the Draft bundle.",
+      "then": "In addition to bookIds, the Firestore payload stores a books array where each entry preserves id, title, price, and supplierId so downstream bundle listings can filter by book selections.",
+      "test": "/tests/spec/admin/F12-TP1-006_PersistBooksWithSupplier.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminBundleHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F12-TP1-001_SupplierScopedBookLookup.spec.js",
+    "/tests/spec/admin/F12-TP1-002_BundleRequiresTwoUniqueBooks.spec.js",
+    "/tests/spec/admin/F12-TP1-003_RecommendedPriceDefaultAndValidation.spec.js",
+    "/tests/spec/admin/F12-TP1-004_PersistDraftBundlePayload.spec.js",
+    "/tests/spec/admin/F12-TP1-005_BundleUsesPriceField.spec.js",
+    "/tests/spec/admin/F12-TP1-006_PersistBooksWithSupplier.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F12-TP1_red.txt",
+    "green": "codex_output/reports/F12-TP1_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/bundles.js",
+    "scripts/admin/main.js",
+    "styles/admin.css",
+    "tests/fixtures/adminBundleHarness.js",
+    "tests/spec/admin/F12-TP1-001_SupplierScopedBookLookup.spec.js",
+    "tests/spec/admin/F12-TP1-002_BundleRequiresTwoUniqueBooks.spec.js",
+    "tests/spec/admin/F12-TP1-003_RecommendedPriceDefaultAndValidation.spec.js",
+    "tests/spec/admin/F12-TP1-004_PersistDraftBundlePayload.spec.js",
+    "tests/spec/admin/F12-TP1-005_BundleUsesPriceField.spec.js",
+    "tests/spec/admin/F12-TP1-006_PersistBooksWithSupplier.spec.js",
+    "codex_output/reports/F12-TP1_red.txt",
+    "codex_output/reports/F12-TP1_green.txt",
+    "codex_output/specs/F12-TP1.json"
+  ],
+  "changeNotes": [
+    "Built the Create Bundle panel in admin.html with supplier-scoped lookup UI, rupee-only pricing controls, and reset affordances wired through scripts/admin/main.js.",
+    "Implemented scripts/admin/bundles.js to lock supplier selection, reuse the sale title autocomplete, manage bundle book lists, enforce pricing policy, and persist Draft bundles to Firestore.",
+    "Styled the bundle experience in styles/admin.css and updated codex spec files to reflect the supplier-lock + INR price policy.",
+    "Captured RED/GREEN Jest runs and documented the topic in codex_output/specs/F12-TP1.json.",
+    "Converted bundle price normalization to use the Price field (falling back to legacy fields) and added SPEC F12-TP1-005 to guard the behavior.",
+    "Added SPEC F12-TP1-006 to require embedded book metadata (id/title/price/supplierId) be persisted with each bundle for downstream search.",
+    "Persisted bundles now embed supplier-aware book metadata so downstream search filters operate on historical bundles."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --runTestsByPath tests/spec/admin/F12-TP1-006_PersistBooksWithSupplier.spec.js --watchAll=false",
+    "report": "codex_output/reports/F12-TP1_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Embedded bundle books now carry id/title/price/supplierId; SPEC F12-TP1-006 is green."
+    }
+  }
+}

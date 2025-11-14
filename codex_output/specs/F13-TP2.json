@@ -1,0 +1,69 @@
+{
+  "topicId": "F13-TP2",
+  "featureId": "F13",
+  "title": "Bundle Price Must Be Entered",
+  "area": "Admin / Bundles",
+  "goal": "Prevent bundle creation unless the bundle price input contains a valid rupee value within the allowed range.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F13-TP2-001",
+      "title": "BundlePriceRequiresManualEntry",
+      "given": "An admin selects a supplier and two books but never types into the bundle price field.",
+      "when": "They immediately try to submit.",
+      "then": "Submit stays disabled, no Firestore write occurs, and the price field remains empty awaiting manual entry.",
+      "test": "/tests/spec/admin/F13-TP2-001_BundlePriceRequiresManualEntry.spec.js"
+    },
+    {
+      "id": "F13-TP2-002",
+      "title": "ClearingPriceShowsError",
+      "given": "The bundle form already suggested a price.",
+      "when": "The admin clears the field and tries to submit.",
+      "then": "Inline messaging explains bundle price is required and addDoc is not called.",
+      "test": "/tests/spec/admin/F13-TP2-002_ClearBundlePriceShowsError.spec.js"
+    },
+    {
+      "id": "F13-TP2-003",
+      "title": "BundlePricePersistsWhenProvided",
+      "given": "The admin types a valid bundle price.",
+      "when": "They submit the form.",
+      "then": "Submission succeeds and the payload includes bundlePriceRupees.",
+      "test": "/tests/spec/admin/F13-TP2-003_BundlePricePersistsWhenProvided.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminBundleHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F13-TP2-001_BundlePriceRequiresManualEntry.spec.js",
+    "/tests/spec/admin/F13-TP2-002_ClearBundlePriceShowsError.spec.js",
+    "/tests/spec/admin/F13-TP2-003_BundlePricePersistsWhenProvided.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F13-TP2_red.txt",
+    "green": "codex_output/reports/F13-TP2_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/bundles.js",
+    "tests/fixtures/adminBundleHarness.js",
+    "tests/spec/admin/F12-TP1-002_BundleRequiresTwoUniqueBooks.spec.js",
+    "tests/spec/admin/F12-TP1-003_RecommendedPriceDefaultAndValidation.spec.js",
+    "tests/spec/admin/F12-TP1-004_PersistDraftBundlePayload.spec.js",
+    "tests/spec/admin/F12-TP1-005_BundleUsesPriceField.spec.js",
+    "tests/spec/admin/F13-TP2-001_BundlePriceRequiresManualEntry.spec.js",
+    "tests/spec/admin/F13-TP2-002_ClearBundlePriceShowsError.spec.js",
+    "tests/spec/admin/F13-TP2-003_BundlePricePersistsWhenProvided.spec.js",
+    "codex_output/specs/F13-TP2.json"
+  ],
+  "changeNotes": [
+    "Bundle creator now leaves the price input empty until the admin types a value, showing recommended pricing only in helper text and enforcing required validation/error messages.",
+    "Add Book + Bundle harness/tests updated to reflect manual price entry, and recommended-price specs adjusted accordingly."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false",
+    "report": "codex_output/reports/F13-TP2_green.txt"
+  }
+}
