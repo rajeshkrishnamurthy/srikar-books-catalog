@@ -1,0 +1,28 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --runTestsByPath tests/spec/admin/F12-TP3-001_SearchBundlesByBook.spec.js tests/spec/admin/F12-TP3-002_FilterBySupplierAndStatus.spec.js tests/spec/admin/F12-TP3-003_BundleRowDisplaysMetadata.spec.js --watchAll=false
+
+---------------------------|---------|----------|---------|---------|--------------------------------------------------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                            
+---------------------------|---------|----------|---------|---------|--------------------------------------------------------------
+All files                  |    2.89 |     2.81 |    3.36 |     3.1 |                                                              
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79                                                        
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                                                         
+ bundleList.js             |   69.73 |     56.2 |    60.6 |   73.42 | 28-31,45,62,65,72-89,104-111,131-134,145,177-179,227,304-315 
+ bundleStatus.js           |       0 |        0 |       0 |       0 | 17-83                                                        
+ bundles.js                |       0 |        0 |       0 |       0 | 3-476                                                        
+ currency.js               |       0 |        0 |       0 |       0 | 6-31                                                         
+ customerLookup.js         |       0 |        0 |       0 |       0 | 3-392                                                        
+ customers.js              |       0 |        0 |       0 |       0 | 3-520                                                        
+ editor.js                 |       0 |        0 |       0 |       0 | 27-411                                                       
+ inventory.js              |       0 |        0 |       0 |       0 | 30-522                                                       
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483                                                       
+ main.js                   |       0 |        0 |       0 |       0 | 38-1121                                                      
+ requests.js               |       0 |        0 |       0 |       0 | 6-73                                                         
+ salesEntryLauncher.js     |       0 |        0 |       0 |       0 | 2-60                                                         
+ salesHeader.js            |       0 |        0 |       0 |       0 | 3-505                                                        
+ salesLineItems.js         |       0 |        0 |       0 |       0 | 3-914                                                        
+ salesPersist.js           |       0 |        0 |       0 |       0 | 1-170                                                        
+ salesTitleAutocomplete.js |       0 |        0 |       0 |       0 | 9-225                                                        
+ suppliers.js              |       0 |        0 |       0 |       0 | 13-319                                                       
+---------------------------|---------|----------|---------|---------|--------------------------------------------------------------

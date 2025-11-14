@@ -1,6 +1,5 @@
 # AGENTS.md (Pipeline-Integrated Layout — HTML + Vanilla JavaScript Edition)
 
----
 ## codex-spec
 
 **Goal**
@@ -10,79 +9,27 @@ Define high-level **features** and decompose each into 2–5 independently shipp
 codex-spec operates before implementation. It transforms feature descriptions into structured topic data files consumed by codex-tdd and downstream agents.
 
 **Tasks**
-1. Accept multiple features at once — each feature is identified by a unique `featureId` (e.g. `F01`, `F02`, etc.).  
-2. For each feature, generate 2–5 topic entries.  
-3. Prefix each topic ID with the feature ID to ensure global uniqueness (`F01-TP1`, `F01-TP2`, etc.).  
-4. Record concise Given/When/Then summaries for each topic.  
-5. Avoid framework-specific details.  
+
+1. Accept multiple features at once — each feature is identified by a unique `featureId` (e.g. `F01`, `F02`, etc.).
+2. For each feature, generate 2–5 topic entries.
+3. Prefix each topic ID with the feature ID to ensure global uniqueness (`F01-TP1`, `F01-TP2`, etc.).
+4. Record concise Given/When/Then summaries for each topic.
+5. Avoid framework-specific details.
 6. Write all features and topics into a single JSON file (`codex_output/topics.json`) and an optional human-readable Markdown file (`codex_output/topics.md`).
 
-**Output Format (JSON)**
-`codex_output/topics.json`
+**Role Exclusions — codex-spec must NOT:**
 
-```json
-{
-  "features": [
-    {
-      "featureId": "F01",
-      "featureTitle": "Purchase Price Management",
-      "description": "Enable admins to manage purchase price visibility and editing.",
-      "topics": [
-        {
-          "id": "F01-TP1",
-          "title": "Capture Purchase Price on Add",
-          "area": "Admin / Catalog",
-          "goal": "Allow admins to enter a purchase price when creating a book.",
-          "environment": ".NET 8 + C# + xUnit",
-          "notes": "Validation for non-numeric and negative values must fail gracefully."
-        },
-        {
-          "id": "F01-TP2",
-          "title": "Edit Stored Purchase Price",
-          "area": "Admin / Catalog",
-          "goal": "Allow admins to modify an existing purchase price.",
-          "environment": ".NET 8 + C# + xUnit",
-          "notes": "Editing must preserve existing audit data."
-        }
-      ]
-    },
-    {
-      "featureId": "F02",
-      "featureTitle": "Inventory Import Automation",
-      "description": "Automate import of supplier price lists.",
-      "topics": [
-        {
-          "id": "F02-TP1",
-          "title": "Parse Supplier CSV",
-          "area": "Inventory",
-          "goal": "Extract purchase prices and SKUs from supplier CSV uploads.",
-          "environment": ".NET 8 + C# + xUnit"
-        }
-      ]
-    }
-  ]
-}
-
-Output Format (Markdown)
-codex_output/topics.md
-
-# Feature: Purchase Price Management (F01)
-| Topic ID | Title | Area | Goal |
-|-----------|--------|------|------|
-| F01-TP1 | Capture Purchase Price on Add | Admin / Catalog | Allow admins to enter a purchase price when creating a book. |
-| F01-TP2 | Edit Stored Purchase Price | Admin / Catalog | Allow admins to modify an existing purchase price. |
-
-
-# Feature: Inventory Import Automation (F02)
-| Topic ID | Title | Area | Goal |
-|-----------|--------|------|------|
-| F02-TP1 | Parse Supplier CSV | Inventory | Extract purchase prices and SKUs from supplier CSV uploads. |
+* Write or modify any files outside `codex_output/topics.json` and `codex_output/topics.md`.
+* Modify or create test files.
+* Modify or create production code.
+* Update spec/green/review artifacts for any topic.
 
 **Deliverables**
-✅ codex_output/topics.json — array of features with globally unique topic IDs.
-✅ codex_output/topics.md — readable Markdown table for every feature.
-✅ Automatically displayed in the Codex output window for review after generation.
-✅ Each downstream agent (codex-tdd, codex-dev, etc.) can now query by featureId + topicId safely.
+✔ `codex_output/topics.json`
+✔ `codex_output/topics.md`
+✔ Also display topics inline in Codex output
+✔ Zero other artifacts modified
+
 ---
 
 ## codex-tdd
@@ -101,234 +48,153 @@ codex-tdd reads from `codex_output/topics.json`, locates the chosen Topic ID, an
 
    * `/tests/spec/<area>/{SpecId}_{Title}.spec.js`
    * `/tests/unit/<module>/{SpecId}_*.test.js`
-   * For wiring-level coverage, add jsdom-based integration specs that load the real entry bundle/HTML (e.g., `/tests/spec/integration/{SpecId}_*.spec.js`) so Codex can verify modules are initialized on the actual page, not only in lightweight harnesses.
+   * Optional integration specs under `/tests/spec/integration/`
 4. Create minimal fixtures under `/tests/fixtures`.
 5. Ensure tests fail **only by assertion**.
-6. Run RED validation:
+6. Run RED validation with:
 
    ```bash
    npm test -- --watchAll=false
    ```
 7. Write spec summary JSON for downstream agents.
 
-**Output Files**
+**Role Exclusions — codex-tdd must NOT:**
 
-* `codex_output/specs/<TopicID>.json`
-
-```json
-{
-  "topicId": "TP1",
-  "specs": [
-    { "id": "TP1-001", "title": "AddFormShowsPurchasePrice", "given": "...", "when": "...", "then": "..." }
-  ],
-  "fixtures": ["/tests/fixtures/bookBuilder.js"],
-  "status": "RED"
-}
-```
+* Modify production code (`src/` or top-level scripts).
+* Modify helper modules or utilities.
+* Modify `topics.json` except for reading.
+* Create or update GREEN or REVIEW artifacts.
+* Touch `codex_output/reports/<TopicID>_green.txt`, `code_review.md`, or any dev-phase files.
 
 **Deliverables**
-
-* ✅ Jest test files placed in `/tests`.
-* ✅ `codex_output/specs/<TopicID>.json` summarizing all specs.
-* ✅ RED validation report appended to the JSON or logged to `codex_output/reports/<TopicID>_red.txt`.
-* ✅ Ready hand-off to codex-dev and codex-review.
+✔ Test files under `/tests/`
+✔ `codex_output/specs/<TopicID>.json` (status: RED)
+✔ RED validation report
+✔ No prod code modifications
 
 ---
+
 ## codex-dev (HTML / Vanilla JavaScript Edition)
 
 **Goal**
 Automatically detect all failing **Jest** tests at the current repo state, make them pass with minimal production-code changes, then refactor safely while keeping everything **GREEN**.
-Previously passing tests must remain green.
 
 **Context**
 codex-dev follows codex-tdd. It uses Jest results as live input; no manual file hand-off required.
 
 **Generic Failure-Handling Prompt**
 
-At any given time:
-
 * Only newly added tests should fail.
-* Previously passing tests must stay green.
+* Previously passing tests must remain green.
 
 **Behavior**
 
 1. Run `npm test -- --watchAll=false --bail=0`.
-2. Parse failing test names (lines beginning with “✕” or “FAIL”).
-3. Implement minimal changes to make those tests pass, without breaking existing ones.
-4. Iterate until the suite is fully green.
-5. Update corresponding spec file `codex_output/specs/<TopicID>.json` → `"status": "GREEN"`.
+2. Parse failing test names.
+3. Implement minimal changes to make those tests pass.
+4. Iterate until fully green.
+5. Mark `codex_output/specs/<TopicID>.json` `"status": "GREEN"`.
 
 **Rules**
 
-1. Don’t weaken or remove assertions.
+1. Do not weaken assertions.
 2. Keep code pure; isolate DOM/Firestore side effects.
-3. Small commits only:
+3. Small commits:
 
    * `feat(<SpecId>): minimal code to pass`
-   * `refactor(<SpecId>): tidy without behavior change`
-4. No test-only conditionals.
+   * `refactor(<SpecId>): tidy without change`
+4. No test-only branches.
 5. Maintain semantic HTML and accessibility.
-6. After all tests pass, perform refactor with tests green.
+6. Perform refactoring immediately after GREEN.
 
 **Refactor Awareness and Duplication Control**
+(unchanged—already correct)
 
-While implementing or refactoring code to satisfy tests, Codex-dev must continuously check for:
+**Role Exclusions — codex-dev must NOT:**
 
-1. **Duplicate or near-duplicate logic** across functions, modules, or scripts.  
-   - Identify repeated validation, parsing, or data-handling patterns.  
-   - Highlight any logic duplication discovered in changed files.
+* Create or modify test files (unit/spec/integration).
+* Modify any `codex_output/topics.json` or `topics.md`.
+* Modify any artifacts under `/tests/fixtures/` unless tests require additional builders (rare).
+* Produce code review artifacts (`*_code_review.md`).
+* Produce process-review artifacts (`*_process_review.md`).
+* Change any `specs/<TopicID>.json` fields except:
 
-2. **Helper consolidation**  
-   - Extract recurring logic into shared helper modules (for example `/scripts/utils/` or `/src/helpers/`).  
-   - Prefer pure, dependency-free helpers to maximize reusability.
-
-3. **Refactor timing**  
-   - Perform helper extraction **after GREEN**, within the same session, to avoid a separate re-open by codex-code-review.
-
-4. **Documentation**  
-   - Add or update a `helpers` section in `codex_output/specs/<TopicID>.json`:  
-     ```json
-     "helpers": {
-       "created": ["scripts/utils/ValidationHelper.js"],
-       "used": ["scripts/utils/FetchHelper.js"]
-     }
-     ```
-   - This allows codex-code-review to confirm abstraction quality instead of repeatedly flagging duplication.
+  * `"status": "GREEN"`
+  * `changedFiles`
+  * `changeNotes`
+  * `helpers` (if refactor extracted helpers)
 
 **Deliverables**
+✔ Production code updates
+✔ `codex_output/specs/<TopicID>.json` updates (allowed fields only)
+✔ `codex_output/reports/<TopicID>_green.txt`
+✔ No test/spec/review artifacts modified
 
-* ✅ Implementation plan summarizing fixes.
-* ✅ Key diffs (`.js` / `.html`).
-* ✅ Updated `codex_output/specs/<TopicID>.json` → status GREEN.
-* ✅ Proof (Jest summary) in `codex_output/reports/<TopicID>_green.txt`.
-* ✅ Write or update `changedFiles` and `changeNotes` in `codex_output/specs/<TopicID>.json` for traceability.
-* ✅ Add `helpers` metadata (created/used) if duplication refactors were performed.
 ---
+
 ## codex-process-review
 
 **Goal**
-Perform the final readiness check for a topic — confirm that all tests pass, coverage meets thresholds, and that **codex-code-review** has explicitly declared the topic **READY FOR MERGE**.
+Final readiness check — confirm GREEN, coverage thresholds, and that **codex-code-review** declared **READY FOR MERGE**.
 
 **Context**
-Runs last in the pipeline, after both codex-dev and codex-code-review complete.
-Consumes:
-
-* `codex_output/specs/<TopicID>.json`
-* `codex_output/reports/<TopicID>_green.txt`
-* Coverage artifacts
-* `codex_output/review/<TopicID>_code_review.md`
+Runs last, after codex-dev and codex-code-review.
 
 **Tasks**
 
-1. Confirm `"status": "GREEN"` in `specs/<TopicID>.json`.
-2. Parse test results from `codex_output/reports/<TopicID>_green.txt`.
-3. Run topic-scoped coverage using **coverlet + ReportGenerator** (or Jest for JS projects):
+1. Confirm GREEN status.
+2. Parse GREEN test logs.
+3. Compute topic-scoped coverage.
+4. Verify coverage thresholds.
+5. Check for “READY FOR MERGE” in code-review output.
+6. Produce final verdict.
+7. Write summary artifacts.
 
-   ```bash
-   dotnet test /p:CollectCoverage=true /p:CoverletOutput=codex_output/coverage/ /p:CoverletOutputFormat=cobertura
-   reportgenerator -reports:codex_output/coverage/coverage.cobertura.xml -targetdir:codex_output/coverage_report -reporttypes:HtmlSummary
-   ```
+**Role Exclusions — codex-process-review must NOT:**
 
-   *(In JavaScript contexts, use the equivalent Jest command.)*
-4. Check coverage thresholds (≥ 70 % lines, ≥ 50 % branches).
-5. Read `codex_output/review/<TopicID>_code_review.md` and confirm it contains:
+* Modify production code.
+* Modify test files.
+* Modify any spec definitions except adding:
 
-   ```
-   **Verdict:** READY FOR MERGE
-   ```
-6. Aggregate all checks into a single summary verdict:
-
-   * ✅ Tests GREEN
-   * ✅ Coverage thresholds met
-   * ✅ Code review sign-off confirmed
-7. Append this information to both the Markdown report and `summary.json`.
-
-**Output**
-`codex_output/review/<TopicID>_process_review.md`
-
-```markdown
-# Process Review — <TopicID> <Title>
-
-✅ **Tests:** All green (see `codex_output/reports/<TopicID>_green.txt`)  
-📊 **Feature Coverage:** 82 % lines / 67 % branches  
-🧩 **Scope:** src/Admin/CatalogService.cs  
-💬 **Code Review:** codex-code-review verdict = READY FOR MERGE  
-💡 **Notes:** Validation and persistence layers fully covered.
-
-**Final Verdict:** READY TO MERGE
-```
+  * `finalVerdict` *(optional if you track it)*
+* Modify helper modules or utilities.
+* Modify topic list (`topics.json`, `topics.md`).
+* Modify code-review artifacts except reading them.
 
 **Deliverables**
-
-* ✅ Topic-scoped coverage verification.
-* ✅ Consolidated final verdict (`READY TO MERGE` / `NEEDS WORK`).
-* ✅ Machine-readable `codex_output/review/summary.json` with fields:
-
-  ```json
-  {
-    "topicId": "<TopicID>",
-    "testsGreen": true,
-    "coverageLines": 82,
-    "coverageBranches": 67,
-    "codeReviewVerdict": "READY FOR MERGE",
-    "finalVerdict": "READY TO MERGE"
-  }
-  ```
-* ✅ Write or update `changedFiles` and `changeNotes` in `codex_output/specs/<TopicID>.json` for traceability.
-
-**Summary of Improvements**
-
-| Area                  | Before            | Now                                                                  |
-| --------------------- | ----------------- | -------------------------------------------------------------------- |
-| **Pipeline position** | After codex-dev   | Runs after both codex-dev **and** codex-code-review                  |
-| **Code review check** | Not considered    | Explicitly validates “READY FOR MERGE” verdict                       |
-| **Output clarity**    | Technical-only    | Combines test, coverage, and review status                           |
-| **Final authority**   | codex-code-review | codex-process-review confirms and publishes the final merge decision |
+✔ `codex_output/review/<TopicID>_process_review.md`
+✔ Update to `codex_output/review/summary.json`
+✔ No other file modifications
 
 ---
 
 ## codex-code-review
 
 **Goal**
-Assess the maintainability and readability of code implemented for this topic. Suggest improvements without altering verified behavior.
+Assess maintainability/readability of code for this topic. Suggest improvements without altering verified behavior.
 
 **Context**
-Runs after codex-process-review passes. Reads topic metadata, commit diffs, and affected `.js`/`.html` files.
+Runs after codex-process-review inputs are ready. Reviews changed code only.
 
 **Tasks**
 
-1. Inspect changed files listed in `codex_output/specs/<TopicID>.json`.
-2. Read changedFiles and changeNotes from the spec JSON to determine the review scope. If branch context is available, cross-check with Git diff for completeness.
-3. Review for:
+1. Inspect changedFiles + changeNotes.
+2. Review for naming, duplication, abstractions, wiring, HTML/DOM quality.
+3. Produce review verdict.
 
-   * Naming and readability
-   * Duplication or deep nesting
-   * Reusable abstractions
-   * Semantic HTML and accessibility
-   * Wiring completeness — verify that new modules/components are actually imported and initialized in the production entry points (e.g., `scripts/admin/main.js`, page templates) and not only exercised via harness tests.
-4. Identify improvement opportunities and summarize strengths.
+**Role Exclusions — codex-code-review must NOT:**
 
-**Output**
-`codex_output/review/<TopicID>_code_review.md`
-
-```markdown
-# Code Review — <TopicID> <Title>
-
-**Strengths**  
-- Validation logic is modular and easy to follow.  
-- Follows semantic markup conventions.  
-
-**Improvements**  
-- Extract repeated numeric-validation block into helper.  
-- Add JSDoc comments for exported functions.  
-
-**Verdict:** CLEAN WITH MINOR IMPROVEMENTS
-```
+* Modify production code.
+* Modify test files.
+* Modify `codex_output/specs/<TopicID>.json`.
+* Modify `codex_output/topics.json` or `topics.md`.
+* Modify process-review artifacts.
+* Modify GREEN logs or coverage directories.
 
 **Deliverables**
-
-* ✅ Markdown report of qualitative findings.
-* ✅ Optional scoring summary in `codex_output/review/summary.json`.
+✔ `codex_output/review/<TopicID>_code_review.md`
+✔ Optional update to `summary.json` (read-only for everything else)
+✔ Absolutely no code or test modifications
 
 ---
 

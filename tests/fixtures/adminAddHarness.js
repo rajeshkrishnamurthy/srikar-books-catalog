@@ -90,7 +90,7 @@ function createFormState(overrides = {}) {
     condition: 'Good as new',
     description: 'Gently used copy',
     featured: null,
-    purchasePrice: '',
+    purchasePrice: '150',
     supplierId: 'sup-default',
     cover: createFileStub('cover.jpg'),
   };

@@ -14,6 +14,9 @@ import { initSaleTitleAutocomplete } from './salesTitleAutocomplete.js';
 import { initSalePersist } from './salesPersist.js';
 import { initCustomerLookup } from './customerLookup.js';
 import { initSaleEntryLauncher } from './salesEntryLauncher.js';
+import { initBundleCreator } from './bundles.js';
+import { initBundleStatusPanel } from './bundleStatus.js';
+import { initBundleList } from './bundleList.js';
 import {
   db,
   collection,
@@ -27,9 +30,10 @@ import {
   serverTimestamp,
   where,
   getDocs,
+  getDoc,
   limit,
 } from '../lib/firebase.js';
-import { escapeHtml } from '../helpers/text.js';
+import { escapeHtml, compactText } from '../helpers/text.js';
 
 // Elements
 const authEl = document.getElementById('auth');
@@ -46,6 +50,7 @@ const availableBooksPanel = document.getElementById('availableBooksPanel');
 const soldBooksPanel = document.getElementById('soldBooksPanel');
 const bookRequestsPanel = document.getElementById('bookRequestsPanel');
 const suppliersPanel = document.getElementById('suppliersPanel');
+const bundlesPanel = document.getElementById('bundlesPanel');
 
 const addForm = document.getElementById('addForm');
 const addMsg = document.getElementById('addMsg');
@@ -71,6 +76,37 @@ const supplierList = document.getElementById('supplierList');
 const supplierIdInput = document.getElementById('supplierIdInput');
 const supplierCancelBtn = document.getElementById('supplierCancelBtn');
 const supplierSelect = document.getElementById('supplierSelect');
+const bundleForm = document.getElementById('bundleForm');
+const bundleTitleInput = document.getElementById('bundleTitleInput');
+const bundleSupplierSelect = document.getElementById('bundleSupplierSelect');
+const bundleBookInput = document.getElementById('bundleBookInput');
+const bundleBookHiddenInput = document.getElementById('bundleBookHiddenInput');
+const bundleBookSuggestions = document.getElementById('bundleBookSuggestions');
+const bundleBookSummary = document.getElementById('bundleBookSummary');
+const bundleBookMsg = document.getElementById('bundleBookMsg');
+const bundleSelectedBooks = document.getElementById('bundleSelectedBooks');
+const bundleRecommendedHint = document.getElementById('bundleRecommendedHint');
+const bundlePriceInput = document.getElementById('bundlePriceInput');
+const bundlePriceMsg = document.getElementById('bundlePriceMsg');
+const bundleMsg = document.getElementById('bundleMsg');
+const bundleSubmitBtn = document.getElementById('bundleSubmitBtn');
+const bundleResetBtn = document.getElementById('bundleResetBtn');
+const bundleSearchInput = document.getElementById('bundleSearchInput');
+const bundleSearchHiddenInput = document.getElementById('bundleSearchHiddenInput');
+const bundleSearchSuggestions = document.getElementById('bundleSearchSuggestions');
+const bundleSearchMsg = document.getElementById('bundleSearchMsg');
+const bundleSearchSummary = document.getElementById('bundleSearchSummary');
+const bundleFilterSupplier = document.getElementById('bundleFilterSupplier');
+const bundleFilterStatus = document.getElementById('bundleFilterStatus');
+const bundleResults = document.getElementById('bundleResults');
+const bundleEmpty = document.getElementById('bundleEmpty');
+const bundleStatusPanel = document.getElementById('bundleStatusPanel');
+const bundleStatusForm = document.getElementById('bundleStatusForm');
+const bundleStatusChip = document.getElementById('bundleStatusChip');
+const bundleStatusToggle = document.getElementById('bundlePublishToggle');
+const bundleStatusMsg = document.getElementById('bundleStatusMsg');
+const bundleDetailTitle = document.getElementById('bundleDetailTitle');
+const bundleDetailPrice = document.getElementById('bundleDetailPrice');
 const customerForm = document.getElementById('customerForm');
 const customerNameInput = document.getElementById('customerNameInput');
 const customerAddressInput = document.getElementById('customerAddressInput');
@@ -126,6 +162,16 @@ let disposeSaleEntry = null;
 let latestSaleHeaderPayload = null;
 let saleEntryLauncherApi = null;
 let saleEntryInitialized = false;
+let bundleCreatorApi = null;
+let bundleListApi = null;
+let unsubscribeBundleList = null;
+let latestBundleDocs = [];
+let bundleSnapshotVersion = 0;
+const bundleBookCache = new Map();
+let bundleStatusPanelApi = null;
+let currentAdminUser = null;
+const supplierBooksCache = new Map();
+const SUPPLIER_BOOK_CACHE_TTL_MS = 2 * 60 * 1000;
 
 adminNav?.addEventListener('click', (event) => {
   const button = event.target?.closest('button[data-nav]');
@@ -181,6 +227,8 @@ function applySuppliersToConsumers() {
   inventoryApi?.setSuppliers(latestSupplierOptions);
   editorApi?.setSuppliers?.(latestSupplierOptions);
   saleLineItemsApi?.setSuppliers?.(latestSupplierOptions);
+  bundleCreatorApi?.setSuppliers?.(latestSupplierOptions);
+  bundleListApi?.setSuppliers?.(latestSupplierOptions);
 }
 
 function subscribeSuppliersForAdd() {
@@ -193,10 +241,336 @@ function subscribeSuppliersForAdd() {
         id: doc.id,
         ...(doc.data() || {}),
       }));
+      supplierBooksCache.clear();
       applySuppliersToConsumers();
     },
     (err) => console.error('suppliers select snapshot error:', err)
   );
+}
+
+function ensureBundleListReady() {
+  if (
+    !bundleSearchInput ||
+    !bundleSearchHiddenInput ||
+    !bundleSearchSuggestions ||
+    !bundleFilterSupplier ||
+    !bundleFilterStatus ||
+    !bundleResults ||
+    !bundleEmpty
+  ) {
+    return;
+  }
+  if (bundleListApi) {
+    return;
+  }
+  bundleListApi = initBundleList(
+    {
+      searchInput: bundleSearchInput,
+      searchHiddenInput: bundleSearchHiddenInput,
+      suggestionsEl: bundleSearchSuggestions,
+      summaryEl: bundleSearchSummary,
+      searchMsg: bundleSearchMsg,
+      supplierSelect: bundleFilterSupplier,
+      statusSelect: bundleFilterStatus,
+      resultsEl: bundleResults,
+      emptyEl: bundleEmpty,
+    },
+    {
+      loadBundles: () => Promise.resolve(latestBundleDocs),
+      loadSuppliers: () => Promise.resolve(latestSupplierOptions),
+      renderPublishControls: (bundle) => renderBundlePublishControls(bundle),
+      createBookLookup: (config = {}) => createBundleListLookup(config),
+      hydrateBundleBooks: (bundle) => hydrateBundleBooksForListing(bundle),
+    }
+  );
+}
+
+function subscribeBundlesForList() {
+  if (typeof onSnapshot !== 'function' || typeof collection !== 'function') {
+    return;
+  }
+  unsubscribeBundleList?.();
+  try {
+    const bundlesRef = collection(db, 'bundles');
+    const constraints =
+      typeof orderBy === 'function' ? [orderBy('title')] : [];
+    const queryRef =
+      constraints.length && typeof query === 'function'
+        ? query(bundlesRef, ...constraints)
+        : bundlesRef;
+    unsubscribeBundleList = onSnapshot(
+      queryRef,
+      async (snapshot) => {
+        const version = ++bundleSnapshotVersion;
+        const raw = snapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...(docSnap.data() || {}),
+        }));
+        const enriched = await enrichBundlesWithBooks(raw);
+        if (version !== bundleSnapshotVersion) {
+          return;
+        }
+        latestBundleDocs = enriched;
+        bundleListApi?.setBundles?.(latestBundleDocs);
+      },
+      (error) => {
+        console.error('bundle list snapshot error:', error);
+        bundleListApi?.setError?.(error);
+      }
+    );
+  } catch (error) {
+    console.error('Failed to subscribe bundle list', error);
+  }
+}
+
+async function enrichBundlesWithBooks(bundles = []) {
+  if (!Array.isArray(bundles) || !bundles.length) {
+    return bundles;
+  }
+  const preNormalized = new Map();
+  const missingIds = new Set();
+  bundles.forEach((bundle) => {
+    const normalizedBooks = extractBooksFromDoc(bundle);
+    if (normalizedBooks.length) {
+      normalizedBooks.forEach((book) => {
+        bundleBookCache.set(book.id, book);
+      });
+      preNormalized.set(bundle.id, normalizedBooks);
+      return;
+    }
+    (bundle.bookIds || []).forEach((bookId) => {
+      const key = String(bookId || '').trim();
+      if (key && !bundleBookCache.has(key)) {
+        missingIds.add(key);
+      }
+    });
+  });
+  if (missingIds.size) {
+    await fetchBooksIntoCache([...missingIds]);
+  }
+  return bundles.map((bundle) => {
+    const preset = preNormalized.get(bundle.id);
+    return {
+      ...bundle,
+      books: preset || resolveBundleBooks(bundle),
+    };
+  });
+}
+
+function extractBooksFromDoc(bundle = {}) {
+  const rawBooks = Array.isArray(bundle.books) ? bundle.books : [];
+  return rawBooks
+    .map((book) => normalizeBundleBook(book))
+    .filter(Boolean);
+}
+
+function resolveBundleBooks(bundle = {}) {
+  const ids = Array.isArray(bundle.bookIds) ? bundle.bookIds : [];
+  return ids
+    .map((bookId) => {
+      const key = String(bookId || '').trim();
+      if (!key) return null;
+      const cached = bundleBookCache.get(key);
+      return cached || null;
+    })
+    .filter(Boolean);
+}
+
+async function fetchBooksIntoCache(ids = []) {
+  if (
+    !ids.length ||
+    typeof getDoc !== 'function' ||
+    typeof doc !== 'function'
+  ) {
+    return;
+  }
+  await Promise.all(
+    ids.map(async (bookId) => {
+      try {
+        const docRef = doc(db, 'books', bookId);
+        const snap = await getDoc(docRef);
+        if (!snap?.exists?.()) return;
+        const data = snap.data() || {};
+        const normalized = normalizeBundleBook({ id: bookId, ...data });
+        if (normalized) {
+          bundleBookCache.set(bookId, normalized);
+        }
+      } catch (error) {
+        console.error('bundle list book fetch failed', error);
+      }
+    })
+  );
+}
+
+function normalizeBundleBook(raw = {}) {
+  const id = String(raw.id || '').trim();
+  if (!id) return null;
+  const priceSource =
+    raw.price ??
+    raw.Price ??
+    raw.sellingPrice ??
+    raw.listPrice ??
+    raw.history?.lastSellingPrice ??
+    0;
+  const numericPrice = Number(priceSource);
+  return {
+    id,
+    title: compactText(raw.title || ''),
+    author: compactText(raw.author || ''),
+    isbn: compactText(raw.isbn || ''),
+    price: Number.isFinite(numericPrice) ? numericPrice : 0,
+    supplierId: raw.supplierId || raw.supplier?.id || '',
+  };
+}
+
+function hydrateBundleBooksForListing(bundle = {}) {
+  if (!bundle || !Array.isArray(bundle.bookIds) || !bundle.bookIds.length) {
+    return Promise.resolve(Array.isArray(bundle.books) ? bundle.books : []);
+  }
+  const ids = bundle.bookIds
+    .map((bookId) => String(bookId || '').trim())
+    .filter(Boolean);
+  if (!ids.length) {
+    return Promise.resolve([]);
+  }
+  return fetchBooksIntoCache(ids)
+    .then(() =>
+      ids
+        .map((id) => bundleBookCache.get(id))
+        .filter(Boolean)
+    )
+    .catch((error) => {
+      console.error('hydrate bundle books failed', error);
+      return [];
+    });
+}
+
+function renderBundlePublishControls(bundle = {}) {
+  const container = document.createElement('div');
+  container.className = 'bundle-publish-controls';
+  const toggleLabel = document.createElement('label');
+  toggleLabel.className = 'bundle-toggle bundle-toggle--inline';
+  const control = document.createElement('span');
+  control.className = 'bundle-toggle__control';
+  const input = document.createElement('input');
+  input.type = 'checkbox';
+  input.setAttribute('role', 'switch');
+  input.setAttribute('aria-label', 'Publish bundle');
+  const isPublished = (bundle.status || 'Draft') === 'Published';
+  input.checked = isPublished;
+  input.setAttribute('aria-checked', String(isPublished));
+  const track = document.createElement('span');
+  track.className = 'bundle-toggle__track';
+  const thumb = document.createElement('span');
+  thumb.className = 'bundle-toggle__thumb';
+  track.appendChild(thumb);
+  control.appendChild(input);
+  control.appendChild(track);
+  const stateSpan = document.createElement('span');
+  stateSpan.className = 'bundle-toggle__state';
+  stateSpan.dataset.draft = 'Draft';
+  stateSpan.dataset.published = 'Published';
+  stateSpan.textContent = isPublished
+    ? stateSpan.dataset.published
+    : stateSpan.dataset.draft;
+  toggleLabel.append(control, stateSpan);
+  container.appendChild(toggleLabel);
+
+  const setBusy = (busy, pendingStatus) => {
+    input.disabled = busy;
+    if (busy) {
+      toggleLabel.dataset.busy = pendingStatus || '';
+    } else {
+      toggleLabel.dataset.busy = '';
+    }
+  };
+
+  input.addEventListener('change', async () => {
+    const nextStatus = input.checked ? 'Published' : 'Draft';
+    setBusy(true, nextStatus);
+    try {
+      await updateBundleStatus(bundle.id, nextStatus);
+      stateSpan.textContent =
+        nextStatus === 'Published'
+          ? stateSpan.dataset.published
+          : stateSpan.dataset.draft;
+      input.setAttribute('aria-checked', String(input.checked));
+    } catch (error) {
+      console.error('row publish toggle failed', error);
+      input.checked = !input.checked;
+      input.setAttribute('aria-checked', String(input.checked));
+      stateSpan.textContent = input.checked
+        ? stateSpan.dataset.published
+        : stateSpan.dataset.draft;
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  return container;
+}
+
+function showBundleStatusPanel(bundle = {}) {
+  if (
+    !bundle?.id ||
+    !bundleStatusPanel ||
+    !bundleStatusForm ||
+    !bundleStatusToggle ||
+    !bundleStatusChip
+  ) {
+    return;
+  }
+  ensurePanelVisible(bundleStatusPanel);
+  const status = bundle.status || 'Draft';
+  if (bundleDetailTitle) {
+    const title = bundle.title || '';
+    bundleDetailTitle.value = title;
+    bundleDetailTitle.dataset.originalValue = title;
+  }
+  if (bundleDetailPrice) {
+    const priceValue =
+      bundle.bundlePriceRupees != null ? String(bundle.bundlePriceRupees) : '';
+    bundleDetailPrice.value = priceValue;
+    bundleDetailPrice.dataset.originalValue = priceValue;
+  }
+  bundleStatusForm.dataset.bundleStatus = status;
+  bundleStatusChip.dataset.status = status;
+  bundleStatusChip.textContent = `Status: ${status}`;
+  bundleStatusToggle.checked = status === 'Published';
+  bundleStatusToggle.setAttribute(
+    'aria-checked',
+    String(bundleStatusToggle.checked)
+  );
+  bundleStatusMsg && (bundleStatusMsg.textContent = '');
+  bundleStatusPanelApi?.dispose?.();
+  bundleStatusPanelApi = initBundleStatusPanel(
+    {
+      form: bundleStatusForm,
+      statusToggle: bundleStatusToggle,
+      statusChip: bundleStatusChip,
+      msgEl: bundleStatusMsg,
+      immutableFields: [bundleDetailTitle, bundleDetailPrice],
+    },
+    {
+      firebase: { db, doc, updateDoc },
+      bundleId: bundle.id,
+    }
+  );
+  scrollPanelIntoView(bundleStatusPanel);
+}
+
+async function updateBundleStatus(bundleId, nextStatus) {
+  if (!bundleId || !nextStatus) return;
+  if (typeof doc !== 'function' || typeof updateDoc !== 'function') {
+    console.warn('Firebase doc/updateDoc unavailable for bundle status.');
+    return;
+  }
+  try {
+    const bundleRef = doc(db, 'bundles', bundleId);
+    await updateDoc(bundleRef, { status: nextStatus });
+  } catch (error) {
+    console.error('Failed to update bundle status', error);
+  }
 }
 
 function handleAdminNav(navKey, button) {
@@ -219,6 +593,10 @@ function handleAdminNav(navKey, button) {
     case 'suppliers':
       ensurePanelVisible(suppliersPanel);
       scrollPanelIntoView(suppliersPanel);
+      break;
+    case 'bundles':
+      ensurePanelVisible(bundlesPanel);
+      scrollPanelIntoView(bundlesPanel);
       break;
     default:
       break;
@@ -305,7 +683,8 @@ initAuth({
   passwordInput,
   authError,
   signOutBtn,
-  onAuthed() {
+  onAuthed(user) {
+    currentAdminUser = user || null;
     // 1) Start the realtime <datalist> fill for Author autocomplete
     subscribeAuthors();
 
@@ -441,10 +820,48 @@ initAuth({
       );
     }
 
+    if (
+      bundleForm &&
+      bundleTitleInput &&
+      bundleSupplierSelect &&
+      bundleSelectedBooks &&
+      bundlePriceInput &&
+      bundleSubmitBtn
+    ) {
+      bundleCreatorApi?.dispose?.();
+      bundleCreatorApi = initBundleCreator(
+        {
+          form: bundleForm,
+          titleInput: bundleTitleInput,
+          supplierSelect: bundleSupplierSelect,
+          selectedBooksList: bundleSelectedBooks,
+          priceInput: bundlePriceInput,
+          priceMsg: bundlePriceMsg,
+          msgEl: bundleMsg,
+          submitBtn: bundleSubmitBtn,
+          recommendedHint: bundleRecommendedHint,
+          resetBtn: bundleResetBtn,
+          bookSearchInput: bundleBookInput,
+        },
+        {
+          firebase: { db, collection, addDoc, serverTimestamp },
+          auth: { currentUser: user },
+          createBookLookup: (config = {}) => createBundleBookLookup(config),
+          onBundleCreated: (bundle) => showBundleStatusPanel(bundle),
+        }
+      );
+      bundleCreatorApi?.setSuppliers?.(latestSupplierOptions);
+    }
+
+    ensureBundleListReady();
+    subscribeBundlesForList();
+
   },
   onSignOut() {
     unsubscribeSuppliers?.();
     unsubscribeSuppliers = null;
+    unsubscribeBundleList?.();
+    unsubscribeBundleList = null;
     inventoryApi?.dispose?.();
     inventoryApi = null;
     editorApi = null;
@@ -463,6 +880,19 @@ initAuth({
     saleTitleAutocompleteApi = null;
     salePersistApi = null;
     latestSaleHeaderPayload = null;
+    bundleCreatorApi?.dispose?.();
+    bundleCreatorApi = null;
+    bundleStatusPanelApi?.dispose?.();
+    bundleStatusPanelApi = null;
+    if (bundleStatusPanel) {
+      bundleStatusPanel.hidden = true;
+    }
+    bundleListApi?.dispose?.();
+    bundleListApi = null;
+    latestBundleDocs = [];
+    bundleBookCache.clear();
+    bundleSnapshotVersion = 0;
+    currentAdminUser = null;
   },
 });
 
@@ -685,12 +1115,163 @@ async function loadSaleBooks() {
   }
 }
 
+async function loadBooksForSupplier(supplierId) {
+  if (!supplierId) {
+    return [];
+  }
+  const cached = supplierBooksCache.get(supplierId);
+  const nowTs = Date.now();
+  if (cached?.data) {
+    if (nowTs - cached.timestamp < SUPPLIER_BOOK_CACHE_TTL_MS) {
+      return cached.data;
+    }
+    supplierBooksCache.delete(supplierId);
+  }
+  if (cached?.promise) {
+    return cached.promise;
+  }
+  const fetchPromise = (async () => {
+    try {
+      const booksRef = collection(db, 'books');
+      const constraints =
+        typeof where === 'function' ? [where('supplierId', '==', supplierId)] : [];
+      const queryRef =
+        constraints.length && typeof query === 'function'
+          ? query(booksRef, ...constraints)
+          : booksRef;
+      const snapshot = await getDocs(queryRef);
+      const supplierMeta =
+        latestSupplierOptions.find((sup) => sup.id === supplierId) || null;
+      const books = snapshot.docs
+        .map((docSnap) => {
+          const data = docSnap.data() || {};
+          return {
+            id: docSnap.id,
+            ...data,
+            supplier:
+              data.supplier ||
+              (supplierMeta
+                ? {
+                    id: supplierMeta.id,
+                    name: supplierMeta.name,
+                    location: supplierMeta.location,
+                  }
+                : null),
+          };
+        })
+        .filter((book) => (book.status || 'available') !== 'sold');
+      supplierBooksCache.set(supplierId, { data: books, timestamp: Date.now() });
+      return books;
+    } catch (error) {
+      console.error('Failed to load bundle titles', error);
+      supplierBooksCache.delete(supplierId);
+      return [];
+    }
+  })();
+  supplierBooksCache.set(supplierId, { promise: fetchPromise });
+  return fetchPromise;
+}
+
 function formatSaleCurrency(amount) {
   const value = Number(amount || 0);
   if (!Number.isFinite(value)) {
     return '₹0.00';
   }
   return `₹${value.toFixed(2)}`;
+}
+
+function createBundleBookLookup(config = {}) {
+  if (
+    !bundleBookInput ||
+    !bundleBookSuggestions ||
+    !bundleBookHiddenInput ||
+    !bundleBookSummary
+  ) {
+    return null;
+  }
+  const { supplierId, onSelect, onNoMatch } = config;
+  if (!supplierId) return null;
+  return initSaleTitleAutocomplete(
+    {
+      input: bundleBookInput,
+      list: bundleBookSuggestions,
+      hiddenInput: bundleBookHiddenInput,
+      summaryEl: bundleBookSummary,
+      msgEl: bundleBookMsg,
+    },
+    {
+      loadBooks: () => loadBooksForSupplier(supplierId),
+      onBookSelect(book) {
+        if (bundleBookMsg) {
+          bundleBookMsg.textContent = '';
+        }
+        if (typeof onSelect === 'function') {
+          onSelect(book);
+        }
+        bundleBookHiddenInput.value = '';
+        bundleBookInput.value = '';
+        bundleBookSummary.dataset.empty = 'true';
+        bundleBookSummary.textContent =
+          bundleBookSummary.dataset.defaultSummary || 'No book selected.';
+      },
+      onNoMatch(query) {
+        if (bundleBookMsg) {
+          bundleBookMsg.textContent = query
+            ? 'No catalog match found for this supplier.'
+            : '';
+        }
+        if (typeof onNoMatch === 'function') {
+          onNoMatch(query);
+        }
+      },
+      debounceMs: 150,
+    }
+  );
+}
+
+function createBundleListLookup(config = {}) {
+  if (!config?.input || !config?.list || !config?.hiddenInput) {
+    return null;
+  }
+  const summaryEl =
+    config.summaryEl ||
+    createHiddenSummary(config.input, 'No book selected.');
+  return initSaleTitleAutocomplete(
+    {
+      input: config.input,
+      list: config.list,
+      hiddenInput: config.hiddenInput,
+      summaryEl,
+      msgEl: config.msgEl,
+    },
+    {
+      loadBooks: () => loadSaleBooks(),
+      onBookSelect(book) {
+        if (typeof config.onSelect === 'function') {
+          config.onSelect(book);
+        }
+      },
+      onNoMatch(query) {
+        if (typeof config.onNoMatch === 'function') {
+          config.onNoMatch(query);
+        } else if (config.msgEl) {
+          config.msgEl.textContent = query
+            ? 'No catalog match found.'
+            : '';
+        }
+      },
+      debounceMs: config.debounceMs ?? 150,
+    }
+  );
+}
+
+function createHiddenSummary(input, defaultText) {
+  const el = document.createElement('p');
+  el.dataset.empty = 'true';
+  el.textContent = defaultText || 'No selection.';
+  el.hidden = true;
+  input?.parentElement?.appendChild(el);
+  return el;
 }
 
 function createSelectionBridge() {

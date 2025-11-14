@@ -66,6 +66,14 @@
           <button
             type="button"
             class="admin-nav__item"
+            data-nav="bundles"
+          >
+            <span class="admin-nav__title">Create bundles</span>
+            <span class="admin-nav__meta">Supplier packs</span>
+          </button>
+          <button
+            type="button"
+            class="admin-nav__item"
             data-nav="recordSale"
             id="recordSaleBtn"
             aria-controls="saleEntryPanel"
@@ -153,11 +161,13 @@
                 name="price"
                 placeholder="Price (e.g., 250)"
                 inputmode="numeric"
+                required
               />
               <input
                 name="mrp"
                 placeholder="MRP (e.g., 499)"
                 inputmode="numeric"
+                required
               />
               <div class="field-with-label">
                 <label class="sr-only" for="purchasePriceInput">
@@ -168,11 +178,12 @@
                   type="number"
                   name="purchasePrice"
                   placeholder="Purchase price (our cost)"
-                  inputmode="numeric"
-                  min="0"
-                  step="1"
-                  aria-describedby="purchasePriceHelp"
-                />
+                inputmode="numeric"
+                min="0"
+                step="1"
+                aria-describedby="purchasePriceHelp"
+                required
+              />
                 <span id="purchasePriceHelp" class="sr-only">
                   Enter the amount paid to acquire the book; use zero for donations.
                 </span>
@@ -464,6 +475,195 @@
             <ul id="saleLineStatusList" class="stack" style="gap: 0.4rem"></ul>
           </div>
         </details>
+
+        <section class="panel" id="bundlesPanel" hidden>
+          <h3>Create a bundle</h3>
+          <p class="muted">
+            Pick a supplier, add at least two books from that supplier, and set a bundle
+            price (25% discount recommended).
+          </p>
+          <form id="bundleForm" class="stack" autocomplete="off">
+            <label class="stack">
+              <span class="field-label">Bundle title</span>
+              <input
+                id="bundleTitleInput"
+                type="text"
+                placeholder="e.g., Beginner sci-fi combo"
+                autocomplete="off"
+              />
+            </label>
+            <label class="stack">
+              <span class="field-label">Supplier</span>
+              <select id="bundleSupplierSelect">
+                <option value="">Choose supplier</option>
+              </select>
+              <span class="hint">
+                Supplier locks after the first selection. Use Reset bundle to change.
+              </span>
+            </label>
+
+            <div class="bundle-book-search">
+              <label class="field-label" for="bundleBookInput">
+                Add books from this supplier
+              </label>
+              <input
+                id="bundleBookInput"
+                type="search"
+                placeholder="Search catalog titles"
+                autocomplete="off"
+                disabled
+                aria-autocomplete="list"
+                aria-controls="bundleBookSuggestions"
+              />
+              <input type="hidden" id="bundleBookHiddenInput" />
+              <ul
+                id="bundleBookSuggestions"
+                class="admin-list bundle-suggestions"
+                role="listbox"
+              ></ul>
+              <p id="bundleBookMsg" class="hint"></p>
+              <p
+                id="bundleBookSummary"
+                class="muted"
+                data-empty="true"
+                data-default-summary="No book selected."
+              >
+                Search to select a book. Matches are limited to the chosen supplier.
+              </p>
+            </div>
+
+            <div>
+              <div class="bundle-selected-header">
+                <strong>Selected books</strong>
+                <span class="hint">Minimum two unique books</span>
+              </div>
+              <ul id="bundleSelectedBooks" class="bundle-selected-list"></ul>
+            </div>
+
+            <p id="bundleRecommendedHint" class="hint"></p>
+
+            <label class="stack">
+              <span class="field-label">Bundle price (₹)</span>
+              <input
+                id="bundlePriceInput"
+                type="text"
+                inputmode="numeric"
+                placeholder="Enter bundle price"
+                autocomplete="off"
+              />
+            </label>
+            <p id="bundlePriceMsg" class="error" role="alert"></p>
+
+            <div class="bundle-actions">
+              <button id="bundleSubmitBtn" class="btn" type="submit" disabled>
+                Create bundle
+              </button>
+              <button id="bundleResetBtn" class="btn btn-secondary" type="reset">
+                Reset bundle
+              </button>
+            </div>
+          </form>
+          <p id="bundleMsg" class="muted" aria-live="polite"></p>
+
+          <hr aria-hidden="true" />
+
+          <section class="bundle-list-panel">
+            <h4>Existing bundles</h4>
+            <p class="muted">
+              Search bundles by book title or filter by supplier/status to manage publish state.
+            </p>
+            <div class="bundle-list-filters">
+              <div class="bundle-filter">
+                <label class="field-label" for="bundleSearchInput">
+                Search bundles
+                <div class="bundle-search-input" id="bundleSearchInputWrap">
+                  <div
+                    id="bundleSearchSummary"
+                    class="bundle-selected-chip"
+                    data-empty="true"
+                    aria-live="polite"
+                  >
+                    <span class="bundle-selected-chip__label">No book selected.</span>
+                    <button
+                      type="button"
+                      class="bundle-selected-chip__clear"
+                      aria-label="Clear selected book filter"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <input
+                    id="bundleSearchInput"
+                    class="bundle-search-input-field"
+                    type="search"
+                    placeholder="Type a book title (min 2 characters)"
+                    aria-autocomplete="list"
+                    aria-controls="bundleSearchSuggestions"
+                  />
+                </div>
+                <input type="hidden" id="bundleSearchHiddenInput" />
+                <ul id="bundleSearchSuggestions" class="bundle-search-suggestions" role="listbox"></ul>
+                <p id="bundleSearchMsg" class="hint"></p>
+              </div>
+              <div class="bundle-filter">
+                <label class="field-label" for="bundleFilterSupplier">
+                Supplier
+                <select id="bundleFilterSupplier">
+                  <option value="">All suppliers</option>
+                </select>
+                </label>
+              </div>
+              <div class="bundle-filter">
+                <label class="field-label" for="bundleFilterStatus">
+                Status
+                <select id="bundleFilterStatus">
+                  <option value="">All statuses</option>
+                  <option value="Draft">Draft</option>
+                  <option value="Published">Published</option>
+                </select>
+                </label>
+              </div>
+            </div>
+            <div id="bundleResults" class="bundle-results"></div>
+            <p id="bundleEmpty" class="muted" hidden>No bundles found.</p>
+          </section>
+        </section>
+
+        <section class="panel" id="bundleStatusPanel" hidden>
+          <h3>Bundle status</h3>
+          <div class="bundle-status-chip" id="bundleStatusChip" data-status="Draft">Status: Draft</div>
+          <form id="bundleStatusForm" data-bundle-status="Draft">
+            <div class="bundle-detail-grid">
+              <label class="stack">
+                <span class="field-label">Title</span>
+                <input id="bundleDetailTitle" value="" data-original-value="" />
+              </label>
+              <label class="stack">
+                <span class="field-label">Bundle price</span>
+                <input id="bundleDetailPrice" value="" data-original-value="" />
+              </label>
+            </div>
+            <div class="bundle-status-actions">
+              <label class="bundle-toggle" for="bundlePublishToggle">
+                <span class="bundle-toggle__control">
+                  <input
+                    id="bundlePublishToggle"
+                    type="checkbox"
+                    role="switch"
+                    aria-label="Publish bundle"
+                    aria-checked="false"
+                  />
+                  <span class="bundle-toggle__track">
+                    <span class="bundle-toggle__thumb"></span>
+                  </span>
+                </span>
+                <span class="bundle-toggle__state" data-draft="Draft" data-published="Published">Draft</span>
+              </label>
+              <p class="bundle-toggle__hint">Toggle on to publish, off to keep the bundle hidden.</p>
+            </div>
+          </form>
+          <p id="bundleStatusMsg" class="muted" aria-live="polite"></p>
+        </section>
 
         <details class="panel" id="suppliersPanel" open>
           <summary><strong>Suppliers</strong></summary>

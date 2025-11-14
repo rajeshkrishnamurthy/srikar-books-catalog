@@ -43,12 +43,9 @@ export function buildBookSearchIndex(docs = []) {
       authorLower: normalizeField(doc.author || ''),
       isbnNormalized: normalizeIsbn(doc.isbn),
       source: {
+        ...doc,
         id: doc.id,
         title: normalizedTitle,
-        supplier: doc.supplier || null,
-        history: doc.history || null,
-        author: doc.author || '',
-        isbn: doc.isbn || '',
       },
     });
   });
