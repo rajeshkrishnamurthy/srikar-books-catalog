@@ -45,7 +45,6 @@ const authError = document.getElementById('authError');
 const signOutBtn = document.getElementById('signOutBtn');
 const adminNav = document.getElementById('adminNav');
 const manageBooksAnchor = document.getElementById('manageBooksAnchor');
-const adminNavDetails = document.getElementById('adminNavDetails');
 const addBookPanel = document.getElementById('addBookPanel');
 const availableBooksPanel = document.getElementById('availableBooksPanel');
 const soldBooksPanel = document.getElementById('soldBooksPanel');
@@ -150,6 +149,15 @@ const saleLineRemovalStatus = document.getElementById('saleLineRemovalStatus');
 const saleLineBookTitleMsg = saleTitleMsg;
 const recordSaleBtn = document.getElementById('recordSaleBtn');
 const saleEntryPanel = document.getElementById('saleEntryPanel');
+const MANAGE_PANEL_GROUP = [addBookPanel, availableBooksPanel, soldBooksPanel];
+const NAV_PANEL_GROUPS = {
+  manageBooks: MANAGE_PANEL_GROUP,
+  bundles: [bundlesPanel],
+  recordSale: [saleEntryPanel],
+  bookRequests: [bookRequestsPanel],
+  suppliers: [suppliersPanel],
+  customers: [customerPanelSection],
+};
 let inventoryApi = null;
 let editorApi = null;
 let supplierMasterApi = null;
@@ -176,7 +184,6 @@ let currentAdminUser = null;
 const supplierBooksCache = new Map();
 const SUPPLIER_BOOK_CACHE_TTL_MS = 2 * 60 * 1000;
 const DEFAULT_LANDING_HASH = '#add-book';
-const NAV_DETAIL_PREFIX = 'navDetail-';
 const ADMIN_NAV_CONFIG = [
   { id: 'manageBooks', panelId: 'addBookPanel' },
   { id: 'bundles', panelId: 'bundlesPanel' },
@@ -205,20 +212,6 @@ adminNav?.addEventListener('click', (event) => {
   const navKey = button.dataset.nav;
   if (!navKey) return;
   handleAdminNav(navKey, button);
-});
-
-adminNavDetails?.addEventListener('click', (event) => {
-  const cta = event.target?.closest('.admin-nav__cta[data-nav-target]');
-  if (!cta) return;
-  const targetNav = cta.dataset.navTarget || '';
-  if (!targetNav) return;
-  const targetButton = getNavButton(targetNav);
-  if (targetButton) {
-    handleAdminNav(targetNav, targetButton);
-  }
-  try {
-    window.location.hash = `#${targetNav}`;
-  } catch {}
 });
 
 saleHeaderDatePicker?.addEventListener('input', () => {
@@ -616,6 +609,7 @@ async function updateBundleStatus(bundleId, nextStatus) {
 function handleAdminNav(navKey, button) {
   if (!navKey || !button) return;
   setActiveNav(button);
+  showOnlyNavPanelGroup(navKey);
   switch (navKey) {
     case 'manageBooks':
       ensurePanelVisible(addBookPanel);
@@ -645,6 +639,9 @@ function handleAdminNav(navKey, button) {
     default:
       break;
   }
+  if (navKey === 'customers') {
+    focusCustomerPanelHeading();
+  }
   updateNavHash(navKey);
 }
 
@@ -659,7 +656,6 @@ function setActiveNav(activeButton) {
       btn.removeAttribute('aria-current');
     }
     btn.setAttribute('aria-expanded', isActive ? 'true' : 'false');
-    toggleNavDetail(btn.dataset.nav, isActive);
   });
   if (activeButton?.dataset.nav === 'customers') {
     focusCustomerPanelHeading();
@@ -682,11 +678,19 @@ function ensurePanelHidden(panel) {
   }
 }
 
-function toggleNavDetail(navKey, expanded) {
-  if (!navKey) return;
-  const detail = document.getElementById(`${NAV_DETAIL_PREFIX}${navKey}`);
-  if (!detail) return;
-  detail.hidden = !expanded;
+function showOnlyNavPanelGroup(navKey) {
+  if (!navKey || !NAV_PANEL_GROUPS[navKey]) return;
+  Object.entries(NAV_PANEL_GROUPS).forEach(([groupKey, panels]) => {
+    const shouldShow = groupKey === navKey;
+    panels.forEach((panel) => {
+      if (!panel) return;
+      if (shouldShow) {
+        ensurePanelVisible(panel);
+      } else {
+        ensurePanelHidden(panel);
+      }
+    });
+  });
 }
 
 function focusCustomerPanelHeading() {
@@ -708,7 +712,6 @@ function hydrateAdminNavControls() {
     if (panelId) {
       button.setAttribute('aria-controls', panelId);
     }
-    button.dataset.navDetailId = `${NAV_DETAIL_PREFIX}${id}`;
   });
 }
 
@@ -791,13 +794,11 @@ function ensureDefaultLanding() {
   if (manageButton) {
     handleAdminNav('manageBooks', manageButton);
   } else {
+    showOnlyNavPanelGroup('manageBooks');
     ensurePanelVisible(addBookPanel);
     ensurePanelVisible(availableBooksPanel);
     ensurePanelVisible(soldBooksPanel);
   }
-  ensurePanelHidden(bookRequestsPanel);
-  ensurePanelHidden(suppliersPanel);
-  ensurePanelHidden(customerPanelSection);
 }
 
 function ensureDefaultHash() {

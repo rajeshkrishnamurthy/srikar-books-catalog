@@ -620,6 +620,20 @@
           "when": "The workspace completes initialization and resolves the landing destination.",
           "then": "The requested panel opens (accordion expanded or section unhidden), the nav button is marked active, non-target panels stay untouched unless the design requires hiding them, and window.location.hash reflects the canonical alias for that panel.",
           "notes": "Document the supported aliases (e.g., #customers, #customer-master) and add tests to prevent regressions when new panels are added."
+        },
+        {
+          "id": "F15-TP4",
+          "title": "Remove Nav Detail Summaries",
+          "area": "Admin / Navigation",
+          "goal": "Simplify the icon menu by removing the detail summary/CTA sections so each tile just routes directly to its panel.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F15-TP1"
+          ],
+          "given": "The admin nav currently renders a detail section (`#navDetail-*`) for each tile.",
+          "when": "The nav initializes.",
+          "then": "Those detail sections no longer render (or are hidden), leaving only the primary nav buttons that route on click; no redundant summary text or CTAs are shown for any panel.",
+          "notes": "Update specs/tests that referenced the detail summaries/CTA buttons to reflect the leaner menu."
         }
       ]
     },

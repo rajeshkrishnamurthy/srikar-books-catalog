@@ -61,22 +61,22 @@ export async function createAdminMainHarness(options = {}) {
       return document.getElementById('suppliersPanel');
     },
     get manageNavButton() {
-      return getNavButtonProxy('manageBooks');
+      return document.querySelector('#adminNav [data-nav="manageBooks"]');
     },
     get bookRequestsNavButton() {
-      return getNavButtonProxy('bookRequests');
+      return document.querySelector('#adminNav [data-nav="bookRequests"]');
     },
     get suppliersNavButton() {
-      return getNavButtonProxy('suppliers');
+      return document.querySelector('#adminNav [data-nav="suppliers"]');
     },
     get bundlesNavButton() {
-      return getNavButtonProxy('bundles');
+      return document.querySelector('#adminNav [data-nav="bundles"]');
     },
     get recordSaleNavButton() {
-      return getNavButtonProxy('recordSale');
+      return document.querySelector('#adminNav [data-nav="recordSale"]');
     },
     get customersNavButton() {
-      return getNavButtonProxy('customers');
+      return document.querySelector('#adminNav [data-nav="customers"]');
     },
     get locationHash() {
       return window.location.hash;
@@ -90,14 +90,6 @@ export async function createAdminMainHarness(options = {}) {
           .getElementById('customerPanel')
           ?.closest('.panel')
           ?.querySelector('summary, [data-customer-panel-heading]') || null
-      );
-    },
-    getNavDetail(navKey) {
-      return document.getElementById(`navDetail-${navKey}`);
-    },
-    getNavCta(navKey) {
-      return document.querySelector(
-        `#navDetail-${navKey} .admin-nav__cta[data-nav-target="${navKey}"]`
       );
     },
   };
@@ -132,7 +124,7 @@ function buildDom() {
           class="admin-nav__item is-active"
           role="tab"
           id="navTab-manageBooks"
-          aria-controls="navDetail-manageBooks"
+          aria-controls="addBookPanel"
           aria-expanded="true"
           data-nav="manageBooks"
         >
@@ -143,7 +135,7 @@ function buildDom() {
           class="admin-nav__item"
           role="tab"
           id="navTab-bundles"
-          aria-controls="navDetail-bundles"
+          aria-controls="bundlesPanel"
           aria-expanded="false"
           data-nav="bundles"
         >
@@ -165,7 +157,7 @@ function buildDom() {
           class="admin-nav__item"
           role="tab"
           id="navTab-bookRequests"
-          aria-controls="navDetail-bookRequests"
+          aria-controls="bookRequestsPanel"
           aria-expanded="false"
           data-nav="bookRequests"
         >
@@ -176,7 +168,7 @@ function buildDom() {
           class="admin-nav__item"
           role="tab"
           id="navTab-suppliers"
-          aria-controls="navDetail-suppliers"
+          aria-controls="suppliersPanel"
           aria-expanded="false"
           data-nav="suppliers"
         >
@@ -187,104 +179,13 @@ function buildDom() {
           class="admin-nav__item"
           role="tab"
           id="navTab-customers"
-          aria-controls="navDetail-customers"
+          aria-controls="customersPanel"
           aria-expanded="false"
           data-nav="customers"
         >
           Customers
         </button>
       </nav>
-      <div id="adminNavDetails">
-        <section
-          id="navDetail-manageBooks"
-          class="admin-nav__details"
-          role="tabpanel"
-          aria-labelledby="navTab-manageBooks"
-        >
-          <p class="admin-nav__summary">Add &amp; stock</p>
-          <p class="admin-nav__description">
-            Create single books, run lookups, and stock incoming inventory.
-          </p>
-          <button type="button" class="admin-nav__cta" data-nav-target="manageBooks">
-            Go to Add book
-          </button>
-        </section>
-        <section
-          id="navDetail-bundles"
-          class="admin-nav__details"
-          role="tabpanel"
-          aria-labelledby="navTab-bundles"
-          hidden
-        >
-          <p class="admin-nav__summary">Bundles</p>
-          <p class="admin-nav__description">
-            Create supplier bundles and publish curated sets.
-          </p>
-          <button type="button" class="admin-nav__cta" data-nav-target="bundles">
-            Open bundles
-          </button>
-        </section>
-        <section
-          id="navDetail-recordSale"
-          class="admin-nav__details"
-          role="tabpanel"
-          aria-labelledby="recordSaleBtn"
-          hidden
-        >
-          <p class="admin-nav__summary">Record sale</p>
-          <p class="admin-nav__description">
-            Launch the sale workflow to collect payments.
-          </p>
-          <button type="button" class="admin-nav__cta" data-nav-target="recordSale">
-            Start sale entry
-          </button>
-        </section>
-        <section
-          id="navDetail-bookRequests"
-          class="admin-nav__details"
-          role="tabpanel"
-          aria-labelledby="navTab-bookRequests"
-          hidden
-        >
-          <p class="admin-nav__summary">Book requests</p>
-          <p class="admin-nav__description">
-            Review and respond to incoming customer requests.
-          </p>
-          <button type="button" class="admin-nav__cta" data-nav-target="bookRequests">
-            View requests
-          </button>
-        </section>
-        <section
-          id="navDetail-suppliers"
-          class="admin-nav__details"
-          role="tabpanel"
-          aria-labelledby="navTab-suppliers"
-          hidden
-        >
-          <p class="admin-nav__summary">Suppliers</p>
-          <p class="admin-nav__description">
-            Add, edit, and audit supplier master data.
-          </p>
-          <button type="button" class="admin-nav__cta" data-nav-target="suppliers">
-            Manage suppliers
-          </button>
-        </section>
-        <section
-          id="navDetail-customers"
-          class="admin-nav__details"
-          role="tabpanel"
-          aria-labelledby="navTab-customers"
-          hidden
-        >
-          <p class="admin-nav__summary">Customer master</p>
-          <p class="admin-nav__description">
-            Capture buyers and reuse their WhatsApp/contact info when booking orders.
-          </p>
-          <button type="button" class="admin-nav__cta" data-nav-target="customers">
-            Open customers
-          </button>
-        </section>
-      </div>
       <div id="manageBooksAnchor"></div>
       <details id="addBookPanel" class="panel" open></details>
       <details id="availableBooksPanel" class="panel" open></details>
@@ -306,35 +207,6 @@ function buildDom() {
     <input id="authorInput" />
     <datalist id="authorList"></datalist>
   `;
-}
-
-function getNavButtonProxy(navKey) {
-  if (!navKey) return null;
-  const button = document.querySelector(`#adminNav [data-nav="${navKey}"]`);
-  return wrapNavButtonForLegacyA11y(button);
-}
-
-function wrapNavButtonForLegacyA11y(button) {
-  if (!button) return null;
-  const detailId =
-    button.dataset.navDetailId || `navDetail-${button.dataset.nav || ''}`;
-  return new Proxy(button, {
-    get(target, prop, receiver) {
-      if (prop === 'getAttribute') {
-        return (attrName) => {
-          if (attrName === 'aria-controls' && detailId) {
-            return detailId;
-          }
-          return target.getAttribute(attrName);
-        };
-      }
-      const value = Reflect.get(target, prop, receiver);
-      if (typeof value === 'function') {
-        return value.bind(target);
-      }
-      return value;
-    },
-  });
 }
 
 function buildFirebaseMocks() {
