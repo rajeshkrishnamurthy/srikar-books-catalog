@@ -27,3 +27,4 @@ export const orderBy = firebaseImpl.orderBy;
 export const query = firebaseImpl.query;
 export const onSnapshot = firebaseImpl.onSnapshot;
 export const getDocs = firebaseImpl.getDocs;
+export const limit = firebaseImpl.limit;

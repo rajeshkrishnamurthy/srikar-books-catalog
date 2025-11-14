@@ -129,3 +129,16 @@ Notes:
 Notes:
 - Update admin forms/tests to treat Price, MRP, and Purchase price as mandatory on creation/edit; surface clear error messaging.
 - Bundle creator should never rely solely on the recommended value—admins must explicitly enter a price before Save, and Firestore payloads must include it.
+
+# Feature: Task-Focused Admin Workspace (F14)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F14-TP1 | Add Book Default Landing | Make the Add Book flow the default page so admins can start the most common task immediately after sign-in. | — | An authenticated admin finishes signing in or lands on /admin with no section specified. | The workspace initializes or the page refreshes. | The Add Book page loads first with its menu tile active, and hash/URL routes resolve to the same default state. |
+| F14-TP2 | Expandable Icon Menu Navigation | Turn the icon grid into an accessible nav hub by letting tiles expand to show summaries/sub-actions before routing. | — | A signed-in admin can see the icon-style menu. | They focus or click a tile. | The tile expands with description and CTA links, collapses peers, updates ARIA state, and selecting a CTA routes to that task page. |
+| F14-TP3 | Dedicated Admin Task Pages | Split current accordion panels into separate pages so each workflow loads only its own content. | F14-TP2 | An admin activates a nav tile other than Add Book. | Navigation swaps or routes to the requested task. | Only that task’s panel renders with its own hero/actions, while the menu highlights the active tile and offers a quick return path. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F14 topics.
+- Keep keyboard focus/ARIA semantics aligned between the menu and routed pages.
+- Lazy-load task-specific scripts/data to avoid the heavy single-page accordion load.

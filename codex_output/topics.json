@@ -530,6 +530,51 @@
           "notes": "Covers UI messaging, validation, and payload enforcement so bundle price cannot be omitted even if a recommendation is shown."
         }
       ]
+    },
+    {
+      "featureId": "F14",
+      "featureTitle": "Task-Focused Admin Workspace",
+      "description": "Split the oversized admin accordion into smaller task pages with icon-driven navigation and keep Add Book as the default landing view.",
+      "topics": [
+        {
+          "id": "F14-TP1",
+          "title": "Add Book Default Landing",
+          "area": "Admin / Navigation",
+          "goal": "Ensure the Add Book workflow loads first (and via direct link) so the highest-frequency task is instantly available after sign-in.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "An authenticated admin completes the sign-in flow or opens the /admin route without a section specified.",
+          "when": "The workspace initializes or the admin refreshes the page.",
+          "then": "The Add Book page renders as the default view with its icon tile marked active, collapsible sections hidden elsewhere, and deep links (hash/URL param) that always land on Add Book.",
+          "notes": "Keep form autofill helpers intact, surface a clear heading for screen readers, and make the nav state reflect that Add Book is the default selection."
+        },
+        {
+          "id": "F14-TP2",
+          "title": "Expandable Icon Menu Navigation",
+          "area": "Admin / Navigation",
+          "goal": "Convert the existing icon grid into an accessible navigation hub where each tile expands to reveal description and sub-actions before routing to its page.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "An admin is in the signed-in workspace and sees the icon-style menu bar.",
+          "when": "They focus or click a tile (Manage books, Bundles, Suppliers, etc.).",
+          "then": "The tile expands to show its summary and CTA links, other tiles collapse, ARIA attributes update (role=tab/accordion) for screen readers, and selecting a CTA routes to the corresponding page.",
+          "notes": "Tiles must be reachable via keyboard, remember expanded/collapsed state, and expose data-nav hooks codex-dev can bind to new pages."
+        },
+        {
+          "id": "F14-TP3",
+          "title": "Dedicated Admin Task Pages",
+          "area": "Admin / Multi-page Layout",
+          "goal": "Move each major accordion panel (bundles, sale recording, requests, suppliers) into its own lightweight page/screen loaded via the icon menu.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F14-TP2"
+          ],
+          "given": "An admin activates a nav tile other than Add Book (e.g., Bundles).",
+          "when": "Navigation loads the selected task page via routing or dynamic content swap.",
+          "then": "Only that task's content is rendered (with its own hero/actions), the menu highlights the active tile, and back/overview links allow returning to the menu without scrolling a mega-accordion.",
+          "notes": "Each page should lazy-load only the scripts/data needed for that task and preserve existing forms/validation while removing redundant accordion chrome."
+        }
+      ]
     }
   ]
 }
