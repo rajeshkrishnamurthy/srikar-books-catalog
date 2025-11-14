@@ -172,6 +172,7 @@ let bundleStatusPanelApi = null;
 let currentAdminUser = null;
 const supplierBooksCache = new Map();
 const SUPPLIER_BOOK_CACHE_TTL_MS = 2 * 60 * 1000;
+const DEFAULT_LANDING_HASH = '#add-book';
 
 adminNav?.addEventListener('click', (event) => {
   const button = event.target?.closest('button[data-nav]');
@@ -606,7 +607,13 @@ function handleAdminNav(navKey, button) {
 function setActiveNav(activeButton) {
   if (!adminNav) return;
   adminNav.querySelectorAll('.admin-nav__item').forEach((btn) => {
-    btn.classList.toggle('is-active', btn === activeButton);
+    const isActive = btn === activeButton;
+    btn.classList.toggle('is-active', isActive);
+    if (isActive) {
+      btn.setAttribute('aria-current', 'page');
+    } else {
+      btn.removeAttribute('aria-current');
+    }
   });
 }
 
@@ -615,6 +622,14 @@ function ensurePanelVisible(panel) {
   panel.removeAttribute?.('hidden');
   if (panel.tagName === 'DETAILS') {
     panel.open = true;
+  }
+}
+
+function ensurePanelHidden(panel) {
+  if (!panel) return;
+  panel.hidden = true;
+  if (panel.tagName === 'DETAILS') {
+    panel.open = false;
   }
 }
 
@@ -675,6 +690,88 @@ function syncPickerFromText() {
   saleHeaderDatePicker.value = iso || '';
 }
 
+function ensureDefaultLanding() {
+  const navTarget = resolveLandingNavTarget();
+  if (navTarget && navTarget !== 'manageBooks') {
+    const targetButton = adminNav?.querySelector(`[data-nav="${navTarget}"]`);
+    if (targetButton) {
+      handleAdminNav(navTarget, targetButton);
+      return;
+    }
+  }
+
+  if (!navTarget) {
+    ensureDefaultHash();
+  }
+
+  const manageButton = adminNav?.querySelector('[data-nav="manageBooks"]');
+  if (manageButton) {
+    handleAdminNav('manageBooks', manageButton);
+  } else {
+    ensurePanelVisible(addBookPanel);
+    ensurePanelVisible(availableBooksPanel);
+    ensurePanelVisible(soldBooksPanel);
+  }
+  ensurePanelHidden(bookRequestsPanel);
+  ensurePanelHidden(suppliersPanel);
+}
+
+function ensureDefaultHash() {
+  const currentHash = window?.location?.hash || '';
+  if (!currentHash || currentHash === '#') {
+    window.location.hash = DEFAULT_LANDING_HASH;
+  }
+}
+
+function resolveLandingNavTarget() {
+  const hashValue =
+    typeof window !== 'undefined' ? window.location?.hash || '' : '';
+  const hashTarget = normalizeLandingHint(hashValue);
+  if (hashTarget) {
+    return hashTarget;
+  }
+  const searchValue =
+    typeof window !== 'undefined' ? window.location?.search || '' : '';
+  const searchParams = new URLSearchParams(searchValue);
+  const sectionTarget = normalizeLandingHint(searchParams.get('section') || '');
+  return sectionTarget || '';
+}
+
+function normalizeLandingHint(raw = '') {
+  const cleaned = String(raw)
+    .trim()
+    .replace(/^#/, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+  if (!cleaned) {
+    return '';
+  }
+  switch (cleaned) {
+    case 'managebooks':
+    case 'addbook':
+    case 'addbooks':
+    case 'add':
+      return 'manageBooks';
+    case 'bookrequests':
+    case 'bookrequestspanel':
+      return 'bookRequests';
+    case 'suppliers':
+    case 'supplierspanel':
+      return 'suppliers';
+    case 'bundles':
+    case 'bundle':
+      return 'bundles';
+    case 'recordsale':
+    case 'recordsales':
+    case 'sale':
+    case 'sales':
+    case 'saleentry':
+      return 'recordSale';
+    default:
+      return '';
+  }
+}
+
 initAuth({
   authEl,
   adminEl,
@@ -685,6 +782,7 @@ initAuth({
   signOutBtn,
   onAuthed(user) {
     currentAdminUser = user || null;
+    ensureDefaultLanding();
     // 1) Start the realtime <datalist> fill for Author autocomplete
     subscribeAuthors();
 
