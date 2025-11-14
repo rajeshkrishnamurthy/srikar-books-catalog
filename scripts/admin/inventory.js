@@ -250,6 +250,9 @@ export function initInventory({
     const supplierId = (fd.get('supplierId') || '').toString().trim();
     const cover = fd.get('cover');
     const more = fd.getAll('more').filter((f) => f && f.size);
+    const priceInputEl = addForm?.elements?.price;
+    const mrpInputEl = addForm?.elements?.mrp;
+    const purchaseInputEl = addForm?.elements?.purchasePrice;
 
     if (!title || !category || !binding || !cover || !cover.size) {
       if (addMsg)
@@ -258,15 +261,54 @@ export function initInventory({
       return;
     }
 
-    if (purchaseField.hasValue && !purchaseField.isNumeric) {
-      if (addMsg)
-        addMsg.textContent = 'Purchase price must be a numeric value.';
+    if (!priceField.hasValue) {
+      if (addMsg) addMsg.textContent = 'Price is required.';
+      priceInputEl?.focus?.();
+      return;
+    }
+    if (!priceField.isNumeric) {
+      if (addMsg) addMsg.textContent = 'Price must be a numeric value.';
+      priceInputEl?.focus?.();
+      return;
+    }
+    if (price <= 0) {
+      if (addMsg) addMsg.textContent = 'Price must be greater than zero.';
+      priceInputEl?.focus?.();
       return;
     }
 
-    if (purchaseField.hasValue && purchasePrice < 0) {
+    if (!mrpField.hasValue) {
+      if (addMsg) addMsg.textContent = 'MRP is required.';
+      mrpInputEl?.focus?.();
+      return;
+    }
+    if (!mrpField.isNumeric) {
+      if (addMsg) addMsg.textContent = 'MRP must be a numeric value.';
+      mrpInputEl?.focus?.();
+      return;
+    }
+    if (mrp <= 0) {
+      if (addMsg) addMsg.textContent = 'MRP must be greater than zero.';
+      mrpInputEl?.focus?.();
+      return;
+    }
+
+    if (!purchaseField.hasValue) {
+      if (addMsg) addMsg.textContent = 'Purchase price is required.';
+      purchaseInputEl?.focus?.();
+      return;
+    }
+    if (!purchaseField.isNumeric) {
+      if (addMsg)
+        addMsg.textContent = 'Purchase price must be a numeric value.';
+      purchaseInputEl?.focus?.();
+      return;
+    }
+
+    if (purchasePrice < 0) {
       if (addMsg)
         addMsg.textContent = 'Purchase price must be zero or positive.';
+      purchaseInputEl?.focus?.();
       return;
     }
 

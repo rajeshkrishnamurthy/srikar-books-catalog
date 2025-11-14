@@ -1,0 +1,86 @@
+{
+  "topicId": "F12-TP2",
+  "featureId": "F12",
+  "title": "Publish/Unpublish + Immutability Enforcement",
+  "area": "Admin / Bundles",
+  "goal": "Allow admins to publish or unpublish bundles while keeping items and price immutable after creation.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F12-TP2-001",
+      "title": "PublishDraftBundle",
+      "given": "A Draft bundle is loaded in the admin panel.",
+      "when": "The admin clicks Publish.",
+      "then": "The UI updates to Published and Firestore receives status \"Published\" for that bundle.",
+      "test": "/tests/spec/admin/F12-TP2-001_PublishBundle.spec.js"
+    },
+    {
+      "id": "F12-TP2-002",
+      "title": "UnpublishBundle",
+      "given": "A Published bundle is loaded.",
+      "when": "The admin clicks Unpublish.",
+      "then": "Status flips back to Draft/Hidden and Firestore stores status \"Draft\".",
+      "test": "/tests/spec/admin/F12-TP2-002_UnpublishBundle.spec.js"
+    },
+    {
+      "id": "F12-TP2-003",
+      "title": "ImmutableFieldsAfterCreation",
+      "given": "A bundle exists (Draft or Published).",
+      "when": "The admin tries to edit title or bundle price from the status panel.",
+      "then": "Edits are blocked with an immutable warning and no write occurs.",
+      "test": "/tests/spec/admin/F12-TP2-003_ImmutableBundleFields.spec.js"
+    },
+    {
+      "id": "F12-TP2-004",
+      "title": "PublishToggleReflectsStatus",
+      "given": "A bundle status panel exposes a publish toggle switch and busy indicator.",
+      "when": "The admin flips the toggle from Draft to Published (and back) while Firestore updates run in the background.",
+      "then": "The switch disables while the write is in flight, shows a busy message on the status chip, and lands in the correct on/off state once Firestore confirms the update.",
+      "test": "/tests/spec/admin/F12-TP2-004_PublishButtonsDisableMatchingStatus.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminBundleStatusHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F12-TP2-001_PublishBundle.spec.js",
+    "/tests/spec/admin/F12-TP2-002_UnpublishBundle.spec.js",
+    "/tests/spec/admin/F12-TP2-003_ImmutableBundleFields.spec.js",
+    "/tests/spec/admin/F12-TP2-004_PublishButtonsDisableMatchingStatus.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F12-TP2_red.txt",
+    "green": "codex_output/reports/F12-TP2_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "codex_output/specs/F12-TP2.json",
+    "scripts/admin/bundleStatus.js",
+    "scripts/admin/bundles.js",
+    "scripts/admin/main.js",
+    "styles/admin.css",
+    "tests/fixtures/adminBundleStatusHarness.js",
+    "tests/spec/admin/F12-TP2-001_PublishBundle.spec.js",
+    "tests/spec/admin/F12-TP2-002_UnpublishBundle.spec.js",
+    "tests/spec/admin/F12-TP2-003_ImmutableBundleFields.spec.js",
+    "tests/spec/admin/F12-TP2-004_PublishButtonsDisableMatchingStatus.spec.js"
+  ],
+  "changeNotes": [
+    "Implemented bundle status panel with Publish/Unpublish buttons wired through bundleStatus.js and enforced immutable fields; all bundle status specs now GREEN.",
+    "Added SPEC F12-TP2-004 to require publish/unpublish controls disable themselves when the bundle is already in that state.",
+    "Publish/unpublish controls now disable themselves when bundles already have that status, preventing redundant writes.",
+    "Added a visible busy indicator and inline messaging for Publish/Unpublish actions.",
+    "Added inline busy state + permission-aware bundle list error handling so admins see feedback when actions fail.",
+    "Bundle status panel is now initialized after a new bundle is created, wiring the toggle to Firestore updates."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --runTestsByPath tests/spec/admin/F12-TP2-004_PublishButtonsDisableMatchingStatus.spec.js --watchAll=false",
+    "report": "codex_output/reports/F12-TP2_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Bundle status buttons disable in-flight operations and show busy messaging, satisfying SPEC F12-TP2-004."
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "topicId": "F13-TP1",
+  "featureId": "F13",
+  "title": "Require Book Price, MRP, and Purchase Price",
+  "area": "Admin / Inventory",
+  "goal": "Ensure Add Book treats Price, MRP, and Purchase price as mandatory numeric inputs before save.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F13-TP1-001",
+      "title": "BookPriceFieldIsRequired",
+      "given": "An admin opens the Add Book form.",
+      "when": "They clear the selling price field and submit the form.",
+      "then": "Submission is blocked, addDoc does not run, and inline feedback explains that price is required.",
+      "test": "/tests/spec/admin/F13-TP1-001_AddBookRequiresPrice.spec.js"
+    },
+    {
+      "id": "F13-TP1-002",
+      "title": "MRPFieldIsRequired",
+      "given": "The Add Book form is filled with all data except MRP.",
+      "when": "The admin submits without an MRP value.",
+      "then": "The form surfaces an inline MRP-required message and blocks persistence.",
+      "test": "/tests/spec/admin/F13-TP1-002_AddBookRequiresMrp.spec.js"
+    },
+    {
+      "id": "F13-TP1-003",
+      "title": "PurchasePriceFieldIsRequired",
+      "given": "The Add Book form is ready to submit.",
+      "when": "Purchase price remains empty and the admin submits.",
+      "then": "No Firestore write occurs and inline validation explains that purchase price is required.",
+      "test": "/tests/spec/admin/F13-TP1-003_AddBookRequiresPurchasePrice.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminAddHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F13-TP1-001_AddBookRequiresPrice.spec.js",
+    "/tests/spec/admin/F13-TP1-002_AddBookRequiresMrp.spec.js",
+    "/tests/spec/admin/F13-TP1-003_AddBookRequiresPurchasePrice.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F13-TP1_red.txt",
+    "green": "codex_output/reports/F13-TP1_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/inventory.js",
+    "tests/fixtures/adminAddHarness.js",
+    "tests/spec/admin/F13-TP1-001_AddBookRequiresPrice.spec.js",
+    "tests/spec/admin/F13-TP1-002_AddBookRequiresMrp.spec.js",
+    "tests/spec/admin/F13-TP1-003_AddBookRequiresPurchasePrice.spec.js",
+    "codex_output/specs/F13-TP1.json"
+  ],
+  "changeNotes": [
+    "Add Book now enforces required price, MRP, and purchase price inputs with explicit inline messaging plus HTML required attributes.",
+    "Inventory submit handler validates each field (numeric + positive/non-negative) before persisting to Firestore; harness defaults updated to include purchase price."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false",
+    "report": "codex_output/reports/F13-TP1_green.txt"
+  }
+}
