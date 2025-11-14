@@ -1,0 +1,75 @@
+{
+  "topicId": "F15-TP4",
+  "featureId": "F15",
+  "title": "Remove Nav Detail Summaries",
+  "area": "Admin / Navigation",
+  "goal": "Strip the nav detail summary/CTA sections so tiles route directly via the main buttons.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F15-TP4-001",
+      "title": "NavDetailSectionsRemoved",
+      "given": "An admin signs in and the icon nav renders.",
+      "when": "The DOM is inspected.",
+      "then": "No `#navDetail-*` sections or `adminNavDetails` wrapper exist, ensuring the summaries/CTAs were removed.",
+      "test": "/tests/spec/admin/F15-TP4-001_NavDetailsRemoved.spec.js"
+    },
+    {
+      "id": "F15-TP4-002",
+      "title": "NavButtonsRouteWithoutCTAs",
+      "given": "The nav tiles render without auxiliary CTAs.",
+      "when": "A user clicks a tile such as Bundles.",
+      "then": "The app routes immediately via the button; no hidden `.admin-nav__cta` nodes remain for that section.",
+      "test": "/tests/spec/admin/F15-TP4-002_NavButtonsRouteWithoutCTAs.spec.js"
+    },
+    {
+      "id": "F15-TP4-003",
+      "title": "NoDetailLayoutArtifacts",
+      "given": "The navigation markup has been simplified.",
+      "when": "Tests query for `.admin-nav__details` or `#adminNavDetails`.",
+      "then": "Those nodes are absent so the layout no longer preserves empty wrappers.",
+      "test": "/tests/spec/admin/F15-TP4-003_NoDetailLayoutArtifacts.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F15-TP4-001_NavDetailsRemoved.spec.js",
+    "/tests/spec/admin/F15-TP4-002_NavButtonsRouteWithoutCTAs.spec.js",
+    "/tests/spec/admin/F15-TP4-003_NoDetailLayoutArtifacts.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F15-TP4_red.txt",
+    "green": "codex_output/reports/F15-TP4_green.txt"
+  },
+  "changedFiles": [
+    "tests/spec/admin/F15-TP4-001_NavDetailsRemoved.spec.js",
+    "tests/spec/admin/F15-TP4-002_NavButtonsRouteWithoutCTAs.spec.js",
+    "tests/spec/admin/F15-TP4-003_NoDetailLayoutArtifacts.spec.js",
+    "admin.html",
+    "scripts/admin/main.js",
+    "tests/fixtures/adminMainHarness.js",
+    "tests/spec/admin/F14-TP2-001_NavButtonsExposeTabSemantics.spec.js",
+    "tests/spec/admin/F14-TP2-002_ClickingNavExpandsCorrespondingDetails.spec.js",
+    "tests/spec/admin/F14-TP2-003_CtaRoutesNavTarget.spec.js",
+    "codex_output/specs/F15-TP4.json",
+    "codex_output/reports/F15-TP4_red.txt",
+    "codex_output/reports/F15-TP4_green.txt"
+  ],
+  "changeNotes": [
+    "Added specs to ensure nav detail summaries/CTAs are removed and only primary buttons remain after the cleanup.",
+    "admin.html + harness now render just the nav buttons (no adminNavDetails wrapper) with aria-controls pointing to real panels.",
+    "scripts/admin/main.js no longer wires CTA listeners and clears ?section aliases while routing via the primary buttons."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F15-TP4_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Full Jest suite (including the new F15-TP4 removal specs) is green after stripping nav detail wrappers/CTAs."
+    }
+  }
+}

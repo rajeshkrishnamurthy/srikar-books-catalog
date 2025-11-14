@@ -1,0 +1,73 @@
+{
+  "topicId": "F15-TP1",
+  "featureId": "F15",
+  "title": "Unified Admin Nav Map",
+  "area": "Admin / Navigation",
+  "goal": "Render the admin navigation from a single config so every major panel has a visible entry tied to its DOM id.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F15-TP1-001",
+      "title": "NavButtonsCoverAllPanels",
+      "given": "An authenticated admin signs in and the admin workspace loads.",
+      "when": "The navigation renders its buttons based on the nav config.",
+      "then": "Buttons exist for manageBooks, bundles, recordSale, bookRequests, suppliers, and customers so every major accordion/panel is one click away.",
+      "test": "/tests/spec/admin/F15-TP1-001_AdminNavButtonsCoverAllPanels.spec.js"
+    },
+    {
+      "id": "F15-TP1-002",
+      "title": "NavButtonsExposeAriaControls",
+      "given": "The admin nav buttons are rendered.",
+      "when": "Assistive tech (or scripts) inspect each button.",
+      "then": "Every button declares aria-controls that points at the correct panel id (addBookPanel, bundlesPanel, saleEntryPanel, bookRequestsPanel, suppliersPanel, customerPanel).",
+      "test": "/tests/spec/admin/F15-TP1-002_AdminNavAriaControls.spec.js"
+    },
+    {
+      "id": "F15-TP1-003",
+      "title": "ExposeNavMapForDeepLinks",
+      "given": "The admin workspace initializes.",
+      "when": "Deep-link helpers or tests request the nav map.",
+      "then": "A global nav map structure (e.g., window.__adminNavMap) describes each nav id and its target panel so hashes and query params can stay in sync with the actual buttons.",
+      "test": "/tests/spec/admin/F15-TP1-003_AdminNavMapExport.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F15-TP1-001_AdminNavButtonsCoverAllPanels.spec.js",
+    "/tests/spec/admin/F15-TP1-002_AdminNavAriaControls.spec.js",
+    "/tests/spec/admin/F15-TP1-003_AdminNavMapExport.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F15-TP1_red.txt",
+    "green": "codex_output/reports/F15-TP1_green.txt"
+  },
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F15-TP1_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "All Jest suites (including F15-TP1-001/002/003) are now green via npm test -- --watchAll=false --bail=0."
+    }
+  },
+  "changedFiles": [
+    "tests/spec/admin/F15-TP1-001_AdminNavButtonsCoverAllPanels.spec.js",
+    "tests/spec/admin/F15-TP1-002_AdminNavAriaControls.spec.js",
+    "tests/spec/admin/F15-TP1-003_AdminNavMapExport.spec.js",
+    "admin.html",
+    "scripts/admin/main.js",
+    "tests/fixtures/adminMainHarness.js",
+    "codex_output/specs/F15-TP1.json",
+    "codex_output/reports/F15-TP1_red.txt",
+    "codex_output/reports/F15-TP1_green.txt"
+  ],
+  "changeNotes": [
+    "Added SPEC F15-TP1-001 to require nav buttons for manageBooks, bundles, recordSale, bookRequests, suppliers, and customers.",
+    "Added SPEC F15-TP1-002 to enforce aria-controls wiring between nav buttons and their panels.",
+    "Added SPEC F15-TP1-003 to expose a reusable admin nav map so deep links match the rendered buttons.",
+    "Admin nav now renders a Customers entry, wires aria-controls to real panels via a shared config, exposes window.__adminNavMap, and updates the harness so legacy tab semantics stay intact for earlier specs."
+  ]
+}

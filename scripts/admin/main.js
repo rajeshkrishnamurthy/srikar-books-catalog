@@ -51,6 +51,8 @@ const soldBooksPanel = document.getElementById('soldBooksPanel');
 const bookRequestsPanel = document.getElementById('bookRequestsPanel');
 const suppliersPanel = document.getElementById('suppliersPanel');
 const bundlesPanel = document.getElementById('bundlesPanel');
+const customerPanel = document.getElementById('customerPanel');
+const customerPanelSection = customerPanel?.closest('.panel') || customerPanel;
 
 const addForm = document.getElementById('addForm');
 const addMsg = document.getElementById('addMsg');
@@ -147,6 +149,15 @@ const saleLineRemovalStatus = document.getElementById('saleLineRemovalStatus');
 const saleLineBookTitleMsg = saleTitleMsg;
 const recordSaleBtn = document.getElementById('recordSaleBtn');
 const saleEntryPanel = document.getElementById('saleEntryPanel');
+const MANAGE_PANEL_GROUP = [addBookPanel, availableBooksPanel, soldBooksPanel];
+const NAV_PANEL_GROUPS = {
+  manageBooks: MANAGE_PANEL_GROUP,
+  bundles: [bundlesPanel],
+  recordSale: [saleEntryPanel],
+  bookRequests: [bookRequestsPanel],
+  suppliers: [suppliersPanel],
+  customers: [customerPanelSection],
+};
 let inventoryApi = null;
 let editorApi = null;
 let supplierMasterApi = null;
@@ -172,6 +183,28 @@ let bundleStatusPanelApi = null;
 let currentAdminUser = null;
 const supplierBooksCache = new Map();
 const SUPPLIER_BOOK_CACHE_TTL_MS = 2 * 60 * 1000;
+const DEFAULT_LANDING_HASH = '#add-book';
+const ADMIN_NAV_CONFIG = [
+  { id: 'manageBooks', panelId: 'addBookPanel' },
+  { id: 'bundles', panelId: 'bundlesPanel' },
+  { id: 'recordSale', panelId: 'saleEntryPanel' },
+  { id: 'bookRequests', panelId: 'bookRequestsPanel' },
+  { id: 'suppliers', panelId: 'suppliersPanel' },
+  { id: 'customers', panelId: 'customerPanel' },
+];
+const ADMIN_NAV_LOOKUP = ADMIN_NAV_CONFIG.reduce((acc, entry) => {
+  acc[entry.id] = entry;
+  return acc;
+}, {});
+
+try {
+  globalThis.__adminNavMap = ADMIN_NAV_CONFIG.map(({ id, panelId }) => ({
+    id,
+    panelId,
+  }));
+} catch {}
+
+hydrateAdminNavControls();
 
 adminNav?.addEventListener('click', (event) => {
   const button = event.target?.closest('button[data-nav]');
@@ -576,6 +609,7 @@ async function updateBundleStatus(bundleId, nextStatus) {
 function handleAdminNav(navKey, button) {
   if (!navKey || !button) return;
   setActiveNav(button);
+  showOnlyNavPanelGroup(navKey);
   switch (navKey) {
     case 'manageBooks':
       ensurePanelVisible(addBookPanel);
@@ -594,6 +628,10 @@ function handleAdminNav(navKey, button) {
       ensurePanelVisible(suppliersPanel);
       scrollPanelIntoView(suppliersPanel);
       break;
+    case 'customers':
+      ensurePanelVisible(customerPanelSection);
+      scrollPanelIntoView(customerPanelSection);
+      break;
     case 'bundles':
       ensurePanelVisible(bundlesPanel);
       scrollPanelIntoView(bundlesPanel);
@@ -601,13 +639,27 @@ function handleAdminNav(navKey, button) {
     default:
       break;
   }
+  if (navKey === 'customers') {
+    focusCustomerPanelHeading();
+  }
+  updateNavHash(navKey);
 }
 
 function setActiveNav(activeButton) {
   if (!adminNav) return;
   adminNav.querySelectorAll('.admin-nav__item').forEach((btn) => {
-    btn.classList.toggle('is-active', btn === activeButton);
+    const isActive = btn === activeButton;
+    btn.classList.toggle('is-active', isActive);
+    if (isActive) {
+      btn.setAttribute('aria-current', 'page');
+    } else {
+      btn.removeAttribute('aria-current');
+    }
+    btn.setAttribute('aria-expanded', isActive ? 'true' : 'false');
   });
+  if (activeButton?.dataset.nav === 'customers') {
+    focusCustomerPanelHeading();
+  }
 }
 
 function ensurePanelVisible(panel) {
@@ -616,6 +668,51 @@ function ensurePanelVisible(panel) {
   if (panel.tagName === 'DETAILS') {
     panel.open = true;
   }
+}
+
+function ensurePanelHidden(panel) {
+  if (!panel) return;
+  panel.hidden = true;
+  if (panel.tagName === 'DETAILS') {
+    panel.open = false;
+  }
+}
+
+function showOnlyNavPanelGroup(navKey) {
+  if (!navKey || !NAV_PANEL_GROUPS[navKey]) return;
+  Object.entries(NAV_PANEL_GROUPS).forEach(([groupKey, panels]) => {
+    const shouldShow = groupKey === navKey;
+    panels.forEach((panel) => {
+      if (!panel) return;
+      if (shouldShow) {
+        ensurePanelVisible(panel);
+      } else {
+        ensurePanelHidden(panel);
+      }
+    });
+  });
+}
+
+function focusCustomerPanelHeading() {
+  const summary =
+    customerPanelSection?.querySelector?.('summary, [data-customer-panel-heading]');
+  summary?.focus?.();
+}
+
+function getNavButton(navKey) {
+  if (!navKey || !adminNav) return null;
+  return adminNav.querySelector(`.admin-nav__item[data-nav="${navKey}"]`);
+}
+
+function hydrateAdminNavControls() {
+  if (!adminNav) return;
+  ADMIN_NAV_CONFIG.forEach(({ id, panelId }) => {
+    const button = getNavButton(id);
+    if (!button) return;
+    if (panelId) {
+      button.setAttribute('aria-controls', panelId);
+    }
+  });
 }
 
 function scrollPanelIntoView(target) {
@@ -675,6 +772,129 @@ function syncPickerFromText() {
   saleHeaderDatePicker.value = iso || '';
 }
 
+function ensureDefaultLanding() {
+  const navTarget = resolveLandingNavTarget();
+  if (navTarget) {
+    clearSectionQuery();
+    setHashSafely(`#${navTarget}`);
+  }
+  if (navTarget && navTarget !== 'manageBooks') {
+    const targetButton = adminNav?.querySelector(`[data-nav="${navTarget}"]`);
+    if (targetButton) {
+      handleAdminNav(navTarget, targetButton);
+      return;
+    }
+  }
+
+  if (!navTarget) {
+    ensureDefaultHash();
+  }
+
+  const manageButton = getNavButton('manageBooks');
+  if (manageButton) {
+    handleAdminNav('manageBooks', manageButton);
+  } else {
+    showOnlyNavPanelGroup('manageBooks');
+    ensurePanelVisible(addBookPanel);
+    ensurePanelVisible(availableBooksPanel);
+    ensurePanelVisible(soldBooksPanel);
+  }
+}
+
+function ensureDefaultHash() {
+  const currentHash = window?.location?.hash || '';
+  if (!currentHash || currentHash === '#') {
+    setHashSafely(DEFAULT_LANDING_HASH);
+  }
+}
+
+function resolveLandingNavTarget() {
+  const hashValue =
+    typeof window !== 'undefined' ? window.location?.hash || '' : '';
+  const hashTarget = normalizeLandingHint(hashValue);
+  if (hashTarget) {
+    return hashTarget;
+  }
+  const searchValue =
+    typeof window !== 'undefined' ? window.location?.search || '' : '';
+  const searchParams = new URLSearchParams(searchValue);
+  const sectionTarget = normalizeLandingHint(searchParams.get('section') || '');
+  return sectionTarget || '';
+}
+
+function normalizeLandingHint(raw = '') {
+  const cleaned = String(raw)
+    .trim()
+    .replace(/^#/, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+  if (!cleaned) {
+    return '';
+  }
+  switch (cleaned) {
+    case 'managebooks':
+    case 'addbook':
+    case 'addbooks':
+    case 'add':
+      return 'manageBooks';
+    case 'bookrequests':
+    case 'bookrequestspanel':
+      return 'bookRequests';
+    case 'suppliers':
+    case 'supplierspanel':
+      return 'suppliers';
+    case 'customers':
+    case 'customermaster':
+    case 'customer':
+      return 'customers';
+    case 'bundles':
+    case 'bundle':
+      return 'bundles';
+    case 'recordsale':
+    case 'recordsales':
+    case 'sale':
+    case 'sales':
+    case 'saleentry':
+      return 'recordSale';
+    default:
+      return '';
+  }
+}
+
+function setHashSafely(value) {
+  if (!value) return;
+  try {
+    window.location.hash = value;
+  } catch (error) {
+    console.warn('Failed to set window.location.hash', error);
+  }
+}
+
+function updateNavHash(navKey) {
+  if (!navKey) return;
+  if (navKey === 'manageBooks') {
+    setHashSafely(DEFAULT_LANDING_HASH);
+    return;
+  }
+  setHashSafely(`#${navKey}`);
+}
+
+function clearSectionQuery() {
+  if (typeof window === 'undefined') return;
+  const currentSearch = window.location?.search || '';
+  if (!currentSearch) return;
+  const params = new URLSearchParams(currentSearch);
+  if (!params.has('section')) return;
+  params.delete('section');
+  const searchString = params.toString();
+  const newUrl = `${window.location.pathname}${searchString ? `?${searchString}` : ''}${window.location.hash}`;
+  if (typeof window.history?.replaceState === 'function') {
+    window.history.replaceState(null, document.title, newUrl);
+  } else {
+    window.location.search = searchString;
+  }
+}
+
 initAuth({
   authEl,
   adminEl,
@@ -685,6 +905,7 @@ initAuth({
   signOutBtn,
   onAuthed(user) {
     currentAdminUser = user || null;
+    ensureDefaultLanding();
     // 1) Start the realtime <datalist> fill for Author autocomplete
     subscribeAuthors();
 
