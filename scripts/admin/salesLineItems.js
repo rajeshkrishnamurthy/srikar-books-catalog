@@ -558,10 +558,10 @@ export function initSaleLineItems(elements = {}, options = {}) {
     if (!refs.persistBtn) return;
     refs.persistBtn.disabled = true;
     refs.persistBtn.setAttribute('aria-disabled', 'true');
-    if (options.reason === 'no-lines' && refs.persistMsg) {
-      refs.persistMsg.textContent = 'Add at least one line item before saving.';
-    } else if (options.message && refs.persistMsg) {
+    if (options.message && refs.persistMsg) {
       refs.persistMsg.textContent = options.message;
+    } else if (refs.persistMsg) {
+      refs.persistMsg.textContent = '';
     }
   }
 
