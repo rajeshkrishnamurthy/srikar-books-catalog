@@ -645,6 +645,7 @@ function handleAdminNav(navKey, button) {
     default:
       break;
   }
+  updateNavHash(navKey);
 }
 
 function setActiveNav(activeButton) {
@@ -660,6 +661,9 @@ function setActiveNav(activeButton) {
     btn.setAttribute('aria-expanded', isActive ? 'true' : 'false');
     toggleNavDetail(btn.dataset.nav, isActive);
   });
+  if (activeButton?.dataset.nav === 'customers') {
+    focusCustomerPanelHeading();
+  }
 }
 
 function ensurePanelVisible(panel) {
@@ -683,6 +687,12 @@ function toggleNavDetail(navKey, expanded) {
   const detail = document.getElementById(`${NAV_DETAIL_PREFIX}${navKey}`);
   if (!detail) return;
   detail.hidden = !expanded;
+}
+
+function focusCustomerPanelHeading() {
+  const summary =
+    customerPanelSection?.querySelector?.('summary, [data-customer-panel-heading]');
+  summary?.focus?.();
 }
 
 function getNavButton(navKey) {
@@ -761,6 +771,9 @@ function syncPickerFromText() {
 
 function ensureDefaultLanding() {
   const navTarget = resolveLandingNavTarget();
+  if (navTarget) {
+    setHashSafely(`#${navTarget}`);
+  }
   if (navTarget && navTarget !== 'manageBooks') {
     const targetButton = adminNav?.querySelector(`[data-nav="${navTarget}"]`);
     if (targetButton) {
@@ -789,7 +802,7 @@ function ensureDefaultLanding() {
 function ensureDefaultHash() {
   const currentHash = window?.location?.hash || '';
   if (!currentHash || currentHash === '#') {
-    window.location.hash = DEFAULT_LANDING_HASH;
+    setHashSafely(DEFAULT_LANDING_HASH);
   }
 }
 
@@ -844,6 +857,24 @@ function normalizeLandingHint(raw = '') {
     default:
       return '';
   }
+}
+
+function setHashSafely(value) {
+  if (!value) return;
+  try {
+    window.location.hash = value;
+  } catch (error) {
+    console.warn('Failed to set window.location.hash', error);
+  }
+}
+
+function updateNavHash(navKey) {
+  if (!navKey) return;
+  if (navKey === 'manageBooks') {
+    setHashSafely(DEFAULT_LANDING_HASH);
+    return;
+  }
+  setHashSafely(`#${navKey}`);
 }
 
 initAuth({

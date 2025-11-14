@@ -1,0 +1,60 @@
+{
+  "topicId": "F15-TP2",
+  "featureId": "F15",
+  "title": "Customer Master Entry (Mouse-First)",
+  "area": "Admin / Customer Master",
+  "goal": "Add a Customers nav control so mouse users can open the Customer Master accordion straight from the menu without losing context.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F15-TP2-001",
+      "title": "CustomersNavOpensPanel",
+      "given": "An admin is signed in and sees the admin nav.",
+      "when": "They click the Customers nav button.",
+      "then": "The Customer Master panel un-hides/opens, the Customers nav tile gains aria-current while Manage clears it, and window.location.hash normalizes to #customers for parity with other mouse-triggered routes.",
+      "test": "/tests/spec/admin/F15-TP2-001_CustomersNavOpensPanel.spec.js"
+    },
+    {
+      "id": "F15-TP2-002",
+      "title": "CustomersNavPreservesFormState",
+      "given": "An admin begins filling out the Customer Master form.",
+      "when": "They toggle away to Manage books and come back by clicking the Customers nav tile again.",
+      "then": "Any typed form data (e.g., Customer name) remains intact so mouse users do not lose work while navigating.",
+      "test": "/tests/spec/admin/F15-TP2-002_CustomersNavPreservesFormState.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F15-TP2-001_CustomersNavOpensPanel.spec.js",
+    "/tests/spec/admin/F15-TP2-002_CustomersNavPreservesFormState.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F15-TP2_red.txt",
+    "green": "codex_output/reports/F15-TP2_green.txt"
+  },
+  "changedFiles": [
+    "tests/spec/admin/F15-TP2-001_CustomersNavOpensPanel.spec.js",
+    "tests/spec/admin/F15-TP2-002_CustomersNavPreservesFormState.spec.js",
+    "tests/fixtures/adminMainHarness.js",
+    "admin.html",
+    "scripts/admin/main.js",
+    "codex_output/specs/F15-TP2.json"
+  ],
+  "changeNotes": [
+    "Trimmed F15-TP2 scope to mouse-first parity by focusing on nav activation behavior.",
+    "Replaced focus/deep-link specs with coverage for hash normalization and form-state preservation when mouse users toggle between tiles.",
+    "Nav clicks now rewrite window.location.hash to the active section (e.g., #customers) while Manage keeps #add-book."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F15-TP2_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Full Jest suite green after syncing nav hash updates and preserving Customer form state."
+    }
+  }
+}
