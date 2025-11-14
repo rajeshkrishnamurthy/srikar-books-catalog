@@ -82,3 +82,27 @@ Notes:
 - Customer selection should always show the confirmed state in both the lookup row and the summary pill, persist even when the search field clears, automatically clear the lookup UI after selection, and offer a quick “Change customer” affordance.
 - The Record sale button plus sale panel styling (raised inputs, sticky headers, empty states) must keep the workflow visible, accessible, and one tap away.
 - Selling price fields must block non-numeric input, ignore invalid keystrokes, and surface accessible validation when the value isn’t a positive number.
+
+# Feature: Inventory Search Experience (F10)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F10-TP1 | Header Search Filters Available Panel | Move the title/author search into the Available accordion header so list filtering happens in place with accessible feedback. | — | An authenticated admin is on admin.html and sees the Available summary row containing the Search by title or author field. | They type at least two characters into the header search or edit the query. | The Available accordion keeps its current open/closed state, filters in place, and announces the filtered results via aria-live messaging tied to the panel. |
+
+Notes:
+- Relocate the search input + label into the Available accordion summary row (e.g., `#availableSearchLabel`, `#availableSearchInput`) and associate them with the panel via `aria-controls`.
+- Keep the short-query guard (<2 characters) scoped to this header search; no auto-open, auto-scroll, or debounce logic should fire.
+- Surface an aria-live status element inside the Available panel (e.g., `#availableSearchStatus`) that announces filtered results without shifting focus or forcing scroll.
+
+# Feature: Sale Line Item Removal (F11)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F11-TP1 | Expose Remove Controls Per Line | Surface an accessible remove affordance on every sale line row so admins can initiate deletion just like standard order tables. | F09-TP3 | The Record sale table already lists at least one book line and the sale header is ready. | An admin focuses, hovers, or activates the delete control for a specific line. | Each row keeps a visible trash icon + text button with an aria-label naming the book, consistent hit targets on desktop/mobile, and a confirm pattern (inline dialog or two-step button) before removal runs. |
+| F11-TP2 | Remove Line and Recalculate Draft State | Delete confirmed lines from local state, recompute totals, and reset draft inputs immediately. | F11-TP1 | A sale draft contains one or more line items and the admin confirms a removal event. | The removal confirmation completes. | The line disappears, totals/amount text recompute, supplier/book summary clears when relevant, focus returns to the book input, and removing the last line resets the draft label while disabling Persist sale until another line is added. |
+| F11-TP3 | Persist Clean Payload After Removals | Ensure Persist sale only sends the currently visible lines and blocks empty submissions. | F11-TP2, F08-TP3 | One or more lines were removed (possibly leaving zero) and the admin proceeds to Persist sale. | The Persist sale action runs validation and prepares the Firestore payload. | Only remaining lines serialize, removed entries never reach Firestore, Persist sale is disabled with guidance when the list is empty, and the success status mentions how many line items actually saved. |
+
+Notes:
+- Remove controls must stay keyboard-focusable, announce pending deletion, and remain disabled whenever the sale header is locked.
+- Totals, draft labels, and focus flow should mirror the existing “Add another book” experience so admins can keep entering books without reloading the panel.
+- Persist sale should treat zero-line drafts as invalid and log how many lines were removed vs saved for audit/status history.

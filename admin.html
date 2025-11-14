@@ -50,13 +50,6 @@
             <h2 class="admin-hero__title">Admin workspace</h2>
           </div>
           <div class="admin-hero__actions">
-            <label class="sr-only" for="adminSearch">Search inventory</label>
-            <input
-              id="adminSearch"
-              type="search"
-              placeholder="Search title or author…"
-              aria-label="Search inventory"
-            />
             <button id="signOutBtn" class="btn btn-secondary">Sign out</button>
           </div>
         </div>
@@ -242,7 +235,33 @@
         </details>
 
         <details class="panel" id="availableBooksPanel" open>
-          <summary><strong>Available</strong></summary>
+          <summary>
+            <div class="available-summary">
+              <div class="available-summary__title">
+                <strong id="availableSummaryLabel">Available</strong>
+              </div>
+              <label
+                id="availableSearchLabel"
+                class="sr-only"
+                for="availableSearchInput"
+              >
+                Search available books
+              </label>
+              <input
+                id="availableSearchInput"
+                type="search"
+                placeholder="Search title or author…"
+                aria-labelledby="availableSummaryLabel availableSearchLabel"
+                aria-controls="availList"
+                autocomplete="off"
+              />
+            </div>
+          </summary>
+          <p
+            id="availableSearchStatus"
+            class="sr-only"
+            aria-live="polite"
+          ></p>
           <div id="availList" class="admin-list"></div>
         </details>
 
@@ -421,6 +440,7 @@
                     <th scope="col">Title</th>
                     <th scope="col">Supplier</th>
                     <th scope="col" class="numeric">Price</th>
+                    <th scope="col" class="sr-only">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="saleLineItemsBody"></tbody>
@@ -429,6 +449,11 @@
                 <span id="saleLineTotalsCount" class="sale-line-totals__label"></span>
                 <span id="saleLineTotalsAmount" class="sale-line-totals__amount"></span>
               </div>
+              <p
+                id="saleLineRemovalStatus"
+                class="sr-only"
+                aria-live="polite"
+              ></p>
             </div>
           </div>
           <div class="stack" style="margin-top: 1rem">

@@ -3,12 +3,12 @@ import { jest } from '@jest/globals';
 const inventoryModuleUrl = new URL('../../scripts/admin/inventory.js', import.meta.url);
 
 export async function createAdminInventoryHarness(options = {}) {
-  const { firebaseOverrides = {} } = options;
+  const { firebaseOverrides = {}, onScrollIntoView = jest.fn() } = options;
 
   jest.resetModules();
   jest.clearAllMocks();
 
-  const dom = buildDom();
+  const dom = buildDom(onScrollIntoView);
   const firebase = buildFirebaseMocks(firebaseOverrides);
   globalThis.__firebaseMocks = firebase;
 
@@ -16,13 +16,21 @@ export async function createAdminInventoryHarness(options = {}) {
   const inventoryApi = initInventory({
     addForm: null,
     addMsg: null,
+    availablePanel: dom.availablePanel,
     availList: dom.availList,
+    soldPanel: dom.soldPanel,
     soldList: dom.soldList,
+    availableSearchInput: dom.availableSearchInput,
+    searchStatus: dom.searchStatus,
   });
 
   return {
+    scrollIntoViewMock: onScrollIntoView,
+    availablePanel: dom.availablePanel,
+    availableSearchInput: dom.availableSearchInput,
     availList: dom.availList,
     soldList: dom.soldList,
+    searchStatus: dom.searchStatus,
     mocks: firebase.mocks,
     inventoryApi,
     emitAvailableDocs(docs = []) {
@@ -36,14 +44,40 @@ export async function createAdminInventoryHarness(options = {}) {
   };
 }
 
-function buildDom() {
+function buildDom(onScrollIntoView) {
   document.body.innerHTML = `
-    <div id="availList"></div>
-    <div id="soldList"></div>
+    <details id="availableBooksPanel" open>
+      <summary>
+        <div class="available-summary">
+          <strong>Available</strong>
+          <label id="availableSearchLabel" class="sr-only" for="availableSearchInput">
+            Search available books
+          </label>
+          <input
+            id="availableSearchInput"
+            type="search"
+            placeholder="Search title or author"
+            aria-labelledby="availableSearchLabel"
+          />
+        </div>
+      </summary>
+      <p id="availableSearchStatus" aria-live="polite" class="sr-only"></p>
+      <div id="availList"></div>
+    </details>
+    <details id="soldBooksPanel">
+      <summary>Sold</summary>
+      <div id="soldList"></div>
+    </details>
   `;
+  const availablePanel = document.getElementById('availableBooksPanel');
+  availablePanel.scrollIntoView = onScrollIntoView;
   return {
+    availablePanel,
+    availableSearchInput: document.getElementById('availableSearchInput'),
     availList: document.getElementById('availList'),
+    soldPanel: document.getElementById('soldBooksPanel'),
     soldList: document.getElementById('soldList'),
+    searchStatus: document.getElementById('availableSearchStatus'),
   };
 }
 

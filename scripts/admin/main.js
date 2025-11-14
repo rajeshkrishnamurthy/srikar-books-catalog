@@ -57,11 +57,12 @@ const lookupResults = document.getElementById('lookupResults');
 const coverInput = document.getElementById('coverInput');
 const availList = document.getElementById('availList');
 const soldList = document.getElementById('soldList');
+const availableSearchInput = document.getElementById('availableSearchInput');
+const availableSearchStatus = document.getElementById('availableSearchStatus');
 const reqOpen = document.getElementById('reqOpen');
 const reqClosed = document.getElementById('reqClosed');
 const searchCoverBtn = document.getElementById('searchCoverBtn');
 const coverPreviewEl = document.getElementById('coverPreview');
-const adminSearch = document.getElementById('adminSearch');
 const supplierForm = document.getElementById('supplierForm');
 const supplierNameInput = document.getElementById('supplierNameInput');
 const supplierLocationInput = document.getElementById('supplierLocationInput');
@@ -106,10 +107,11 @@ const saleLineTotalsAmount = document.getElementById('saleLineTotalsAmount');
 const salePersistBtn = document.getElementById('salePersistBtn');
 const salePersistMsg = document.getElementById('salePersistMsg');
 const saleLineStatusList = document.getElementById('saleLineStatusList');
+const saleLineRemovalStatus = document.getElementById('saleLineRemovalStatus');
 const saleLineBookTitleMsg = saleTitleMsg;
 const recordSaleBtn = document.getElementById('recordSaleBtn');
 const saleEntryPanel = document.getElementById('saleEntryPanel');
-let inventoryApi = null; // <-- make it visible to the search handler
+let inventoryApi = null;
 let editorApi = null;
 let supplierMasterApi = null;
 let customerMasterApi = null;
@@ -124,11 +126,6 @@ let disposeSaleEntry = null;
 let latestSaleHeaderPayload = null;
 let saleEntryLauncherApi = null;
 let saleEntryInitialized = false;
-
-adminSearch?.addEventListener('input', () => {
-  // guard: before auth, inventoryApi is null and the admin section is hidden anyway
-  inventoryApi?.setFilter(adminSearch.value);
-});
 
 adminNav?.addEventListener('click', (event) => {
   const button = event.target?.closest('button[data-nav]');
@@ -360,17 +357,13 @@ initAuth({
       authorList,
       availList,
       soldList,
+      availableSearchInput,
+      searchStatus: availableSearchStatus,
       supplierSelect,
       onEdit: editor.open,
     });
     applySuppliersToConsumers();
     subscribeSuppliersForAdd();
-
-    // Wire admin search
-    const adminSearchEl = document.getElementById('adminSearch');
-    adminSearchEl?.addEventListener('input', () => {
-      inventoryApi?.setFilter(adminSearchEl.value);
-    });
 
     // 5) Requests panel
     initRequests({ reqOpen, reqClosed });
@@ -437,7 +430,6 @@ initAuth({
       saleEntryLauncherApi = initSaleEntryLauncher(
         {
           button: recordSaleBtn,
-          searchInput: adminSearch,
           panel: saleEntryPanel,
           focusTarget: saleHeaderSaleDateInput,
         },
@@ -620,9 +612,13 @@ function ensureSaleEntryInitialized() {
       priceInput: saleLinePriceInput,
       addLineBtn: saleLineAddBtn,
       msgEl: saleLineMsg,
+      removalStatusEl: saleLineRemovalStatus,
       lineItemsBody: saleLineItemsBody,
       totalsCountEl: saleLineTotalsCount,
       totalsAmountEl: saleLineTotalsAmount,
+      statusList: saleLineStatusList,
+      persistBtn: salePersistBtn,
+      persistMsg: salePersistMsg,
     },
     {
       lookup: bookBridge,

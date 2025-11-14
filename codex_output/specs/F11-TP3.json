@@ -1,0 +1,62 @@
+{
+  "topicId": "F11-TP3",
+  "title": "Persist Clean Payload After Removals",
+  "area": "Admin / Sales Entry",
+  "goal": "Guarantee Persist sale only saves the currently visible lines and blocks submission when all lines were deleted.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "RED",
+  "specs": [
+    {
+      "id": "F11-TP3-001",
+      "title": "PersistSkipsRemovedLines",
+      "given": "An order originally had multiple lines but one or more have been removed prior to saving.",
+      "when": "The admin clicks Persist sale and the addDoc payload is constructed.",
+      "then": "The Firestore document contains only the remaining line objects, removed lineIds are excluded, and the inline status list reflects the exact number of saved lines.",
+      "test": "/tests/spec/admin/F11-TP3-001_PersistSkipsRemovedLines.spec.js"
+    },
+    {
+      "id": "F11-TP3-002",
+      "title": "DisablePersistWhenEmpty",
+      "given": "All lines have been removed so the draft is empty.",
+      "when": "The admin views the Persist sale controls.",
+      "then": "The Persist button remains disabled (and aria-disabled) and attempting to invoke persist does not call addDoc until a new line exists.",
+      "test": "/tests/spec/admin/F11-TP3-002_DisablePersistWhenEmpty.spec.js"
+    },
+    {
+      "id": "F11-TP3-003",
+      "title": "StatusAnnouncesSavedCount",
+      "given": "Persist sale succeeds after removals.",
+      "when": "Status entries are rendered post-save.",
+      "then": "The aria-live/persist status region announces the number of lines saved (e.g., “Saved 1 line item”) so admins know how many items reached Firestore.",
+      "test": "/tests/spec/admin/F11-TP3-003_StatusAnnouncesSavedCount.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/salesEntryPersistHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F11-TP3_red.txt",
+    "green": "codex_output/reports/F11-TP3_green.txt"
+  },
+  "validation": {
+    "status": "RED",
+    "command": "npm test -- --watchAll=false",
+    "report": "codex_output/reports/F11-TP3_red.txt",
+    "summary": {
+      "result": "failed",
+      "details": "Persist sale still includes removed lines in the payload, allows saving when no lines remain, and does not announce the saved count."
+    }
+  },
+  "changedFiles": [
+    "codex_output/reports/F11-TP3_red.txt",
+    "codex_output/specs/F11-TP3.json",
+    "tests/fixtures/salesEntryPersistHarness.js",
+    "tests/spec/admin/F11-TP3-001_PersistSkipsRemovedLines.spec.js",
+    "tests/spec/admin/F11-TP3-002_DisablePersistWhenEmpty.spec.js",
+    "tests/spec/admin/F11-TP3-003_StatusAnnouncesSavedCount.spec.js"
+  ],
+  "changeNotes": [
+    "Defined the persist payload/guard specs for F11-TP3 and added a dedicated harness to exercise saleLineItems + salePersist together under Jest."
+  ],
+  "notes": "F11-TP3 builds on removal mechanics from TP1/TP2 by ensuring only remaining lines persist, empty drafts keep the button disabled, and status messaging communicates how many line items were saved."
+}

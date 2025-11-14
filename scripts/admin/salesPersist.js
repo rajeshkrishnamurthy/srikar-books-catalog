@@ -69,7 +69,13 @@ export function initSalePersist(elements = {}, options = {}) {
     try {
       const result = await deps.addDoc(salesCollection, doc);
       renderLineStatuses(lines.map(cloneLine), 'success');
-      setMessage('Sale saved successfully.');
+      const savedCount = Array.isArray(lines) ? lines.length : 0;
+      if (savedCount > 0) {
+        const label = savedCount === 1 ? 'line item' : 'line items';
+        setMessage(`Saved ${savedCount} ${label}.`);
+      } else {
+        setMessage('Sale saved successfully.');
+      }
       deps.onPersisted({
         saleId: result?.id || null,
         document: doc,
