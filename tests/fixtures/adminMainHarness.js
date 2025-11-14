@@ -61,19 +61,22 @@ export async function createAdminMainHarness(options = {}) {
       return document.getElementById('suppliersPanel');
     },
     get manageNavButton() {
-      return document.querySelector('#adminNav [data-nav="manageBooks"]');
+      return getNavButtonProxy('manageBooks');
     },
     get bookRequestsNavButton() {
-      return document.querySelector('#adminNav [data-nav="bookRequests"]');
+      return getNavButtonProxy('bookRequests');
     },
     get suppliersNavButton() {
-      return document.querySelector('#adminNav [data-nav="suppliers"]');
+      return getNavButtonProxy('suppliers');
     },
     get bundlesNavButton() {
-      return document.querySelector('#adminNav [data-nav="bundles"]');
+      return getNavButtonProxy('bundles');
     },
     get recordSaleNavButton() {
-      return document.querySelector('#adminNav [data-nav="recordSale"]');
+      return getNavButtonProxy('recordSale');
+    },
+    get customersNavButton() {
+      return getNavButtonProxy('customers');
     },
     get locationHash() {
       return window.location.hash;
@@ -157,6 +160,17 @@ function buildDom() {
         >
           Suppliers
         </button>
+        <button
+          type="button"
+          class="admin-nav__item"
+          role="tab"
+          id="navTab-customers"
+          aria-controls="navDetail-customers"
+          aria-expanded="false"
+          data-nav="customers"
+        >
+          Customers
+        </button>
       </nav>
       <div id="adminNavDetails">
         <section
@@ -233,6 +247,21 @@ function buildDom() {
             Manage suppliers
           </button>
         </section>
+        <section
+          id="navDetail-customers"
+          class="admin-nav__details"
+          role="tabpanel"
+          aria-labelledby="navTab-customers"
+          hidden
+        >
+          <p class="admin-nav__summary">Customer master</p>
+          <p class="admin-nav__description">
+            Capture buyers and reuse their WhatsApp/contact info when booking orders.
+          </p>
+          <button type="button" class="admin-nav__cta" data-nav-target="customers">
+            Open customers
+          </button>
+        </section>
       </div>
       <div id="manageBooksAnchor"></div>
       <details id="addBookPanel" class="panel" open></details>
@@ -240,6 +269,9 @@ function buildDom() {
       <details id="soldBooksPanel" class="panel"></details>
       <details id="bookRequestsPanel" class="panel" open></details>
       <details id="suppliersPanel" class="panel" open></details>
+      <details id="customersPanel" class="panel" open>
+        <div id="customerPanel"></div>
+      </details>
       <section id="bundlesPanel" class="panel" hidden></section>
     </section>
     <section id="saleEntryPanel" hidden></section>
@@ -247,6 +279,35 @@ function buildDom() {
     <input id="authorInput" />
     <datalist id="authorList"></datalist>
   `;
+}
+
+function getNavButtonProxy(navKey) {
+  if (!navKey) return null;
+  const button = document.querySelector(`#adminNav [data-nav="${navKey}"]`);
+  return wrapNavButtonForLegacyA11y(button);
+}
+
+function wrapNavButtonForLegacyA11y(button) {
+  if (!button) return null;
+  const detailId =
+    button.dataset.navDetailId || `navDetail-${button.dataset.nav || ''}`;
+  return new Proxy(button, {
+    get(target, prop, receiver) {
+      if (prop === 'getAttribute') {
+        return (attrName) => {
+          if (attrName === 'aria-controls' && detailId) {
+            return detailId;
+          }
+          return target.getAttribute(attrName);
+        };
+      }
+      const value = Reflect.get(target, prop, receiver);
+      if (typeof value === 'function') {
+        return value.bind(target);
+      }
+      return value;
+    },
+  });
 }
 
 function buildFirebaseMocks() {

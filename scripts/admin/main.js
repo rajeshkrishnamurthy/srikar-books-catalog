@@ -52,6 +52,8 @@ const soldBooksPanel = document.getElementById('soldBooksPanel');
 const bookRequestsPanel = document.getElementById('bookRequestsPanel');
 const suppliersPanel = document.getElementById('suppliersPanel');
 const bundlesPanel = document.getElementById('bundlesPanel');
+const customerPanel = document.getElementById('customerPanel');
+const customerPanelSection = customerPanel?.closest('.panel') || customerPanel;
 
 const addForm = document.getElementById('addForm');
 const addMsg = document.getElementById('addMsg');
@@ -175,6 +177,27 @@ const supplierBooksCache = new Map();
 const SUPPLIER_BOOK_CACHE_TTL_MS = 2 * 60 * 1000;
 const DEFAULT_LANDING_HASH = '#add-book';
 const NAV_DETAIL_PREFIX = 'navDetail-';
+const ADMIN_NAV_CONFIG = [
+  { id: 'manageBooks', panelId: 'addBookPanel' },
+  { id: 'bundles', panelId: 'bundlesPanel' },
+  { id: 'recordSale', panelId: 'saleEntryPanel' },
+  { id: 'bookRequests', panelId: 'bookRequestsPanel' },
+  { id: 'suppliers', panelId: 'suppliersPanel' },
+  { id: 'customers', panelId: 'customerPanel' },
+];
+const ADMIN_NAV_LOOKUP = ADMIN_NAV_CONFIG.reduce((acc, entry) => {
+  acc[entry.id] = entry;
+  return acc;
+}, {});
+
+try {
+  globalThis.__adminNavMap = ADMIN_NAV_CONFIG.map(({ id, panelId }) => ({
+    id,
+    panelId,
+  }));
+} catch {}
+
+hydrateAdminNavControls();
 
 adminNav?.addEventListener('click', (event) => {
   const button = event.target?.closest('button[data-nav]');
@@ -611,6 +634,10 @@ function handleAdminNav(navKey, button) {
       ensurePanelVisible(suppliersPanel);
       scrollPanelIntoView(suppliersPanel);
       break;
+    case 'customers':
+      ensurePanelVisible(customerPanelSection);
+      scrollPanelIntoView(customerPanelSection);
+      break;
     case 'bundles':
       ensurePanelVisible(bundlesPanel);
       scrollPanelIntoView(bundlesPanel);
@@ -661,6 +688,18 @@ function toggleNavDetail(navKey, expanded) {
 function getNavButton(navKey) {
   if (!navKey || !adminNav) return null;
   return adminNav.querySelector(`.admin-nav__item[data-nav="${navKey}"]`);
+}
+
+function hydrateAdminNavControls() {
+  if (!adminNav) return;
+  ADMIN_NAV_CONFIG.forEach(({ id, panelId }) => {
+    const button = getNavButton(id);
+    if (!button) return;
+    if (panelId) {
+      button.setAttribute('aria-controls', panelId);
+    }
+    button.dataset.navDetailId = `${NAV_DETAIL_PREFIX}${id}`;
+  });
 }
 
 function scrollPanelIntoView(target) {
@@ -744,6 +783,7 @@ function ensureDefaultLanding() {
   }
   ensurePanelHidden(bookRequestsPanel);
   ensurePanelHidden(suppliersPanel);
+  ensurePanelHidden(customerPanelSection);
 }
 
 function ensureDefaultHash() {
@@ -788,6 +828,10 @@ function normalizeLandingHint(raw = '') {
     case 'suppliers':
     case 'supplierspanel':
       return 'suppliers';
+    case 'customers':
+    case 'customermaster':
+    case 'customer':
+      return 'customers';
     case 'bundles':
     case 'bundle':
       return 'bundles';
