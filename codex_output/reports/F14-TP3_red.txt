@@ -1,0 +1,712 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false
+
+(node:83411) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:83415) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/F07-TP2-002_PersistCustomerEdit.spec.js
+  SPEC F07-TP2-002: Customer edits persist via updateDoc
+    ✓ submitting in edit mode updates Firestore with normalized fields (50 ms)
+
+(node:83414) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F14-TP3-002_RecordSaleNavShowsStandalonePanel.spec.js
+  SPEC F14-TP3-002: Record Sale nav loads a standalone page
+    ✕ Record Sale shows its panel while Manage panels stay collapsed (110 ms)
+
+  ● SPEC F14-TP3-002: Record Sale nav loads a standalone page › Record Sale shows its panel while Manage panels stay collapsed
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      23 |
+      24 |       expect(saleEntryPanel.hidden).toBe(false);
+    > 25 |       expect(addBookPanel.hidden).toBe(true);
+         |                                   ^
+      26 |       expect(addBookPanel.open).toBe(false);
+      27 |
+      28 |       expect(availableBooksPanel.hidden).toBe(true);
+
+      at Object.<anonymous> (tests/spec/admin/F14-TP3-002_RecordSaleNavShowsStandalonePanel.spec.js:25:35)
+
+(node:83412) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F14-TP3-003_ReturnToManageRestoresDefaultPanels.spec.js
+  SPEC F14-TP3-003: Returning to Manage restores the default workspace
+    ✕ Switching back to Manage reopens its panels and hides the previous task page (88 ms)
+
+  ● SPEC F14-TP3-003: Returning to Manage restores the default workspace › Switching back to Manage reopens its panels and hides the previous task page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      33 |       expect(soldBooksPanel.open).toBe(true);
+      34 |
+    > 35 |       expect(bundlesPanel.hidden).toBe(true);
+         |                                   ^
+      36 |       expect(manageBtn.getAttribute('aria-current')).toBe('page');
+      37 |       expect(bundlesBtn.getAttribute('aria-current')).toBeNull();
+      38 |     } finally {
+
+      at Object.<anonymous> (tests/spec/admin/F14-TP3-003_ReturnToManageRestoresDefaultPanels.spec.js:35:35)
+
+(node:83416) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/F09-TP4-004_NewMatchClearsError.spec.js
+  SPEC F09-TP4-004: Clear error when matches appear
+    ✓ after a no-match warning, a subsequent valid query clears the message and allows selection (52 ms)
+
+(node:83413) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F14-TP3-001_BundlesNavHidesManagePanels.spec.js
+  SPEC F14-TP3-001: Bundles nav loads a dedicated page
+    ✕ Clicking Bundles hides the Manage panels and reveals the bundles screen (80 ms)
+
+  ● SPEC F14-TP3-001: Bundles nav loads a dedicated page › Clicking Bundles hides the Manage panels and reveals the bundles screen
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      22 |       expect(bundlesPanel).not.toBeNull();
+      23 |
+    > 24 |       expect(addBookPanel.hidden).toBe(true);
+         |                                   ^
+      25 |       expect(addBookPanel.open).toBe(false);
+      26 |
+      27 |       expect(availableBooksPanel.hidden).toBe(true);
+
+      at Object.<anonymous> (tests/spec/admin/F14-TP3-001_BundlesNavHidesManagePanels.spec.js:24:35)
+
+PASS tests/spec/admin/F13-TP1-003_AddBookRequiresPurchasePrice.spec.js
+  SPEC F13-TP1-003: Purchase price is required
+    ✓ empty purchase price blocks submission and shows inline message (88 ms)
+
+PASS tests/spec/admin/F05-TP2-001_InlineEditPrefillsSupplier.spec.js
+  SPEC F05-TP2-001: Inline edit pre-fills supplier
+    ✓ clicking edit populates the form with supplier values and sets edit mode (31 ms)
+    ✓ cancel button exits edit mode and clears hidden id (8 ms)
+
+PASS tests/spec/admin/F09-TP5-002_ChangeCustomerClearsSelection.spec.js
+  SPEC F09-TP5-002: Selecting a new customer replaces the previous summary
+    ✓ choosing another customer overwrites the hidden ID and summary text (17 ms)
+
+PASS tests/spec/admin/F07-TP1-002_RejectsInvalidWhatsAppFormat.spec.js
+  SPEC F07-TP1-002: WhatsApp numbers must be valid and normalized
+    ✓ non-numeric characters produce an inline WhatsApp validation error (17 ms)
+
+PASS tests/spec/admin/F09-TP6-002_ButtonOpensSalePanel.spec.js
+  SPEC F09-TP5-002: Record sale button opens the sale panel
+    ✓ clicking the button opens the panel, scrolls it into view, and focuses the sale header date input (9 ms)
+
+PASS tests/spec/admin/F09-TP1-005_SaleLineDraftLabelUpdates.spec.js
+  SPEC F09-TP1-005: Draft label stays stable after book selection
+    ✓ selecting a title keeps the label static and shifts focus to the price input (40 ms)
+
+(node:83417) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/F07-TP1-005_AdminCustomerForm.spec.js
+  SPEC F07-TP1-005: Admin customer form is present without country code input
+    ✓ admin.html exposes the add customer form fields but hides country code (552 ms)
+
+PASS tests/spec/admin/F07-TP2-001_PrefillCustomerEditForm.spec.js
+  SPEC F07-TP2-001: Edit button pre-fills the customer form
+    ✓ clicking edit switches the form to edit mode with populated fields (14 ms)
+
+PASS tests/spec/admin/F09-TP6-004_SearchValuePreserved.spec.js
+  SPEC F09-TP5-004: Search field retains value and context while launching sale flow
+    ✓ typing in search and launching Record sale keeps the search field untouched and button aria-controls points to the panel (3 ms)
+
+PASS tests/spec/admin/F11-TP3-002_DisablePersistWhenEmpty.spec.js
+  SPEC F11-TP3-002: Persist sale disables itself when no lines remain
+    ✓ after removing the final line, Persist sale is disabled and clicking shows the guidance message (28 ms)
+
+PASS tests/spec/admin/TP2-004_PersistsPurchasePriceUpdate.spec.js
+  SPEC TP2-004: Persist edited purchase price
+    ✓ sends numeric purchasePrice in the updateDoc payload when save succeeds (22 ms)
+
+PASS tests/spec/admin/F08-TP2-004_SaleLineTotalsAllowDuplicates.spec.js
+  SPEC F08-TP2-004: Sale line totals allow duplicate book entries
+    ✓ adding the same book twice tracks unique lines and updates totals (20 ms)
+
+PASS tests/spec/admin/F13-TP2-002_ClearBundlePriceShowsError.spec.js
+  SPEC F13-TP2-002: Clearing bundle price blocks submit
+    ✓ clearing the price after it is suggested shows inline error and prevents save (30 ms)
+
+PASS tests/unit/editor/TP2-004_PersistsPurchasePriceUpdate.test.js
+  UNIT TP2-004: Persist purchase price edits to Firestore
+    ✓ updateDoc receives purchasePrice as a number when submission passes validation (27 ms)
+
+PASS tests/spec/admin/F12-TP3-003_BundleRowDisplaysMetadata.spec.js
+  SPEC F12-TP3-003: Hydrate legacy bundles before filtering
+    ✓ hydrateBundleBooks runs so bundles with only bookIds can still match selections (36 ms)
+
+PASS tests/spec/admin/F07-TP3-002_DebouncedLookupQueries.spec.js
+  SPEC F07-TP3-002: Lookup debounces queries before filtering results
+    ✓ typing waits for debounce then filters customers by name only (226 ms)
+
+PASS tests/spec/admin/F12-TP1-005_BundleUsesPriceField.spec.js
+  SPEC F12-TP1-005: Bundle uses Price field for totals
+    ✓ derives totals and recommended price from the Price field even when price property is missing (29 ms)
+
+PASS tests/spec/admin/F05-TP1-004_RenderNewSupplierInList.spec.js
+  SPEC F05-TP1-004: Render supplier list
+    ✓ renders suppliers sorted alphabetically with name and location (40 ms)
+
+PASS tests/spec/admin/F11-TP1-003_HeaderLockDisablesRemove.spec.js
+  SPEC F11-TP1-003: Remove controls respect the sale header lock
+    ✓ when the header becomes locked, remove buttons disable and ignore clicks (23 ms)
+
+PASS tests/spec/admin/F14-TP1-001_CollapseSecondaryPanels.spec.js
+  SPEC F14-TP1-001: Default workspace hides non-Manage panels
+    ✓ Book Requests and Suppliers collapse when the admin lands without a nav hash (65 ms)
+
+PASS tests/spec/admin/F09-TP8-002_RejectNegativeSellingPrice.spec.js
+  SPEC F09-TP8-002: Selling price rejects negative values with positive-number guidance
+    ✓ submitting a negative price shows positive-number validation and does not add the line (25 ms)
+
+PASS tests/spec/admin/F12-TP2-004_PublishButtonsDisableMatchingStatus.spec.js
+  SPEC F12-TP2-004: Publish controls reflect current status
+    ✓ Toggle reflects current status and shows busy state while updating (17 ms)
+
+PASS tests/spec/admin/TP1-002_PersistsPurchasePrice.spec.js
+  SPEC TP1-002: Persist purchase price
+    ✓ includes purchasePrice number in the addDoc payload (41 ms)
+
+PASS tests/spec/admin/F13-TP1-001_AddBookRequiresPrice.spec.js
+  SPEC F13-TP1-001: Book price is required
+    ✓ empty price blocks submission with inline feedback (15 ms)
+
+PASS tests/spec/admin/F09-TP3-001_SaleDraftLockedUntilHeaderReady.spec.js
+  SPEC F09-TP3-001: Draft form locked until header is valid
+    ✓ book title input, price field, and add button stay disabled with Add another book label (17 ms)
+
+PASS tests/spec/admin/F09-TP3-004_HeaderResetLocksDraft.spec.js
+  SPEC F09-TP3-004: Header reset relocks the draft row
+    ✓ toggling header back to invalid state disables controls and surfaces guidance (32 ms)
+
+PASS tests/unit/editor/TP2-001_EditFormShowsPurchasePrice.test.js
+  UNIT TP2-001: Edit form mirrors existing purchase price
+    ✓ open() copies stored purchasePrice (including zero) into the field value (26 ms)
+
+PASS tests/spec/admin/F05-TP4-001_EditDialogShowsSupplierSelect.spec.js
+  SPEC F05-TP4-001: Edit dialog supplier select
+    ✓ Edit Book dialog contains supplier dropdown with placeholder (61 ms)
+
+PASS tests/spec/admin/F11-TP1-002_ConfirmBeforeRemoval.spec.js
+  SPEC F11-TP1-002: Remove controls require confirmation before deleting
+    ✓ first click toggles pending state and announces via aria-live without removing the row (30 ms)
+
+PASS tests/spec/admin/F05-TP2-003_PreventDeleteWhenInUse.spec.js
+  SPEC F05-TP2-003: Prevent deleting suppliers in use
+    ✓ delete action checks book references and blocks removal when in use (24 ms)
+
+PASS tests/spec/admin/F05-TP3-004_HandlesStaleSupplierSelection.spec.js
+  SPEC F05-TP3-004: Handle stale/invalid supplier selections
+    ✓ Submitting with a stale supplier id is blocked and surfaces warning (53 ms)
+
+PASS tests/spec/admin/F15-TP1-003_AdminNavMapExport.spec.js
+  SPEC F15-TP1-003: Admin nav map is exposed for deep-link helpers
+    ✓ Global nav map lists every nav key and panel id pairing (94 ms)
+
+PASS tests/spec/admin/F12-TP1-006_PersistBooksWithSupplier.spec.js
+  SPEC F12-TP1-006: Persist embedded book metadata
+    ✓ book entries include id, title, price, and supplierId in the payload (10 ms)
+
+PASS tests/spec/admin/F14-TP1-002_ManageNavAriaCurrent.spec.js
+  SPEC F14-TP1-002: Manage books nav tile announces default landing
+    ✓ Manage tile gains aria-current="page" and peers clear the attribute after sign-in (34 ms)
+
+PASS tests/spec/admin/F07-TP1-006_StoresCountryCode.spec.js
+  SPEC F07-TP1-006: Customer payload stores country code independently
+    ✓ submissions persist a dedicated countryCode field fixed to +91 (41 ms)
+
+PASS tests/spec/admin/F07-TP3-004_ClearCustomerLookup.spec.js
+  SPEC F07-TP3-004: Clearing the lookup resets state
+    ✓ clear button wipes search input, hides list, and notifies consumer (16 ms)
+
+PASS tests/spec/admin/F05-TP3-001_PopulatesSupplierDropdown.spec.js
+  SPEC F05-TP3-001: Supplier dropdown is present
+    ✓ Add Book form contains a supplier select with a placeholder option (51 ms)
+
+PASS tests/spec/admin/F05-TP3-003_PersistsSupplierReference.spec.js
+  SPEC F05-TP3-003: Persist supplier reference on add
+    ✓ Valid submission includes supplierId in the Firestore payload (16 ms)
+
+PASS tests/spec/admin/F09-TP3-003_LineSubmitResetsFocus.spec.js
+  SPEC F09-TP3-003: Draft reset refocuses the Book title input
+    ✓ after a line is saved, the draft clears and focus returns to the title input for rapid entry (18 ms)
+
+PASS tests/unit/inventory/TP3-003_PurchasePricePlaceholder.test.js
+  UNIT TP3-003: Placeholder for missing purchase price
+    ✓ renders descriptive placeholder text inside .purchase-price (38 ms)
+
+PASS tests/spec/admin/F05-TP3-002_RequiresSupplierSelection.spec.js
+  SPEC F05-TP3-002: Supplier selection is required
+    ✓ Submitting without a supplier prevents addDoc and shows inline error (32 ms)
+
+PASS tests/spec/admin/TP3-003_ShowsPlaceholderWhenMissing.spec.js
+  SPEC TP3-003: Placeholder when purchase price missing
+    ✓ renders “Purchase price: not set” when value absent (31 ms)
+
+PASS tests/spec/admin/F05-TP4-002_PersistSupplierChange.spec.js
+  SPEC F05-TP4-002: Persist supplier change from edit dialog
+    ✓ submitting edit with a different supplier updates Firestore payload (18 ms)
+
+PASS tests/spec/admin/F14-TP1-003_DefaultsToAddBookHash.spec.js
+  SPEC F14-TP1-003: Default route writes #add-book for deep linking
+    ✓ Loading /admin without a hash rewrites window.location.hash to #add-book (38 ms)
+
+PASS tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js
+  SPEC F09-TP7-001: Customer lookup clears search input after selection
+    ✓ selecting a result clears the input, hides the list, and keeps helper copy visible (9 ms)
+
+PASS tests/spec/admin/F15-TP3-001_BundlesHashDeepLink.spec.js
+  SPEC F15-TP3-001: Hash deep link activates target panel
+    ✓ #bundles opens the Bundles panel and marks the nav tile active (27 ms)
+
+PASS tests/spec/admin/TP3-004_FormatsPurchasePrice.spec.js
+  SPEC TP3-004: Purchase price formatting
+    ✓ applies rupee prefix and thousand separators (9 ms)
+
+PASS tests/spec/admin/F12-TP2-001_PublishBundle.spec.js
+  SPEC F12-TP2-001: Publish bundle
+    ✓ clicking Publish on a Draft bundle updates status to Published (15 ms)
+
+PASS tests/spec/admin/F05-TP1-003_PersistSupplierRecord.spec.js
+  SPEC F05-TP1-003: Persist supplier record
+    ✓ valid submission calls addDoc with trimmed payload and resets form (8 ms)
+
+PASS tests/unit/admin/F08-TP2-001_SaleLinePayload.test.js
+  UNIT F08-TP2-001: Sale line payload helper
+    ✓ normalizes book snapshot, supplier data, and timestamps (2 ms)
+
+PASS tests/spec/admin/TP2-001_EditFormShowsPurchasePrice.spec.js
+  SPEC TP2-001: Edit form exposes purchase price field
+    ✓ pre-fills purchase price input with stored value when opening edit dialog (30 ms)
+
+PASS tests/spec/admin/F07-TP1-003_PreventsDuplicateCustomers.spec.js
+  SPEC F07-TP1-003: Duplicate customers are rejected before writes
+    ✓ WhatsApp digits + country code drive the duplicate query (15 ms)
+
+PASS tests/spec/admin/TP2-002_RejectsNonNumericPurchasePrice.spec.js
+  SPEC TP2-002: Reject non-numeric purchase price on edit
+    ✓ blocks save and surfaces numeric guidance when value contains letters (26 ms)
+
+PASS tests/spec/admin/F15-TP3-003_InvalidDeepLinkFallsBackToManage.spec.js
+  SPEC F15-TP3-003: Unknown deep link falls back to Manage Books
+    ✓ Unrecognized hash activates default landing and #add-book (42 ms)
+
+PASS tests/spec/admin/F05-TP1-001_SupplierFormRequiresFields.spec.js
+  SPEC F05-TP1-001: Supplier form requires name/location
+    ✓ missing name blocks submission and surfaces inline error (13 ms)
+
+PASS tests/unit/inventory/TP3-004_PurchasePriceFormatting.test.js
+  UNIT TP3-004: Purchase price formatting helper
+    ✓ text uses ₹ prefix with comma separators (18 ms)
+
+PASS tests/spec/admin/F15-TP2-001_CustomersNavOpensPanel.spec.js
+  SPEC F15-TP2-001: Customers nav opens the Customer Master panel
+    ✓ Clicking the Customers nav button expands the panel and marks the nav as current (31 ms)
+
+PASS tests/spec/admin/F09-TP8-001_BlockNonNumericSellingPrice.spec.js
+  SPEC F09-TP8-001: Selling price input strips non-numeric characters
+    ✓ typing alpha characters is ignored so the field only keeps digits/decimal separator (18 ms)
+
+PASS tests/spec/admin/F10-TP1-002_IgnoreShortQueries.spec.js
+  SPEC F10-TP1-002: Ignore short header search queries
+    ✓ dropping below two characters restores the full list without announcements (37 ms)
+
+PASS tests/spec/admin/F12-TP2-002_UnpublishBundle.spec.js
+  SPEC F12-TP2-002: Unpublish bundle
+    ✓ clicking Unpublish flips status back to Draft/Hidden (8 ms)
+
+PASS tests/spec/public/TP4-001_CatalogCardsHidePurchasePrice.spec.js
+  SPEC TP4-001: Catalog cards hide purchase price
+    ✓ rendered cards omit any purchase price labels or values (3 ms)
+
+PASS tests/spec/admin/F11-TP2-001_ConfirmRemovalDeletesRow.spec.js
+  SPEC F11-TP2-001: Confirm removal deletes the row and logs status
+    ✓ click remove → confirm removes the row, updates totals/state, and logs status text (46 ms)
+
+PASS tests/spec/admin/F15-TP1-001_AdminNavButtonsCoverAllPanels.spec.js
+  SPEC F15-TP1-001: Admin nav renders entries for every major panel
+    ✓ Nav includes Manage, Bundles, Record Sale, Book Requests, Suppliers, and Customers (27 ms)
+
+PASS tests/spec/admin/F13-TP1-002_AddBookRequiresMrp.spec.js
+  SPEC F13-TP1-002: Book MRP is required
+    ✓ empty MRP prevents addDoc and surfaces inline guidance (21 ms)
+
+PASS tests/spec/admin/F12-TP3-002_FilterBySupplierAndStatus.spec.js
+  SPEC F12-TP3-002: Supplier/status filters stack with selection
+    ✓ filters combine with selected book ID (40 ms)
+
+PASS tests/spec/admin/F11-TP1-001_LineShowsRemoveControl.spec.js
+  SPEC F11-TP1-001: Each sale line renders an accessible Remove control
+    ✓ two added lines each expose a Remove button with aria-label referencing the title (39 ms)
+
+PASS tests/spec/admin/F12-TP1-001_SupplierScopedBookLookup.spec.js
+  SPEC F12-TP1-001: Supplier-scoped lookup and reset
+    ✓ supplier lock + reset flow scopes lookup to a single supplier at a time (17 ms)
+
+PASS tests/spec/admin/F08-TP1-007_SaleHeaderSummaryChip.spec.js
+  SPEC F08-TP1-006: Sale header summary shows selected customer details
+    ✓ selecting a customer surfaces name plus meta chip without extra controls (9 ms)
+
+PASS tests/spec/admin/F12-TP3-001_SearchBundlesByBook.spec.js
+  SPEC F12-TP3-001: Autocomplete selection filters bundles
+    ✓ only selected book IDs filter results; typing alone does nothing; clearing restores list (30 ms)
+
+PASS tests/spec/admin/F08-TP1-003_SaleHeaderEmitsPayload.spec.js
+  SPEC F08-TP1-003: Sale header emits normalized payload when valid
+    ✓ valid customer + date triggers onHeaderReady with UTC timestamp and metadata (20 ms)
+
+PASS tests/unit/editor/TP2-002_RejectsNonNumericPurchasePrice.test.js
+  UNIT TP2-002: Validate numeric purchase price on edit save
+    ✓ non-numeric input keeps dialog open and skips updateDoc (20 ms)
+
+PASS tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js
+  UNIT F05-TP1 helpers
+    ✓ normalizeSupplierName trims whitespace and collapses gaps (2 ms)
+    ✓ isDuplicateSupplierName compares case-insensitively (1 ms)
+    ✓ formatSupplierDisplay returns readable string (1 ms)
+    ✓ buildSupplierPayload trims inputs and adds timestamps (2 ms)
+
+PASS tests/spec/admin/F15-TP2-002_CustomersNavPreservesFormState.spec.js
+  SPEC F15-TP2-002: Customers nav preserves Customer Master form state
+    ✓ Switching between Manage and Customers keeps entered form data intact (26 ms)
+
+PASS tests/spec/admin/F13-TP2-001_BundlePriceRequiresManualEntry.spec.js
+  SPEC F13-TP2-001: Bundle price requires manual entry
+    ✓ auto-recommended price is not enough—admin must enter a value before submit (15 ms)
+
+PASS tests/unit/customers/F07-TP3-001_NormalizeLookupQuery.test.js
+  UNIT F07-TP3 normalizeLookupQuery helper
+    ✓ trims, collapses whitespace, lowercases, and drops short inputs (1 ms)
+
+PASS tests/spec/admin/TP1-004_BlocksNegativePurchasePrice.spec.js
+  SPEC TP1-004: Validation against negative purchase price
+    ✓ stops the submission when the value is below zero (25 ms)
+
+PASS tests/spec/admin/F07-TP1-004_PersistsCustomerRecord.spec.js
+  SPEC F07-TP1-004: Successful add persists normalized customer payload
+    ✓ payload trims strings, normalizes WhatsApp, stores timestamps, and clears the form (34 ms)
+
+PASS tests/unit/public/TP4-004_CatalogPayloadStripsPurchasePrice.test.js
+  UNIT TP4-004: Catalog payload strips purchase price
+    ✓ subscribeToAllAvailable removes purchasePrice before invoking callback (4 ms)
+
+PASS tests/spec/admin/F11-TP3-001_PersistSkipsRemovedLines.spec.js
+  SPEC F11-TP3-001: Persist skips removed lines
+    ✓ removed lineIds never appear in the persisted Firestore payload or status list (65 ms)
+
+PASS tests/spec/admin/F13-TP2-003_BundlePricePersistsWhenProvided.spec.js
+  SPEC F13-TP2-003: Bundle price persists when provided
+    ✓ typing a valid bundle price enables submit and persists bundlePriceRupees (35 ms)
+
+PASS tests/spec/admin/F08-TP1-004_SaleHeaderLocksLineItems.spec.js
+  SPEC F08-TP1-004: Sale header gates access to line items
+    ✓ continue button stays disabled until both customer and date are set (37 ms)
+    ✓ after emitting header payload, form locks to prevent duplicate submissions until reset (10 ms)
+
+PASS tests/spec/admin/F12-TP2-003_ImmutableBundleFields.spec.js
+  SPEC F12-TP2-003: Immutable bundle fields
+    ✓ attempting to edit title/price after creation is blocked with inline message (7 ms)
+
+PASS tests/spec/admin/F12-TP1-004_PersistDraftBundlePayload.spec.js
+  SPEC F12-TP1-004: Persist draft bundle payload
+    ✓ valid submission stores supplier, bookIds, rupee price fields, and Draft status (17 ms)
+
+PASS tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js
+  SPEC F09-TP5-003: Launcher initializes sale workflow once on first activation
+    ✓ startSaleWorkflow runs only after the first click and not on repeated activations (13 ms)
+
+PASS tests/spec/admin/F10-TP1-001_HeaderSearchFiltersAvailable.spec.js
+  SPEC F10-TP1-001: Header search filters Available list in place
+    ✓ typing a qualifying query in the header re-renders availList with only matches (26 ms)
+
+PASS tests/spec/admin/F07-TP1-001_CustomerFormRequiresMandatoryFields.spec.js
+  SPEC F07-TP1-001: Customer form enforces required fields
+    ✓ missing customer name blocks submission with inline guidance (14 ms)
+    ✓ missing WhatsApp number blocks submission as well (7 ms)
+
+PASS tests/spec/admin/F07-TP1-007_RequiresTenDigitWhatsapp.spec.js
+  SPEC F07-TP1-007: WhatsApp number must be exactly 10 digits
+    ✓ submission with fewer than 10 digits shows an inline error (24 ms)
+    ✓ submission with more than 10 digits is rejected instead of truncated (11 ms)
+
+PASS tests/spec/admin/F12-TP1-003_RecommendedPriceDefaultAndValidation.spec.js
+  SPEC F12-TP1-003: Recommended price + validation
+    ✓ applies 25% discount recommendation and enforces min/max boundaries (25 ms)
+
+PASS tests/spec/admin/F07-TP2-003_PreventDuplicateCustomerEdits.spec.js
+  SPEC F07-TP2-003: Duplicate edits are blocked
+    ✓ editing to a duplicate WhatsApp + country code combination surfaces an error (21 ms)
+
+PASS tests/unit/customers/F07-TP2-001_EditPayload.test.js
+  UNIT F07-TP2 edit payload helper
+    ✓ normalizes inputs, preserves immutable fields, and refreshes keys (7 ms)
+
+PASS tests/spec/admin/F05-TP4-004_HandleStaleSupplierDuringEdit.spec.js
+  SPEC F05-TP4-004: Handle stale supplier during edit
+    ✓ if previously selected supplier disappears, save is blocked and warning shown (27 ms)
+
+PASS tests/spec/admin/F11-TP2-002_TotalsRecalculateAfterRemoval.spec.js
+  SPEC F11-TP2-002: Totals recalculate after removal
+    ✓ removing a line recomputes totals amount to match remaining lines (41 ms)
+
+PASS tests/spec/admin/F08-TP1-001_SaleHeaderRequiresCustomer.spec.js
+  SPEC F08-TP1-001: Sale header requires customer selection
+    ✓ customer lookup selection populates summary and hidden field (21 ms)
+    ✓ submitting without a customer surfaces inline error and blocks continuation (9 ms)
+
+PASS tests/unit/editor/TP2-003_RejectsNegativePurchasePrice.test.js
+  UNIT TP2-003: Prevent negative purchase price submissions
+    ✓ negative numbers trigger an inline error and avoid updateDoc (41 ms)
+
+PASS tests/spec/admin/F05-TP2-002_PersistSupplierEdit.spec.js
+  SPEC F05-TP2-002: Persist supplier edits
+    ✓ submitting in edit mode calls updateDoc with trimmed values (23 ms)
+    ✓ duplicate name during edit is blocked with inline message (21 ms)
+
+PASS tests/spec/admin/F12-TP1-002_BundleRequiresTwoUniqueBooks.spec.js
+  SPEC F12-TP1-002: Require 2+ unique books + title before save
+    ✓ submit stays disabled until supplier, title, and two unique books exist (17 ms)
+
+PASS tests/spec/admin/F09-TP1-006_SaleLookupMatchesInventoryFilter.spec.js
+  SPEC F09-TP1-006: Record sale lookup matches inventory filter results
+    ✓ autocomplete suggestions only include the same matches as the inventory search (15 ms)
+
+PASS tests/spec/admin/F09-TP4-005_WiringNoMatchKeepsDraftDisabled.spec.js
+  SPEC F09-TP4-005: Wiring — no-match clears selection and disables draft
+    ✓ after a valid selection, a subsequent no-match query clears the hidden bookId and re-disables the draft (35 ms)
+
+PASS tests/unit/admin/F08-TP1-001_SaleHeaderPayload.test.js
+  UNIT F08-TP1: buildSaleHeaderPayload
+    ✓ normalizes customer data, enforces UTC sale date, and stamps metadata (2 ms)
+
+PASS tests/spec/admin/F11-TP3-003_StatusAnnouncesSavedCount.spec.js
+  SPEC F11-TP3-003: Persist status announces saved count
+    ✓ saving two lines announces the total count in the aria-live persist message (65 ms)
+
+PASS tests/spec/public/TP4-002_SearchResultsHidePurchasePrice.spec.js
+  SPEC TP4-002: Search results hide purchase price
+    ✓ filtered render never mentions purchase price even when sale price is shown (11 ms)
+
+PASS tests/spec/admin/F08-TP2-002_SaleLineRequiresSellingPrice.spec.js
+  SPEC F08-TP2-002: Sale line requires selling price
+    ✓ adding a line without price shows inline validation and blocks submission (30 ms)
+
+PASS tests/spec/admin/F08-TP1-002_SaleHeaderRequiresDate.spec.js
+  SPEC F08-TP1-002: Sale header requires a valid sale date
+    ✓ missing date blocks submission even if customer selected (16 ms)
+    ✓ wrong formats surface guidance about dd-mon-yy (10 ms)
+    ✓ future dates are rejected with inline error (12 ms)
+    ✓ same calendar day in ahead-of-UTC timezones is accepted (10 ms)
+
+PASS tests/spec/admin/F11-TP2-003_FinalRemovalResetsDraft.spec.js
+  SPEC F11-TP2-003: Final removal resets draft + persist state
+    ✓ confirming the last row removal clears draft inputs, focuses title, and disables Persist sale (38 ms)
+
+PASS tests/spec/admin/F14-TP2-001_NavButtonsExposeTabSemantics.spec.js
+  SPEC F14-TP2-001: Icon nav exposes tab semantics + default expansion
+    ✓ Manage tile starts expanded with aria wiring and peers collapsed (26 ms)
+
+PASS tests/spec/admin/TP1-003_BlocksNonNumericPurchasePrice.spec.js
+  SPEC TP1-003: Validation against non-numeric input
+    ✓ prevents addDoc and surfaces an inline error (71 ms)
+
+PASS tests/spec/admin/F05-TP2-004_DeleteSupplierWhenUnused.spec.js
+  SPEC F05-TP2-004: Delete supplier when unused
+    ✓ delete removes supplier when no books reference it (19 ms)
+
+PASS tests/spec/admin/F08-TP2-003_SaleLineAddsRowWithSnapshot.spec.js
+  SPEC F08-TP2-003: Sale line adds row with supplier snapshot
+    ✓ valid book + price appends row and notifies consumer with normalized payload (20 ms)
+
+PASS tests/spec/admin/F10-TP1-003_AnnounceFilteredResults.spec.js
+  SPEC F10-TP1-003: Announce filtered results from the Available header search
+    ✓ qualifying query announces the filtered count inside the panel (39 ms)
+
+PASS tests/spec/admin/TP3-002_SoldRowShowsPurchasePrice.spec.js
+  SPEC TP3-002: Sold list also shows purchase price
+    ✓ sold rows mirror the purchase price label (25 ms)
+
+PASS tests/spec/admin/F07-TP2-005_BlockInvalidCustomerEdits.spec.js
+  SPEC F07-TP2-005: Edit validation mirrors add form rules
+    ✓ edit mode still requires name and WhatsApp numbers before updateDoc runs (55 ms)
+
+PASS tests/spec/admin/F14-TP2-003_CtaRoutesNavTarget.spec.js
+  SPEC F14-TP2-003: Detail CTAs route to the target section
+    ✓ Clicking the Bundles CTA updates the hash and keeps the Bundles tile expanded (64 ms)
+
+PASS tests/spec/admin/F09-TP3-002_HeaderReadyUnlocksDraft.spec.js
+  SPEC F09-TP3-002: Unlock draft when header becomes valid
+    ✓ header ready state gates the Submit button even when book + price exist (40 ms)
+
+PASS tests/spec/admin/F09-TP4-001_NoMatchShowsGuidance.spec.js
+  SPEC F09-TP4-001: No-match guidance messaging
+    ✓ typing an unknown title shows guidance and keeps the hidden bookId empty (21 ms)
+
+PASS tests/spec/admin/F07-TP3-006_PreSearchShowsHelper.spec.js
+  SPEC F07-TP3-006: Lookup stays empty with helper copy before searching
+    ✓ snapshot results do not render until the admin types a valid query (23 ms)
+
+PASS tests/spec/admin/F05-TP4-003_RequireValidSupplierOnEdit.spec.js
+  SPEC F05-TP4-003: Require valid supplier when saving edits
+    ✓ empty supplier selection blocks save with inline message (20 ms)
+
+PASS tests/spec/admin/F09-TP4-002_EnterWithoutMatch.spec.js
+  SPEC F09-TP4-002: Block Enter key when no matches exist
+    ✓ pressing Enter with zero suggestions reiterates the guidance and never selects a book (16 ms)
+
+PASS tests/spec/admin/F05-TP1-002_RejectDuplicateSupplierNames.spec.js
+  SPEC F05-TP1-002: Reject duplicate supplier names
+    ✓ duplicate names (case-insensitive) are blocked with warning (31 ms)
+
+PASS tests/spec/admin/F08-TP2-001_SaleLineDraftReflectsBookSelection.spec.js
+  SPEC F08-TP2-001: Sale line draft reflects selected book metadata
+    ✓ book lookup selection populates summary and hidden inputs (54 ms)
+
+PASS tests/spec/admin/TP1-001_AddFormShowsPurchasePrice.spec.js
+  SPEC TP1-001: Purchase price field is visible
+    ✓ add book form includes a numeric purchase price input (121 ms)
+
+PASS tests/spec/admin/F07-TP2-004_CancelCustomerEdit.spec.js
+  SPEC F07-TP2-004: Cancel clears edit mode
+    ✓ cancel button exits edit mode, clears hidden id, and restores blank form (156 ms)
+
+PASS tests/spec/admin/F15-TP3-002_CustomersSectionQueryCanonicalizesHash.spec.js
+  SPEC F15-TP3-002: ?section deep link normalizes to canonical hash
+    ✓ ?section=customer-master activates Customers and trims the query string (99 ms)
+
+PASS tests/unit/inventory/TP3-001_PurchasePriceElement.test.js
+  UNIT TP3-001: Purchase price element exists for available rows
+    ✓ available row contains .purchase-price element with rupee value (25 ms)
+
+PASS tests/unit/inventory/TP3-002_SoldPurchasePriceElement.test.js
+  UNIT TP3-002: Sold rows keep purchase price element
+    ✓ sold list row includes .purchase-price with rupee amount (68 ms)
+
+PASS tests/unit/customers/F07-TP1-001_CustomerHelpers.test.js
+  UNIT F07-TP1 customer helper functions
+    ✓ normalize helpers trim input and collapse whitespace (5 ms)
+    ✓ sanitizeWhatsAppNumber strips separators and country code so only digits remain
+    ✓ buildCustomerPayload normalizes inputs, stores digits, and timestamps the record (4 ms)
+
+PASS tests/spec/admin/F15-TP1-002_AdminNavAriaControls.spec.js
+  SPEC F15-TP1-002: Admin nav buttons expose aria-controls for their panels
+    ✓ Each nav item wires aria-controls to a real panel element (71 ms)
+
+PASS tests/spec/admin/F14-TP2-002_ClickingNavExpandsCorrespondingDetails.spec.js
+  SPEC F14-TP2-002: Clicking a nav tile expands its detail drawer
+    ✓ Switching from Manage to Bundles toggles aria-expanded and detail visibility (102 ms)
+
+PASS tests/spec/admin/TP3-001_AvailableRowShowsPurchasePrice.spec.js
+  SPEC TP3-001: Available list shows purchase price
+    ✓ renders purchase price text with rupee value for available rows (13 ms)
+
+PASS tests/spec/public/TP4-003_PurchaseMessageHidesPurchasePrice.spec.js
+  SPEC TP4-003: WhatsApp message hides purchase price
+    ✓ purchaseMessage ignores purchasePrice field entirely (3 ms)
+
+PASS tests/spec/admin/TP2-003_RejectsNegativePurchasePrice.spec.js
+  SPEC TP2-003: Reject negative purchase price on edit
+    ✓ prevents update when a negative purchase price is submitted (24 ms)
+
+PASS tests/spec/admin/F09-TP4-003_LogsUnmatchedQueries.spec.js
+  SPEC F09-TP4-003: Log unmatched queries
+    ✓ onNoMatch callback receives the normalized query text once per attempt (6 ms)
+
+---------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                            
+---------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                  |    62.7 |    45.58 |   59.72 |   66.08 |                                                                                                                                                                              
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                                        
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                                         
+ bundleList.js             |   71.37 |    54.91 |    62.5 |   75.73 | 26-29,43,74,81,88,91,112-135,156-157,163-164,177,184-189,222-230,258-261,272,351-352,359,422-428,434,450-461,469,491                                                         
+ bundleStatus.js           |   76.11 |     50.9 |   66.66 |   80.95 | 8-9,12-13,35-39,62-64,94                                                                                                                                                     
+ bundles.js                |   76.76 |     59.7 |   71.15 |    82.3 | 28-29,34,65-70,117,124-125,165-166,170-171,174,177-178,191-197,241,262,284,305-306,309-311,353-354,400-401,426-433,450,479-482                                               
+ currency.js               |     100 |     64.7 |     100 |     100 | 5,7,12,17-24,30                                                                                                                                                              
+ customerLookup.js         |   76.74 |    54.83 |   79.48 |   83.62 | 17-18,52-58,135-141,184,244-245,275-277,292,310-314,321,335,341-345,354-355,361-362                                                                                          
+ customers.js              |   78.78 |    50.85 |   78.94 |    83.6 | 8-9,26-27,74-82,133,168,187,277-281,289-290,295-297,322-323,346,356-357,368,380,393,411-415,437-438,499-502                                                                  
+ editor.js                 |   70.79 |    68.24 |   73.07 |   72.55 | 46-47,53,93,122-151,155,185,192,199,339,353-371,378-395                                                                                                                      
+ inventory.js              |    73.8 |    53.23 |   81.57 |    75.2 | 59,119-169,199,221,258-261,270-272,275-277,286-288,291-293,374-378,393-394,412,467,472,478-481                                                                               
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                                       
+ main.js                   |   43.27 |    23.42 |   28.68 |   45.58 | 225-231,239-240,253-258,262,287,303-323,330,351,357-362,370-612,630-636,646,742-763,768-769,794-796,838-844,857,868,893,913-931,1028-1037,1051-1073,1081-1137,1143,1177-1535 
+ requests.js               |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                                         
+ salesEntryLauncher.js     |   85.71 |       56 |   71.42 |   85.71 | 8-11,30,41-42                                                                                                                                                                
+ salesHeader.js            |   70.56 |    56.72 |   70.83 |   73.79 | 30-33,40,86-87,94-101,135-136,145-152,164,172-197,206-210,230-241,248-251,282-286,297,321,372,379,384,417,445,460,463,466,479,482,498,503                                    
+ salesLineItems.js         |    79.7 |    60.49 |   78.88 |   83.92 | 27-30,42-44,111-112,135-145,154-157,175,205,211-228,253-254,268,279,315,366-373,430-438,446-447,486-493,562,610-611,625-627,643-644,748,798,828,836-846,857,868-876,914      
+ salesPersist.js           |   68.29 |    45.88 |   54.54 |   72.72 | 12-18,23-24,40,47-48,77,84-85,117,152-155,163,168                                                                                                                            
+ salesTitleAutocomplete.js |   52.71 |    45.65 |   66.66 |    53.6 | 18-21,25,45-58,68-76,85-87,97-99,105-106,125-127,136-137,147,161-190                                                                                                         
+ suppliers.js              |   81.64 |    57.37 |   85.18 |   86.48 | 15,116-117,136-138,149-151,177-178,190-191,221-224,254-258,267,273-274,295-302                                                                                               
+---------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Summary of all failing tests
+FAIL tests/spec/admin/F14-TP3-002_RecordSaleNavShowsStandalonePanel.spec.js
+  ● SPEC F14-TP3-002: Record Sale nav loads a standalone page › Record Sale shows its panel while Manage panels stay collapsed
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      23 |
+      24 |       expect(saleEntryPanel.hidden).toBe(false);
+    > 25 |       expect(addBookPanel.hidden).toBe(true);
+         |                                   ^
+      26 |       expect(addBookPanel.open).toBe(false);
+      27 |
+      28 |       expect(availableBooksPanel.hidden).toBe(true);
+
+      at Object.<anonymous> (tests/spec/admin/F14-TP3-002_RecordSaleNavShowsStandalonePanel.spec.js:25:35)
+
+FAIL tests/spec/admin/F14-TP3-003_ReturnToManageRestoresDefaultPanels.spec.js
+  ● SPEC F14-TP3-003: Returning to Manage restores the default workspace › Switching back to Manage reopens its panels and hides the previous task page
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      33 |       expect(soldBooksPanel.open).toBe(true);
+      34 |
+    > 35 |       expect(bundlesPanel.hidden).toBe(true);
+         |                                   ^
+      36 |       expect(manageBtn.getAttribute('aria-current')).toBe('page');
+      37 |       expect(bundlesBtn.getAttribute('aria-current')).toBeNull();
+      38 |     } finally {
+
+      at Object.<anonymous> (tests/spec/admin/F14-TP3-003_ReturnToManageRestoresDefaultPanels.spec.js:35:35)
+
+FAIL tests/spec/admin/F14-TP3-001_BundlesNavHidesManagePanels.spec.js
+  ● SPEC F14-TP3-001: Bundles nav loads a dedicated page › Clicking Bundles hides the Manage panels and reveals the bundles screen
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      22 |       expect(bundlesPanel).not.toBeNull();
+      23 |
+    > 24 |       expect(addBookPanel.hidden).toBe(true);
+         |                                   ^
+      25 |       expect(addBookPanel.open).toBe(false);
+      26 |
+      27 |       expect(availableBooksPanel.hidden).toBe(true);
+
+      at Object.<anonymous> (tests/spec/admin/F14-TP3-001_BundlesNavHidesManagePanels.spec.js:24:35)
+
+
+Test Suites: 3 failed, 1 skipped, 133 passed, 136 of 137 total
+Tests:       3 failed, 1 skipped, 147 passed, 151 total
+Snapshots:   0 total
+Time:        5.938 s, estimated 7 s
+Ran all test suites.

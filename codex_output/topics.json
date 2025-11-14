@@ -530,6 +530,133 @@
           "notes": "Covers UI messaging, validation, and payload enforcement so bundle price cannot be omitted even if a recommendation is shown."
         }
       ]
+    },
+    {
+      "featureId": "F14",
+      "featureTitle": "Task-Focused Admin Workspace",
+      "description": "Split the oversized admin accordion into smaller task pages with icon-driven navigation and keep Add Book as the default landing view.",
+      "topics": [
+        {
+          "id": "F14-TP1",
+          "title": "Add Book Default Landing",
+          "area": "Admin / Navigation",
+          "goal": "Ensure the Add Book workflow loads first (and via direct link) so the highest-frequency task is instantly available after sign-in.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "An authenticated admin completes the sign-in flow or opens the /admin route without a section specified.",
+          "when": "The workspace initializes or the admin refreshes the page.",
+          "then": "The Add Book page renders as the default view with its icon tile marked active, collapsible sections hidden elsewhere, and deep links (hash/URL param) that always land on Add Book.",
+          "notes": "Keep form autofill helpers intact, surface a clear heading for screen readers, and make the nav state reflect that Add Book is the default selection."
+        },
+        {
+          "id": "F14-TP2",
+          "title": "Expandable Icon Menu Navigation",
+          "area": "Admin / Navigation",
+          "goal": "Convert the existing icon grid into an accessible navigation hub where each tile expands to reveal description and sub-actions before routing to its page.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "An admin is in the signed-in workspace and sees the icon-style menu bar.",
+          "when": "They focus or click a tile (Manage books, Bundles, Suppliers, etc.).",
+          "then": "The tile expands to show its summary and CTA links, other tiles collapse, ARIA attributes update (role=tab/accordion) for screen readers, and selecting a CTA routes to the corresponding page.",
+          "notes": "Tiles must be reachable via keyboard, remember expanded/collapsed state, and expose data-nav hooks codex-dev can bind to new pages."
+        },
+        {
+          "id": "F14-TP3",
+          "title": "Dedicated Admin Task Pages",
+          "area": "Admin / Multi-page Layout",
+          "goal": "Move each major accordion panel (bundles, sale recording, requests, suppliers) into its own lightweight page/screen loaded via the icon menu.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F14-TP2"
+          ],
+          "given": "An admin activates a nav tile other than Add Book (e.g., Bundles).",
+          "when": "Navigation loads the selected task page via routing or dynamic content swap.",
+          "then": "Only that task's content is rendered (with its own hero/actions), the menu highlights the active tile, and back/overview links allow returning to the menu without scrolling a mega-accordion.",
+          "notes": "Each page should lazy-load only the scripts/data needed for that task and preserve existing forms/validation while removing redundant accordion chrome."
+        }
+      ]
+    },
+    {
+      "featureId": "F15",
+      "featureTitle": "Admin Entry Points Coverage",
+      "description": "Ensure every major admin accordion/panel (including Customer Master) and its key workflows have a clear navigation or deep-link entry from admin.html.",
+      "topics": [
+        {
+          "id": "F15-TP1",
+          "title": "Unified Admin Nav Map",
+          "area": "Admin / Navigation",
+          "goal": "Render the admin navigation from a single config so every major panel (Manage books, Bundles, Record sale, Book requests, Suppliers, Customer master) has a visible entry point tied to its DOM id.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "An authenticated admin visits /admin and the workspace markup loads.",
+          "when": "The navigation bar initializes.",
+          "then": "Buttons for each major panel are generated with consistent data-nav ids, aria-controls pointing at the correct accordion/panel element, and keyboard focus order that lets users jump to any workflow without scrolling.",
+          "notes": "Expose the nav map for reuse by deep-link helpers and tests so coverage stays in sync when panels are added or renamed."
+        },
+        {
+          "id": "F15-TP2",
+          "title": "Customer Master Entry (Mouse-First)",
+          "area": "Admin / Customer Master",
+          "goal": "Add a Customers nav control so mouse users can open the Customer Master accordion from the menu without scrolling.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F15-TP1"
+          ],
+          "given": "The Customers nav button is visible in the admin menu.",
+          "when": "An admin clicks the Customers entry from the icon menu.",
+          "then": "The customerPanel accordion expands, the Customers nav tile shows aria-current=\"page\", and Manage Books is deactivated while existing form state stays intact.",
+          "notes": "Focus/keyboard semantics remain a backlog item; this topic is scoped to mouse/visual parity and basic nav affordances."
+        },
+        {
+          "id": "F15-TP3",
+          "title": "Hash & Section Deep Links",
+          "area": "Admin / Navigation",
+          "goal": "Guarantee every nav target (manageBooks, bundles, recordSale, bookRequests, suppliers, customers) has canonical hash and ?section alias support so admins can bookmark or share direct links.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F15-TP1"
+          ],
+          "given": "An admin opens /admin with a fragment or section query referencing one of the supported panels.",
+          "when": "The workspace completes initialization and resolves the landing destination.",
+          "then": "The requested panel opens (accordion expanded or section unhidden), the nav button is marked active, non-target panels stay untouched unless the design requires hiding them, and window.location.hash reflects the canonical alias for that panel.",
+          "notes": "Document the supported aliases (e.g., #customers, #customer-master) and add tests to prevent regressions when new panels are added."
+        },
+        {
+          "id": "F15-TP4",
+          "title": "Remove Nav Detail Summaries",
+          "area": "Admin / Navigation",
+          "goal": "Simplify the icon menu by removing the detail summary/CTA sections so each tile just routes directly to its panel.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F15-TP1"
+          ],
+          "given": "The admin nav currently renders a detail section (`#navDetail-*`) for each tile.",
+          "when": "The nav initializes.",
+          "then": "Those detail sections no longer render (or are hidden), leaving only the primary nav buttons that route on click; no redundant summary text or CTAs are shown for any panel.",
+          "notes": "Update specs/tests that referenced the detail summaries/CTA buttons to reflect the leaner menu."
+        }
+      ]
+    },
+    {
+      "featureId": "BACKLOG",
+      "featureTitle": "Backlog",
+      "description": "Future accessibility work that remains after the mouse-first Admin entry-point changes.",
+      "topics": [
+        {
+          "id": "BACKLOG-TP1",
+          "title": "Accessible Customers Entry",
+          "area": "Admin / Customer Master",
+          "goal": "Deliver keyboard and screen-reader parity for the Customers nav flow, including focus management and deep-link announcements.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F15-TP2"
+          ],
+          "given": "A keyboard or assistive-technology user activates the Customers nav button or loads /admin with #customers or ?section=customers.",
+          "when": "Navigation switches to the Customers section.",
+          "then": "Focus moves to the Customer panel heading/summary, ARIA relationships announce the state change, and deep links normalize to #customers without collapsing other panels.",
+          "notes": "Reintroduces the focus/ARIA requirements that were deferred from F15-TP2 once mouse parity shipped."
+        }
+      ]
     }
   ]
 }

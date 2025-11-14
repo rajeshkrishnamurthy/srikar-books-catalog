@@ -1,0 +1,71 @@
+{
+  "topicId": "F14-TP1",
+  "featureId": "F14",
+  "title": "Add Book Default Landing",
+  "area": "Admin / Navigation",
+  "goal": "Ensure the Add Book workflow loads first so admins can start the highest-frequency task immediately after sign-in.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F14-TP1-001",
+      "title": "CollapseSecondaryPanelsOnBoot",
+      "given": "An admin signs in without providing a nav hash or section parameter.",
+      "when": "The admin workspace finishes initializing after authentication.",
+      "then": "Only the Manage books panels remain visible while Book Requests and Suppliers panels hide/collapse so Add Book is the sole focus.",
+      "test": "/tests/spec/admin/F14-TP1-001_CollapseSecondaryPanels.spec.js"
+    },
+    {
+      "id": "F14-TP1-002",
+      "title": "ManageNavMarksCurrent",
+      "given": "The admin lands on /admin without choosing a section.",
+      "when": "The icon navigation renders the default state after auth.",
+      "then": "The Manage books tile exposes aria-current=\"page\" while peer tiles clear the attribute so screen readers know Add Book is active.",
+      "test": "/tests/spec/admin/F14-TP1-002_ManageNavAriaCurrent.spec.js"
+    },
+    {
+      "id": "F14-TP1-003",
+      "title": "DefaultHashPointsToAddBook",
+      "given": "An admin refreshes /admin without a hash or section query.",
+      "when": "Bootstrap completes and the workspace becomes interactive.",
+      "then": "window.location.hash is rewritten to #add-book so direct links/bookmarks always land on the Add Book view.",
+      "test": "/tests/spec/admin/F14-TP1-003_DefaultsToAddBookHash.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js",
+    "/tests/fixtures/firebaseProxy.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F14-TP1-001_CollapseSecondaryPanels.spec.js",
+    "/tests/spec/admin/F14-TP1-002_ManageNavAriaCurrent.spec.js",
+    "/tests/spec/admin/F14-TP1-003_DefaultsToAddBookHash.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F14-TP1_red.txt",
+    "green": "codex_output/reports/F14-TP1_green.txt"
+  },
+  "changedFiles": [
+    "scripts/admin/main.js",
+    "tests/fixtures/adminMainHarness.js",
+    "tests/fixtures/firebaseProxy.js",
+    "tests/spec/admin/F14-TP1-001_CollapseSecondaryPanels.spec.js",
+    "tests/spec/admin/F14-TP1-002_ManageNavAriaCurrent.spec.js",
+    "tests/spec/admin/F14-TP1-003_DefaultsToAddBookHash.spec.js",
+    "codex_output/specs/F14-TP1.json",
+    "codex_output/reports/F14-TP1_red.txt",
+    "codex_output/reports/F14-TP1_green.txt"
+  ],
+  "changeNotes": [
+    "Added an admin main harness that stubs Firebase/auth wiring so tests can import scripts/admin/main.js safely.",
+    "Introduced three Jest specs covering collapsed panels, nav aria-current state, and #add-book deep link hash for the default landing page.",
+    "Updated the Firebase proxy to expose the limit helper expected by scripts/admin/main.js.",
+    "scripts/admin/main.js now ensures #add-book is the default hash, collapses Book Requests & Suppliers on boot, and marks the Manage tile as aria-current when no section is specified.",
+    "Default landing logic respects existing hash/section hints so deep links to Book Requests, Suppliers, etc. no longer get overridden."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F14-TP1_green.txt"
+  }
+}

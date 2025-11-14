@@ -1,0 +1,70 @@
+{
+  "topicId": "F15-TP3",
+  "featureId": "F15",
+  "title": "Hash & Section Deep Links",
+  "area": "Admin / Navigation",
+  "goal": "Guarantee every nav target has canonical hash + ?section deep links so admins can bookmark any panel.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F15-TP3-001",
+      "title": "BundlesHashActivatesPanel",
+      "given": "An authenticated admin loads /admin with #bundles.",
+      "when": "The workspace finishes initializing.",
+      "then": "The Bundles nav tile is active, the Bundles panel shows, and window.location.hash stays #bundles.",
+      "test": "/tests/spec/admin/F15-TP3-001_BundlesHashDeepLink.spec.js"
+    },
+    {
+      "id": "F15-TP3-002",
+      "title": "CustomersSectionCanonicalizesHash",
+      "given": "An admin opens /admin with ?section=customer-master (or other alias).",
+      "when": "Deep-link resolution runs.",
+      "then": "The Customers panel opens, the nav tile is active, window.location.hash rewrites to #customers, and the ?section query is removed so the URL is canonical.",
+      "test": "/tests/spec/admin/F15-TP3-002_CustomersSectionQueryCanonicalizesHash.spec.js"
+    },
+    {
+      "id": "F15-TP3-003",
+      "title": "UnknownDeepLinkFallsBackToManage",
+      "given": "An admin visits /admin with an unsupported hash like #unknown-section.",
+      "when": "The workspace boots.",
+      "then": "The app falls back to Manage Books, restoring #add-book and leaving Manage as the active nav tile so users always land somewhere valid.",
+      "test": "/tests/spec/admin/F15-TP3-003_InvalidDeepLinkFallsBackToManage.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F15-TP3-001_BundlesHashDeepLink.spec.js",
+    "/tests/spec/admin/F15-TP3-002_CustomersSectionQueryCanonicalizesHash.spec.js",
+    "/tests/spec/admin/F15-TP3-003_InvalidDeepLinkFallsBackToManage.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F15-TP3_red.txt",
+    "green": "codex_output/reports/F15-TP3_green.txt"
+  },
+  "changedFiles": [
+    "tests/spec/admin/F15-TP3-001_BundlesHashDeepLink.spec.js",
+    "tests/spec/admin/F15-TP3-002_CustomersSectionQueryCanonicalizesHash.spec.js",
+    "tests/spec/admin/F15-TP3-003_InvalidDeepLinkFallsBackToManage.spec.js",
+    "scripts/admin/main.js",
+    "codex_output/specs/F15-TP3.json",
+    "codex_output/reports/F15-TP3_red.txt",
+    "codex_output/reports/F15-TP3_green.txt"
+  ],
+  "changeNotes": [
+    "Added three Jest specs to lock deep-link behavior for hashes and ?section aliases, including canonical URL rewriting.",
+    "Backfilled RED report for codex-dev with npm test --runTestsByPath coverage.",
+    "scripts/admin/main.js now drops ?section queries once deep links resolve so the URL stays canonical."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F15-TP3_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "All Jest suites, including the three F15-TP3 deep-link specs, are green after trimming the ?section query on load."
+    }
+  }
+}

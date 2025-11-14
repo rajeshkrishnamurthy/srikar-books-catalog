@@ -1,0 +1,70 @@
+{
+  "topicId": "F14-TP2",
+  "featureId": "F14",
+  "title": "Expandable Icon Menu Navigation",
+  "area": "Admin / Navigation",
+  "goal": "Convert the icon grid into an accessible navigation hub with expandable detail areas and actionable CTAs.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F14-TP2-001",
+      "title": "NavButtonsExposeTabSemantics",
+      "given": "An admin signs in and the admin nav renders.",
+      "when": "The Manage books tile loads as the default selection.",
+      "then": "The nav container has role=tablist, each button acts as role=tab with aria-controls mapping to its detail drawer, Manage shows aria-expanded=true, and other tiles start collapsed/hidden.",
+      "test": "/tests/spec/admin/F14-TP2-001_NavButtonsExposeTabSemantics.spec.js"
+    },
+    {
+      "id": "F14-TP2-002",
+      "title": "ClickingNavExpandsCorrespondingDetails",
+      "given": "The admin nav is visible with multiple icon tiles.",
+      "when": "The admin clicks the Bundles tile.",
+      "then": "Bundles' button flips aria-expanded to true, its detail region becomes visible, and the previously expanded Manage section collapses.",
+      "test": "/tests/spec/admin/F14-TP2-002_ClickingNavExpandsCorrespondingDetails.spec.js"
+    },
+    {
+      "id": "F14-TP2-003",
+      "title": "CtaRoutesNavTarget",
+      "given": "A tile's detail drawer is expanded and shows a CTA with data-nav-target.",
+      "when": "The admin activates the CTA.",
+      "then": "The CTA updates window.location.hash to the target, keeps that tile marked expanded, and leaves its details visible so navigation can proceed.",
+      "test": "/tests/spec/admin/F14-TP2-003_CtaRoutesNavTarget.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js",
+    "/tests/fixtures/firebaseProxy.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F14-TP2-001_NavButtonsExposeTabSemantics.spec.js",
+    "/tests/spec/admin/F14-TP2-002_ClickingNavExpandsCorrespondingDetails.spec.js",
+    "/tests/spec/admin/F14-TP2-003_CtaRoutesNavTarget.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F14-TP2_red.txt",
+    "green": "codex_output/reports/F14-TP2_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/main.js",
+    "tests/fixtures/adminMainHarness.js",
+    "tests/spec/admin/F14-TP2-001_NavButtonsExposeTabSemantics.spec.js",
+    "tests/spec/admin/F14-TP2-002_ClickingNavExpandsCorrespondingDetails.spec.js",
+    "tests/spec/admin/F14-TP2-003_CtaRoutesNavTarget.spec.js",
+    "codex_output/specs/F14-TP2.json",
+    "codex_output/reports/F14-TP2_red.txt",
+    "codex_output/reports/F14-TP2_green.txt"
+  ],
+  "changeNotes": [
+    "Extended the admin main harness with nav detail drawers and CTAs so icon-menu specs can observe future behavior.",
+    "Added three RED specs covering tab semantics, expansion toggling, and CTA routing for the icon navigation.",
+    "Captured the RED Jest log for F14-TP2 to drive the next pipeline stage.",
+    "Implemented the accordion/tab behavior in admin.html and scripts/admin/main.js so nav buttons expose role=tab/aria-expanded states, show/hide the matching detail drawer, and CTA clicks jump to the requested section."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F14-TP2_green.txt"
+  }
+}

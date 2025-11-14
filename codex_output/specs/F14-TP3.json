@@ -1,0 +1,71 @@
+{
+  "topicId": "F14-TP3",
+  "featureId": "F14",
+  "title": "Dedicated Admin Task Pages",
+  "area": "Admin / Multi-page Layout",
+  "goal": "Move each major admin accordion panel into its own lightweight page that is loaded from the icon menu.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F14-TP3-001",
+      "title": "BundlesNavHidesManagePanels",
+      "given": "An admin signs in and sees the Manage Books panels expanded by default.",
+      "when": "They activate the Bundles nav tile.",
+      "then": "The Add/Available/Sold panels collapse + hide, the Bundles panel becomes visible as the only active task view, and the Bundles tile advertises itself as the current page.",
+      "test": "/tests/spec/admin/F14-TP3-001_BundlesNavHidesManagePanels.spec.js"
+    },
+    {
+      "id": "F14-TP3-002",
+      "title": "RecordSaleNavShowsStandalonePanel",
+      "given": "An admin is in the signed-in workspace.",
+      "when": "They click the Record Sale nav tile.",
+      "then": "The sale entry panel un-hides as its own page, the Manage Books panels collapse out of view, and the Record Sale tile reports itself as the active page.",
+      "test": "/tests/spec/admin/F14-TP3-002_RecordSaleNavShowsStandalonePanel.spec.js"
+    },
+    {
+      "id": "F14-TP3-003",
+      "title": "ReturnToManageRestoresDefaultPanels",
+      "given": "The admin has navigated away from Manage Books (e.g., Bundles) via the nav tiles.",
+      "when": "They re-select the Manage Books tile.",
+      "then": "The Add/Available/Sold panels un-hide and reopen while the previously selected task panel hides again so Manage Books feels like a dedicated return point.",
+      "test": "/tests/spec/admin/F14-TP3-003_ReturnToManageRestoresDefaultPanels.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F14-TP3-001_BundlesNavHidesManagePanels.spec.js",
+    "/tests/spec/admin/F14-TP3-002_RecordSaleNavShowsStandalonePanel.spec.js",
+    "/tests/spec/admin/F14-TP3-003_ReturnToManageRestoresDefaultPanels.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F14-TP3_red.txt",
+    "green": "codex_output/reports/F14-TP3_green.txt"
+  },
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F14-TP3_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "All Jest suites are green; the three F14-TP3 specs now confirm that nav buttons hide non-target panels and restore Manage on return."
+    }
+  },
+  "changedFiles": [
+    "tests/spec/admin/F14-TP3-001_BundlesNavHidesManagePanels.spec.js",
+    "tests/spec/admin/F14-TP3-002_RecordSaleNavShowsStandalonePanel.spec.js",
+    "tests/spec/admin/F14-TP3-003_ReturnToManageRestoresDefaultPanels.spec.js",
+    "scripts/admin/main.js",
+    "codex_output/specs/F14-TP3.json",
+    "codex_output/reports/F14-TP3_red.txt",
+    "codex_output/reports/F14-TP3_green.txt"
+  ],
+  "changeNotes": [
+    "Defined three RED specs for F14-TP3 covering Bundles, Record Sale, and return-to-Manage navigation so each nav tile behaves like a dedicated page.",
+    "Captured the topic metadata for F14-TP3 and pointed codex-dev at the new Jest spec files + reports.",
+    "Refined admin nav routing so only the selected tile's panels are visible, Manage panels reopen when returning, and the Customers heading receives focus after its section becomes visible.",
+    "Nav detail CTAs now reuse updateNavHash so Manage maps back to #add-book and all specs pass under npm test -- --watchAll=false --bail=0."
+  ]
+}
