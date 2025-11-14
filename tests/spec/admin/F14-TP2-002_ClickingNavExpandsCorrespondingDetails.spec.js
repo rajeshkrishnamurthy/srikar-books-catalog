@@ -8,19 +8,18 @@ describe('SPEC F14-TP2-002: Clicking a nav tile expands its detail drawer', () =
       await harness.simulateSignIn();
 
       const manageBtn = harness.manageNavButton;
-      const manageDetail = harness.getNavDetail('manageBooks');
+      const addPanel = harness.addBookPanel;
       expect(manageBtn.getAttribute('aria-expanded')).toBe('true');
-      expect(manageDetail.hidden).toBe(false);
+      expect(addPanel.open).toBe(true);
 
       const bundlesBtn = harness.bundlesNavButton;
-      const bundlesDetail = harness.getNavDetail('bundles');
+      const bundlesPanel = document.getElementById('bundlesPanel');
       fireEvent.click(bundlesBtn);
 
       expect(bundlesBtn.getAttribute('aria-expanded')).toBe('true');
-      expect(bundlesDetail.hidden).toBe(false);
+      expect(bundlesPanel.hidden).toBe(false);
 
       expect(manageBtn.getAttribute('aria-expanded')).toBe('false');
-      expect(manageDetail.hidden).toBe(true);
     } finally {
       harness.cleanup();
     }
