@@ -772,6 +772,7 @@ function syncPickerFromText() {
 function ensureDefaultLanding() {
   const navTarget = resolveLandingNavTarget();
   if (navTarget) {
+    clearSectionQuery();
     setHashSafely(`#${navTarget}`);
   }
   if (navTarget && navTarget !== 'manageBooks') {
@@ -875,6 +876,22 @@ function updateNavHash(navKey) {
     return;
   }
   setHashSafely(`#${navKey}`);
+}
+
+function clearSectionQuery() {
+  if (typeof window === 'undefined') return;
+  const currentSearch = window.location?.search || '';
+  if (!currentSearch) return;
+  const params = new URLSearchParams(currentSearch);
+  if (!params.has('section')) return;
+  params.delete('section');
+  const searchString = params.toString();
+  const newUrl = `${window.location.pathname}${searchString ? `?${searchString}` : ''}${window.location.hash}`;
+  if (typeof window.history?.replaceState === 'function') {
+    window.history.replaceState(null, document.title, newUrl);
+  } else {
+    window.location.search = searchString;
+  }
 }
 
 initAuth({
