@@ -3,17 +3,17 @@ import { jest } from '@jest/globals';
 const mainModuleUrl = new URL('../../scripts/admin/main.js', import.meta.url);
 
 export async function createAdminMainHarness(options = {}) {
-  const { initialHash = '' } = options;
+  const { initialHash = '', initialSearch = '' } = options;
 
   jest.resetModules();
   jest.clearAllMocks();
   delete globalThis.__firebaseMocks;
 
-  window.location.hash = initialHash;
+  setHarnessLocation(initialHash, initialSearch);
   buildDom();
   const resetDom = () => {
     document.body.innerHTML = '';
-    window.location.hash = '';
+    setHarnessLocation('', '');
   };
   const cleanupTasks = [resetDom];
 
@@ -81,6 +81,17 @@ export async function createAdminMainHarness(options = {}) {
     get locationHash() {
       return window.location.hash;
     },
+    get customersPanelSection() {
+      return document.getElementById('customerPanel')?.closest('.panel') || null;
+    },
+    get customersPanelSummary() {
+      return (
+        document
+          .getElementById('customerPanel')
+          ?.closest('.panel')
+          ?.querySelector('summary, [data-customer-panel-heading]') || null
+      );
+    },
     getNavDetail(navKey) {
       return document.getElementById(`navDetail-${navKey}`);
     },
@@ -90,6 +101,17 @@ export async function createAdminMainHarness(options = {}) {
       );
     },
   };
+}
+
+function setHarnessLocation(hashValue = '', searchValue = '') {
+  try {
+    const current = new URL(window.location.href);
+    current.hash = hashValue || '';
+    current.search = searchValue || '';
+    window.history.replaceState(null, '', current.toString());
+  } catch {
+    window.location.hash = hashValue || '';
+  }
 }
 
 function buildDom() {
@@ -269,8 +291,13 @@ function buildDom() {
       <details id="soldBooksPanel" class="panel"></details>
       <details id="bookRequestsPanel" class="panel" open></details>
       <details id="suppliersPanel" class="panel" open></details>
-      <details id="customersPanel" class="panel" open>
-        <div id="customerPanel"></div>
+      <details id="customersPanel" class="panel">
+        <summary data-customer-panel-heading>Customer master</summary>
+        <div id="customerPanel">
+          <form id="customerForm">
+            <input id="customerNameInput" name="customerName" />
+          </form>
+        </div>
       </details>
       <section id="bundlesPanel" class="panel" hidden></section>
     </section>

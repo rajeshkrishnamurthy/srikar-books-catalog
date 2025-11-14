@@ -595,17 +595,17 @@
         },
         {
           "id": "F15-TP2",
-          "title": "Customer Master Entry Point",
+          "title": "Customer Master Entry (Mouse-First)",
           "area": "Admin / Customer Master",
-          "goal": "Add a dedicated Customers nav control and focus management so the Customer Master accordion can be opened from the menu or via hashes without manual scrolling.",
+          "goal": "Add a Customers nav control so mouse users can open the Customer Master accordion from the menu without scrolling.",
           "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
           "dependencies": [
             "F15-TP1"
           ],
           "given": "The Customers nav button is visible in the admin menu.",
-          "when": "An admin clicks the Customers entry, tabs to it, or lands on /admin with #customers or ?section=customers.",
-          "then": "The customerPanel accordion expands, the nav button reflects aria-current, focus moves to the panel heading for screen readers, and no other unrelated panels steal focus.",
-          "notes": "Honor existing cancel/save flows inside #customerPanel and ensure the panel can collapse/expand repeatedly without losing form data."
+          "when": "An admin clicks the Customers entry from the icon menu.",
+          "then": "The customerPanel accordion expands, the Customers nav tile shows aria-current=\"page\", and Manage Books is deactivated while existing form state stays intact.",
+          "notes": "Focus/keyboard semantics remain a backlog item; this topic is scoped to mouse/visual parity and basic nav affordances."
         },
         {
           "id": "F15-TP3",
@@ -620,6 +620,27 @@
           "when": "The workspace completes initialization and resolves the landing destination.",
           "then": "The requested panel opens (accordion expanded or section unhidden), the nav button is marked active, non-target panels stay untouched unless the design requires hiding them, and window.location.hash reflects the canonical alias for that panel.",
           "notes": "Document the supported aliases (e.g., #customers, #customer-master) and add tests to prevent regressions when new panels are added."
+        }
+      ]
+    },
+    {
+      "featureId": "BACKLOG",
+      "featureTitle": "Backlog",
+      "description": "Future accessibility work that remains after the mouse-first Admin entry-point changes.",
+      "topics": [
+        {
+          "id": "BACKLOG-TP1",
+          "title": "Accessible Customers Entry",
+          "area": "Admin / Customer Master",
+          "goal": "Deliver keyboard and screen-reader parity for the Customers nav flow, including focus management and deep-link announcements.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F15-TP2"
+          ],
+          "given": "A keyboard or assistive-technology user activates the Customers nav button or loads /admin with #customers or ?section=customers.",
+          "when": "Navigation switches to the Customers section.",
+          "then": "Focus moves to the Customer panel heading/summary, ARIA relationships announce the state change, and deep links normalize to #customers without collapsing other panels.",
+          "notes": "Reintroduces the focus/ARIA requirements that were deferred from F15-TP2 once mouse parity shipped."
         }
       ]
     }
