@@ -165,3 +165,12 @@ Notes:
 Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom.
 - This backlog topic captures the deferred accessibility scope once mouse-first parity ships.
+
+# Feature: Technical Debt (TECHDEBT)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| TECHDEBT-TP1 | Sync Admin Nav With Hash History | Keep nav state/panels aligned with window.location.hash when users use browser back/forward. | F15-TP3 | The admin already navigated across sections so history entries exist. | They press Back/Forward and the hash changes. | A listener reruns handleAdminNav so aria-current/panels match the hash (fixes bug “P1 Badge Keep admin nav in sync with hash history”). |
+
+Notes:
+- Track this as tech debt; ready to pick up when hash-history sync is prioritized.

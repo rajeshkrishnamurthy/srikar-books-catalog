@@ -1,0 +1,76 @@
+{
+  "topicId": "F16-TP1",
+  "featureId": "F16",
+  "title": "Introduce Manage Sub Nav",
+  "area": "Admin / Navigation",
+  "goal": "Add a secondary nav (Add/Available/Sold) under Manage Books with aria tabs semantics and hash-aware routing.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F16-TP1-001",
+      "title": "ManageSubNavRendersButtons",
+      "given": "An admin signs in and lands on Manage Books by default.",
+      "when": "The Manage view renders.",
+      "then": "A sub nav (`#manageSubNav`) exists with exactly three buttons (add/available/sold) and the Add tab owns aria-current=page by default.",
+      "test": "/tests/spec/admin/F16-TP1-001_ManageSubNavRenders.spec.js"
+    },
+    {
+      "id": "F16-TP1-002",
+      "title": "ManageSubNavRoutesAvailable",
+      "given": "The Manage sub nav is visible.",
+      "when": "A user clicks the Available tab.",
+      "then": "The Available tab gains aria-current, the Add tab clears it, and window.location.hash rewrites to #manage-books/available.",
+      "test": "/tests/spec/admin/F16-TP1-002_ManageSubNavNavigatesAvailable.spec.js"
+    },
+    {
+      "id": "F16-TP1-003",
+      "title": "ManageSubNavDeepLinkSold",
+      "given": "A user loads /admin with #manage-books/sold in the hash.",
+      "when": "The workspace initializes.",
+      "then": "The Manage tile stays active and the Sold sub tab owns aria-current while the hash remains #manage-books/sold (allowing slight delay before script wires up).",
+      "test": "/tests/spec/admin/F16-TP1-003_ManageSubNavDeepLinkSold.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F16-TP1-001_ManageSubNavRenders.spec.js",
+    "/tests/spec/admin/F16-TP1-002_ManageSubNavNavigatesAvailable.spec.js",
+    "/tests/spec/admin/F16-TP1-003_ManageSubNavDeepLinkSold.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F16-TP1_red.txt",
+    "green": "codex_output/reports/F16-TP1_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "styles/admin.css",
+    "scripts/admin/main.js",
+    "tests/fixtures/adminMainHarness.js",
+    "tests/spec/admin/F14-TP2-001_NavButtonsExposeTabSemantics.spec.js",
+    "tests/spec/admin/F14-TP2-002_ClickingNavExpandsCorrespondingDetails.spec.js",
+    "tests/spec/admin/F14-TP2-003_CtaRoutesNavTarget.spec.js",
+    "tests/spec/admin/F16-TP1-001_ManageSubNavRenders.spec.js",
+    "tests/spec/admin/F16-TP1-002_ManageSubNavNavigatesAvailable.spec.js",
+    "tests/spec/admin/F16-TP1-003_ManageSubNavDeepLinkSold.spec.js",
+    "codex_output/specs/F16-TP1.json",
+    "codex_output/reports/F16-TP1_red.txt",
+    "codex_output/reports/F16-TP1_green.txt"
+  ],
+  "changeNotes": [
+    "Added Manage Books sub-nav markup and styles so Add/Available/Sold options appear as a dropdown when Manage is active.",
+    "scripts/admin/main.js now toggles sub-navs, tracks current Manage tab, and rewrites hashes/deep links for sub views.",
+    "Updated fixtures/tests (F14 + new F16 specs) to exercise the sub-nav controls and deep links."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F16-TP1_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Manage sub nav renders Add/Available/Sold tabs, routes via hash, and honors deep links."
+    }
+  }
+}

@@ -657,6 +657,27 @@
           "notes": "Reintroduces the focus/ARIA requirements that were deferred from F15-TP2 once mouse parity shipped."
         }
       ]
+    },
+    {
+      "featureId": "TECHDEBT",
+      "featureTitle": "Technical Debt",
+      "description": "Known gaps/bugs to be resolved in later iterations.",
+      "topics": [
+        {
+          "id": "TECHDEBT-TP1",
+          "title": "Sync Admin Nav With Hash History",
+          "area": "Admin / Navigation",
+          "goal": "Ensure browser back/forward (hashchange) keeps the nav buttons and panels aligned with window.location.hash.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F15-TP3"
+          ],
+          "given": "A user navigates between admin sections, creating history entries (#customers, #bundles, etc.).",
+          "when": "They press the browser back/forward buttons and the hash changes.",
+          "then": "handleAdminNav (or equivalent) reruns so aria-current/panels match the hash; the UI never shows a different panel than the URL.",
+          "notes": "Bug report: P1 Badge Keep admin nav in sync with hash history."
+        }
+      ]
     }
   ]
 }

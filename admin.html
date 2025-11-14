@@ -136,6 +136,41 @@
 
         <div id="manageBooksAnchor" class="panel-anchor" aria-hidden="true"></div>
 
+        <div
+          class="manage-sub-nav"
+          id="manageSubNav"
+          role="tablist"
+          aria-label="Manage books sub menu"
+          data-parent-nav="manageBooks"
+          hidden
+        >
+          <button
+            type="button"
+            class="manage-sub-nav__item is-active"
+            data-manage-tab="add"
+            aria-controls="addBookPanel"
+            aria-current="page"
+          >
+            Add
+          </button>
+          <button
+            type="button"
+            class="manage-sub-nav__item"
+            data-manage-tab="available"
+            aria-controls="availableBooksPanel"
+          >
+            Available
+          </button>
+          <button
+            type="button"
+            class="manage-sub-nav__item"
+            data-manage-tab="sold"
+            aria-controls="soldBooksPanel"
+          >
+            Sold
+          </button>
+        </div>
+
         <!-- Add book -->
         <details class="panel" id="addBookPanel" open>
           <summary><strong>Add a book</strong></summary>

@@ -187,6 +187,11 @@ function buildDom() {
         </button>
       </nav>
       <div id="manageBooksAnchor"></div>
+      <div id="manageSubNav" data-parent-nav="manageBooks" hidden>
+        <button data-manage-tab="add" aria-current="page">Add</button>
+        <button data-manage-tab="available">Available</button>
+        <button data-manage-tab="sold">Sold</button>
+      </div>
       <details id="addBookPanel" class="panel" open></details>
       <details id="availableBooksPanel" class="panel" open></details>
       <details id="soldBooksPanel" class="panel"></details>
