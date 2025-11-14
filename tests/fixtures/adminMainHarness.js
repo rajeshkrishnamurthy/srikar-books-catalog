@@ -69,8 +69,22 @@ export async function createAdminMainHarness(options = {}) {
     get suppliersNavButton() {
       return document.querySelector('#adminNav [data-nav="suppliers"]');
     },
+    get bundlesNavButton() {
+      return document.querySelector('#adminNav [data-nav="bundles"]');
+    },
+    get recordSaleNavButton() {
+      return document.querySelector('#adminNav [data-nav="recordSale"]');
+    },
     get locationHash() {
       return window.location.hash;
+    },
+    getNavDetail(navKey) {
+      return document.getElementById(`navDetail-${navKey}`);
+    },
+    getNavCta(navKey) {
+      return document.querySelector(
+        `#navDetail-${navKey} .admin-nav__cta[data-nav-target="${navKey}"]`
+      );
     },
   };
 }
@@ -87,23 +101,139 @@ function buildDom() {
     </section>
     <section id="admin" style="display: none">
       <button id="signOutBtn" type="button">Sign out</button>
-      <nav id="adminNav" aria-label="Admin sections">
-        <button type="button" class="admin-nav__item is-active" data-nav="manageBooks">
+      <nav id="adminNav" aria-label="Admin sections" role="tablist">
+        <button
+          type="button"
+          class="admin-nav__item is-active"
+          role="tab"
+          id="navTab-manageBooks"
+          aria-controls="navDetail-manageBooks"
+          aria-expanded="true"
+          data-nav="manageBooks"
+        >
           Manage books
         </button>
-        <button type="button" class="admin-nav__item" data-nav="bundles">
+        <button
+          type="button"
+          class="admin-nav__item"
+          role="tab"
+          id="navTab-bundles"
+          aria-controls="navDetail-bundles"
+          aria-expanded="false"
+          data-nav="bundles"
+        >
           Create bundles
         </button>
-        <button type="button" class="admin-nav__item" data-nav="recordSale">
+        <button
+          type="button"
+          class="admin-nav__item"
+          role="tab"
+          id="recordSaleBtn"
+          aria-controls="saleEntryPanel"
+          aria-expanded="false"
+          data-nav="recordSale"
+        >
           Record sale
         </button>
-        <button type="button" class="admin-nav__item" data-nav="bookRequests">
+        <button
+          type="button"
+          class="admin-nav__item"
+          role="tab"
+          id="navTab-bookRequests"
+          aria-controls="navDetail-bookRequests"
+          aria-expanded="false"
+          data-nav="bookRequests"
+        >
           Book requests
         </button>
-        <button type="button" class="admin-nav__item" data-nav="suppliers">
+        <button
+          type="button"
+          class="admin-nav__item"
+          role="tab"
+          id="navTab-suppliers"
+          aria-controls="navDetail-suppliers"
+          aria-expanded="false"
+          data-nav="suppliers"
+        >
           Suppliers
         </button>
       </nav>
+      <div id="adminNavDetails">
+        <section
+          id="navDetail-manageBooks"
+          class="admin-nav__details"
+          role="tabpanel"
+          aria-labelledby="navTab-manageBooks"
+        >
+          <p class="admin-nav__summary">Add &amp; stock</p>
+          <p class="admin-nav__description">
+            Create single books, run lookups, and stock incoming inventory.
+          </p>
+          <button type="button" class="admin-nav__cta" data-nav-target="manageBooks">
+            Go to Add book
+          </button>
+        </section>
+        <section
+          id="navDetail-bundles"
+          class="admin-nav__details"
+          role="tabpanel"
+          aria-labelledby="navTab-bundles"
+          hidden
+        >
+          <p class="admin-nav__summary">Bundles</p>
+          <p class="admin-nav__description">
+            Create supplier bundles and publish curated sets.
+          </p>
+          <button type="button" class="admin-nav__cta" data-nav-target="bundles">
+            Open bundles
+          </button>
+        </section>
+        <section
+          id="navDetail-recordSale"
+          class="admin-nav__details"
+          role="tabpanel"
+          aria-labelledby="recordSaleBtn"
+          hidden
+        >
+          <p class="admin-nav__summary">Record sale</p>
+          <p class="admin-nav__description">
+            Launch the sale workflow to collect payments.
+          </p>
+          <button type="button" class="admin-nav__cta" data-nav-target="recordSale">
+            Start sale entry
+          </button>
+        </section>
+        <section
+          id="navDetail-bookRequests"
+          class="admin-nav__details"
+          role="tabpanel"
+          aria-labelledby="navTab-bookRequests"
+          hidden
+        >
+          <p class="admin-nav__summary">Book requests</p>
+          <p class="admin-nav__description">
+            Review and respond to incoming customer requests.
+          </p>
+          <button type="button" class="admin-nav__cta" data-nav-target="bookRequests">
+            View requests
+          </button>
+        </section>
+        <section
+          id="navDetail-suppliers"
+          class="admin-nav__details"
+          role="tabpanel"
+          aria-labelledby="navTab-suppliers"
+          hidden
+        >
+          <p class="admin-nav__summary">Suppliers</p>
+          <p class="admin-nav__description">
+            Add, edit, and audit supplier master data.
+          </p>
+          <button type="button" class="admin-nav__cta" data-nav-target="suppliers">
+            Manage suppliers
+          </button>
+        </section>
+      </div>
       <div id="manageBooksAnchor"></div>
       <details id="addBookPanel" class="panel" open></details>
       <details id="availableBooksPanel" class="panel" open></details>
