@@ -1,0 +1,93 @@
+{
+  "topicId": "F07-TP2",
+  "title": "Edit Customer Records",
+  "area": "Admin / Customer Master",
+  "goal": "Let admins update customer details without breaking links to past sales.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F07-TP2-001",
+      "title": "EditModePrefillsForm",
+      "given": "An admin reviews the Customer Master list.",
+      "when": "They click edit on a customer row.",
+      "then": "The form switches to edit mode, populates name/address/location/WhatsApp, stores the document ID in a hidden field, and surfaces an unsaved-changes indicator.",
+      "test": "/tests/spec/admin/F07-TP2-001_PrefillCustomerEditForm.spec.js"
+    },
+    {
+      "id": "F07-TP2-002",
+      "title": "PersistCustomerEdit",
+      "given": "An admin modifies customer details while in edit mode.",
+      "when": "They submit valid changes.",
+      "then": "updateDoc receives trimmed strings, normalized WhatsApp digits, a refreshed customerKey, and an updated timestamp while the form returns to add mode.",
+      "test": "/tests/spec/admin/F07-TP2-002_PersistCustomerEdit.spec.js"
+    },
+    {
+      "id": "F07-TP2-003",
+      "title": "PreventDuplicateCustomerEdits",
+      "given": "Another customer already uses the same country code + WhatsApp digits.",
+      "when": "An admin attempts to save edits that collide with that combination.",
+      "then": "The flow queries Firestore for duplicates (excluding the current record), surfaces a duplicate warning, and avoids calling updateDoc.",
+      "test": "/tests/spec/admin/F07-TP2-003_PreventDuplicateCustomerEdits.spec.js"
+    },
+    {
+      "id": "F07-TP2-004",
+      "title": "CancelCustomerEdit",
+      "given": "The form is in edit mode.",
+      "when": "The admin clicks the cancel edit control.",
+      "then": "Edit mode exits, the hidden ID clears, form inputs reset, and the unsaved indicator disappears.",
+      "test": "/tests/spec/admin/F07-TP2-004_CancelCustomerEdit.spec.js"
+    },
+    {
+      "id": "F07-TP2-005",
+      "title": "RejectInvalidEdits",
+      "given": "An admin attempts to clear required fields while editing.",
+      "when": "They submit with a blank name or WhatsApp number.",
+      "then": "Validation blocks the save, highlights the missing field, and keeps the form in edit mode until corrected.",
+      "test": "/tests/spec/admin/F07-TP2-005_BlockInvalidCustomerEdits.spec.js"
+    },
+    {
+      "id": "F07-TP2-006",
+      "title": "BuildCustomerEditPayloadHelper",
+      "given": "The edit helper receives existing customer data and pending updates.",
+      "when": "It assembles the payload.",
+      "then": "The helper preserves immutable fields (ID, createdAt), normalizes strings, strips the WhatsApp prefix into digits-only form, recalculates customerKey, and stamps updatedAt.",
+      "test": "/tests/unit/customers/F07-TP2-001_EditPayload.test.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminCustomerHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F07-TP2_red.txt",
+    "green": "codex_output/reports/F07-TP2_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F07-TP2_green.txt",
+    "summary": {
+      "testSuites": 55,
+      "tests": 64,
+      "result": "passed",
+      "details": "All suites green via npm test -- --watchAll=false --bail=0 (see codex_output/reports/F07-TP2_green.txt)."
+    }
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/main.js",
+    "scripts/admin/customers.js",
+    "codex_output/reports/F07-TP2_green.txt"
+  ],
+  "changeNotes": [
+    "Extended admin.html and init wiring to ship the hidden customerId field, cancel button, and aria-live status so edit mode works outside the tests.",
+    "Reworked scripts/admin/main.js to pass the new DOM refs plus doc/updateDoc dependencies into initCustomerMaster.",
+    "Expanded scripts/admin/customers.js with edit-mode handlers, duplicate guards that exclude the current record, buildCustomerEditPayload, list edit buttons, and reset/cancel flows tied to updateDoc."
+  ],
+  "helpers": {
+    "created": [
+      "scripts/admin/customers.js:buildCustomerEditPayload"
+    ],
+    "used": []
+  },
+  "notes": "New specs expect admin.html (and initCustomerMaster) to expose a hidden customerId input, cancel button, edit-mode messaging, duplicate checks that ignore the current record, and a reusable helper for building edit payloads that emit normalized WhatsApp digits while keeping createdAt intact."
+}

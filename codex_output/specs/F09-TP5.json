@@ -1,0 +1,49 @@
+{
+  "topicId": "F09-TP5",
+  "title": "Persistent Customer Selection",
+  "area": "Admin / Sales Entry",
+  "goal": "Ensure a chosen customer remains selected even if the lookup input is cleared, only changing when a new customer is picked.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F09-TP5-002",
+      "title": "ChangeCustomerControlClearsSelection",
+      "given": "A customer is already selected and shown in the sale header summary pill.",
+      "when": "The admin clicks the explicit Change customer control.",
+      "then": "The summary resets to an empty state, the hidden customerId clears, and the lookup is ready for a new selection.",
+      "test": "/tests/spec/admin/F09-TP5-002_ChangeCustomerClearsSelection.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/customerLookupHarness.js",
+    "/tests/fixtures/salesHeaderHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F09-TP5_red.txt",
+    "green": "codex_output/reports/F09-TP5_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "status": "GREEN",
+    "report": "codex_output/reports/F09-TP5_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Change customer control verified across the updated Jest suite (see codex_output/reports/F09-TP5_green.txt)."
+    }
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/main.js",
+    "scripts/admin/salesHeader.js",
+    "scripts/admin/customerLookup.js",
+    "tests/fixtures/salesHeaderHarness.js",
+    "tests/spec/admin/F09-TP5-002_ChangeCustomerClearsSelection.spec.js",
+    "codex_output/reports/F09-TP5_green.txt",
+    "codex_output/specs/F09-TP5.json"
+  ],
+  "changeNotes": [
+    "Change customer control is wired into salesHeader.js and admin.html, clearing the hidden customerId, summary pill, and downstream state without needing to reopen the lookup."
+  ],
+  "notes": "F09-TP5 builds on the customer lookup and sale header modules by persisting the selected customer until the admin explicitly changes it. Clearing the search box or typing a new query must not drop the selection; only selecting a different row or hitting the Change customer button should reset the state."
+}

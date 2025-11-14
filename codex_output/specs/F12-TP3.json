@@ -1,0 +1,84 @@
+{
+  "topicId": "F12-TP3",
+  "featureId": "F12",
+  "title": "Admin Listing + Search by Book",
+  "area": "Admin / Bundles",
+  "goal": "Provide search-by-book listing of bundles with supplier/status filters, publish controls, and autocomplete-driven book selection.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F12-TP3-001",
+      "title": "AutocompleteSelectionFiltersBundles",
+      "given": "Bundles exist in Firestore and the admin focuses the bundle search autocomplete.",
+      "when": "They type 2+ characters, choose a suggestion (or clear it), and rely on the shared book lookup callback.",
+      "then": "Only bundles containing the selected book ID remain visible, typing without selection keeps the list unfiltered, and clearing the selection restores all bundles.",
+      "test": "/tests/spec/admin/F12-TP3-001_SearchBundlesByBook.spec.js"
+    },
+    {
+      "id": "F12-TP3-002",
+      "title": "SupplierStatusFiltersStackWithSelection",
+      "given": "Supplier and status dropdowns sit above the list and a book selection is active.",
+      "when": "The admin narrows the supplier and status filters after picking a book.",
+      "then": "Results reflect the intersection of book ID + supplier + status, keeping the empty state accurate and ensuring publish/unpublish controls render per row.",
+      "test": "/tests/spec/admin/F12-TP3-002_FilterBySupplierAndStatus.spec.js"
+    },
+    {
+      "id": "F12-TP3-003",
+      "title": "HydrateLegacyBundlesBeforeFiltering",
+      "given": "Some bundles only have bookIds stored (no embedded book metadata).",
+      "when": "The listing initializes and a book selection is attempted.",
+      "then": "A hydration dependency runs to fetch the missing book metadata so legacy bundles can still match the selected book ID.",
+      "test": "/tests/spec/admin/F12-TP3-003_BundleRowDisplaysMetadata.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminBundleListHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F12-TP3-001_SearchBundlesByBook.spec.js",
+    "/tests/spec/admin/F12-TP3-002_FilterBySupplierAndStatus.spec.js",
+    "/tests/spec/admin/F12-TP3-003_BundleRowDisplaysMetadata.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F12-TP3_red.txt",
+    "green": "codex_output/reports/F12-TP3_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "codex_output/reports/F12-TP3_green.txt",
+    "codex_output/reports/F12-TP3_red.txt",
+    "codex_output/specs/F12-TP3.json",
+    "scripts/admin/bundleList.js",
+    "scripts/admin/bundles.js",
+    "scripts/admin/main.js",
+    "styles/admin.css",
+    "tests/fixtures/adminBundleListHarness.js",
+    "tests/spec/admin/F12-TP3-001_SearchBundlesByBook.spec.js",
+    "tests/spec/admin/F12-TP3-002_FilterBySupplierAndStatus.spec.js",
+    "tests/spec/admin/F12-TP3-003_BundleRowDisplaysMetadata.spec.js"
+  ],
+  "changeNotes": [
+    "Added bundle listing harness + RED specs covering book search, supplier/status filters, and row metadata requirements.",
+    "Implemented bundle listing UI + wiring, plus captured GREEN Jest report for listing/search topic.",
+    "Fixed admin listing to hydrate book metadata (and persist it on creation) so search-by-title works against live bundle data; refreshed GREEN test report.",
+    "Expanded specs so bundle listing now relies on book autocomplete selection, stacks supplier/status filters with the selected book, and hydrates legacy bundles before filtering.",
+    "Bundle listing switched to book-autocomplete filtering with supplier/status stacking and legacy book hydration.",
+    "Bundle listing now surfaces an inline error message when Firestore rejects the snapshot (e.g., missing permissions).",
+    "Bundle listing results now render in a table (bundle/books/price/supplier/publish columns) for easier scanning.",
+    "Books column now renders as bullet list (one title per line) for clarity.",
+    "Books column now renders each title as a bullet list, with chip-style book filter selection pending for next iteration.",
+    "Book filter now behaves like a chip (selected title shown with a clear button) and the results column lists one book per line.",
+    "Book filter now renders as a standalone chip with a clear button, hiding the input once a selection is made.",
+    "Bundle filters now align in a grid, with the book search showing a chip + input inline for a consistent autocompletion UX."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --runTestsByPath tests/spec/admin/F12-TP3-001_SearchBundlesByBook.spec.js tests/spec/admin/F12-TP3-002_FilterBySupplierAndStatus.spec.js tests/spec/admin/F12-TP3-003_BundleRowDisplaysMetadata.spec.js --watchAll=false",
+    "report": "codex_output/reports/F12-TP3_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Autocomplete selection + supplier/status filters and hydration all verified via SPECs F12-TP3-001..003."
+    }
+  }
+}

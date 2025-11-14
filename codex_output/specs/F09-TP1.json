@@ -1,0 +1,114 @@
+{
+  "topicId": "F09-TP1",
+  "title": "Book Title Autocomplete",
+  "area": "Admin / Sales Entry",
+  "goal": "Let admins search and select catalog books for sale lines using a lightweight title autocomplete instead of SKU inputs.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F09-TP1-001",
+      "title": "FilterCatalogTitles",
+      "given": "The sale line draft exposes a Book title search field that is backed by a cached catalog title list.",
+      "when": "An admin types at least two letters (e.g., \"des\").",
+      "then": "The suggestion list filters titles case-insensitively, keeps the best matches at the top, caps the list to the configured maxResults, and marks the first option as active for keyboard selection.",
+      "test": "/tests/spec/admin/F09-TP1-001_CatalogTitleAutocompleteFilters.spec.js"
+    },
+    {
+      "id": "F09-TP1-002",
+      "title": "SelectSuggestionLocksBook",
+      "given": "Matching suggestions are visible to the admin.",
+      "when": "They click a suggestion.",
+      "then": "The hidden bookId input (shared with the F08 sale line module) is populated, the summary text updates with the title + supplier, the summary data-empty flag flips to false, and the provided onBookSelect callback receives the normalized book snapshot.",
+      "test": "/tests/spec/admin/F09-TP1-002_SelectingSuggestionLocksBook.spec.js"
+    },
+    {
+      "id": "F09-TP1-003",
+      "title": "KeyboardNavigation",
+      "given": "Suggestions are shown for the current query.",
+      "when": "The admin presses Arrow keys and Enter.",
+      "then": "aria-activedescendant (or data-active) tracks the highlighted option as the cursor moves, Enter selects the active option, and the selection mirrors the click path so F08 sale line flows stay in sync for keyboard-driven admins.",
+      "test": "/tests/spec/admin/F09-TP1-003_KeyboardNavigationFocus.spec.js"
+    },
+    {
+      "id": "F09-TP1-004",
+      "title": "IgnoreNonTitleIdentifiers",
+      "given": "An admin types only digits or SKU-like tokens.",
+      "when": "The autocomplete listens for input.",
+      "then": "Suggestions clear, a guidance message such as \"Type at least two letters from the title\" appears, the hidden bookId remains empty, and the onBookSelect callback is never triggered.",
+      "test": "/tests/spec/admin/F09-TP1-004_IgnoreNonTitleTokens.spec.js"
+    },
+    {
+      "id": "F09-TP1-005",
+      "title": "BuildTitleIndexHelper",
+      "given": "Catalog documents are fetched (possibly with duplicates).",
+      "when": "buildTitleIndex is invoked with that list.",
+      "then": "It dedupes by bookId, stores the original title plus a lower-cased version, and precomputes tokens (words) for substring search to keep future keystrokes fast.",
+      "test": "/tests/unit/admin/F09-TP1-001_BuildTitleIndex.test.js"
+    },
+    {
+      "id": "F09-TP1-006",
+      "title": "DraftLabelUpdatesOnSelection",
+      "given": "The draft line label initially says “Add another book.”",
+      "when": "An admin selects a book via the autocomplete.",
+      "then": "The draft label stays “Add another book,” a “Book selected” toast appears, and focus shifts to the selling price input.",
+      "test": "/tests/spec/admin/F09-TP1-005_SaleLineDraftLabelUpdates.spec.js"
+    },
+    {
+      "id": "F09-TP1-007",
+      "title": "SearchMatchesInventoryFilter",
+      "given": "The same catalog books power both the admin search and the sale entry autocomplete.",
+      "when": "An admin types a query into the sale entry lookup.",
+      "then": "Only the books that would match the main inventory filter (title/author/ISBN contains the term) appear in suggestions—no extra or missing results.",
+      "test": "/tests/spec/admin/F09-TP1-006_SaleLookupMatchesInventoryFilter.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/salesTitleAutocompleteHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F09-TP1_red.txt",
+    "green": "codex_output/reports/F09-TP1_green.txt"
+  ],
+  "validation": {
+    "command": "npm test -- --watchAll=false --bail=0",
+    "status": "GREEN",
+    "report": "codex_output/reports/F09-TP1_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Autocomplete wiring, draft label updates, and keyboard flows all verified together (see codex_output/reports/F09-TP1_green.txt)."
+    }
+  },
+  "changedFiles": [
+    "scripts/admin/salesTitleAutocomplete.js",
+    "scripts/admin/inventory.js",
+    "scripts/helpers/bookSearch.js",
+    "tests/fixtures/salesTitleAutocompleteHarness.js",
+    "tests/spec/admin/F09-TP1-001_CatalogTitleAutocompleteFilters.spec.js",
+    "tests/spec/admin/F09-TP1-002_SelectingSuggestionLocksBook.spec.js",
+    "tests/spec/admin/F09-TP1-003_KeyboardNavigationFocus.spec.js",
+    "tests/spec/admin/F09-TP1-004_IgnoreNonTitleTokens.spec.js",
+    "tests/spec/admin/F09-TP1-005_SaleLineDraftLabelUpdates.spec.js",
+    "tests/spec/admin/F09-TP1-006_SaleLookupMatchesInventoryFilter.spec.js",
+    "tests/unit/admin/F09-TP1-001_BuildTitleIndex.test.js",
+    "scripts/admin/salesLineItems.js",
+    "tests/fixtures/salesLineItemsHarness.js",
+    "codex_output/reports/F09-TP1_green.txt",
+    "codex_output/specs/F09-TP1.json"
+  ],
+  "changeNotes": [
+    "Implemented salesTitleAutocomplete.js so queries trigger loadBooks immediately, filter/dedupe cached titles, rank matches, and expose keyboard + click selections that feed the existing hidden bookId/summary fields.",
+    "Added defensive validation for numeric/SKU input, inline guidance messaging, and graceful fallback ordering so suggestions stay intuitive even with limited matches.",
+    "Expanded buildTitleIndex to normalize titles, store lower-cased tokens, and carry the original supplier payload for downstream selection callbacks.",
+    "Added a wiring spec to ensure book selection updates the draft label, shows confirmation messaging, and focuses the selling price field.",
+    "Added a parity spec ensuring sale-entry lookup results mirror the admin inventory search filter logic, now backed by a shared bookSearch helper consumed by both modules.",
+    "salesLineItems focuses the price input and surfaces a positive inline status once the header unlocks the draft, while the label continues to read “Add another book.”"
+  ],
+  "helpers": {
+    "created": [
+      "scripts/helpers/bookSearch.js"
+    ],
+    "used": []
+  },
+  "notes": "F09-TP1 builds on the F08 sale line infrastructure by providing a first-class book title autocomplete: it must keep searches local/cached, honor keyboard usage, feed directly into the same hidden bookId/summary fields that salesLineItems.js already watches, and refuse to treat raw SKUs or numeric tokens as valid matches."
+}

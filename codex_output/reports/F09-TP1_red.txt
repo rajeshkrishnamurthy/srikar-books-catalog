@@ -1,0 +1,142 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false --runTestsByPath tests/spec/admin/F09-TP1-006_SaleLookupMatchesInventoryFilter.spec.js
+
+(node:54243) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F09-TP1-006_SaleLookupMatchesInventoryFilter.spec.js
+  SPEC F09-TP1-006: Record sale lookup matches inventory filter results
+    ✕ autocomplete suggestions only include the same matches as the inventory search (1020 ms)
+
+  ● SPEC F09-TP1-006: Record sale lookup matches inventory filter results › autocomplete suggestions only include the same matches as the inventory search
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 2
+    Received length: 3
+    Received array:  [<li data-active="false" data-book-id="book-1" role="option">Deep Work</li>, <li data-active="false" data-book-id="book-2" role="option">Design of Everyday Things</li>, <li data-active="false" data-book-id="book-3" role="option">Atomic Habits</li>]
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [0m
+        [0m
+        [36m<section[39m
+          [33mid[39m=[32m"saleTitleAutocomplete"[39m
+        [36m>[39m
+          [0m
+          [0m
+          [36m<label[39m
+            [33mfor[39m=[32m"saleBookSearch"[39m
+          [36m>[39m
+            [0mBook title[0m
+          [36m</label>[39m
+          [0m
+          [0m
+          [36m<input[39m
+            [33mautocomplete[39m=[32m"off"[39m
+            [33mid[39m=[32m"saleBookSearch"[39m
+            [33mname[39m=[32m"saleBookSearch"[39m
+            [33mplaceholder[39m=[32m"Start typing a title"[39m
+            [33mtype[39m=[32m"text"[39m
+          [36m/>[39m
+          [0m
+          [0m
+          [36m<ul[39m
+            [33maria-expanded[39m=[32m"true"[39m
+            [33maria-label[39m=[32m"Matching titles"[39m
+            [33mid[39m=[32m"saleBookSuggestions"[39m
+            [33mrole[39m=[32m"listbox"[39m
+          [36m>[39m
+            [36m<li[39m
+              [33mdata-active[39m=[32m"false"[39m
+              [33mdata-book-id[39m=[32m"book-1"[39m
+              [33mrole[39m=[32m"option"[39m
+            [36m>[39m
+              [0mDeep Work[0m
+            [36m</li>[39m
+            [36m<li[39m
+              [33mdata-active[39m=[32m"false"[39m
+              [33mdata-book-id[39m=[32m"book-2"[39m
+              [33mrole[39m=[32m"option"[39m
+            [36m>[39m
+              [0mDesign of Everyday Things[0m
+            [36m</li>[39m
+            [36m<li[39m
+              [33mdata-active[39m=[32m"false"[39m
+              [33mdata-book-id[39m=[32m"book-3"[39m
+              [33mrole[39m=[32m"option"[39m
+            [36m>[39m
+              [0mAtomic Habits[0m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [0m
+          [0m
+          [36m<input[39m
+            [33mid[39m=[32m"saleLineBookId"[39m
+            [33mtype[39m=[32m"hidden"[39m
+          [36m/>[39m
+          [0m
+          [0m
+          [36m<p[39m
+            [33mdata-empty[39m=[32m"true"[39m
+            [33mid[39m=[32m"saleLineBookSummary"[39m
+          [36m>[39m
+            [0mNo book selected[0m
+          [36m</p>[39m
+          [0m
+          [0m
+          [36m<p[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"muted"[39m
+            [33mid[39m=[32m"saleBookMsg"[39m
+          [36m/>[39m
+          [0m
+        [0m
+        [36m</section>[39m
+        [0m
+      [0m
+      [36m</body>[39m
+    [36m</html>[39m
+
+      23 |
+      24 |     await harness.typeQuery('de');
+    > 25 |     await waitFor(() => expect(harness.getSuggestions()).toHaveLength(2));
+         |                                                          ^
+      26 |
+      27 |     const suggestionIds = harness.getSuggestions().map((option) => option.dataset.bookId);
+      28 |     const expected = sampleBooks.filter((book) => inventoryMatches(book, 'de')).map((book) => book.id);
+
+      at tests/spec/admin/F09-TP1-006_SaleLookupMatchesInventoryFilter.spec.js:25:58
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+---------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                        
+---------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------
+All files                  |    3.02 |     2.41 |    3.96 |     3.2 |                                                                                          
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79                                                                                    
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                                                                                     
+ currency.js               |       0 |        0 |       0 |       0 | 6-31                                                                                     
+ customerLookup.js         |       0 |        0 |       0 |       0 | 3-392                                                                                    
+ customers.js              |       0 |        0 |       0 |       0 | 3-520                                                                                    
+ editor.js                 |       0 |        0 |       0 |       0 | 27-411                                                                                   
+ inventory.js              |       0 |        0 |       0 |       0 | 29-419                                                                                   
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483                                                                                   
+ main.js                   |       0 |        0 |       0 |       0 | 35-738                                                                                   
+ requests.js               |       0 |        0 |       0 |       0 | 6-73                                                                                     
+ salesEntryLauncher.js     |       0 |        0 |       0 |       0 | 2-60                                                                                     
+ salesHeader.js            |       0 |        0 |       0 |       0 | 3-506                                                                                    
+ salesLineItems.js         |       0 |        0 |       0 |       0 | 3-745                                                                                    
+ salesPersist.js           |       0 |        0 |       0 |       0 | 1-164                                                                                    
+ salesTitleAutocomplete.js |   47.77 |    40.31 |   58.06 |      50 | 13-16,20,40-53,62-71,80-82,92-94,100-101,114,120-122,131-132,142,149-207,218-220,267,285 
+ suppliers.js              |       0 |        0 |       0 |       0 | 13-319                                                                                   
+---------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        2.846 s
+Ran all test suites within paths "tests/spec/admin/F09-TP1-006_SaleLookupMatchesInventoryFilter.spec.js".

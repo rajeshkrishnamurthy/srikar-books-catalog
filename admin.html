@@ -44,21 +44,66 @@
 
       <!-- Admin app -->
       <section class="admin" id="admin" style="display: none">
-        <div class="flex between">
-          <h2>Inventory</h2>
-          <div class="flex" style="gap: 0.5rem; align-items: center">
-            <input
-              id="adminSearch"
-              type="search"
-              placeholder="Search title or author…"
-              aria-label="Search inventory"
-            />
+        <div class="admin-hero">
+          <div>
+            <p class="admin-hero__eyebrow">Srikar’s Books</p>
+            <h2 class="admin-hero__title">Admin workspace</h2>
+          </div>
+          <div class="admin-hero__actions">
             <button id="signOutBtn" class="btn btn-secondary">Sign out</button>
           </div>
         </div>
 
+        <nav class="admin-nav" id="adminNav" aria-label="Admin sections">
+          <button
+            type="button"
+            class="admin-nav__item is-active"
+            data-nav="manageBooks"
+          >
+            <span class="admin-nav__title">Manage books</span>
+            <span class="admin-nav__meta">Add &amp; stock</span>
+          </button>
+          <button
+            type="button"
+            class="admin-nav__item"
+            data-nav="bundles"
+          >
+            <span class="admin-nav__title">Create bundles</span>
+            <span class="admin-nav__meta">Supplier packs</span>
+          </button>
+          <button
+            type="button"
+            class="admin-nav__item"
+            data-nav="recordSale"
+            id="recordSaleBtn"
+            aria-controls="saleEntryPanel"
+            aria-expanded="false"
+          >
+            <span class="admin-nav__title">Record sale</span>
+            <span class="admin-nav__meta">Multi-book orders</span>
+          </button>
+          <button
+            type="button"
+            class="admin-nav__item"
+            data-nav="bookRequests"
+          >
+            <span class="admin-nav__title">Book requests</span>
+            <span class="admin-nav__meta">Inbox</span>
+          </button>
+          <button
+            type="button"
+            class="admin-nav__item"
+            data-nav="suppliers"
+          >
+            <span class="admin-nav__title">Suppliers</span>
+            <span class="admin-nav__meta">Add &amp; manage</span>
+          </button>
+        </nav>
+
+        <div id="manageBooksAnchor" class="panel-anchor" aria-hidden="true"></div>
+
         <!-- Add book -->
-        <details class="panel" open>
+        <details class="panel" id="addBookPanel" open>
           <summary><strong>Add a book</strong></summary>
 
           <!-- Lookup helper -->
@@ -116,11 +161,13 @@
                 name="price"
                 placeholder="Price (e.g., 250)"
                 inputmode="numeric"
+                required
               />
               <input
                 name="mrp"
                 placeholder="MRP (e.g., 499)"
                 inputmode="numeric"
+                required
               />
               <div class="field-with-label">
                 <label class="sr-only" for="purchasePriceInput">
@@ -131,11 +178,12 @@
                   type="number"
                   name="purchasePrice"
                   placeholder="Purchase price (our cost)"
-                  inputmode="numeric"
-                  min="0"
-                  step="1"
-                  aria-describedby="purchasePriceHelp"
-                />
+                inputmode="numeric"
+                min="0"
+                step="1"
+                aria-describedby="purchasePriceHelp"
+                required
+              />
                 <span id="purchasePriceHelp" class="sr-only">
                   Enter the amount paid to acquire the book; use zero for donations.
                 </span>
@@ -197,17 +245,43 @@
           </form>
         </details>
 
-        <details class="panel" open>
-          <summary><strong>Available</strong></summary>
+        <details class="panel" id="availableBooksPanel" open>
+          <summary>
+            <div class="available-summary">
+              <div class="available-summary__title">
+                <strong id="availableSummaryLabel">Available</strong>
+              </div>
+              <label
+                id="availableSearchLabel"
+                class="sr-only"
+                for="availableSearchInput"
+              >
+                Search available books
+              </label>
+              <input
+                id="availableSearchInput"
+                type="search"
+                placeholder="Search title or author…"
+                aria-labelledby="availableSummaryLabel availableSearchLabel"
+                aria-controls="availList"
+                autocomplete="off"
+              />
+            </div>
+          </summary>
+          <p
+            id="availableSearchStatus"
+            class="sr-only"
+            aria-live="polite"
+          ></p>
           <div id="availList" class="admin-list"></div>
         </details>
 
-        <details class="panel">
+        <details class="panel" id="soldBooksPanel">
           <summary><strong>Sold</strong></summary>
           <div id="soldList" class="admin-list"></div>
         </details>
 
-        <details class="panel" open>
+        <details class="panel" id="bookRequestsPanel" open>
           <summary><strong>Book Requests</strong></summary>
           <div class="muted" style="margin-bottom: 0.4rem">
             Requests sent from the catalog.
@@ -227,7 +301,371 @@
           <div id="reqClosed" class="admin-list"></div>
         </details>
 
-        <details class="panel" open>
+        <details class="panel" id="saleEntryPanel" hidden>
+          <summary><strong>Record a sale</strong></summary>
+          <div class="sale-entry-grid">
+            <div>
+              <form id="saleHeaderForm" class="stack sale-header-form">
+                <input type="hidden" id="saleHeaderCustomerId" />
+                <div class="sale-date-field sale-date-field--full">
+                  <label class="field-label" for="saleHeaderSaleDate">Sale date</label>
+                  <div class="sale-date-field__controls">
+                    <input
+                      id="saleHeaderSaleDate"
+                      name="saleDate"
+                      type="text"
+                      placeholder="dd-mon-yy"
+                      autocomplete="off"
+                      inputmode="text"
+                    />
+                    <div class="sale-date-picker-trigger">
+                      <svg
+                        class="sale-date-picker-icon"
+                        viewBox="0 0 24 24"
+                        role="presentation"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M7 3a1 1 0 0 1 1 1v1h8V4a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1V4a1 1 0 0 1 1-1zm12 8H5v8h14zm-2-6H7v1a1 1 0 0 1-2 0V5H5a1 1 0 0 0-1 1v3h16V6a1 1 0 0 0-1-1h-.17v1a1 1 0 1 1-2 0z"
+                        />
+                      </svg>
+                      <input
+                        type="date"
+                        id="saleHeaderDatePicker"
+                        class="sale-date-picker-input"
+                        aria-label="Pick sale date"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="sale-customer-row">
+                  <div id="saleCustomerLookup" class="sale-customer-lookup">
+                    <label class="field-label" for="saleCustomerLookupSearch">
+                      Search customers
+                    </label>
+                    <input
+                      id="saleCustomerLookupSearch"
+                      type="search"
+                      placeholder="Start typing a name"
+                      autocomplete="off"
+                    />
+                    <p id="saleCustomerLookupEmpty" hidden></p>
+                    <ul id="saleCustomerLookupList" class="admin-list"></ul>
+                  </div>
+                  <div class="sale-customer-summary-wrap">
+                    <label class="field-label">Selected customer</label>
+                    <p
+                      id="saleHeaderCustomerSummary"
+                      class="sale-customer-summary"
+                      data-empty="true"
+                      data-default-summary=""
+                    ></p>
+                  </div>
+                </div>
+                <div class="flex" style="gap: 0.5rem">
+                  <button id="saleHeaderContinue" type="submit" class="btn">
+                    Add books
+                  </button>
+                  <button type="reset" class="btn btn-secondary">Reset</button>
+                </div>
+                <p id="saleHeaderMsg" class="muted" aria-live="polite"></p>
+              </form>
+            </div>
+
+            <div>
+              <form id="saleLineDraftForm" class="stack sale-line-draft">
+                <span id="saleLineDraftLabel" class="sale-line-draft__title">
+                  Add another book
+                </span>
+                <div class="sale-line-grid">
+                  <div class="sale-line-field sale-line-field--title">
+                    <label class="sale-line-field__label" for="saleLineBookTitle">
+                      Title
+                    </label>
+                    <input
+                      id="saleLineBookTitle"
+                      name="saleLineBookTitle"
+                      type="text"
+                      placeholder="Start typing a title"
+                      autocomplete="off"
+                      aria-autocomplete="list"
+                      aria-expanded="false"
+                      aria-controls="saleLineSuggestions"
+                    />
+                    <ul
+                      id="saleLineSuggestions"
+                      role="listbox"
+                      aria-label="Matching titles"
+                    ></ul>
+                  </div>
+                  <div class="sale-line-field sale-line-field--price">
+                    <label class="sale-line-field__label" for="saleLinePrice">
+                      Selling price
+                    </label>
+                    <input
+                      id="saleLinePrice"
+                      name="sellingPrice"
+                      type="text"
+                      autocomplete="off"
+                      inputmode="numeric"
+                    />
+                  </div>
+                  <div class="sale-line-field sale-line-field--supplier">
+                    <label class="sale-line-field__label" for="saleLineSupplierSelect">
+                      Supplier
+                    </label>
+                    <select
+                      id="saleLineSupplierSelect"
+                      name="saleLineSupplierId"
+                      required
+                    >
+                      <option value="" selected disabled>Select supplier *</option>
+                    </select>
+                  </div>
+                </div>
+                <input type="hidden" id="saleLineBookId" name="bookId" value="" />
+                <p
+                  id="saleLineBookSummary"
+                  class="sr-only"
+                  data-empty="true"
+                  data-default-summary="No book selected"
+                >
+                  No book selected
+                </p>
+                <div class="sale-line-actions">
+                  <button
+                    type="submit"
+                    id="saleLineAddBtn"
+                    class="btn btn-ghost sale-line-submit"
+                    disabled
+                  >
+                    Add
+                  </button>
+                </div>
+                <p id="saleTitleMsg" class="muted" aria-live="polite"></p>
+                <p id="saleLineMsg" class="muted" aria-live="polite"></p>
+              </form>
+              <table class="admin-table sale-line-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Supplier</th>
+                    <th scope="col" class="numeric">Price</th>
+                    <th scope="col" class="sr-only">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="saleLineItemsBody"></tbody>
+              </table>
+              <div id="saleLineTotals" class="sale-line-totals">
+                <span id="saleLineTotalsCount" class="sale-line-totals__label"></span>
+                <span id="saleLineTotalsAmount" class="sale-line-totals__amount"></span>
+              </div>
+              <p
+                id="saleLineRemovalStatus"
+                class="sr-only"
+                aria-live="polite"
+              ></p>
+            </div>
+          </div>
+          <div class="stack" style="margin-top: 1rem">
+            <div class="flex" style="gap: 0.5rem; align-items: center">
+              <button id="salePersistBtn" class="btn">Persist sale</button>
+              <p id="salePersistMsg" class="muted" aria-live="polite"></p>
+            </div>
+            <ul id="saleLineStatusList" class="stack" style="gap: 0.4rem"></ul>
+          </div>
+        </details>
+
+        <section class="panel" id="bundlesPanel" hidden>
+          <h3>Create a bundle</h3>
+          <p class="muted">
+            Pick a supplier, add at least two books from that supplier, and set a bundle
+            price (25% discount recommended).
+          </p>
+          <form id="bundleForm" class="stack" autocomplete="off">
+            <label class="stack">
+              <span class="field-label">Bundle title</span>
+              <input
+                id="bundleTitleInput"
+                type="text"
+                placeholder="e.g., Beginner sci-fi combo"
+                autocomplete="off"
+              />
+            </label>
+            <label class="stack">
+              <span class="field-label">Supplier</span>
+              <select id="bundleSupplierSelect">
+                <option value="">Choose supplier</option>
+              </select>
+              <span class="hint">
+                Supplier locks after the first selection. Use Reset bundle to change.
+              </span>
+            </label>
+
+            <div class="bundle-book-search">
+              <label class="field-label" for="bundleBookInput">
+                Add books from this supplier
+              </label>
+              <input
+                id="bundleBookInput"
+                type="search"
+                placeholder="Search catalog titles"
+                autocomplete="off"
+                disabled
+                aria-autocomplete="list"
+                aria-controls="bundleBookSuggestions"
+              />
+              <input type="hidden" id="bundleBookHiddenInput" />
+              <ul
+                id="bundleBookSuggestions"
+                class="admin-list bundle-suggestions"
+                role="listbox"
+              ></ul>
+              <p id="bundleBookMsg" class="hint"></p>
+              <p
+                id="bundleBookSummary"
+                class="muted"
+                data-empty="true"
+                data-default-summary="No book selected."
+              >
+                Search to select a book. Matches are limited to the chosen supplier.
+              </p>
+            </div>
+
+            <div>
+              <div class="bundle-selected-header">
+                <strong>Selected books</strong>
+                <span class="hint">Minimum two unique books</span>
+              </div>
+              <ul id="bundleSelectedBooks" class="bundle-selected-list"></ul>
+            </div>
+
+            <p id="bundleRecommendedHint" class="hint"></p>
+
+            <label class="stack">
+              <span class="field-label">Bundle price (₹)</span>
+              <input
+                id="bundlePriceInput"
+                type="text"
+                inputmode="numeric"
+                placeholder="Enter bundle price"
+                autocomplete="off"
+              />
+            </label>
+            <p id="bundlePriceMsg" class="error" role="alert"></p>
+
+            <div class="bundle-actions">
+              <button id="bundleSubmitBtn" class="btn" type="submit" disabled>
+                Create bundle
+              </button>
+              <button id="bundleResetBtn" class="btn btn-secondary" type="reset">
+                Reset bundle
+              </button>
+            </div>
+          </form>
+          <p id="bundleMsg" class="muted" aria-live="polite"></p>
+
+          <hr aria-hidden="true" />
+
+          <section class="bundle-list-panel">
+            <h4>Existing bundles</h4>
+            <p class="muted">
+              Search bundles by book title or filter by supplier/status to manage publish state.
+            </p>
+            <div class="bundle-list-filters">
+              <div class="bundle-filter">
+                <label class="field-label" for="bundleSearchInput">
+                Search bundles
+                <div class="bundle-search-input" id="bundleSearchInputWrap">
+                  <div
+                    id="bundleSearchSummary"
+                    class="bundle-selected-chip"
+                    data-empty="true"
+                    aria-live="polite"
+                  >
+                    <span class="bundle-selected-chip__label">No book selected.</span>
+                    <button
+                      type="button"
+                      class="bundle-selected-chip__clear"
+                      aria-label="Clear selected book filter"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <input
+                    id="bundleSearchInput"
+                    class="bundle-search-input-field"
+                    type="search"
+                    placeholder="Type a book title (min 2 characters)"
+                    aria-autocomplete="list"
+                    aria-controls="bundleSearchSuggestions"
+                  />
+                </div>
+                <input type="hidden" id="bundleSearchHiddenInput" />
+                <ul id="bundleSearchSuggestions" class="bundle-search-suggestions" role="listbox"></ul>
+                <p id="bundleSearchMsg" class="hint"></p>
+              </div>
+              <div class="bundle-filter">
+                <label class="field-label" for="bundleFilterSupplier">
+                Supplier
+                <select id="bundleFilterSupplier">
+                  <option value="">All suppliers</option>
+                </select>
+                </label>
+              </div>
+              <div class="bundle-filter">
+                <label class="field-label" for="bundleFilterStatus">
+                Status
+                <select id="bundleFilterStatus">
+                  <option value="">All statuses</option>
+                  <option value="Draft">Draft</option>
+                  <option value="Published">Published</option>
+                </select>
+                </label>
+              </div>
+            </div>
+            <div id="bundleResults" class="bundle-results"></div>
+            <p id="bundleEmpty" class="muted" hidden>No bundles found.</p>
+          </section>
+        </section>
+
+        <section class="panel" id="bundleStatusPanel" hidden>
+          <h3>Bundle status</h3>
+          <div class="bundle-status-chip" id="bundleStatusChip" data-status="Draft">Status: Draft</div>
+          <form id="bundleStatusForm" data-bundle-status="Draft">
+            <div class="bundle-detail-grid">
+              <label class="stack">
+                <span class="field-label">Title</span>
+                <input id="bundleDetailTitle" value="" data-original-value="" />
+              </label>
+              <label class="stack">
+                <span class="field-label">Bundle price</span>
+                <input id="bundleDetailPrice" value="" data-original-value="" />
+              </label>
+            </div>
+            <div class="bundle-status-actions">
+              <label class="bundle-toggle" for="bundlePublishToggle">
+                <span class="bundle-toggle__control">
+                  <input
+                    id="bundlePublishToggle"
+                    type="checkbox"
+                    role="switch"
+                    aria-label="Publish bundle"
+                    aria-checked="false"
+                  />
+                  <span class="bundle-toggle__track">
+                    <span class="bundle-toggle__thumb"></span>
+                  </span>
+                </span>
+                <span class="bundle-toggle__state" data-draft="Draft" data-published="Published">Draft</span>
+              </label>
+              <p class="bundle-toggle__hint">Toggle on to publish, off to keep the bundle hidden.</p>
+            </div>
+          </form>
+          <p id="bundleStatusMsg" class="muted" aria-live="polite"></p>
+        </section>
+
+        <details class="panel" id="suppliersPanel" open>
           <summary><strong>Suppliers</strong></summary>
           <p class="muted">
             Track trusted suppliers so you can reference their inventory quickly.
@@ -261,6 +699,56 @@
           </form>
           <p id="supplierMsg" class="muted"></p>
           <ul id="supplierList" class="stack" style="gap: 0.4rem"></ul>
+        </details>
+
+        <details class="panel" open>
+          <summary><strong>Customer master</strong></summary>
+          <div class="grid-2" id="customerPanel">
+            <form id="customerForm" class="stack">
+              <h3>Customer form</h3>
+              <input type="hidden" id="customerIdInput" name="customerId" />
+              <input
+                id="customerNameInput"
+                name="customerName"
+                placeholder="Customer name *"
+                required
+              />
+              <textarea
+                id="customerAddressInput"
+                name="customerAddress"
+                placeholder="Address / Landmark"
+                rows="3"
+              ></textarea>
+              <input
+                id="customerLocationInput"
+                name="customerLocation"
+                placeholder="City / Location"
+              />
+              <input
+                id="customerWhatsAppInput"
+                name="customerWhatsApp"
+                placeholder="WhatsApp (10 digits)"
+                inputmode="numeric"
+                required
+                aria-describedby="customerMsg"
+              />
+              <div class="flex" style="gap: 0.5rem; align-items: center">
+                <button class="btn" type="submit">Save customer</button>
+                <button
+                  class="btn btn-secondary"
+                  type="button"
+                  id="customerCancelBtn"
+                >
+                  Cancel edit
+                </button>
+              </div>
+              <p id="customerMsg" class="muted" aria-live="polite"></p>
+            </form>
+            <div>
+              <h3>Recent customers</h3>
+              <ul id="customerList" class="admin-list"></ul>
+            </div>
+          </div>
         </details>
 
         <!-- EDIT BOOK DIALOG -->

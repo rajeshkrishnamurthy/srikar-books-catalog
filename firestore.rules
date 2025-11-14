@@ -1,11 +1,46 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update, delete: if isAdmin();
+    }
+
     match /books/{bookId} {
-      // Public can read only 'available' books; admins can read all
-      allow read: if resource.data.status == 'available' || (request.auth != null && request.auth.token.email in ['srikar2014@gmail.com']);
-      // Only admins can write
-      allow create, update, delete: if request.auth != null && request.auth.token.email in ['srikar2014@gmail.com'];
+      allow read: if resource.data.status == 'available' || isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /authors/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    match /suppliers/{supplierId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /customers/{customerId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /requests/{reqId} {
+      allow create: if request.resource.data.keys().hasAll(
+                      ['title','author','contactName','contactPhone','status','createdAt','updatedAt']
+                    )
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 150
+                    && request.resource.data.author is string
+                    && request.resource.data.author.size() > 0 && request.resource.data.author.size() <= 120
+                    && request.resource.data.contactName is string && request.resource.data.contactName.size() > 0
+                    && request.resource.data.contactPhone is string && request.resource.data.contactPhone.size() > 0
+                    && request.resource.data.status == 'open';
+      allow read, update, delete: if isAdmin();
     }
   }
 }

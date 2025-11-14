@@ -19,7 +19,9 @@
       "area": "Admin / Inventory Management",
       "goal": "Enable admins to adjust the saved purchase price on existing books without recreating them.",
       "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-      "dependencies": ["TP1"],
+      "dependencies": [
+        "TP1"
+      ],
       "given": "A book exists in inventory with or without a purchase price set.",
       "when": "An admin invokes the edit action and updates the purchase price field.",
       "then": "The new value passes validation and updates the Firestore document, reflecting immediately in the UI.",
@@ -31,7 +33,9 @@
       "area": "Admin / Inventory List",
       "goal": "Surface each book's purchase price to admins within list/detail panels for quick reference.",
       "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-      "dependencies": ["TP1"],
+      "dependencies": [
+        "TP1"
+      ],
       "given": "An admin loads the inventory dashboard or detail drawer.",
       "when": "Books are rendered in the admin UI.",
       "then": "Each entry shows the stored purchase price (formatted currency or placeholder when missing) without affecting actions.",
@@ -43,7 +47,9 @@
       "area": "Public Catalog / Data Privacy",
       "goal": "Guarantee purchase price data never appears in the public catalog payloads or UI.",
       "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-      "dependencies": ["TP1"],
+      "dependencies": [
+        "TP1"
+      ],
       "given": "A visitor browses the public catalog.",
       "when": "Client-side code queries Firestore and renders cards.",
       "then": "Purchase price fields are omitted or stripped before rendering so no cost data leaks publicly.",
@@ -74,7 +80,9 @@
           "area": "Admin / Supplier Master",
           "goal": "Let admins update supplier details or remove suppliers that are no longer in use.",
           "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-          "dependencies": ["F05-TP1"],
+          "dependencies": [
+            "F05-TP1"
+          ],
           "given": "A supplier exists in the master list.",
           "when": "An admin edits the name/location or requests deletion.",
           "then": "Changes persist with audit safety, and deletions are blocked if books still reference the supplier.",
@@ -86,7 +94,9 @@
           "area": "Admin / Catalog",
           "goal": "Require selecting an existing supplier whenever a new book is created.",
           "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-          "dependencies": ["F05-TP1"],
+          "dependencies": [
+            "F05-TP1"
+          ],
           "given": "An admin is creating a book and the supplier master already contains at least one active supplier.",
           "when": "They select a supplier from the dropdown (or attempt to submit without a selection) and submit the book form.",
           "then": "Valid submissions persist the supplier reference with the book, while missing/invalid selections block the save with clear feedback.",
@@ -98,11 +108,426 @@
           "area": "Admin / Catalog",
           "goal": "Enable admins to change the supplier linked to an existing book.",
           "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-          "dependencies": ["F05-TP3"],
+          "dependencies": [
+            "F05-TP3"
+          ],
           "given": "A book already has a supplier association.",
           "when": "An admin selects a different supplier and confirms the edit.",
           "then": "The book document updates with the new supplier, and all admin views refresh to reflect the change.",
           "notes": "Prevent orphan mappings by validating the new supplier still exists; broadcast updates to caching layers if any."
+        }
+      ]
+    },
+    {
+      "featureId": "F06",
+      "featureTitle": "Book Sale Settlement",
+      "description": "Capture the complete sale outcome for each book, including sale price, inventory status, partner payout shares, and buyer attribution.",
+      "topics": [
+        {
+          "id": "F06-TP1",
+          "title": "Record Sale Status and Price",
+          "area": "Admin / Sales Workflow",
+          "goal": "Let admins toggle in-stock vs sold-out and capture the final sale price in a single action.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "A book exists in the catalog and is ready to be marked as sold.",
+          "when": "The admin switches the sale status and enters a sale price before saving.",
+          "then": "The book document stores the status flag plus a validated sale price (required when sold, optional when still in stock).",
+          "notes": "Enforce positive currency values, prevent marking as sold without a price, and update stock counters in the UI after persistence."
+        },
+        {
+          "id": "F06-TP2",
+          "title": "Compute Revenue Shares",
+          "area": "Admin / Settlement",
+          "goal": "Automatically calculate Srikar's share and the supplier share using sale and cost prices.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "TP1",
+            "F06-TP1"
+          ],
+          "given": "The book already stores a cost price and the sale workflow captured a sale price.",
+          "when": "The admin confirms the sale.",
+          "then": "Srikar's share is recorded as (sale price - cost price)/2 and supplier share as cost price + (sale price - cost price)/2 with consistent rounding rules.",
+          "notes": "Guard against sale prices lower than cost, surface computed amounts before commit, and reuse currency-format helpers to keep reports consistent."
+        },
+        {
+          "id": "F06-TP3",
+          "title": "Associate Buyer With Sale",
+          "area": "Admin / Sales Workflow",
+          "goal": "Link each sold book to a buyer drawn from the customer master so downstream reports know who purchased it.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F06-TP1",
+            "F07-TP1"
+          ],
+          "given": "Customer records exist and a book is being marked as sold.",
+          "when": "The admin searches for and selects a buyer (or adds one on the fly) within the sale confirmation flow.",
+          "then": "The sale record stores the buyer reference and displays it anywhere the sale appears (history, settlements, receipts).",
+          "notes": "Selection should be mandatory for sold books, support search by name/WhatsApp, and prevent orphaned references if the customer later changes."
+        }
+      ]
+    },
+    {
+      "featureId": "F07",
+      "featureTitle": "Customer Master Management",
+      "description": "Introduce a lightweight customer directory with add/edit flows that capture name, address, location, and WhatsApp number for reuse in sales.",
+      "topics": [
+        {
+          "id": "F07-TP1",
+          "title": "Add Customer Records",
+          "area": "Admin / Customer Master",
+          "goal": "Allow admins to create customers with the required contact fields so that buyers can be tracked.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "An admin opens the Customer Master module.",
+          "when": "They submit the add form with name, address, location, and WhatsApp number.",
+          "then": "A validated customer document is stored with normalized phone data and timestamps.",
+          "notes": "Deduplicate by name + WhatsApp, enforce number formatting, and show inline errors for missing required fields."
+        },
+        {
+          "id": "F07-TP2",
+          "title": "Edit Customer Records",
+          "area": "Admin / Customer Master",
+          "goal": "Let admins update customer details without breaking links to past sales.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F07-TP1"
+          ],
+          "given": "A customer already exists in the directory.",
+          "when": "An admin opens the record and amends the address, location, or WhatsApp info.",
+          "then": "Changes persist, update the modified timestamp, and propagate to any sale views that reference the customer.",
+          "notes": "Prevent edits that clear required fields, highlight unsaved changes, and keep references stable via immutable IDs."
+        },
+        {
+          "id": "F07-TP3",
+          "title": "Customer Lookup for Sales",
+          "area": "Admin / Customer Master",
+          "goal": "Expose a searchable customer list so other workflows (like sales settlement) can pick buyers quickly.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F07-TP1"
+          ],
+          "given": "An admin opens the customer lookup without any filter applied.",
+          "when": "They enter a search term (e.g., name or WhatsApp) and submit/filter.",
+          "then": "Until text is entered the list stays empty with guidance; once a query is provided, only matching customer summaries (name, location, WhatsApp) appear and the selected customer ID is emitted back to the calling workflow.",
+          "notes": "Keep the pre-search state blank with helper text, require at least a few characters before querying, provide debounced search, highlight exact matches, and coordinate with F06-TP3 so a single selection UI can serve multiple modules."
+        }
+      ]
+    },
+    {
+      "featureId": "F08",
+      "featureTitle": "Sales Entry Management",
+      "description": "Enable admins to record multi-item sales with customer attribution, per-book pricing, and consistent inventory status labels.",
+      "topics": [
+        {
+          "id": "F08-TP1",
+          "title": "Capture Sale Header",
+          "area": "Admin / Sales Entry",
+          "goal": "Require selecting a customer and sale date before adding sold books.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F07-TP1"
+          ],
+          "given": "An admin opens the Add Sale workflow and customer records already exist.",
+          "when": "They search for a buyer and choose a sale date prior to saving.",
+          "then": "The sale form locks in the selected customer ID and sale date, blocking continuation until both values pass validation.",
+          "notes": "Surface inline errors for missing selections, support calendar pickers plus manual entry, and store timestamps in UTC."
+        },
+        {
+          "id": "F08-TP2",
+          "title": "Add Sale Line Items",
+          "area": "Admin / Sales Entry",
+          "goal": "Allow admins to add one line per book sold, capturing title, supplier, and selling price.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "TP1",
+            "F05-TP3",
+            "F06-TP1"
+          ],
+          "given": "The sale header is valid and the catalog already tracks purchase prices, suppliers, and stock.",
+          "when": "The admin searches for a book, selects it (possibly multiple times for separate quantities), and enters a selling price for each line.",
+          "then": "Each line stores the book reference, supplier snapshot, and validated selling price while allowing duplicate book entries to represent multiple quantities.",
+          "notes": "Prevent mixing draft lines with missing prices, auto-populate supplier info when a book is chosen, and show running totals."
+        },
+        {
+          "id": "F08-TP3",
+          "title": "Persist Sale and Align UI Copy",
+          "area": "Admin / Sales Entry",
+          "goal": "Save the sale record and ensure the legacy 'Mark as Sold' button now reads 'Out of stock'.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F08-TP1",
+            "F08-TP2"
+          ],
+          "given": "All sale header and line item validations pass.",
+          "when": "The admin submits the sale.",
+          "then": "A sale document containing the header and all line items is persisted, and every instance of the old 'Mark as Sold' button label is updated to 'Out of stock' without changing inventory automatically.",
+          "notes": "Delay automatic stock flips until inventory rules mature; still show per-line persistence status and keep the new label consistent across the admin UI."
+        }
+      ]
+    },
+    {
+      "featureId": "F09",
+      "featureTitle": "Title-Based Sale Line Entry",
+      "description": "Streamline sale line creation by letting admins search by book title, auto-fill supplier/price context, and manage the draft row without extra inventory lookups.",
+      "topics": [
+        {
+          "id": "F09-TP1",
+          "title": "Title Autocomplete Experience",
+          "area": "Admin / Sales Entry",
+          "goal": "Make the sale line title picker visually rich with card-style suggestions, keyboard navigation, and clear post-selection feedback.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F08-TP2"
+          ],
+          "given": "An admin is adding a sale line and catalog titles exist.",
+          "when": "They type into the Book title field and move through the suggestion list via mouse or keyboard.",
+          "then": "Each suggestion renders as a clickable card showing title, author, supplier badges, and a caret; hover/focus states highlight the option, the active item exposes aria-selected=\"true\", selecting a book shows a confirmation chip under #saleLineBookSummary, clears the list with a \u201cBook selected\u201d toast near #saleLineMsg, moves focus to the selling-price field, and no-match scenarios keep the line disabled with the guidance message.",
+          "notes": "Use the title-only search, add solid backgrounds plus outline for the focused item, support ESC to dismiss, and announce the number of matches for assistive tech."
+        },
+        {
+          "id": "F09-TP3",
+          "title": "Header CTA and Draft Flow Alignment",
+          "area": "Admin / Sales Entry",
+          "goal": "Rename the header CTA, gate book entry until customer/date validate, and keep the draft row messaging in sync with the current selection.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F08-TP1",
+            "F09-TP1"
+          ],
+          "given": "The sale header form is visible inside the sale entry experience.",
+          "when": "The admin interacts with the header (selecting customer/date, pressing the CTA) or selects a book for the draft line.",
+          "then": "The primary CTA reads \u201cAdd books\u201d (beside a disabled Persist sale button) with helper text \u201cCustomer + date unlocks book entry,\u201d stays disabled until both fields validate, and on success silently resets the form without extra banners; the draft label stays \u201cAdd another book,\u201d while focus hops to the price field after a selection and returns to the book input once the line saves.",
+          "notes": "Keep helper copy inline beneath the CTA, briefly show a success state on the CTA before re-enabling, and ensure keyboard users perceive the label changes."
+        },
+        {
+          "id": "F09-TP4",
+          "title": "Customer Selection Feedback",
+          "area": "Admin / Sales Entry",
+          "goal": "Provide visible confirmation when a buyer is selected from the lookup list and mirror the state in the summary pill.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F07-TP3",
+            "F08-TP1"
+          ],
+          "given": "An admin is choosing a customer via the lookup list inside the sale header.",
+          "when": "They click Select on a customer and the hidden ID updates successfully.",
+          "then": "The chosen row highlights with a filled background and the Select button becomes a checkmark chip labeled \u201cSelected,\u201d while #saleHeaderCustomerSummary swaps in the customer name, WhatsApp, city, and a \u201cChange customer\u201d text button that animates into view.",
+          "notes": "Keep the state persistent after closing the lookup, announce the selection change for assistive tech, and allow re-selecting another customer which clears the prior highlight."
+        },
+        {
+          "id": "F09-TP5",
+          "title": "Persistent Customer Selection",
+          "area": "Admin / Sales Entry",
+          "goal": "Ensure a chosen customer remains selected even if the lookup input is cleared, only changing when a new customer is picked.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F09-TP4"
+          ],
+          "given": "An admin has successfully selected a customer and sees the summary pill populated.",
+          "when": "They clear the lookup search field or type a new string without confirming another customer.",
+          "then": "The previously selected customer stays locked in (highlight + summary pill intact) until another customer is explicitly selected, with an optional clear-selection control to reset the state.",
+          "notes": "Debounce search input reset so it never wipes the stored selection, show a subtle notice that a customer is already selected, and require an explicit 'Change customer' action before replacing the selection."
+        },
+        {
+          "id": "F09-TP6",
+          "title": "Sale Panel Access and Visual Hierarchy",
+          "area": "Admin / Inventory Header",
+          "goal": "Add a primary Record sale entry point and restyle the sale panel with elevated inputs, sticky sections, and informative empty states.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F08-TP1",
+            "F09-TP1"
+          ],
+          "given": "An authenticated admin is on admin.html with the inventory header (search + actions) visible.",
+          "when": "They click the Record sale button beside the search box.",
+          "then": "The button (matching other primary actions) scroll-focuses or opens the sale panel/modal, #saleEntryPanel inputs use a raised token with lighter background plus outline/glow focus states, sticky section headers keep the sale header and line form separated, and concise empty-state hints clarify what totals or metadata will appear after books are added.",
+          "notes": "Ensure the Record sale action is one tap away on desktop/mobile, trap focus inside the modal when open, keep the panel visible by default for keyboard access, and provide the \u201cCustomer + date unlocks book entry\u201d reminder near the CTA."
+        },
+        {
+          "id": "F09-TP7",
+          "title": "Clear Lookup After Selection",
+          "area": "Admin / Sales Entry",
+          "goal": "Automatically reset the customer search field and collapse results after a customer is selected.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F09-TP4",
+            "F09-TP5"
+          ],
+          "given": "A customer selection succeeds and the summary pill shows the chosen buyer.",
+          "when": "The selection confirmation event fires (button press or keyboard action).",
+          "then": "The lookup input clears its text, the autocomplete results list disappears, focus shifts to the next logical control (e.g., sale date), and the previously selected customer remains locked in until Change customer is invoked.",
+          "notes": "Announce the reset for assistive tech, prevent accidental clearing if selection fails, and re-open the search automatically when Change customer is pressed."
+        },
+        {
+          "id": "F09-TP8",
+          "title": "Selling Price Input Guardrails",
+          "area": "Admin / Sales Entry",
+          "goal": "Restrict the selling price field to numeric entry with immediate validation feedback.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F08-TP2"
+          ],
+          "given": "An admin is entering a selling price for a sale line.",
+          "when": "They type characters into the selling price input or attempt to submit a non-numeric/negative value.",
+          "then": "Only digits (and a single optional decimal separator) are accepted, invalid keystrokes are ignored, and inline validation explains that the selling price must be a positive number before the line can be saved.",
+          "notes": "Reuse existing currency-validation helpers, keep keyboard navigation (Tab, Backspace) functional, and announce validation errors to assistive tech users."
+        }
+      ]
+    },
+    {
+      "featureId": "F10",
+      "featureTitle": "Inventory Search Experience",
+      "description": "Keep the admin inventory search responsive by surfacing the Available panel results whenever a query is entered.",
+      "topics": [
+        {
+          "id": "F10-TP1",
+          "title": "Header Search Filters Available Panel",
+          "area": "Admin / Inventory",
+          "goal": "Embed the title/author search inside the Available accordion header so admins filter Available results in place with accessible feedback.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "An authenticated admin is on admin.html and sees the Available accordion summary row containing the Search by title or author field.",
+          "when": "They enter at least two characters into the header search (or edit the query) while the Available list is on the page.",
+          "then": "The Available accordion keeps its current open/closed state, filters the list in place, and announces the filtered results via aria-live messaging scoped to the panel without forcing focus or scrolling.",
+          "notes": "The search input, label, and aria-live node move inside the Available summary/header (e.g., `#availableSearchInput`, `#availableSearchLabel`, `#availableSearchStatus`). Keep the <2 character guard scoped to this header search, tie the label/aria-controls to the Available panel, ensure the field is keyboard accessible, and drop the prior debounce, auto-scroll, and reduced-motion behaviors."
+        }
+      ]
+    },
+    {
+      "featureId": "F11",
+      "featureTitle": "Sale Line Item Removal",
+      "description": "Let admins remove mistakenly added books from the Record sale accordion before persisting an order, mirroring common cart/order editing patterns.",
+      "topics": [
+        {
+          "id": "F11-TP1",
+          "title": "Expose Remove Controls Per Line",
+          "area": "Admin / Sales Entry",
+          "goal": "Surface an accessible remove affordance on every sale line row so admins can initiate deletion like they would in commerce order tables.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F09-TP3"
+          ],
+          "given": "The Record sale table already lists at least one book line and the sale header is marked ready.",
+          "when": "An admin focuses, hovers, or activates the delete control for a specific line (mouse, keyboard, or touch).",
+          "then": "Each row reveals a trash icon + text button with an aria-label naming the book, uses the same hit target width across desktop/mobile, and triggers a confirmation pattern (inline dialog or two-step button) before removal proceeds.",
+          "notes": "Keep controls visible on focus (not hover-only), announce pending removal via aria-live, and prevent the delete control while the header is locked."
+        },
+        {
+          "id": "F11-TP2",
+          "title": "Remove Line and Recalculate Draft State",
+          "area": "Admin / Sales Entry",
+          "goal": "When removal is confirmed, delete the line from local state, update totals, and reset the draft inputs so another book can be added immediately.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F11-TP1"
+          ],
+          "given": "A sale draft contains one or more line items and the admin confirms a removal event for a particular line.",
+          "when": "The removal confirmation completes.",
+          "then": "The line disappears from the table, totals and amount chips recompute, the supplier snapshot/book summary clear if that book was active, focus returns to the book input, and removing the final line resets the draft label plus disables Persist sale until a new line is added.",
+          "notes": "Log the change in the inline status list, reuse the existing draft reset helper, and ensure undo/redo shortcuts do not re-add the line accidentally."
+        },
+        {
+          "id": "F11-TP3",
+          "title": "Persist Clean Payload After Removals",
+          "area": "Admin / Sales Entry",
+          "goal": "Guarantee that Persist sale only sends the currently visible lines and blocks submission if all lines were deleted.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F11-TP2",
+            "F08-TP3"
+          ],
+          "given": "One or more lines have been removed (possibly leaving zero lines) and the admin proceeds to Persist sale.",
+          "when": "The Persist sale action runs validation and prepares the Firestore payload.",
+          "then": "Only remaining lines are serialized, removed entries never reach Firestore, Persist sale is disabled with guidance when no lines remain, and the success toast/status list mentions how many line items were ultimately saved.",
+          "notes": "Audit logs should note removed line IDs when available, and integration tests should assert the payload omits deleted lines even if their book IDs still exist in autocomplete history."
+        }
+      ]
+    },
+    {
+      "featureId": "F12",
+      "featureTitle": "Book Bundle Management",
+      "description": "Enable admins to create supplier-scoped bundles, control publish status, and search bundles by included book titles.",
+      "topics": [
+        {
+          "id": "F12-TP1",
+          "title": "Create Supplier-Scoped Bundles",
+          "area": "Admin / Bundles",
+          "goal": "Allow admins to create Draft bundles by locking a supplier, selecting two or more of that supplier's books, and capturing a rupee price with a default 25% discount.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F05-TP3",
+            "F13-TP1"
+          ],
+          "given": "The admin opens the Create Bundle panel and the supplier master already contains valid entries.",
+          "when": "They choose a supplier (which locks until Reset), use the sale-style autocomplete to add two unique books from that supplier, and accept or override the recommended price within the allowed 1..total range.",
+          "then": "Submit persists a Draft bundle document containing supplier metadata, ordered bookIds/books, totalListPriceRupees, recommendedPriceRupees, bundlePriceRupees, and createdBy timestamps; validation blocks duplicate books or out-of-range pricing.",
+          "notes": "Bundle content stays immutable post-save; price defaults to 25% off combined book price (whole rupees)."
+        },
+        {
+          "id": "F12-TP2",
+          "title": "Publish or Unpublish Bundles",
+          "area": "Admin / Bundles",
+          "goal": "Give admins controls to publish/unpublish a bundle while preventing edits to title, books, or price after creation.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F12-TP1"
+          ],
+          "given": "A Draft or Published bundle is loaded into the status panel.",
+          "when": "The admin clicks Publish or Unpublish and (optionally) attempts to edit immutable fields.",
+          "then": "Only the status field transitions between Draft and Published, immutable fields snap back with explanatory messaging, and Firestore receives the status update without mutating title/books/price.",
+          "notes": "Expose clear status chips + disabled inputs and reuse centralized status helper for consistency."
+        },
+        {
+          "id": "F12-TP3",
+          "title": "List Bundles + Search by Book",
+          "area": "Admin / Bundles",
+          "goal": "Provide a bundles list that can be filtered via book autocomplete selection plus supplier/status dropdowns, while surfacing publish controls per row.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F12-TP1",
+            "F12-TP2"
+          ],
+          "given": "Bundles exist in Firestore and the admin opens the Existing Bundles panel.",
+          "when": "They type at least two characters into the bundle search autocomplete, select a book suggestion (optionally narrow by supplier or status), or reset the selection.",
+          "then": "The list immediately shows only bundles whose stored books include the selected book ID, combines any supplier/status filters, displays title/supplier/price/book-count/status plus publish/unpublish buttons, and shows an empty-state message when no bundles match; clearing the selection returns to an unfiltered view.",
+          "notes": "Must reuse the stable book search helper, require explicit selection (not free-text), and ensure legacy bundles missing embedded book objects are hydrated before filtering."
+        }
+      ]
+    },
+    {
+      "featureId": "F13",
+      "featureTitle": "Pricing Integrity",
+      "description": "Enforce mandatory price fields for books and bundles so catalog data stays trustworthy and downstream calculations have complete inputs.",
+      "topics": [
+        {
+          "id": "F13-TP1",
+          "title": "Require Book Price, MRP, and Purchase Price",
+          "area": "Admin / Inventory",
+          "goal": "Ensure the Add Book workflow treats selling price, MRP, and purchase price as required numeric fields before a book can be saved.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "TP1",
+            "F05-TP3"
+          ],
+          "given": "An admin opens the Add Book form and fills out book metadata.",
+          "when": "They attempt to save without entering valid values for price, MRP, or purchase price.",
+          "then": "Inline validation blocks submission, highlights each missing or invalid field, and only proceeds once all three price fields contain non-negative integers; successful submissions persist the trio alongside the book.",
+          "notes": "Update client validation, Firestore writes, and admin UI so price, MRP, and purchase price are mandatory and surfaced wherever books appear."
+        },
+        {
+          "id": "F13-TP2",
+          "title": "Bundle Price Must Be Entered",
+          "area": "Admin / Bundles",
+          "goal": "Prevent bundle creation unless the bundle price input contains a valid rupee value within the 1..sum range.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F12-TP1"
+          ],
+          "given": "An admin locks a supplier, selects qualifying books, and reaches the bundle price step.",
+          "when": "They leave the bundle price empty or clear it after the recommended value appears.",
+          "then": "Submit stays disabled, inline messaging explains that bundle price is mandatory, and the persisted document always includes bundlePriceRupees.",
+          "notes": "Covers UI messaging, validation, and payload enforcement so bundle price cannot be omitted even if a recommendation is shown."
         }
       ]
     }

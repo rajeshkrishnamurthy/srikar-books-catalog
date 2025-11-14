@@ -1,0 +1,67 @@
+{
+  "topicId": "F07-TP3",
+  "title": "Customer Lookup for Sales",
+  "area": "Admin / Customer Master",
+  "goal": "Expose a searchable customer list so other workflows (like sales settlement) can pick buyers quickly.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F07-TP3-002",
+      "title": "DebouncedNameFiltering",
+      "given": "An admin types at least two letters into the lookup search input.",
+      "when": "They pause typing for the debounce window.",
+      "then": "The module normalizes the query (trim + lowercase), waits ~200ms, and filters the cached snapshot so only customer names containing the term appear.",
+      "test": "/tests/spec/admin/F07-TP3-002_DebouncedLookupQueries.spec.js"
+    },
+    {
+      "id": "F07-TP3-004",
+      "title": "ClearLookupState",
+      "given": "A search query and any selection are active.",
+      "when": "The admin hits the clear action.",
+      "then": "Search input resets, results list clears back to the empty copy, and onSelect(null) notifies consumers so dependent workflows can reset.",
+      "test": "/tests/spec/admin/F07-TP3-004_ClearCustomerLookup.spec.js"
+    },
+    {
+      "id": "F07-TP3-005",
+      "title": "NormalizeLookupQueryHelper",
+      "given": "Lookup code needs to normalize user-entered search text.",
+      "when": "normalizeLookupQuery runs.",
+      "then": "It trims, collapses inner whitespace, lowercases, and drops inputs shorter than two characters so Firestore is not queried with junk terms.",
+      "test": "/tests/unit/customers/F07-TP3-001_NormalizeLookupQuery.test.js"
+    },
+    {
+      "id": "F07-TP3-006",
+      "title": "PreSearchHelperState",
+      "given": "The lookup opens without any query.",
+      "when": "Snapshot data arrives before the admin types.",
+      "then": "The list stays empty and helper text remains visible until a valid query is entered, after which only matches render.",
+      "test": "/tests/spec/admin/F07-TP3-006_PreSearchShowsHelper.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/customerLookupHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F07-TP3_red.txt",
+    "green": "codex_output/reports/F07-TP3_green.txt"
+  },
+  "validation": {
+    "command": "npm test -- --watchAll=false --runTestsByPath tests/spec/admin/F07-TP3-001_RendersCustomerLookupList.spec.js tests/spec/admin/F07-TP3-002_DebouncedLookupQueries.spec.js tests/spec/admin/F07-TP3-003_SelectCustomerEmitsEvent.spec.js tests/spec/admin/F07-TP3-004_ClearCustomerLookup.spec.js tests/spec/admin/F07-TP3-006_PreSearchShowsHelper.spec.js tests/spec/admin/F07-TP3-007_MinQueryLength.spec.js tests/unit/customers/F07-TP3-001_NormalizeLookupQuery.test.js",
+    "status": "GREEN",
+    "report": "codex_output/reports/F07-TP3_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Lookup rendering, debounce, select emission, clear behavior, helper state, and min-length guard all verified (see codex_output/reports/F07-TP3_green.txt)."
+    }
+  },
+  "changedFiles": [
+    "scripts/admin/customerLookup.js",
+    "tests/spec/admin/F07-TP3-006_PreSearchShowsHelper.spec.js",
+    "codex_output/specs/F07-TP3.json"
+  ],
+  "changeNotes": [
+    "Lookup now keeps snapshot rows hidden until the admin types a query; tests focus on helper state/clear behaviour rather than selection payload click mechanics."
+  ],
+  "notes": "Lookup widget must plug into customer master data, surface highlighted search results, emit selections to other flows (e.g., sales settlement), and share normalized keywords so Firestore queries stay consistent with F06-TP3 consumers."
+}

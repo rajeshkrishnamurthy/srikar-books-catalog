@@ -1,0 +1,62 @@
+{
+  "topicId": "F11-TP1",
+  "title": "Expose Remove Controls Per Line",
+  "area": "Admin / Sales Entry",
+  "goal": "Surface an accessible remove affordance on every sale line so admins can initiate deletion with clear confirmation and status messaging.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F11-TP1-001",
+      "title": "LineShowsRemoveButton",
+      "given": "The sale header is ready and at least two lines exist in the Record sale table.",
+      "when": "The admin inspects any `.sale-line-row`.",
+      "then": "Each row renders a visible Remove control (trash icon + text button) with `aria-label` naming the book (e.g., “Remove Astrophysics 101 from sale”).",
+      "test": "/tests/spec/admin/F11-TP1-001_LineShowsRemoveControl.spec.js"
+    },
+    {
+      "id": "F11-TP1-002",
+      "title": "ConfirmBeforeRemoval",
+      "given": "A sale line row exposes its Remove button and the header remains ready.",
+      "when": "An admin activates Remove once.",
+      "then": "The row enters a pending state (dataset flag or class), the button text conveys “Confirm remove”, and an aria-live message such as “Removal pending for Astrophysics 101” is announced without deleting the row yet.",
+      "test": "/tests/spec/admin/F11-TP1-002_ConfirmBeforeRemoval.spec.js"
+    },
+    {
+      "id": "F11-TP1-003",
+      "title": "HeaderLockDisablesRemove",
+      "given": "Remove controls exist but the sale header becomes locked (customer/date incomplete).",
+      "when": "The header state flips to locked while rows are present.",
+      "then": "Each Remove control becomes disabled/aria-disabled so it cannot be activated until the header is ready again and clicking while locked never toggles the pending state.",
+      "test": "/tests/spec/admin/F11-TP1-003_HeaderLockDisablesRemove.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/salesLineItemsHarness.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F11-TP1_red.txt",
+    "green": "codex_output/reports/F11-TP1_green.txt"
+  },
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F11-TP1_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "F11-TP1 specs are green after wiring remove buttons with confirmation state, aria-live status messaging, and header-lock disabling."
+    }
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/main.js",
+    "scripts/admin/salesLineItems.js",
+    "codex_output/reports/F11-TP1_green.txt",
+    "codex_output/specs/F11-TP1.json"
+  ],
+  "changeNotes": [
+    "Embedded the removal status live region and actions column in admin.html, and passed the new element references through scripts/admin/main.js.",
+    "Implemented sale-line remove controls with pending confirmation + header-lock disabling inside scripts/admin/salesLineItems.js and captured the green Jest run."
+  ],
+  "notes": "F11-TP1 focuses on surfacing the remove affordance and confirmation UI; actual deletion and totals recalculation are covered by F11-TP2."
+}

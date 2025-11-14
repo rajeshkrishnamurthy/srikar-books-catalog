@@ -228,6 +228,69 @@
         "verdict": "READY TO MERGE",
         "report": "codex_output/review/F05-TP4_code_review.md"
       }
+    },
+    {
+      "id": "F07-TP1",
+      "title": "Add Customer Records",
+      "tests": "GREEN",
+      "greenReport": "codex_output/reports/F07-TP1_green.txt",
+      "coverageDirectory": "codex_output/coverage/F07-TP1",
+      "processReview": {
+        "scope": [
+          "scripts/admin/customers.js"
+        ],
+        "coverage": {
+          "statements": 81.56,
+          "branches": 54.96,
+          "functions": 95.23,
+          "lines": 86.36
+        },
+        "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --runTestsByPath tests/spec/admin/F07-TP1-001_CustomerFormRequiresMandatoryFields.spec.js tests/spec/admin/F07-TP1-002_RejectsInvalidWhatsAppFormat.spec.js tests/spec/admin/F07-TP1-003_PreventsDuplicateCustomers.spec.js tests/spec/admin/F07-TP1-004_PersistsCustomerRecord.spec.js tests/spec/admin/F07-TP1-005_RendersCustomerSnapshot.spec.js tests/spec/admin/F07-TP1-006_StoresCountryCode.spec.js tests/spec/admin/F07-TP1-007_RequiresTenDigitWhatsapp.spec.js tests/unit/customers/F07-TP1-001_CustomerHelpers.test.js --coverage --coverageDirectory=codex_output/coverage/F07-TP1 --collectCoverageFrom=[\"scripts/admin/customers.js\"] --watchAll=false --bail=0",
+        "coverageDirectory": "codex_output/coverage/F07-TP1",
+        "verdict": "READY TO MERGE",
+        "notes": "Defensive toast + error paths (lines 8-9, 170-205) stay uncovered, but statements/lines exceed the 70% / 50% thresholds."
+      },
+      "processReviewReport": "codex_output/review/F07-TP1_process_review.md",
+      "codeReview": {
+        "verdict": "READY FOR MERGE",
+        "report": "codex_output/review/F07-TP1_code_review.md"
+      }
+    },
+    {
+      "id": "F07-TP2",
+      "title": "Edit Customer Records",
+      "tests": "GREEN",
+      "greenReport": "codex_output/reports/F07-TP2_green.txt",
+      "coverageDirectory": "codex_output/coverage/F07-TP2",
+      "processReview": {
+        "scope": [
+          "scripts/admin/customers.js"
+        ],
+        "coverage": {
+          "statements": 70.07,
+          "branches": 46.15,
+          "functions": 76.31,
+          "lines": 74.18
+        },
+        "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --runTestsByPath tests/spec/admin/F07-TP2-001_PrefillCustomerEditForm.spec.js tests/spec/admin/F07-TP2-002_PersistCustomerEdit.spec.js tests/spec/admin/F07-TP2-003_PreventDuplicateCustomerEdits.spec.js tests/spec/admin/F07-TP2-004_CancelCustomerEdit.spec.js tests/spec/admin/F07-TP2-005_BlockInvalidCustomerEdits.spec.js tests/unit/customers/F07-TP2-001_EditPayload.test.js --coverage --coverageDirectory=codex_output/coverage/F07-TP2 --collectCoverageFrom=scripts/admin/customers.js --watchAll=false --bail=0",
+        "coverageDirectory": "codex_output/coverage/F07-TP2",
+        "verdict": "NEEDS WORK",
+        "notes": "Branch coverage stays at 46.15% (< 50%) because duplicate-edit guard and cancel/reset fallbacks (lines 221-281, 346-380, 411-438, 499-518) remain untested."
+      },
+      "processReviewReport": "codex_output/review/F07-TP2_process_review.md",
+      "codeReview": {
+        "verdict": "READY FOR MERGE",
+        "report": "codex_output/review/F07-TP2_code_review.md"
+      }
     }
-  ]
+  ],
+  "latest": {
+    "topicId": "F07-TP2",
+    "testsGreen": true,
+    "coverageLines": 74.18,
+    "coverageBranches": 46.15,
+    "codeReviewVerdict": "READY FOR MERGE",
+    "finalVerdict": "NEEDS WORK",
+    "report": "codex_output/review/F07-TP2_process_review.md"
+  }
 }

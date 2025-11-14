@@ -1,0 +1,61 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false --runTestsByPath tests/spec/admin/F07-TP3-001_RendersCustomerLookupList.spec.js tests/spec/admin/F07-TP3-002_DebouncedLookupQueries.spec.js tests/spec/admin/F07-TP3-003_SelectCustomerEmitsEvent.spec.js tests/spec/admin/F07-TP3-004_ClearCustomerLookup.spec.js tests/spec/admin/F07-TP3-006_PreSearchShowsHelper.spec.js tests/spec/admin/F07-TP3-007_MinQueryLength.spec.js tests/unit/customers/F07-TP3-001_NormalizeLookupQuery.test.js
+
+(node:5018) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/F07-TP3-003_SelectCustomerEmitsEvent.spec.js
+  SPEC F07-TP3-003: Selecting a lookup row emits structured payload
+    ✓ clicking select button forwards customer details to onSelect callback (21 ms)
+
+PASS tests/spec/admin/F07-TP3-001_RendersCustomerLookupList.spec.js
+  SPEC F07-TP3-001: Customer lookup renders searchable list
+    ✓ snapshot rows render sorted with highlighted query text and metadata (17 ms)
+
+PASS tests/spec/admin/F07-TP3-007_MinQueryLength.spec.js
+  SPEC F07-TP3-007: Lookup ignores queries shorter than two characters
+    ✓ typing a single character keeps helper text visible and never triggers Firestore keyword queries (6 ms)
+
+PASS tests/spec/admin/F07-TP3-006_PreSearchShowsHelper.spec.js
+  SPEC F07-TP3-006: Lookup stays empty with helper copy before searching
+    ✓ snapshot results do not render until the admin types a valid query (11 ms)
+
+PASS tests/spec/admin/F07-TP3-002_DebouncedLookupQueries.spec.js
+  SPEC F07-TP3-002: Lookup debounces queries before hitting Firestore
+    ✓ typing waits for debounce then queries with normalized keywords and limit (8 ms)
+
+PASS tests/spec/admin/F07-TP3-004_ClearCustomerLookup.spec.js
+  SPEC F07-TP3-004: Clearing the lookup resets state
+    ✓ clear button wipes search input, hides list, and notifies consumer (9 ms)
+
+PASS tests/unit/customers/F07-TP3-001_NormalizeLookupQuery.test.js
+  UNIT F07-TP3 normalizeLookupQuery helper
+    ✓ trims, collapses whitespace, lowercases, and drops short inputs (1 ms)
+
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                             
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------
+All files                  |    7.91 |     5.73 |    6.73 |     8.4 |                                                                               
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79                                                                         
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                                                                          
+ currency.js               |       0 |        0 |       0 |       0 | 6-31                                                                          
+ customerLookup.js         |   81.91 |    59.25 |   79.48 |   88.32 | 18-19,141-147,183,189-191,195,207,267-268,299-300,315,334-341,349,363,382-383 
+ customers.js              |       0 |        0 |       0 |       0 | 3-520                                                                         
+ editor.js                 |       0 |        0 |       0 |       0 | 27-411                                                                        
+ inventory.js              |       0 |        0 |       0 |       0 | 29-419                                                                        
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483                                                                        
+ main.js                   |       0 |        0 |       0 |       0 | 35-746                                                                        
+ requests.js               |       0 |        0 |       0 |       0 | 6-73                                                                          
+ salesEntryLauncher.js     |       0 |        0 |       0 |       0 | 2-60                                                                          
+ salesHeader.js            |       0 |        0 |       0 |       0 | 3-563                                                                         
+ salesLineHints.js         |       0 |        0 |       0 |       0 | 1-74                                                                          
+ salesLineItems.js         |       0 |        0 |       0 |       0 | 4-730                                                                         
+ salesPersist.js           |       0 |        0 |       0 |       0 | 1-164                                                                         
+ salesTitleAutocomplete.js |       0 |        0 |       0 |       0 | 4-296                                                                         
+ suppliers.js              |       0 |        0 |       0 |       0 | 13-319                                                                        
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------
+Test Suites: 7 passed, 7 total
+Tests:       7 passed, 7 total
+Snapshots:   0 total
+Time:        2.002 s
+Ran all test suites within paths "tests/spec/admin/F07-TP3-001_RendersCustomerLookupList.spec.js", "tests/spec/admin/F07-TP3-002_DebouncedLookupQueries.spec.js", "tests/spec/admin/F07-TP3-003_SelectCustomerEmitsEvent.spec.js", "tests/spec/admin/F07-TP3-004_ClearCustomerLookup.spec.js", "tests/spec/admin/F07-TP3-006_PreSearchShowsHelper.spec.js", "tests/spec/admin/F07-TP3-007_MinQueryLength.spec.js", "tests/unit/customers/F07-TP3-001_NormalizeLookupQuery.test.js".
