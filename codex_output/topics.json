@@ -575,6 +575,53 @@
           "notes": "Each page should lazy-load only the scripts/data needed for that task and preserve existing forms/validation while removing redundant accordion chrome."
         }
       ]
+    },
+    {
+      "featureId": "F15",
+      "featureTitle": "Admin Entry Points Coverage",
+      "description": "Ensure every major admin accordion/panel (including Customer Master) and its key workflows have a clear navigation or deep-link entry from admin.html.",
+      "topics": [
+        {
+          "id": "F15-TP1",
+          "title": "Unified Admin Nav Map",
+          "area": "Admin / Navigation",
+          "goal": "Render the admin navigation from a single config so every major panel (Manage books, Bundles, Record sale, Book requests, Suppliers, Customer master) has a visible entry point tied to its DOM id.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "An authenticated admin visits /admin and the workspace markup loads.",
+          "when": "The navigation bar initializes.",
+          "then": "Buttons for each major panel are generated with consistent data-nav ids, aria-controls pointing at the correct accordion/panel element, and keyboard focus order that lets users jump to any workflow without scrolling.",
+          "notes": "Expose the nav map for reuse by deep-link helpers and tests so coverage stays in sync when panels are added or renamed."
+        },
+        {
+          "id": "F15-TP2",
+          "title": "Customer Master Entry Point",
+          "area": "Admin / Customer Master",
+          "goal": "Add a dedicated Customers nav control and focus management so the Customer Master accordion can be opened from the menu or via hashes without manual scrolling.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F15-TP1"
+          ],
+          "given": "The Customers nav button is visible in the admin menu.",
+          "when": "An admin clicks the Customers entry, tabs to it, or lands on /admin with #customers or ?section=customers.",
+          "then": "The customerPanel accordion expands, the nav button reflects aria-current, focus moves to the panel heading for screen readers, and no other unrelated panels steal focus.",
+          "notes": "Honor existing cancel/save flows inside #customerPanel and ensure the panel can collapse/expand repeatedly without losing form data."
+        },
+        {
+          "id": "F15-TP3",
+          "title": "Hash & Section Deep Links",
+          "area": "Admin / Navigation",
+          "goal": "Guarantee every nav target (manageBooks, bundles, recordSale, bookRequests, suppliers, customers) has canonical hash and ?section alias support so admins can bookmark or share direct links.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F15-TP1"
+          ],
+          "given": "An admin opens /admin with a fragment or section query referencing one of the supported panels.",
+          "when": "The workspace completes initialization and resolves the landing destination.",
+          "then": "The requested panel opens (accordion expanded or section unhidden), the nav button is marked active, non-target panels stay untouched unless the design requires hiding them, and window.location.hash reflects the canonical alias for that panel.",
+          "notes": "Document the supported aliases (e.g., #customers, #customer-master) and add tests to prevent regressions when new panels are added."
+        }
+      ]
     }
   ]
 }

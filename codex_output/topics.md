@@ -142,3 +142,15 @@ Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F14 topics.
 - Keep keyboard focus/ARIA semantics aligned between the menu and routed pages.
 - Lazy-load task-specific scripts/data to avoid the heavy single-page accordion load.
+
+# Feature: Admin Entry Points Coverage (F15)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F15-TP1 | Unified Admin Nav Map | Render the admin nav from a single config so every major panel (Manage books, Bundles, Record sale, Book requests, Suppliers, Customers) has a visible entry tied to its panel id. | — | An authenticated admin loads /admin and sees the workspace shell. | The navigation bar initializes. | Buttons for each panel appear with consistent data-nav ids, aria-controls, and keyboard order so any workflow can be entered without scrolling. |
+| F15-TP2 | Customer Master Entry Point | Add a Customers nav control (plus focus management) so the Customer Master accordion can be opened via the menu or deep links. | F15-TP1 | The Customers nav button appears in the admin menu. | An admin activates it or lands on /admin#customers (or ?section=customers). | The customer panel expands, the nav button reflects aria-current/focus, and unrelated panels remain untouched. |
+| F15-TP3 | Hash & Section Deep Links | Guarantee each nav target (manageBooks, bundles, recordSale, bookRequests, suppliers, customers) has canonical hash and ?section aliases for bookmarks. | F15-TP1 | An admin opens /admin with a fragment or section query referencing one of those panels. | Initialization resolves the landing destination. | The referenced panel opens, its nav button is active, and window.location.hash normalizes to the canonical alias. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F15 topics.
+- Document and test the alias map (#customers, #customer-master, etc.) so future panels can reuse the pattern.

@@ -120,6 +120,18 @@
             <span class="admin-nav__title">Suppliers</span>
             <span class="admin-nav__meta">Add &amp; manage</span>
           </button>
+          <button
+            type="button"
+            class="admin-nav__item"
+            role="tab"
+            id="navTab-customers"
+            aria-controls="navDetail-customers"
+            aria-expanded="false"
+            data-nav="customers"
+          >
+            <span class="admin-nav__title">Customers</span>
+            <span class="admin-nav__meta">Master</span>
+          </button>
         </nav>
 
         <div class="admin-nav__details-wrap" id="adminNavDetails">
@@ -215,6 +227,25 @@
               data-nav-target="suppliers"
             >
               Manage suppliers
+            </button>
+          </section>
+          <section
+            id="navDetail-customers"
+            class="admin-nav__details"
+            role="tabpanel"
+            aria-labelledby="navTab-customers"
+            hidden
+          >
+            <p class="admin-nav__summary">Customer master</p>
+            <p class="admin-nav__description">
+              Capture buyers and reuse their WhatsApp/contact info when booking orders.
+            </p>
+            <button
+              type="button"
+              class="admin-nav__cta"
+              data-nav-target="customers"
+            >
+              Open customers
             </button>
           </section>
         </div>
