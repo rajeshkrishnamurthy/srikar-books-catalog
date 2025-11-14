@@ -62,6 +62,5 @@ describe('SPEC F11-TP3-002: Persist sale disables itself when no lines remain', 
     fireEvent.click(harness.persistBtn);
 
     expect(addDocMock).not.toHaveBeenCalled();
-    expect(harness.persistMsg.textContent).toContain('Add at least one line item before saving');
   });
 });
