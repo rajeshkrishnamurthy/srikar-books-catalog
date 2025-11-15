@@ -739,6 +739,68 @@
       ]
     },
     {
+      "featureId": "F18",
+      "featureTitle": "Unified Pagination Framework",
+      "description": "Introduce a shared pagination contract and UI controls that can be plugged into admin and public list views without duplicating Firestore/query logic.",
+      "topics": [
+        {
+          "id": "F18-TP1",
+          "title": "Pagination Contract and Data Model",
+          "area": "Cross-Cutting / Pagination",
+          "goal": "Define a reusable pagination contract (inputs, outputs, and metadata) that all list views can adopt, independent of specific modules.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "A view needs to load Firestore-backed records in pages rather than all at once.",
+          "when": "The view requests a page of results using the shared pagination helper or contract.",
+          "then": "The helper accepts a consistent set of parameters (page size, direction, cursor) and returns a normalized payload containing records plus paging metadata (hasNext, hasPrev, cursors) that callers can render without knowing Firestore details.",
+          "notes": "Covers the core interface for offset/cursor-based paging, default page sizes, and how views should represent paging state without leaking backend-specific concepts."
+        },
+        {
+          "id": "F18-TP2",
+          "title": "Admin List Pagination Shell",
+          "area": "Admin / Lists",
+          "goal": "Provide a standard pagination control strip (Previous/Next, item range, and disabled states) that admin list views can drop in with minimal wiring.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F18-TP1"
+          ],
+          "given": "An admin list view (e.g., Manage Books, Suppliers, Customers) has more items than the default page size.",
+          "when": "The admin interacts with the pagination controls (clicking Next/Previous or changing page size where supported).",
+          "then": "The control strip updates the underlying pagination request via the shared contract, reflects loading/disabled states correctly, and renders a consistent summary like “Items 21–40 of 132” without each screen reinventing buttons or copy.",
+          "notes": "Establishes shared CSS/markup patterns for pagination controls, including focus/ARIA attributes and a place to plug in future page-size or jump-to-page affordances."
+        },
+        {
+          "id": "F18-TP3",
+          "title": "Public Catalog Pagination Application",
+          "area": "Public Catalog / Listing",
+          "goal": "Apply the unified pagination framework to the public catalog so visitors see a predictable, performant paging pattern across categories.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F18-TP1"
+          ],
+          "given": "A visitor browses the public catalog and at least one category has more items than fit on a single page.",
+          "when": "They scroll to the end of the current list and use the pagination affordance (e.g., Next/Previous buttons or a Load more control).",
+          "then": "Additional books load using the shared pagination contract, the UI makes it clear which slice of results is visible, and the pattern stays consistent across all catalog tabs without duplicating Firestore query logic.",
+          "notes": "Clarifies when to use explicit page controls vs. a Load more button, and how to preserve scroll position and basic accessibility expectations while still going through the shared helper."
+        },
+        {
+          "id": "F18-TP4",
+          "title": "Pagination State and Deep Linking",
+          "area": "Routing / State Management",
+          "goal": "Keep pagination state (page, cursors, and filters) restorable via URL/hash so refreshes and back/forward navigation land on the same slice of data.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F18-TP1",
+            "F15-TP3"
+          ],
+          "given": "A list view uses the shared pagination contract and the admin or visitor navigates between pages and filters.",
+          "when": "They refresh the page, share a link, or use browser back/forward to return to a previously viewed list.",
+          "then": "The view restores the same pagination slice (or a safe nearest equivalent) based on URL/hash state, keeps pagination controls in sync, and never shows a different page than the one implied by the URL.",
+          "notes": "Defines how page and filter parameters are encoded into the URL/hash and how the pagination helper should reconcile stale or invalid cursor state."
+        }
+      ]
+    },
+    {
       "featureId": "BACKLOG",
       "featureTitle": "Backlog",
       "description": "Future accessibility work that remains after the mouse-first Admin entry-point changes.",

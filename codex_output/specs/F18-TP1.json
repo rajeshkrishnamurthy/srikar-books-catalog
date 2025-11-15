@@ -1,0 +1,55 @@
+{
+  "topicId": "F18-TP1",
+  "featureId": "F18",
+  "title": "Pagination Contract and Data Model",
+  "area": "Cross-Cutting / Pagination",
+  "goal": "Define a reusable pagination contract (inputs, outputs, metadata) that list views can adopt without knowing Firestore details.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F18-TP1-001",
+      "title": "NormalizeDefaults",
+      "given": "A view requests a page of results without specifying page size or direction explicitly.",
+      "when": "createPaginationRequest is called with missing size and direction plus a default configuration.",
+      "then": "It returns a request object that uses the default page size, assumes a forward direction, and exposes a null starting cursor in a consistent shape.",
+      "test": "/tests/unit/pagination/F18-TP1_paginationContract.test.js"
+    },
+    {
+      "id": "F18-TP1-002",
+      "title": "ClampPageSizeIntoSafeRange",
+      "given": "A caller passes an extremely small or large pageSize value into the pagination contract.",
+      "when": "createPaginationRequest is invoked with values outside the configured min/max bounds.",
+      "then": "The resulting request clamps pageSize into the allowed range so every consumer sees predictable, safe sizes regardless of input.",
+      "test": "/tests/unit/pagination/F18-TP1_paginationContract.test.js"
+    },
+    {
+      "id": "F18-TP1-003",
+      "title": "BuildNormalizedPageStateMetadata",
+      "given": "A Firestore-backed query (or equivalent) returns a slice of items plus information about whether more results exist in either direction.",
+      "when": "buildPaginationState is called with items, pageSize, hasNext/hasPrev flags, and cursors.",
+      "then": "It returns a normalized page state object that separates plain items from a meta block containing pageSize, item count, hasNext/hasPrev, and cursors.start/end keys.",
+      "test": "/tests/unit/pagination/F18-TP1_paginationContract.test.js"
+    }
+  ],
+  "fixtures": [],
+  "tests": [
+    "/tests/unit/pagination/F18-TP1_paginationContract.test.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F18-TP1_red.txt",
+    "green": "codex_output/reports/F18-TP1_green.txt"
+  },
+  "changedFiles": [
+    "scripts/helpers/data.js",
+    "tests/unit/pagination/F18-TP1_paginationContract.test.js",
+    "codex_output/reports/F18-TP1_red.txt",
+    "codex_output/reports/F18-TP1_green.txt",
+    "codex_output/specs/F18-TP1.json"
+  ],
+  "changeNotes": [
+    "Introduced createPaginationRequest in scripts/helpers/data.js to normalize input into a shared pagination contract, applying defaults for page size and direction and exposing a cursor/cursorType shape.",
+    "Added buildPaginationState helper to wrap raw items alongside a meta block containing pageSize, item count, hasNext/hasPrev flags, and start/end cursors suitable for UI consumption.",
+    "Clamped unsafe page sizes into configured min/max bounds so callers cannot accidentally request pathological page sizes while keeping default-only callers behavior intact."
+  ]
+}
