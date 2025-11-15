@@ -219,8 +219,11 @@ export function initBundleCreator(elements = {}, options = {}) {
       )}</span>`;
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
-      removeBtn.className = 'btn btn-text';
-      removeBtn.textContent = 'Remove';
+      removeBtn.className = 'bundle-remove-btn';
+      removeBtn.textContent = '×';
+      const removeLabel = book.title ? `Remove ${book.title}` : 'Remove book';
+      removeBtn.setAttribute('aria-label', removeLabel);
+      removeBtn.setAttribute('title', removeLabel);
       removeBtn.addEventListener('click', () => removeBook(book.id));
       row.appendChild(title);
       row.appendChild(removeBtn);
@@ -255,7 +258,7 @@ export function initBundleCreator(elements = {}, options = {}) {
         ? `Recommended: ₹${RUPEE.format(state.recommendedPrice)} (~25% off ₹${RUPEE.format(
             state.totalPrice
           )})`
-        : 'Select at least two books to see a recommended price.';
+        : '';
     }
 
     if (!state.priceTouched && priceInput && priceInput.value) {
@@ -385,7 +388,7 @@ export function initBundleCreator(elements = {}, options = {}) {
     renderSelectedBooks();
     clearPriceInput({ clearError: true });
     if (recommendedHint) {
-      recommendedHint.textContent = 'Select at least two books to see a recommended price.';
+      recommendedHint.textContent = '';
     }
     setMessage('');
     updateSubmitState();
