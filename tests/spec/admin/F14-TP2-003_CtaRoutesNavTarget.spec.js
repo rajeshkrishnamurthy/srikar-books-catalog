@@ -10,7 +10,7 @@ describe('SPEC F14-TP2-003: Nav button routing keeps tile expanded', () => {
       const bundlesBtn = harness.bundlesNavButton;
       fireEvent.click(bundlesBtn);
 
-      expect(window.location.hash).toBe('#bundles');
+      expect(window.location.hash).toBe('#bundles/create');
       expect(bundlesBtn.getAttribute('aria-expanded')).toBe('true');
       expect(document.getElementById('bundlesPanel').hidden).toBe(false);
     } finally {

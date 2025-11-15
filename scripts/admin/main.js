@@ -45,7 +45,6 @@ const authError = document.getElementById('authError');
 const signOutBtn = document.getElementById('signOutBtn');
 const adminNav = document.getElementById('adminNav');
 const manageBooksAnchor = document.getElementById('manageBooksAnchor');
-const manageSubNav = document.getElementById('manageSubNav');
 const adminSubNavMap = Array.from(
   document.querySelectorAll('[data-parent-nav]')
 ).reduce((acc, el) => {
@@ -55,12 +54,31 @@ const adminSubNavMap = Array.from(
   }
   return acc;
 }, {});
+const adminSubNavConfig = Object.fromEntries(
+  Object.entries(adminSubNavMap).map(([parentNav, subNavEl]) => {
+    const tabs = Array.from(
+      subNavEl?.querySelectorAll('[data-manage-tab]')
+    )
+      .map((btn) => btn?.dataset?.manageTab)
+      .filter(Boolean);
+    return [
+      parentNav,
+      {
+        parentNav,
+        elementId: subNavEl?.id || '',
+        tabs,
+      },
+    ];
+  })
+);
 const addBookPanel = document.getElementById('addBookPanel');
 const availableBooksPanel = document.getElementById('availableBooksPanel');
 const soldBooksPanel = document.getElementById('soldBooksPanel');
 const bookRequestsPanel = document.getElementById('bookRequestsPanel');
 const suppliersPanel = document.getElementById('suppliersPanel');
 const bundlesPanel = document.getElementById('bundlesPanel');
+const bundleCreatePanel = document.getElementById('bundleCreatePanel');
+const bundleManagePanel = document.getElementById('bundleManagePanel');
 const customerPanel = document.getElementById('customerPanel');
 const customerPanelSection = customerPanel?.closest('.panel') || customerPanel;
 
@@ -159,12 +177,57 @@ const saleLineRemovalStatus = document.getElementById('saleLineRemovalStatus');
 const saleLineBookTitleMsg = saleTitleMsg;
 const recordSaleBtn = document.getElementById('recordSaleBtn');
 const saleEntryPanel = document.getElementById('saleEntryPanel');
+const bookRequestsOpenPanel = document.getElementById('bookRequestsOpenPanel');
+const bookRequestsClosedPanel = document.getElementById('bookRequestsClosedPanel');
+const supplierCreatePanel = document.getElementById('supplierCreatePanel');
+const supplierManagePanel = document.getElementById('supplierManagePanel');
+const customerCreatePanel = document.getElementById('customerCreatePanel');
+const customerManagePanel = document.getElementById('customerManagePanel');
 const MANAGE_PANEL_GROUP = [addBookPanel, availableBooksPanel, soldBooksPanel];
 const MANAGE_SUB_TABS = {
   add: addBookPanel,
   available: availableBooksPanel,
   sold: soldBooksPanel,
 };
+const BUNDLES_SUB_TABS = {
+  create: bundleCreatePanel,
+  manage: bundleManagePanel,
+};
+const SALE_SUB_TABS = {
+  record: saleEntryPanel,
+};
+const BOOK_REQUESTS_SUB_TABS = {
+  open: bookRequestsOpenPanel,
+  closed: bookRequestsClosedPanel,
+};
+const SUPPLIERS_SUB_TABS = {
+  create: supplierCreatePanel,
+  manage: supplierManagePanel,
+};
+const CUSTOMERS_SUB_TABS = {
+  create: customerCreatePanel,
+  manage: customerManagePanel,
+};
+const SUB_NAV_TABS = {
+  manageBooks: MANAGE_SUB_TABS,
+  bundles: BUNDLES_SUB_TABS,
+  recordSale: SALE_SUB_TABS,
+  bookRequests: BOOK_REQUESTS_SUB_TABS,
+  suppliers: SUPPLIERS_SUB_TABS,
+  customers: CUSTOMERS_SUB_TABS,
+};
+const SUB_NAV_DEFAULTS = {
+  manageBooks: 'add',
+  bundles: 'create',
+  recordSale: 'record',
+  bookRequests: 'open',
+  suppliers: 'create',
+  customers: 'create',
+};
+const subNavState = Object.keys(SUB_NAV_DEFAULTS).reduce((acc, navKey) => {
+  acc[navKey] = { current: SUB_NAV_DEFAULTS[navKey], pending: '' };
+  return acc;
+}, {});
 const NAV_PANEL_GROUPS = {
   manageBooks: MANAGE_PANEL_GROUP,
   bundles: [bundlesPanel],
@@ -173,6 +236,7 @@ const NAV_PANEL_GROUPS = {
   suppliers: [suppliersPanel],
   customers: [customerPanelSection],
 };
+let suppressHashChange = false;
 let inventoryApi = null;
 let editorApi = null;
 let supplierMasterApi = null;
@@ -199,8 +263,7 @@ let currentAdminUser = null;
 const supplierBooksCache = new Map();
 const SUPPLIER_BOOK_CACHE_TTL_MS = 2 * 60 * 1000;
 const DEFAULT_LANDING_HASH = '#add-book';
-let pendingManageSubTab = '';
-let currentManageSubTab = 'add';
+let landingHashIncludesSubRoute = false;
 const ADMIN_NAV_CONFIG = [
   { id: 'manageBooks', panelId: 'addBookPanel' },
   { id: 'bundles', panelId: 'bundlesPanel' },
@@ -219,6 +282,7 @@ try {
     id,
     panelId,
   }));
+  globalThis.__adminSubNavMap = adminSubNavConfig;
 } catch {}
 
 hydrateAdminNavControls();
@@ -231,13 +295,19 @@ adminNav?.addEventListener('click', (event) => {
   handleAdminNav(navKey, button);
 });
 
-manageSubNav?.addEventListener('click', (event) => {
-  const tabButton = event.target?.closest('button[data-manage-tab]');
-  if (!tabButton) return;
-  const tabKey = tabButton.dataset.manageTab;
-  if (!tabKey) return;
-  handleManageSubNav(tabKey, tabButton);
+Object.entries(adminSubNavMap).forEach(([parentNav, subNavEl]) => {
+  subNavEl?.addEventListener('click', (event) => {
+    const tabButton = event.target?.closest('button[data-manage-tab]');
+    if (!tabButton) return;
+    const tabKey = tabButton.dataset.manageTab;
+    if (!tabKey) return;
+    handleSubNav(parentNav, tabKey, tabButton);
+  });
 });
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('hashchange', handleHashChange);
+}
 
 saleHeaderDatePicker?.addEventListener('input', () => {
   if (!saleHeaderSaleDateInput) return;
@@ -636,33 +706,30 @@ function handleAdminNav(navKey, button) {
   setActiveNav(button);
   toggleSubNavs(navKey);
   showOnlyNavPanelGroup(navKey);
+  if (SUB_NAV_TABS[navKey] && subNavState[navKey]) {
+    const pendingTab = subNavState[navKey]?.pending;
+    if (!pendingTab) {
+      subNavState[navKey].current = SUB_NAV_DEFAULTS[navKey];
+    }
+    handleSubNav(navKey, pendingTab || SUB_NAV_DEFAULTS[navKey], null);
+  }
   switch (navKey) {
     case 'manageBooks':
-      handleManageSubNav(pendingManageSubTab || currentManageSubTab, null);
-      pendingManageSubTab = '';
-      ensurePanelVisible(addBookPanel);
-      ensurePanelVisible(availableBooksPanel);
-      ensurePanelVisible(soldBooksPanel);
-      scrollPanelIntoView(manageBooksAnchor || addBookPanel);
       break;
     case 'recordSale':
       revealSaleEntryPanel();
       break;
     case 'bookRequests':
       ensurePanelVisible(bookRequestsPanel);
-      scrollPanelIntoView(bookRequestsPanel);
       break;
     case 'suppliers':
       ensurePanelVisible(suppliersPanel);
-      scrollPanelIntoView(suppliersPanel);
       break;
     case 'customers':
       ensurePanelVisible(customerPanelSection);
-      scrollPanelIntoView(customerPanelSection);
       break;
     case 'bundles':
       ensurePanelVisible(bundlesPanel);
-      scrollPanelIntoView(bundlesPanel);
       break;
     default:
       break;
@@ -721,13 +788,28 @@ function showOnlyNavPanelGroup(navKey) {
   });
 }
 
-function handleManageSubNav(tabKey, tabButton) {
-  const targetKey = tabKey && MANAGE_SUB_TABS[tabKey] ? tabKey : currentManageSubTab;
-  if (!targetKey || !MANAGE_SUB_TABS[targetKey]) return;
-  currentManageSubTab = targetKey;
+function handleSubNav(navKey, tabKey, tabButton) {
+  if (!navKey || !SUB_NAV_TABS[navKey]) return;
+  const tabMap = SUB_NAV_TABS[navKey];
+  const state = subNavState[navKey];
+  if (!tabMap || !state) return;
+  let targetKey = '';
+  if (tabKey && tabMap[tabKey]) {
+    targetKey = tabKey;
+  } else if (state.pending && tabMap[state.pending]) {
+    targetKey = state.pending;
+  } else if (state.current && tabMap[state.current]) {
+    targetKey = state.current;
+  } else {
+    targetKey = SUB_NAV_DEFAULTS[navKey];
+  }
+  if (!targetKey || !tabMap[targetKey]) return;
+  state.pending = '';
+  state.current = targetKey;
+  const subNavEl = adminSubNavMap[navKey];
   const activeButton =
-    tabButton || manageSubNav?.querySelector(`[data-manage-tab="${targetKey}"]`);
-  manageSubNav?.querySelectorAll('button[data-manage-tab]').forEach((btn) => {
+    tabButton || subNavEl?.querySelector(`[data-manage-tab="${targetKey}"]`);
+  subNavEl?.querySelectorAll('button[data-manage-tab]').forEach((btn) => {
     const isActive = btn === activeButton;
     btn.classList.toggle('is-active', isActive);
     if (isActive) {
@@ -736,7 +818,7 @@ function handleManageSubNav(tabKey, tabButton) {
       btn.removeAttribute('aria-current');
     }
   });
-  Object.entries(MANAGE_SUB_TABS).forEach(([key, panel]) => {
+  Object.entries(tabMap).forEach(([key, panel]) => {
     if (!panel) return;
     if (key === targetKey) {
       ensurePanelVisible(panel);
@@ -747,7 +829,40 @@ function handleManageSubNav(tabKey, tabButton) {
       ensurePanelHidden(panel);
     }
   });
-  updateManageSubHash(targetKey);
+  updateSubNavHash(navKey, targetKey);
+}
+
+function setPendingSubNav(navKey, tabKey) {
+  if (!navKey || !tabKey) return;
+  const tabMap = SUB_NAV_TABS[navKey];
+  const state = subNavState[navKey];
+  if (!tabMap || !state || !tabMap[tabKey]) return;
+  state.pending = tabKey;
+}
+
+function updateSubNavHash(navKey, tabKey) {
+  switch (navKey) {
+    case 'manageBooks':
+      updateManageSubHash(tabKey);
+      return;
+    case 'bundles':
+      updateBundlesSubHash(tabKey);
+      return;
+    case 'recordSale':
+      updateSaleSubHash(tabKey);
+      return;
+    case 'bookRequests':
+      updateBookRequestsSubHash(tabKey);
+      return;
+    case 'suppliers':
+      updateSuppliersSubHash(tabKey);
+      return;
+    case 'customers':
+      updateCustomersSubHash(tabKey);
+      return;
+    default:
+      break;
+  }
 }
 
 function toggleSubNavs(activeNav) {
@@ -792,8 +907,19 @@ function scrollPanelIntoView(target) {
 function revealSaleEntryPanel() {
   ensurePanelVisible(saleEntryPanel);
   ensureSaleEntryInitialized();
-  scrollPanelIntoView(saleEntryPanel);
-  saleHeaderSaleDateInput?.focus?.();
+  const scrollX = window?.scrollX ?? 0;
+  const scrollY = window?.scrollY ?? 0;
+  const focusField = () => saleHeaderSaleDateInput?.focus?.();
+  if (saleHeaderSaleDateInput?.focus) {
+    try {
+      saleHeaderSaleDateInput.focus({ preventScroll: true });
+    } catch {
+      focusField();
+      window?.scrollTo?.(scrollX, scrollY);
+      return;
+    }
+    window?.scrollTo?.(scrollX, scrollY);
+  }
 }
 
 const MONTH_MAP = [
@@ -851,14 +977,18 @@ function ensureDefaultLanding() {
       if (manageButton) {
         handleAdminNav('manageBooks', manageButton);
       }
+      landingHashIncludesSubRoute = false;
       return;
     }
-    setHashSafely(`#${navTarget}`);
+    if (!landingHashIncludesSubRoute) {
+      setHashSafely(`#${navTarget}`);
+    }
   }
   if (navTarget && navTarget !== 'manageBooks') {
     const targetButton = adminNav?.querySelector(`[data-nav="${navTarget}"]`);
     if (targetButton) {
       handleAdminNav(navTarget, targetButton);
+      landingHashIncludesSubRoute = false;
       return;
     }
   }
@@ -876,6 +1006,7 @@ function ensureDefaultLanding() {
     ensurePanelVisible(availableBooksPanel);
     ensurePanelVisible(soldBooksPanel);
   }
+  landingHashIncludesSubRoute = false;
 }
 
 function ensureDefaultHash() {
@@ -893,7 +1024,38 @@ function resolveLandingNavTarget() {
     if (hashTarget === 'manageBooks') {
       const subTab = normalizeManageSubHint(hashValue);
       if (subTab) {
-        pendingManageSubTab = subTab;
+        setPendingSubNav('manageBooks', subTab);
+        landingHashIncludesSubRoute = true;
+      }
+    } else if (hashTarget === 'bundles') {
+      const bundleTab = normalizeBundlesSubHint(hashValue);
+      if (bundleTab) {
+        setPendingSubNav('bundles', bundleTab);
+        landingHashIncludesSubRoute = true;
+      }
+    } else if (hashTarget === 'recordSale') {
+      const saleTab = normalizeSaleSubHint(hashValue);
+      if (saleTab) {
+        setPendingSubNav('recordSale', saleTab);
+        landingHashIncludesSubRoute = true;
+      }
+    } else if (hashTarget === 'bookRequests') {
+      const reqTab = normalizeBookRequestsSubHint(hashValue);
+      if (reqTab) {
+        setPendingSubNav('bookRequests', reqTab);
+        landingHashIncludesSubRoute = true;
+      }
+    } else if (hashTarget === 'suppliers') {
+      const supplierTab = normalizeSuppliersSubHint(hashValue);
+      if (supplierTab) {
+        setPendingSubNav('suppliers', supplierTab);
+        landingHashIncludesSubRoute = true;
+      }
+    } else if (hashTarget === 'customers') {
+      const customerTab = normalizeCustomersSubHint(hashValue);
+      if (customerTab) {
+        setPendingSubNav('customers', customerTab);
+        landingHashIncludesSubRoute = true;
       }
     }
     return hashTarget;
@@ -909,6 +1071,21 @@ function normalizeLandingHint(raw = '') {
   const trimmed = String(raw).trim();
   if (/^#?manage-books\//i.test(trimmed)) {
     return 'manageBooks';
+  }
+  if (/^#?bundles\//i.test(trimmed)) {
+    return 'bundles';
+  }
+  if (/^#?(sale|recordsale)\//i.test(trimmed)) {
+    return 'recordSale';
+  }
+  if (/^#?(book-requests|bookrequests)\//i.test(trimmed)) {
+    return 'bookRequests';
+  }
+  if (/^#?suppliers\//i.test(trimmed)) {
+    return 'suppliers';
+  }
+  if (/^#?customers\//i.test(trimmed)) {
+    return 'customers';
   }
   const cleaned = String(raw)
     .trim()
@@ -959,18 +1136,75 @@ function normalizeManageSubHint(raw = '') {
   return '';
 }
 
+function normalizeBundlesSubHint(raw = '') {
+  const match = /^#?bundles\/([a-z]+)/i.exec(raw || '');
+  if (!match) return '';
+  const [, subKey] = match;
+  if (['create', 'manage'].includes(subKey.toLowerCase())) {
+    return subKey.toLowerCase();
+  }
+  return '';
+}
+
+function normalizeSaleSubHint(raw = '') {
+  const match = /^#?(sale|recordsale)\/([a-z]+)/i.exec(raw || '');
+  if (!match) return '';
+  const [, , subKey] = match;
+  if (['record'].includes(subKey.toLowerCase())) {
+    return subKey.toLowerCase();
+  }
+  return '';
+}
+
+function normalizeBookRequestsSubHint(raw = '') {
+  const match = /^#?(book-requests|bookrequests)\/([a-z]+)/i.exec(raw || '');
+  if (!match) return '';
+  const [, , subKey] = match;
+  if (['open', 'closed'].includes(subKey.toLowerCase())) {
+    return subKey.toLowerCase();
+  }
+  return '';
+}
+
+function normalizeSuppliersSubHint(raw = '') {
+  const match = /^#?suppliers\/([a-z]+)/i.exec(raw || '');
+  if (!match) return '';
+  const [, subKey] = match;
+  if (['create', 'manage'].includes(subKey.toLowerCase())) {
+    return subKey.toLowerCase();
+  }
+  return '';
+}
+
+function normalizeCustomersSubHint(raw = '') {
+  const match = /^#?customers\/([a-z]+)/i.exec(raw || '');
+  if (!match) return '';
+  const [, subKey] = match;
+  if (['create', 'manage'].includes(subKey.toLowerCase())) {
+    return subKey.toLowerCase();
+  }
+  return '';
+}
+
 function setHashSafely(value) {
-  if (!value) return;
+  if (!value || typeof window === 'undefined') return;
+  if (window.location.hash === value) return;
   try {
+    suppressHashChange = true;
     window.location.hash = value;
   } catch (error) {
     console.warn('Failed to set window.location.hash', error);
+    suppressHashChange = false;
+    return;
   }
+  setTimeout(() => {
+    suppressHashChange = false;
+  }, 0);
 }
 
 function updateNavHash(navKey) {
   if (!navKey) return;
-  if (navKey === 'manageBooks') {
+  if (SUB_NAV_TABS[navKey]) {
     return;
   }
   setHashSafely(`#${navKey}`);
@@ -988,6 +1222,41 @@ function updateManageSubHash(tabKey) {
   setHashSafely(`#manage-books/${tabKey}`);
 }
 
+function updateBundlesSubHash(tabKey) {
+  if (!tabKey || tabKey === 'create') {
+    setHashSafely('#bundles/create');
+    return;
+  }
+  if (tabKey === 'manage') {
+    setHashSafely('#bundles/manage');
+    return;
+  }
+  setHashSafely('#bundles/create');
+}
+
+function updateSaleSubHash(tabKey) {
+  if (!tabKey || tabKey === 'record') {
+    setHashSafely('#sale/record');
+    return;
+  }
+  setHashSafely('#sale/record');
+}
+
+function updateBookRequestsSubHash(tabKey) {
+  const target = tabKey === 'closed' ? 'closed' : 'open';
+  setHashSafely(`#book-requests/${target}`);
+}
+
+function updateSuppliersSubHash(tabKey) {
+  const target = tabKey === 'manage' ? 'manage' : 'create';
+  setHashSafely(`#suppliers/${target}`);
+}
+
+function updateCustomersSubHash(tabKey) {
+  const target = tabKey === 'manage' ? 'manage' : 'create';
+  setHashSafely(`#customers/${target}`);
+}
+
 function clearSectionQuery() {
   if (typeof window === 'undefined') return;
   const currentSearch = window.location?.search || '';
@@ -1002,6 +1271,16 @@ function clearSectionQuery() {
   } else {
     window.location.search = searchString;
   }
+}
+
+function handleHashChange() {
+  if (suppressHashChange) return;
+  const navTarget = resolveLandingNavTarget();
+  if (!navTarget) return;
+  const button = getNavButton(navTarget);
+  if (!button) return;
+  handleAdminNav(navTarget, button);
+  landingHashIncludesSubRoute = false;
 }
 
 initAuth({

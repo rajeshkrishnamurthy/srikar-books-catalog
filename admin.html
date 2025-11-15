@@ -77,25 +77,25 @@
             class="admin-nav__item"
             role="tab"
             id="navTab-bundles"
-            aria-controls="bundlesPanel"
-            aria-expanded="false"
-            data-nav="bundles"
-          >
-            <span class="admin-nav__title">Create bundles</span>
-            <span class="admin-nav__meta">Supplier packs</span>
-          </button>
+          aria-controls="bundlesPanel"
+          aria-expanded="false"
+          data-nav="bundles"
+        >
+          <span class="admin-nav__title">Bundles</span>
+          <span class="admin-nav__meta">Supplier packs</span>
+        </button>
           <button
             type="button"
             class="admin-nav__item"
             role="tab"
-            id="recordSaleBtn"
-            data-nav="recordSale"
-            aria-controls="saleEntryPanel"
-            aria-expanded="false"
-          >
-            <span class="admin-nav__title">Record sale</span>
-            <span class="admin-nav__meta">Multi-book orders</span>
-          </button>
+          id="recordSaleBtn"
+          data-nav="recordSale"
+          aria-controls="saleEntryPanel"
+          aria-expanded="false"
+        >
+            <span class="admin-nav__title">Sale</span>
+          <span class="admin-nav__meta">Multi-book orders</span>
+        </button>
           <button
             type="button"
             class="admin-nav__item"
@@ -168,6 +168,133 @@
             aria-controls="soldBooksPanel"
           >
             Sold
+          </button>
+        </div>
+
+        <div
+          class="manage-sub-nav"
+          id="bundlesSubNav"
+          role="tablist"
+          aria-label="Bundles sub menu"
+          data-parent-nav="bundles"
+          hidden
+        >
+          <button
+            type="button"
+            class="manage-sub-nav__item is-active"
+            data-manage-tab="create"
+            aria-controls="bundleCreatePanel"
+            aria-current="page"
+          >
+            Create
+          </button>
+          <button
+            type="button"
+            class="manage-sub-nav__item"
+            data-manage-tab="manage"
+            aria-controls="bundleManagePanel"
+          >
+            Manage
+          </button>
+        </div>
+
+        <div
+          class="manage-sub-nav"
+          id="saleSubNav"
+          role="tablist"
+          aria-label="Sale sub menu"
+          data-parent-nav="recordSale"
+          hidden
+        >
+          <button
+            type="button"
+            class="manage-sub-nav__item is-active"
+            data-manage-tab="record"
+            aria-controls="saleEntryPanel"
+            aria-current="page"
+          >
+            Record
+          </button>
+        </div>
+
+        <div
+          class="manage-sub-nav"
+          id="bookRequestsSubNav"
+          role="tablist"
+          aria-label="Book requests sub menu"
+          data-parent-nav="bookRequests"
+          hidden
+        >
+          <button
+            type="button"
+            class="manage-sub-nav__item is-active"
+            data-manage-tab="open"
+            aria-controls="bookRequestsOpenPanel"
+            aria-current="page"
+          >
+            Open
+          </button>
+          <button
+            type="button"
+            class="manage-sub-nav__item"
+            data-manage-tab="closed"
+            aria-controls="bookRequestsClosedPanel"
+          >
+            Closed
+          </button>
+        </div>
+
+        <div
+          class="manage-sub-nav"
+          id="suppliersSubNav"
+          role="tablist"
+          aria-label="Suppliers sub menu"
+          data-parent-nav="suppliers"
+          hidden
+        >
+          <button
+            type="button"
+            class="manage-sub-nav__item is-active"
+            data-manage-tab="create"
+            aria-controls="supplierCreatePanel"
+            aria-current="page"
+          >
+            Create
+          </button>
+          <button
+            type="button"
+            class="manage-sub-nav__item"
+            data-manage-tab="manage"
+            aria-controls="supplierManagePanel"
+          >
+            Manage
+          </button>
+        </div>
+
+        <div
+          class="manage-sub-nav"
+          id="customersSubNav"
+          role="tablist"
+          aria-label="Customers sub menu"
+          data-parent-nav="customers"
+          hidden
+        >
+          <button
+            type="button"
+            class="manage-sub-nav__item is-active"
+            data-manage-tab="create"
+            aria-controls="customerCreatePanel"
+            aria-current="page"
+          >
+            Create
+          </button>
+          <button
+            type="button"
+            class="manage-sub-nav__item"
+            data-manage-tab="manage"
+            aria-controls="customerManagePanel"
+          >
+            Manage
           </button>
         </div>
 
@@ -352,22 +479,18 @@
 
         <details class="panel" id="bookRequestsPanel" open>
           <summary><strong>Book Requests</strong></summary>
-          <div class="muted" style="margin-bottom: 0.4rem">
-            Requests sent from the catalog.
-          </div>
-          <div id="reqOpen" class="admin-list"></div>
-          <hr
-            style="
-              border: 0;
-              border-top: 1px solid var(--border);
-              opacity: 0.4;
-              margin: 0.6rem 0;
-            "
-          />
-          <div class="muted" style="margin-bottom: 0.3rem">
-            <strong>Closed</strong>
-          </div>
-          <div id="reqClosed" class="admin-list"></div>
+          <section id="bookRequestsOpenPanel" class="book-requests-section">
+            <p class="muted" style="margin-bottom: 0.4rem">
+              Requests sent from the catalog.
+            </p>
+            <div id="reqOpen" class="admin-list"></div>
+          </section>
+          <section id="bookRequestsClosedPanel" class="book-requests-section" hidden>
+            <p class="muted" style="margin-bottom: 0.3rem">
+              <strong>Closed</strong>
+            </p>
+            <div id="reqClosed" class="admin-list"></div>
+          </section>
         </details>
 
         <details class="panel" id="saleEntryPanel" hidden>
@@ -545,98 +668,101 @@
           </div>
         </details>
 
-        <section class="panel" id="bundlesPanel" hidden>
-          <h3>Create a bundle</h3>
-          <p class="muted">
-            Pick a supplier, add at least two books from that supplier, and set a bundle
-            price (25% discount recommended).
-          </p>
-          <form id="bundleForm" class="stack" autocomplete="off">
-            <label class="stack">
-              <span class="field-label">Bundle title</span>
-              <input
-                id="bundleTitleInput"
-                type="text"
-                placeholder="e.g., Beginner sci-fi combo"
-                autocomplete="off"
-              />
-            </label>
-            <label class="stack">
-              <span class="field-label">Supplier</span>
-              <select id="bundleSupplierSelect">
-                <option value="">Choose supplier</option>
-              </select>
-              <span class="hint">
-                Supplier locks after the first selection. Use Reset bundle to change.
-              </span>
-            </label>
-
-            <div class="bundle-book-search">
-              <label class="field-label" for="bundleBookInput">
-                Add books from this supplier
+        <details class="panel" id="bundlesPanel" hidden>
+          <summary><strong>Bundles</strong></summary>
+          <div id="bundleCreatePanel" class="bundle-section">
+            <h3>Create a bundle</h3>
+            <p class="muted">
+              Pick a supplier, add at least two books from that supplier, and set a bundle
+              price (25% discount recommended).
+            </p>
+            <form id="bundleForm" class="stack" autocomplete="off">
+              <label class="stack">
+                <span class="field-label">Bundle title</span>
+                <input
+                  id="bundleTitleInput"
+                  type="text"
+                  placeholder="e.g., Beginner sci-fi combo"
+                  autocomplete="off"
+                />
               </label>
-              <input
-                id="bundleBookInput"
-                type="search"
-                placeholder="Search catalog titles"
-                autocomplete="off"
-                disabled
-                aria-autocomplete="list"
-                aria-controls="bundleBookSuggestions"
-              />
-              <input type="hidden" id="bundleBookHiddenInput" />
-              <ul
-                id="bundleBookSuggestions"
-                class="admin-list bundle-suggestions"
-                role="listbox"
-              ></ul>
-              <p id="bundleBookMsg" class="hint"></p>
-              <p
-                id="bundleBookSummary"
-                class="muted"
-                data-empty="true"
-                data-default-summary="No book selected."
-              >
-                Search to select a book. Matches are limited to the chosen supplier.
-              </p>
-            </div>
+              <label class="stack">
+                <span class="field-label">Supplier</span>
+                <select id="bundleSupplierSelect">
+                  <option value="">Choose supplier</option>
+                </select>
+                <span class="hint">
+                  Supplier locks after the first selection. Use Reset bundle to change.
+                </span>
+              </label>
 
-            <div>
-              <div class="bundle-selected-header">
-                <strong>Selected books</strong>
-                <span class="hint">Minimum two unique books</span>
+              <div class="bundle-book-search">
+                <label class="field-label" for="bundleBookInput">
+                  Add books from this supplier
+                </label>
+                <input
+                  id="bundleBookInput"
+                  type="search"
+                  placeholder="Search catalog titles"
+                  autocomplete="off"
+                  disabled
+                  aria-autocomplete="list"
+                  aria-controls="bundleBookSuggestions"
+                />
+                <input type="hidden" id="bundleBookHiddenInput" />
+                <ul
+                  id="bundleBookSuggestions"
+                  class="admin-list bundle-suggestions"
+                  role="listbox"
+                ></ul>
+                <p id="bundleBookMsg" class="hint"></p>
+                <p
+                  id="bundleBookSummary"
+                  class="muted"
+                  data-empty="true"
+                  data-default-summary="No book selected."
+                >
+                  Search to select a book. Matches are limited to the chosen supplier.
+                </p>
               </div>
-              <ul id="bundleSelectedBooks" class="bundle-selected-list"></ul>
-            </div>
 
-            <p id="bundleRecommendedHint" class="hint"></p>
+              <div>
+                <div class="bundle-selected-header">
+                  <strong>Selected books</strong>
+                  <span class="hint">Minimum two unique books</span>
+                </div>
+                <ul id="bundleSelectedBooks" class="bundle-selected-list"></ul>
+              </div>
 
-            <label class="stack">
-              <span class="field-label">Bundle price (₹)</span>
-              <input
-                id="bundlePriceInput"
-                type="text"
-                inputmode="numeric"
-                placeholder="Enter bundle price"
-                autocomplete="off"
-              />
-            </label>
-            <p id="bundlePriceMsg" class="error" role="alert"></p>
+              <p id="bundleRecommendedHint" class="hint"></p>
 
-            <div class="bundle-actions">
-              <button id="bundleSubmitBtn" class="btn" type="submit" disabled>
-                Create bundle
-              </button>
-              <button id="bundleResetBtn" class="btn btn-secondary" type="reset">
-                Reset bundle
-              </button>
-            </div>
-          </form>
-          <p id="bundleMsg" class="muted" aria-live="polite"></p>
+              <label class="stack">
+                <span class="field-label">Bundle price (₹)</span>
+                <input
+                  id="bundlePriceInput"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="Enter bundle price"
+                  autocomplete="off"
+                />
+              </label>
+              <p id="bundlePriceMsg" class="error" role="alert"></p>
 
-          <hr aria-hidden="true" />
+              <div class="bundle-actions">
+                <button id="bundleSubmitBtn" class="btn" type="submit" disabled>
+                  Create bundle
+                </button>
+                <button id="bundleResetBtn" class="btn btn-secondary" type="reset">
+                  Reset bundle
+                </button>
+              </div>
+            </form>
+            <p id="bundleMsg" class="muted" aria-live="polite"></p>
 
-          <section class="bundle-list-panel">
+            <hr aria-hidden="true" />
+          </div>
+
+          <section class="bundle-list-panel" id="bundleManagePanel" hidden>
             <h4>Existing bundles</h4>
             <p class="muted">
               Search bundles by book title or filter by supplier/status to manage publish state.
@@ -696,7 +822,7 @@
             <div id="bundleResults" class="bundle-results"></div>
             <p id="bundleEmpty" class="muted" hidden>No bundles found.</p>
           </section>
-        </section>
+        </details>
 
         <section class="panel" id="bundleStatusPanel" hidden>
           <h3>Bundle status</h3>
@@ -736,87 +862,94 @@
 
         <details class="panel" id="suppliersPanel" open>
           <summary><strong>Suppliers</strong></summary>
-          <p class="muted">
-            Track trusted suppliers so you can reference their inventory quickly.
-          </p>
-          <form id="supplierForm" class="stack">
-            <label>
-              Supplier name *
-              <input
-                id="supplierNameInput"
-                name="supplierName"
-                placeholder="e.g., Rare Finds"
-                required
-              />
-            </label>
-            <label>
-              Location *
-              <input
-                id="supplierLocationInput"
-                name="supplierLocation"
-                placeholder="City or region"
-                required
-              />
-            </label>
-            <input type="hidden" id="supplierIdInput" name="supplierId" />
-            <div class="flex" style="gap: 0.5rem">
-              <button type="submit" class="btn">Save supplier</button>
-              <button type="button" id="supplierCancelBtn" class="btn btn-secondary">
-                Cancel
-              </button>
-            </div>
-          </form>
-          <p id="supplierMsg" class="muted"></p>
-          <ul id="supplierList" class="stack" style="gap: 0.4rem"></ul>
+          <div id="supplierCreatePanel" class="suppliers-section">
+            <p class="muted">
+              Track trusted suppliers so you can reference their inventory quickly.
+            </p>
+            <form id="supplierForm" class="stack">
+              <label>
+                Supplier name *
+                <input
+                  id="supplierNameInput"
+                  name="supplierName"
+                  placeholder="e.g., Rare Finds"
+                  required
+                />
+              </label>
+              <label>
+                Location *
+                <input
+                  id="supplierLocationInput"
+                  name="supplierLocation"
+                  placeholder="City or region"
+                  required
+                />
+              </label>
+              <input type="hidden" id="supplierIdInput" name="supplierId" />
+              <div class="flex" style="gap: 0.5rem">
+                <button type="submit" class="btn">Save supplier</button>
+                <button type="button" id="supplierCancelBtn" class="btn btn-secondary">
+                  Cancel
+                </button>
+              </div>
+            </form>
+            <p id="supplierMsg" class="muted" aria-live="polite"></p>
+          </div>
+          <div id="supplierManagePanel" class="suppliers-section" hidden>
+            <h3>Suppliers</h3>
+            <ul id="supplierList" class="stack" style="gap: 0.4rem"></ul>
+          </div>
         </details>
 
         <details class="panel" id="customersPanel">
           <summary data-customer-panel-heading><strong>Customer master</strong></summary>
-          <div class="grid-2" id="customerPanel">
-            <form id="customerForm" class="stack">
-              <h3>Customer form</h3>
-              <input type="hidden" id="customerIdInput" name="customerId" />
-              <input
-                id="customerNameInput"
-                name="customerName"
-                placeholder="Customer name *"
-                required
-              />
-              <textarea
-                id="customerAddressInput"
-                name="customerAddress"
-                placeholder="Address / Landmark"
-                rows="3"
-              ></textarea>
-              <input
-                id="customerLocationInput"
-                name="customerLocation"
-                placeholder="City / Location"
-              />
-              <input
-                id="customerWhatsAppInput"
-                name="customerWhatsApp"
-                placeholder="WhatsApp (10 digits)"
-                inputmode="numeric"
-                required
-                aria-describedby="customerMsg"
-              />
-              <div class="flex" style="gap: 0.5rem; align-items: center">
-                <button class="btn" type="submit">Save customer</button>
-                <button
-                  class="btn btn-secondary"
-                  type="button"
-                  id="customerCancelBtn"
-                >
-                  Cancel edit
-                </button>
-              </div>
-              <p id="customerMsg" class="muted" aria-live="polite"></p>
-            </form>
-            <div>
-              <h3>Recent customers</h3>
+          <div id="customerPanel" class="stack">
+            <section id="customerCreatePanel" class="customer-section">
+              <h3>Create customer</h3>
+              <form id="customerForm" class="stack">
+                <input type="hidden" id="customerIdInput" name="customerId" />
+                <input
+                  id="customerNameInput"
+                  name="customerName"
+                  placeholder="Customer name *"
+                  required
+                />
+                <textarea
+                  id="customerAddressInput"
+                  name="customerAddress"
+                  placeholder="Address / Landmark"
+                  rows="3"
+                ></textarea>
+                <input
+                  id="customerLocationInput"
+                  name="customerLocation"
+                  placeholder="City / Location"
+                />
+                <input
+                  id="customerWhatsAppInput"
+                  name="customerWhatsApp"
+                  placeholder="WhatsApp (10 digits)"
+                  inputmode="numeric"
+                  required
+                  aria-describedby="customerMsg"
+                />
+                <div class="flex" style="gap: 0.5rem; align-items: center">
+                  <button class="btn" type="submit">Save customer</button>
+                  <button
+                    class="btn btn-secondary"
+                    type="button"
+                    id="customerCancelBtn"
+                  >
+                    Cancel edit
+                  </button>
+                </div>
+                <p id="customerMsg" class="muted" aria-live="polite"></p>
+              </form>
+            </section>
+            <section id="customerManagePanel" class="customer-section" hidden>
+              <h3>Customers</h3>
               <ul id="customerList" class="admin-list"></ul>
-            </div>
+            </section>
           </div>
         </details>
 

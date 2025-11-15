@@ -28,7 +28,7 @@ describe('SPEC F15-TP2-001: Customers nav opens the Customer Master panel', () =
       }
       expect(customersButton.getAttribute('aria-current')).toBe('page');
       expect(harness.manageNavButton.hasAttribute('aria-current')).toBe(false);
-      expect(window.location.hash).toBe('#customers');
+      expect(window.location.hash).toBe('#customers/create');
     } finally {
       harness.cleanup();
     }

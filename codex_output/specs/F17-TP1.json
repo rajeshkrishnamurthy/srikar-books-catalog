@@ -1,0 +1,72 @@
+{
+  "topicId": "F17-TP1",
+  "featureId": "F17",
+  "title": "Bundles Sub Nav Parity",
+  "area": "Admin / Navigation",
+  "goal": "Rename the Bundles tile and add a shared dropdown (Create/Manage) that reuses the Manage sub nav helper, aria wiring, and hash routing.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F17-TP1-001",
+      "title": "BundlesNavRenamed",
+      "given": "The admin nav renders after sign-in.",
+      "when": "The Bundles tile becomes visible.",
+      "then": "Its button label reads \"Bundles\" (no lingering \"Create bundles\" copy).",
+      "test": "/tests/spec/admin/F17-TP1-001_BundlesNavRenamed.spec.js"
+    },
+    {
+      "id": "F17-TP1-002",
+      "title": "BundlesSubNavRenders",
+      "given": "Manage sub nav helpers already exist (F16).",
+      "when": "The admin clicks the Bundles tile.",
+      "then": "A shared dropdown (`.manage-sub-nav[data-parent-nav=\"bundles\"]`) appears with Create/Manage buttons, Create owns aria-current, and the tab keys are exported for reuse.",
+      "test": "/tests/spec/admin/F17-TP1-002_BundlesSubNavRenders.spec.js"
+    },
+    {
+      "id": "F17-TP1-003",
+      "title": "BundlesSubNavRoutesManage",
+      "given": "The Bundles dropdown is visible.",
+      "when": "The admin selects the Manage sub tab.",
+      "then": "window.location.hash rewrites to #bundles/manage, the Manage button owns aria-current, and Create clears it (indicating the shared helper handles routing).",
+      "test": "/tests/spec/admin/F17-TP1-003_BundlesSubNavRoutesManage.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F17-TP1-001_BundlesNavRenamed.spec.js",
+    "/tests/spec/admin/F17-TP1-002_BundlesSubNavRenders.spec.js",
+    "/tests/spec/admin/F17-TP1-003_BundlesSubNavRoutesManage.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F17-TP1_red.txt",
+    "green": "codex_output/reports/F17-TP1_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/main.js",
+    "tests/fixtures/adminMainHarness.js",
+    "tests/spec/admin/F17-TP1-001_BundlesNavRenamed.spec.js",
+    "tests/spec/admin/F17-TP1-002_BundlesSubNavRenders.spec.js",
+    "tests/spec/admin/F17-TP1-003_BundlesSubNavRoutesManage.spec.js",
+    "codex_output/specs/F17-TP1.json",
+    "codex_output/reports/F17-TP1_red.txt",
+    "codex_output/reports/F17-TP1_green.txt"
+  ],
+  "changeNotes": [
+    "Bundles nav button now reads \"Bundles\" and gains a dropdown (Create/Manage) that reuses the Manage Books helper wiring, aria semantics, and hash routing.",
+    "scripts/admin/main.js generalizes the sub nav handler so Manage + Bundles share the same logic and export metadata for downstream reuse.",
+    "Fixtures/tests updated to cover the new Bundles sub nav plus the Manage helper export."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F17-TP1_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Full Jest suite succeeds with the Bundles sub nav sharing the Manage helper (hash + aria behavior verified)."
+    }
+  }
+}

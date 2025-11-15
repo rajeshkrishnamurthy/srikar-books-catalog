@@ -9,7 +9,7 @@ describe('SPEC F15-TP3-001: Hash deep link activates target panel', () => {
       const bundlesButton = harness.bundlesNavButton;
       expect(bundlesButton).not.toBeNull();
       expect(bundlesButton.getAttribute('aria-current')).toBe('page');
-      expect(window.location.hash).toBe('#bundles');
+      expect(window.location.hash).toBe('#bundles/create');
 
       const bundlesPanel = document.getElementById('bundlesPanel');
       expect(bundlesPanel).not.toBeNull();

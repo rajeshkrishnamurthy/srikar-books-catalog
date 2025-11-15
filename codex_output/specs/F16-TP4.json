@@ -1,0 +1,62 @@
+{
+  "topicId": "F16-TP4",
+  "featureId": "F16",
+  "title": "Sold Books Sub Page",
+  "area": "Admin / Manage Books",
+  "goal": "Expose the Sold/out-of-stock list as its own sub page accessed under Manage Books.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "RED",
+  "specs": [
+    {
+      "id": "F16-TP4-001",
+      "title": "SoldTabShowsOnlySoldPanel",
+      "given": "The Manage sub nav is visible.",
+      "when": "The admin clicks the Sold tab.",
+      "then": "Add/Available hide, the Sold panel becomes visible, and the Sold tab owns aria-current.",
+      "test": "/tests/spec/admin/F16-TP4-001_SoldTabShowsOnlySoldPanel.spec.js"
+    },
+    {
+      "id": "F16-TP4-002",
+      "title": "SoldTabDeepLink",
+      "given": "A user loads /admin with #manage-books/sold in the hash.",
+      "when": "The workspace initializes.",
+      "then": "Manage stays active, the Sold tab is selected, other panels hide, and the hash remains #manage-books/sold.",
+      "test": "/tests/spec/admin/F16-TP4-002_SoldTabDeepLink.spec.js"
+    },
+    {
+      "id": "F16-TP4-003",
+      "title": "SoldTabRestoreState",
+      "given": "The admin arrived via a Sold deep link but navigates away to another nav tile.",
+      "when": "They return to Manage Books.",
+      "then": "The Add tab becomes active again with hash #add-book so Add remains the default view when re-entering Manage.",
+      "test": "/tests/spec/admin/F16-TP4-003_SoldTabRestoreState.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F16-TP4-001_SoldTabShowsOnlySoldPanel.spec.js",
+    "/tests/spec/admin/F16-TP4-002_SoldTabDeepLink.spec.js",
+    "/tests/spec/admin/F16-TP4-003_SoldTabRestoreState.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F16-TP4_red.txt",
+    "green": "codex_output/reports/F16-TP4_green.txt"
+  },
+  "changedFiles": [
+    "tests/spec/admin/F16-TP4-001_SoldTabShowsOnlySoldPanel.spec.js",
+    "tests/spec/admin/F16-TP4-002_SoldTabDeepLink.spec.js",
+    "tests/spec/admin/F16-TP4-003_SoldTabRestoreState.spec.js",
+    "codex_output/specs/F16-TP4.json",
+    "codex_output/reports/F16-TP4_red.txt"
+  ],
+  "changeNotes": [
+    "Added specs defining Sold tab behavior (visibility, deep links, default state) so the workflow mirrors Add/Available."
+  ],
+  "validation": {
+    "status": "RED",
+    "command": "npm test -- --runTestsByPath tests/spec/admin/F16-TP4-001_SoldTabShowsOnlySoldPanel.spec.js tests/spec/admin/F16-TP4-002_SoldTabDeepLink.spec.js tests/spec/admin/F16-TP4-003_SoldTabRestoreState.spec.js --watchAll=false --bail=0",
+    "report": "codex_output/reports/F16-TP4_red.txt"
+  }
+}
