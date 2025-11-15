@@ -134,3 +134,51 @@ export function buildPaginationShellState(options = {}) {
     isBusy: Boolean(isLoading),
   };
 }
+
+// F18-TP3: public catalog pagination UI helper.
+export function buildCatalogPaginationUi(options = {}) {
+  const {
+    pageMeta = {},
+    totalItems,
+    offset = 0,
+    mode = 'pager',
+    // activeTab is accepted for future per-tab tweaks but not used yet.
+    activeTab, // eslint-disable-line no-unused-vars
+    isLoading = false,
+  } = options;
+
+  const shell = buildPaginationShellState({
+    pageMeta,
+    totalItems,
+    offset,
+    isLoading,
+  });
+
+  const hasMore = Boolean(pageMeta.hasNext);
+
+  const baseState = {
+    summaryText: shell.summaryText,
+    mode,
+    hasMore,
+  };
+
+  if (mode === 'loadMore' && hasMore) {
+    const count =
+      Number.isFinite(pageMeta.count) && pageMeta.count >= 0
+        ? pageMeta.count
+        : 0;
+    const total =
+      Number.isFinite(totalItems) && totalItems >= 0 ? totalItems : count;
+    const safeOffset = Number.isFinite(offset) && offset >= 0 ? offset : 0;
+
+    const nextFirst = safeOffset + count + 1;
+    const nextLast = Math.min(total, safeOffset + count + pageMeta.pageSize);
+
+    return {
+      ...baseState,
+      loadMoreLabel: `Load more books (${nextFirst}\u2013${nextLast} of ${total})`,
+    };
+  }
+
+  return baseState;
+}
