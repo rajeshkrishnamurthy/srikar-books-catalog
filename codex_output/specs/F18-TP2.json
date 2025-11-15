@@ -1,0 +1,60 @@
+{
+  "topicId": "F18-TP2",
+  "title": "Admin List Pagination Shell",
+  "area": "Admin / Lists",
+  "goal": "Provide a standard pagination control strip (Previous/Next, item range, and disabled states) that admin list views can drop in with minimal wiring.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F18-TP2-001",
+      "title": "FirstPagePrevDisabled",
+      "given": "An admin list view uses the shared pagination contract and the first page of results is loaded.",
+      "when": "The pagination shell derives its UI state from the page metadata and total count while not loading.",
+      "then": "The shell marks the Previous control disabled, leaves the Next control enabled when hasNext is true, and renders a summary string like `Items 1–20 of 132` for a 20-item page.",
+      "test": "/tests/unit/pagination/F18-TP2_paginationShell.test.js"
+    },
+    {
+      "id": "F18-TP2-002",
+      "title": "LastPageNextDisabled",
+      "given": "A later page of results is loaded and the pagination metadata reports hasPrev true and hasNext false.",
+      "when": "The pagination shell derives its UI state using an offset and total item count.",
+      "then": "The shell marks the Next control disabled, leaves Previous enabled, and renders a range summary reflecting the later slice, for example `Items 21–40 of 40`.",
+      "test": "/tests/unit/pagination/F18-TP2_paginationShell.test.js"
+    },
+    {
+      "id": "F18-TP2-003",
+      "title": "LoadingDisablesBothEnds",
+      "given": "An admin triggers a page change and the list is waiting for the next page of data.",
+      "when": "The pagination shell is told that it is loading while building its UI state.",
+      "then": "Both Previous and Next controls are disabled, an `isBusy` flag is exposed, and the last known summary text remains stable instead of jumping to an incorrect range.",
+      "test": "/tests/unit/pagination/F18-TP2_paginationShell.test.js"
+    }
+  ],
+  "fixtures": [],
+  "reports": {
+    "red": "codex_output/reports/F18-TP2_red.txt",
+    "green": "codex_output/reports/F18-TP2_green.txt"
+  },
+  "validation": {
+    "status": "RED",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F18-TP2_red.txt",
+    "summary": {
+      "result": "failed",
+      "details": "F18-TP2 pagination shell specs currently fail because the shared helper that derives summary text and enabled/disabled states for the controls has not been implemented yet."
+    }
+  },
+  "changedFiles": [
+    "scripts/helpers/data.js",
+    "tests/unit/pagination/F18-TP2_paginationShell.test.js",
+    "codex_output/reports/F18-TP2_red.txt",
+    "codex_output/reports/F18-TP2_green.txt",
+    "codex_output/specs/F18-TP2.json"
+  ],
+  "changeNotes": [
+    "Introduced F18-TP2 unit specs that describe how the admin pagination shell should derive summary text and Previous/Next disabled states from the shared pagination metadata, total item count, and loading flag.",
+    "Added RED-phase Jest tests in tests/unit/pagination/F18-TP2_paginationShell.test.js that exercise first-page, last-page, and loading scenarios against a future buildPaginationShellState helper.",
+    "Implemented buildPaginationShellState in scripts/helpers/data.js to compute summary text (Items X–Y of N) and prev/next disabled flags plus isBusy from page metadata, total items, offset, and loading state so all F18-TP2 pagination shell tests pass."
+  ]
+}

@@ -96,3 +96,41 @@ export function buildPaginationState(options = {}) {
     },
   };
 }
+
+export function buildPaginationShellState(options = {}) {
+  const {
+    pageMeta = {},
+    totalItems,
+    offset = 0,
+    isLoading = false,
+  } = options;
+
+  const count =
+    Number.isFinite(pageMeta.count) && pageMeta.count >= 0
+      ? pageMeta.count
+      : 0;
+  const total =
+    Number.isFinite(totalItems) && totalItems >= 0 ? totalItems : count;
+
+  const safeOffset = Number.isFinite(offset) && offset >= 0 ? offset : 0;
+
+  const firstIndex =
+    total === 0 || count === 0 ? 0 : safeOffset + 1;
+  const lastIndex =
+    total === 0 || count === 0 ? 0 : safeOffset + count;
+
+  const summaryText = `Items ${firstIndex}\u2013${lastIndex} of ${total}`;
+
+  const basePrevDisabled = !pageMeta.hasPrev || safeOffset <= 0;
+  const baseNextDisabled = !pageMeta.hasNext;
+
+  const prevDisabled = isLoading || basePrevDisabled;
+  const nextDisabled = isLoading || baseNextDisabled;
+
+  return {
+    summaryText,
+    prevDisabled,
+    nextDisabled,
+    isBusy: Boolean(isLoading),
+  };
+}
