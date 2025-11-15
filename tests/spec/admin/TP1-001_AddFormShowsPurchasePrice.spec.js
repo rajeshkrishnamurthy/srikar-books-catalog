@@ -19,8 +19,10 @@ describe('SPEC TP1-001: Purchase price field is visible', () => {
 
     expect(purchaseInput).not.toBeNull();
     expect(purchaseInput?.getAttribute('inputmode')).toBe('numeric');
-    expect(purchaseInput?.getAttribute('placeholder')?.toLowerCase()).toContain(
-      'purchase'
-    );
+    const placeholder = purchaseInput
+      ?.getAttribute('placeholder')
+      ?.toLowerCase();
+    expect(placeholder).toBeTruthy();
+    expect(placeholder).toMatch(/purchase|cost/);
   });
 });

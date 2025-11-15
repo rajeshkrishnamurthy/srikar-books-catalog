@@ -52,11 +52,19 @@ export function initSaleEntryLauncher(elements = {}, options = {}) {
   }
 
   function openPanel() {
+    const scrollX = window?.scrollX ?? 0;
+    const scrollY = window?.scrollY ?? 0;
     panel.removeAttribute('hidden');
     panel.open = true;
-    panel.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
     button.setAttribute('aria-expanded', 'true');
-    focusTarget.focus?.();
+    if (focusTarget?.focus) {
+      try {
+        focusTarget.focus({ preventScroll: true });
+      } catch {
+        focusTarget.focus();
+      }
+    }
+    window?.scrollTo?.(scrollX, scrollY);
     searchInput?.setAttribute?.('aria-describedby', panel.id);
   }
 }
