@@ -638,6 +638,107 @@
       ]
     },
     {
+      "featureId": "F16",
+      "featureTitle": "Manage Books Sub Navigation",
+      "description": "Introduce a dropdown sub menu under Manage Books so Add/Available/Sold act like independent pages with hash-aware routing and a consistent default state.",
+      "topics": [
+        {
+          "id": "F16-TP1",
+          "title": "Manage Sub Nav Shell",
+          "area": "Admin / Navigation",
+          "goal": "Render the Manage Books sub nav with Add, Available, and Sold buttons plus ARIA/hash wiring so each panel can be addressed independently.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F14-TP2",
+            "F15-TP1"
+          ],
+          "given": "An admin signs in and the Manage Books tile is the landing state (#add-book).",
+          "when": "The Manage Books view renders.",
+          "then": "A sub navigation (`#manageSubNav`) appears with Add/Available/Sold buttons, Add owns aria-current/aria-controls, and the framework exposes data-manage-tab hooks reused by later topics.",
+          "notes": "Establishes markup, styles, and helper wiring for sub-nav dropdowns so additional Manage tabs can plug in without duplicating logic."
+        },
+        {
+          "id": "F16-TP2",
+          "title": "Add Tab Default State",
+          "area": "Admin / Manage Books",
+          "goal": "Keep the Add Book workflow as the default Manage view and ensure returning to Manage resets hashes/visibility to Add.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F16-TP1"
+          ],
+          "given": "The admin either lands on /admin or returns to Manage Books after visiting another nav tile.",
+          "when": "The Manage tile activates or the Add tab is clicked.",
+          "then": "Only the Add Book panel remains visible, Available/Sold stay hidden, the Add sub tab owns aria-current, and window.location.hash normalizes to #add-book.",
+          "notes": "Resets any pending Manage sub-tab state whenever the user exits/enters Manage so Add is predictably first."
+        },
+        {
+          "id": "F16-TP3",
+          "title": "Available Tab Behavior",
+          "area": "Admin / Manage Books",
+          "goal": "Show the Available inventory list as its own Manage sub page while keeping filters and hashes consistent across tab switches.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F16-TP1"
+          ],
+          "given": "The Manage sub nav is visible and the Available view already has search/filter state.",
+          "when": "The admin selects the Available sub tab or loads /admin with #manage-books/available.",
+          "then": "Add/Sold panels hide, the Available panel is visible/focused, window.location.hash stays #manage-books/available, and its search/filter inputs retain their last values when leaving and returning.",
+          "notes": "Covers aria-current swaps, hash rewrites, and state preservation for search inputs and results."
+        },
+        {
+          "id": "F16-TP4",
+          "title": "Sold Tab Behavior",
+          "area": "Admin / Manage Books",
+          "goal": "Expose the Sold/out-of-stock list as a dedicated Manage sub page with deep-link support and default-reset rules.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F16-TP1"
+          ],
+          "given": "The Manage sub nav is available.",
+          "when": "The admin selects the Sold tab or lands on /admin#manage-books/sold and later navigates away/back to Manage.",
+          "then": "Only the Sold panel displays while selected, window.location.hash remains #manage-books/sold, and re-entering Manage Books restores the Add tab with hash #add-book.",
+          "notes": "Ensures Sold toggles open its <details>, hides Add/Available, and participates in the same routing helpers as other tabs."
+        }
+      ]
+    },
+    {
+      "featureId": "F17",
+      "featureTitle": "Nav Sub Menu Parity",
+      "description": "Apply the existing Manage Books dropdown framework to the Bundles and Sale tiles so they share the same helper-driven UX without duplicating markup or logic.",
+      "topics": [
+        {
+          "id": "F17-TP1",
+          "title": "Bundles Sub Nav Parity",
+          "area": "Admin / Navigation",
+          "goal": "Rename \"Create bundles\" to \"Bundles\" and attach a two-button sub nav (Create/Manage) that reuses the Manage Books dropdown helpers, hashes, and aria wiring.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F16-TP1",
+            "F15-TP1"
+          ],
+          "given": "The admin nav config loads (with Manage sub nav helpers already available).",
+          "when": "The Bundles tile becomes active via landing state or user click.",
+          "then": "The tile label reads Bundles, the shared dropdown renders Create and Manage options, Create owns aria-current by default, window.location.hash reflects #bundles/create or #bundles/manage, and both buttons point to the existing panels without forking markup or JS.",
+          "notes": "Explicitly reuse the Manage sub nav helper/config; do not duplicate DOM fragments or routing logic when wiring Bundles."
+        },
+        {
+          "id": "F17-TP2",
+          "title": "Sale Sub Nav Shell",
+          "area": "Admin / Sales",
+          "goal": "Rename \"Record sale\" to \"Sale\" and reuse the dropdown helper to add a sub nav container (Record option for now) so future sale workflows can plug in without new plumbing.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F16-TP1",
+            "F15-TP1"
+          ],
+          "given": "The nav renders after sign-in and the Manage sub nav helper is registered.",
+          "when": "The Sale tile activates directly or via #sale/record.",
+          "then": "A Sale dropdown appears (styled identically to Manage/Bundles), Record is selected by default with aria-current, the Record sale panel is the only visible section, hashes normalize to #sale/record, and no duplicate event handlers/styles are introduced.",
+          "notes": "Keep the helper config-driven so adding future Sale sub options (History, Returns) is purely data changes; reuse the Manage Books dropdown CSS/JS."
+        }
+      ]
+    },
+    {
       "featureId": "BACKLOG",
       "featureTitle": "Backlog",
       "description": "Future accessibility work that remains after the mouse-first Admin entry-point changes.",
@@ -655,6 +756,27 @@
           "when": "Navigation switches to the Customers section.",
           "then": "Focus moves to the Customer panel heading/summary, ARIA relationships announce the state change, and deep links normalize to #customers without collapsing other panels.",
           "notes": "Reintroduces the focus/ARIA requirements that were deferred from F15-TP2 once mouse parity shipped."
+        }
+      ]
+    },
+    {
+      "featureId": "TECHDEBT",
+      "featureTitle": "Technical Debt",
+      "description": "Known gaps/bugs to be resolved in later iterations.",
+      "topics": [
+        {
+          "id": "TECHDEBT-TP1",
+          "title": "Sync Admin Nav With Hash History",
+          "area": "Admin / Navigation",
+          "goal": "Ensure browser back/forward (hashchange) keeps the nav buttons and panels aligned with window.location.hash.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F15-TP3"
+          ],
+          "given": "A user navigates between admin sections, creating history entries (#customers, #bundles, etc.).",
+          "when": "They press the browser back/forward buttons and the hash changes.",
+          "then": "handleAdminNav (or equivalent) reruns so aria-current/panels match the hash; the UI never shows a different panel than the URL.",
+          "notes": "Bug report: P1 Badge Keep admin nav in sync with hash history."
         }
       ]
     }

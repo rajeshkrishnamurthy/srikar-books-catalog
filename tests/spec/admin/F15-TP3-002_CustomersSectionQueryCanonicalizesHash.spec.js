@@ -10,7 +10,7 @@ describe('SPEC F15-TP3-002: ?section deep link normalizes to canonical hash', ()
       expect(customersButton).not.toBeNull();
       expect(customersButton.getAttribute('aria-current')).toBe('page');
 
-      expect(window.location.hash).toBe('#customers');
+      expect(window.location.hash).toBe('#customers/create');
       expect(window.location.search).toBe('');
 
       const customersPanel = harness.customersPanelSection;

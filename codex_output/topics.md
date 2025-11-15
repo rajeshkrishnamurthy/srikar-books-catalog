@@ -155,6 +155,30 @@ Notes:
 Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F15 topics.
 - Document and test the alias map (#customers, #customer-master, etc.) so future panels can reuse the pattern.
+# Feature: Manage Books Sub Navigation (F16)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F16-TP1 | Manage Sub Nav Shell | Render the Manage Books dropdown sub nav (Add/Available/Sold) with ARIA/hash wiring so each panel can be targeted independently. | F14-TP2, F15-TP1 | An admin signs in and Manage Books loads as the landing tile (#add-book). | The Manage Books view renders. | A `#manageSubNav` dropdown with Add/Available/Sold buttons appears, Add owns aria-current, and the other Manage panels remain hidden until chosen. |
+| F16-TP2 | Add Tab Default State | Keep the Add workflow as the default Manage sub page and reset hashes/visibility whenever users return to Manage. | F16-TP1 | The admin either first loads /admin or returns to Manage after visiting another nav tile. | Manage activates or the Add tab is clicked. | Only the Add panel shows, Available/Sold stay hidden, Add has aria-current, and the hash normalizes to `#add-book`. |
+| F16-TP3 | Available Tab Behavior | Show the Available inventory as its own Manage sub page while preserving filters/search text and deep-link routing. | F16-TP1 | The Manage sub nav is visible and Available already holds search/filter state. | The user selects Available or loads /admin#manage-books/available. | Available remains visible while Add/Sold hide, the hash stays `#manage-books/available`, and its inputs keep prior values even after switching tabs. |
+| F16-TP4 | Sold Tab Behavior | Expose the Sold/out-of-stock list via the Manage sub nav with deep-link support and default reset rules. | F16-TP1 | The Manage sub nav is available. | The user selects Sold or opens /admin#manage-books/sold then later returns to Manage. | Only the Sold panel displays while selected, the hash stays `#manage-books/sold`, and re-entering Manage resets Add with hash `#add-book`. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F16 topics.
+- Sold/Available tabs reuse the same dropdown helpers introduced in TP1 and must preserve dropdown focus/aria semantics when toggling panels.
+
+# Feature: Nav Sub Menu Parity (F17)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F17-TP1 | Bundles Sub Nav Parity | Rename the "Create bundles" tile to "Bundles" and attach a two-button dropdown (Create/Manage) that reuses the Manage Books helper, hashes, and aria wiring. | F16-TP1, F15-TP1 | The admin nav config hydrates with the Manage sub nav helper already available. | The Bundles tile becomes active (landing state or click). | The tile label reads Bundles, the shared dropdown renders Create/Manage buttons, Create owns aria-current by default, hashes flip between `#bundles/create` and `#bundles/manage`, and existing panels hook up without duplicate markup or JS. |
+| F17-TP2 | Sale Sub Nav Shell | Rename "Record sale" to "Sale" and reuse the dropdown helper to add a sub nav container (Record option today) so future Sale workflows can plug in without new wiring. | F16-TP1, F15-TP1 | The nav renders after sign-in with the Manage helper registered. | The Sale tile activates or a user loads /admin#sale/record. | A Sale dropdown (matching Manage/Bundles styling) appears with Record selected, the Record sale panel is the only visible section, hashes normalize to `#sale/record`, and no duplicate handlers/styles are added. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom across F17 topics.
+- Reuse the existing Manage Books dropdown helper and CSS; adding future Bundles/Sale tabs should be data-only updates, not new DOM scaffolding.
+
 
 # Feature: Backlog (BACKLOG)
 
@@ -165,3 +189,12 @@ Notes:
 Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom.
 - This backlog topic captures the deferred accessibility scope once mouse-first parity ships.
+
+# Feature: Technical Debt (TECHDEBT)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| TECHDEBT-TP1 | Sync Admin Nav With Hash History | Keep nav state/panels aligned with window.location.hash when users use browser back/forward. | F15-TP3 | The admin already navigated across sections so history entries exist. | They press Back/Forward and the hash changes. | A listener reruns handleAdminNav so aria-current/panels match the hash (fixes bug “P1 Badge Keep admin nav in sync with hash history”). |
+
+Notes:
+- Track this as tech debt; ready to pick up when hash-history sync is prioritized.

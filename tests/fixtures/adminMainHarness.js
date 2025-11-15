@@ -139,7 +139,7 @@ function buildDom() {
           aria-expanded="false"
           data-nav="bundles"
         >
-          Create bundles
+          Bundles
         </button>
         <button
           type="button"
@@ -150,7 +150,7 @@ function buildDom() {
           aria-expanded="false"
           data-nav="recordSale"
         >
-          Record sale
+          Sale
         </button>
         <button
           type="button"
@@ -187,20 +187,110 @@ function buildDom() {
         </button>
       </nav>
       <div id="manageBooksAnchor"></div>
+      <div class="manage-sub-nav" id="manageSubNav" data-parent-nav="manageBooks" hidden>
+        <button class="manage-sub-nav__item is-active" data-manage-tab="add" aria-current="page">
+          Add
+        </button>
+        <button class="manage-sub-nav__item" data-manage-tab="available">Available</button>
+        <button class="manage-sub-nav__item" data-manage-tab="sold">Sold</button>
+      </div>
+      <div class="manage-sub-nav" id="bundlesSubNav" data-parent-nav="bundles" hidden>
+        <button class="manage-sub-nav__item is-active" data-manage-tab="create" aria-current="page">
+          Create
+        </button>
+        <button class="manage-sub-nav__item" data-manage-tab="manage">Manage</button>
+      </div>
+      <div class="manage-sub-nav" id="saleSubNav" data-parent-nav="recordSale" hidden>
+        <button class="manage-sub-nav__item is-active" data-manage-tab="record" aria-current="page">
+          Record
+        </button>
+      </div>
+      <div class="manage-sub-nav" id="bookRequestsSubNav" data-parent-nav="bookRequests" hidden>
+        <button class="manage-sub-nav__item is-active" data-manage-tab="open" aria-current="page">
+          Open
+        </button>
+        <button class="manage-sub-nav__item" data-manage-tab="closed">Closed</button>
+      </div>
+      <div class="manage-sub-nav" id="suppliersSubNav" data-parent-nav="suppliers" hidden>
+        <button class="manage-sub-nav__item is-active" data-manage-tab="create" aria-current="page">
+          Create
+        </button>
+        <button class="manage-sub-nav__item" data-manage-tab="manage">Manage</button>
+      </div>
+      <div class="manage-sub-nav" id="customersSubNav" data-parent-nav="customers" hidden>
+        <button class="manage-sub-nav__item is-active" data-manage-tab="create" aria-current="page">
+          Create
+        </button>
+        <button class="manage-sub-nav__item" data-manage-tab="manage">Manage</button>
+      </div>
       <details id="addBookPanel" class="panel" open></details>
-      <details id="availableBooksPanel" class="panel" open></details>
-      <details id="soldBooksPanel" class="panel"></details>
-      <details id="bookRequestsPanel" class="panel" open></details>
-      <details id="suppliersPanel" class="panel" open></details>
+              <details id="availableBooksPanel" class="panel" hidden>
+          <summary>
+            <div class="available-summary">
+              <strong>Available</strong>
+              <label id="availableSearchLabel" class="sr-only" for="availableSearchInput">
+                Search available books
+              </label>
+              <input id="availableSearchInput" type="search" placeholder="Search available" />
+            </div>
+          </summary>
+          <p id="availableSearchStatus" aria-live="polite" class="sr-only"></p>
+          <div id="availList"></div>
+        </details>
+      <details id="soldBooksPanel" class="panel" hidden></details>
+      <details id="bookRequestsPanel" class="panel" open>
+        <div id="bookRequestsOpenPanel">
+          <div id="reqOpen"></div>
+        </div>
+        <div id="bookRequestsClosedPanel" hidden>
+          <div id="reqClosed"></div>
+        </div>
+      </details>
+      <details id="suppliersPanel" class="panel" open>
+        <div id="supplierCreatePanel">
+          <form id="supplierForm">
+            <input id="supplierNameInput" />
+            <input id="supplierLocationInput" />
+            <input type="hidden" id="supplierIdInput" />
+            <button id="supplierCancelBtn" type="button"></button>
+          </form>
+          <p id="supplierMsg"></p>
+        </div>
+        <div id="supplierManagePanel" hidden>
+          <ul id="supplierList"></ul>
+        </div>
+      </details>
       <details id="customersPanel" class="panel">
         <summary data-customer-panel-heading>Customer master</summary>
         <div id="customerPanel">
-          <form id="customerForm">
-            <input id="customerNameInput" name="customerName" />
-          </form>
+          <section id="customerCreatePanel">
+            <form id="customerForm">
+              <input id="customerIdInput" type="hidden" />
+              <input id="customerNameInput" name="customerName" />
+              <textarea id="customerAddressInput"></textarea>
+              <input id="customerLocationInput" />
+              <input id="customerWhatsAppInput" />
+              <button id="customerCancelBtn" type="button"></button>
+              <p id="customerMsg"></p>
+            </form>
+          </section>
+          <section id="customerManagePanel" hidden>
+            <ul id="customerList"></ul>
+          </section>
         </div>
       </details>
-      <section id="bundlesPanel" class="panel" hidden></section>
+      <section id="bundlesPanel" class="panel" hidden>
+        <div id="bundleCreatePanel">
+          <h3>Create a bundle</h3>
+          <form id="bundleForm"></form>
+          <p id="bundleMsg"></p>
+          <hr aria-hidden="true" />
+        </div>
+        <section id="bundleManagePanel" hidden>
+          <div id="bundleResults"></div>
+          <p id="bundleEmpty" hidden>No bundles found.</p>
+        </section>
+      </section>
     </section>
     <section id="saleEntryPanel" hidden></section>
     <form id="addForm"></form>
