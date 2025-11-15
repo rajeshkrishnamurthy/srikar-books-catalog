@@ -82,6 +82,39 @@ body {
   font-size: 0.85rem;
   color: var(--muted);
 }
+.manage-sub-nav {
+  display: none;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+  padding: 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+}
+.manage-sub-nav.is-visible {
+  display: inline-flex;
+  flex-wrap: wrap;
+}
+.manage-sub-nav__item {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.manage-sub-nav__item.is-active,
+.manage-sub-nav__item[aria-current='page'] {
+  border-color: var(--brand);
+  background: rgba(79, 140, 255, 0.15);
+}
+.manage-sub-nav__item:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
 .btn-ghost {
   background: transparent;
   border: 1px solid var(--border);

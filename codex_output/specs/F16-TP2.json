@@ -1,0 +1,74 @@
+{
+  "topicId": "F16-TP2",
+  "featureId": "F16",
+  "title": "Add Book Sub Page",
+  "area": "Admin / Manage Books",
+  "goal": "Keep only the Add Book workflow visible when the Add sub tab is selected and reset to that state by default.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F16-TP2-001",
+      "title": "AddTabHidesOtherPanels",
+      "given": "An admin loads /admin and the Manage tile becomes active.",
+      "when": "The Manage view renders.",
+      "then": "Only the Add Book panel is visible (aria-current on the Add tab) while Available/Sold panels stay hidden/collapsed.",
+      "test": "/tests/spec/admin/F16-TP2-001_AddTabShowsOnlyAddPanel.spec.js"
+    },
+    {
+      "id": "F16-TP2-002",
+      "title": "AddTabClickResetsHash",
+      "given": "The admin switched the Manage sub nav to Available (or another tab).",
+      "when": "They click the Add tab again.",
+      "then": "Hash/URL return to #add-book, the Add tab regains aria-current, and Available/Sold panels remain hidden.",
+      "test": "/tests/spec/admin/F16-TP2-002_AddTabResetHash.spec.js"
+    },
+    {
+      "id": "F16-TP2-003",
+      "title": "ReturnToManageDefaultsToAdd",
+      "given": "The admin left Manage Books (e.g., clicked Bundles) after visiting another Manage sub tab.",
+      "when": "They click the Manage Books nav tile again.",
+      "then": "The Add sub tab becomes active, the hash returns to #add-book, and only the Add panel is visible.",
+      "test": "/tests/spec/admin/F16-TP2-003_ReturningToManageDefaultsToAdd.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F16-TP2-001_AddTabShowsOnlyAddPanel.spec.js",
+    "/tests/spec/admin/F16-TP2-002_AddTabResetHash.spec.js",
+    "/tests/spec/admin/F16-TP2-003_ReturningToManageDefaultsToAdd.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F16-TP2_red.txt",
+    "green": "codex_output/reports/F16-TP2_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/main.js",
+    "styles/admin.css",
+    "tests/fixtures/adminMainHarness.js",
+    "tests/spec/admin/F14-TP3-003_ReturnToManageRestoresDefaultPanels.spec.js",
+    "tests/spec/admin/F16-TP2-001_AddTabShowsOnlyAddPanel.spec.js",
+    "tests/spec/admin/F16-TP2-002_AddTabResetHash.spec.js",
+    "tests/spec/admin/F16-TP2-003_ReturningToManageDefaultsToAdd.spec.js",
+    "codex_output/specs/F16-TP2.json",
+    "codex_output/reports/F16-TP2_red.txt",
+    "codex_output/reports/F16-TP2_green.txt"
+  ],
+  "changeNotes": [
+    "Manage sub-nav now lives inside a dropdown that only appears when the Manage tile is active.",
+    "handleManageSubNav drives which Manage panel is visible (Add/Available/Sold) and rewrites hashes/deep links.",
+    "Tests/fixtures updated to assert that Add is the default view and returning to Manage resets to Add."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F16-TP2_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Sub nav Add tab hides Available/Sold panels, resets hash, and default-selects Add when returning to Manage."
+    }
+  }
+}

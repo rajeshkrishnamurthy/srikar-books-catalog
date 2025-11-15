@@ -1,0 +1,69 @@
+{
+  "topicId": "F17-TP2",
+  "featureId": "F17",
+  "title": "Sale Sub Nav Shell",
+  "area": "Admin / Sales",
+  "goal": "Rename the Record sale tile to Sale and wire a shared dropdown (Record tab) so hashes/aria state mirror Manage/Bundles without duplicate logic.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F17-TP2-001",
+      "title": "SaleNavRenamed",
+      "given": "The admin nav renders after sign-in.",
+      "when": "The Sale tile is visible.",
+      "then": "Its label reads \"Sale\" (no residual \"Record sale\" copy).",
+      "test": "/tests/spec/admin/F17-TP2-001_SaleNavRenamed.spec.js"
+    },
+    {
+      "id": "F17-TP2-002",
+      "title": "SaleSubNavRenders",
+      "given": "Manage/Bundles already expose shared sub nav helpers.",
+      "when": "The admin clicks the Sale tile.",
+      "then": "A dropdown (`.manage-sub-nav[data-parent-nav=recordSale]`) appears with a Record tab (aria-current=page by default) and hash stays in sync with the helper.",
+      "test": "/tests/spec/admin/F17-TP2-002_SaleSubNavRenders.spec.js"
+    },
+    {
+      "id": "F17-TP2-003",
+      "title": "SaleSubNavDeepLink",
+      "given": "A user loads /admin with #sale/record.",
+      "when": "The workspace initializes.",
+      "then": "The Sale tile is active, Record tab owns aria-current, the dropdown is visible, and window.location.hash remains #sale/record (showing the shared helper honors deep links).",
+      "test": "/tests/spec/admin/F17-TP2-003_SaleSubNavDeepLink.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F17-TP2-001_SaleNavRenamed.spec.js",
+    "/tests/spec/admin/F17-TP2-002_SaleSubNavRenders.spec.js",
+    "/tests/spec/admin/F17-TP2-003_SaleSubNavDeepLink.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F17-TP2_red.txt",
+    "green": "codex_output/reports/F17-TP2_green.txt"
+  },
+  "changedFiles": [
+    "tests/spec/admin/F17-TP2-001_SaleNavRenamed.spec.js",
+    "tests/spec/admin/F17-TP2-002_SaleSubNavRenders.spec.js",
+    "tests/spec/admin/F17-TP2-003_SaleSubNavDeepLink.spec.js",
+    "codex_output/specs/F17-TP2.json",
+    "codex_output/reports/F17-TP2_green.txt",
+    "admin.html",
+    "scripts/admin/main.js",
+    "tests/fixtures/adminMainHarness.js"
+  ],
+  "changeNotes": [
+    "Added tests/specs defining Sale nav rename + dropdown behavior to match the existing Manage/Bundles helper so future Sale workflows can reuse it."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F17-TP2_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Full suite is green after renaming Sale nav and wiring the dropdown helper."
+    }
+  }
+}

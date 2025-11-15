@@ -1,0 +1,73 @@
+{
+  "topicId": "F16-TP3",
+  "featureId": "F16",
+  "title": "Available Books Sub Page",
+  "area": "Admin / Manage Books",
+  "goal": "Show only the Available inventory view when the Available tab is active and keep its state/hash in sync.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F16-TP3-001",
+      "title": "AvailableTabShowsOnlyAvailablePanel",
+      "given": "The admin is in the Manage Books area.",
+      "when": "They click the Available sub tab.",
+      "then": "Add/Sold panels hide, only the Available list remains visible, and the tab owns aria-current.",
+      "test": "/tests/spec/admin/F16-TP3-001_AvailableTabShowsOnlyAvailablePanel.spec.js"
+    },
+    {
+      "id": "F16-TP3-002",
+      "title": "AvailableTabPreservesListState",
+      "given": "A search/filter is applied in the Available view.",
+      "when": "The admin switches to a different sub tab and then back to Available.",
+      "then": "The hash returns to #manage-books/available, Available regains aria-current, and the previous search/filter values remain intact.",
+      "test": "/tests/spec/admin/F16-TP3-002_AvailableTabPreservesState.spec.js"
+    },
+    {
+      "id": "F16-TP3-003",
+      "title": "AvailableDeepLink",
+      "given": "A user loads /admin with #manage-books/available in the hash.",
+      "when": "The workspace bootstraps.",
+      "then": "The Manage tile stays active, the Available tab owns aria-current, Add remains hidden, and the hash stays #manage-books/available.",
+      "test": "/tests/spec/admin/F16-TP3-003_AvailableDeepLink.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F16-TP3-001_AvailableTabShowsOnlyAvailablePanel.spec.js",
+    "/tests/spec/admin/F16-TP3-002_AvailableTabPreservesState.spec.js",
+    "/tests/spec/admin/F16-TP3-003_AvailableDeepLink.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F16-TP3_red.txt",
+    "green": "codex_output/reports/F16-TP3_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "styles/admin.css",
+    "scripts/admin/main.js",
+    "tests/fixtures/adminMainHarness.js",
+    "tests/spec/admin/F16-TP3-001_AvailableTabShowsOnlyAvailablePanel.spec.js",
+    "tests/spec/admin/F16-TP3-002_AvailableTabPreservesState.spec.js",
+    "tests/spec/admin/F16-TP3-003_AvailableDeepLink.spec.js",
+    "codex_output/specs/F16-TP3.json",
+    "codex_output/reports/F16-TP3_red.txt",
+    "codex_output/reports/F16-TP3_green.txt"
+  ],
+  "changeNotes": [
+    "Manage sub-nav plumbing tightened so Available/Sold panels hide when not selected (only one panel visible at a time).",
+    "Landing on Manage resets to the Add tab while deep links (#manage-books/available/sold) select the appropriate tab.",
+    "Available view now wires its search input in harness/tests so state preservation can be verified."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F16-TP3_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Available tab now hides Add/Sold panels, preserves search state, and honors deep links."
+    }
+  }
+}

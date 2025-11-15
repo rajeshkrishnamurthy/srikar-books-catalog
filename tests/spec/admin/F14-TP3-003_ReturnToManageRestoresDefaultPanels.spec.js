@@ -27,10 +27,10 @@ describe('SPEC F14-TP3-003: Returning to Manage restores the default workspace',
 
       expect(addBookPanel.hidden).toBe(false);
       expect(addBookPanel.open).toBe(true);
-      expect(availableBooksPanel.hidden).toBe(false);
-      expect(availableBooksPanel.open).toBe(true);
-      expect(soldBooksPanel.hidden).toBe(false);
-      expect(soldBooksPanel.open).toBe(true);
+      expect(availableBooksPanel.hidden).toBe(true);
+      expect(availableBooksPanel.open).toBe(false);
+      expect(soldBooksPanel.hidden).toBe(true);
+      expect(soldBooksPanel.open).toBe(false);
 
       expect(bundlesPanel.hidden).toBe(true);
       expect(manageBtn.getAttribute('aria-current')).toBe('page');
