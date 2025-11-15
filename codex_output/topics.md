@@ -180,6 +180,20 @@ Notes:
 - Reuse the existing Manage Books dropdown helper and CSS; adding future Bundles/Sale tabs should be data-only updates, not new DOM scaffolding.
 
 
+# Feature: Unified Pagination Framework (F18)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F18-TP1 | Pagination Contract and Data Model | Define a reusable pagination contract (inputs, outputs, metadata) that all list views can adopt. | — | A view needs to load Firestore-backed records in pages instead of all at once. | The view requests a page of results using the shared pagination helper/contract. | The helper accepts consistent parameters and returns normalized records plus paging metadata (hasNext, hasPrev, cursors) without exposing Firestore details. |
+| F18-TP2 | Admin List Pagination Shell | Provide a standard pagination control strip for admin lists (Previous/Next, item range, disabled states). | F18-TP1 | An admin list view has more items than the default page size. | The admin uses pagination controls (Next/Previous or page size changes). | The control strip updates pagination via the shared contract, reflects loading/disabled states, and shows a consistent summary like “Items 21–40 of 132.” |
+| F18-TP3 | Public Catalog Pagination Application | Apply the unified pagination framework to the public catalog listings. | F18-TP1 | A visitor browses the catalog and a category has more items than fit on one page. | They reach the end of the list and use the pagination affordance. | Additional books load via the shared contract, the visible slice is clear, and the pattern is consistent across all catalog tabs. |
+| F18-TP4 | Pagination State and Deep Linking | Keep pagination state restorable via URL/hash so refresh and back/forward land on the same slice. | F18-TP1, F15-TP3 | A list view uses the shared pagination contract and the user has navigated across pages/filters. | They refresh, share a link, or use browser back/forward to return to the list. | The view restores the same (or nearest safe) page based on URL/hash, keeps controls in sync, and never shows a different page than implied by the URL. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom across F18 topics.
+- Establishes a single pagination helper and UI pattern that admin and public views can plug into without duplicating Firestore or routing logic.
+
+
 # Feature: Backlog (BACKLOG)
 
 | ID | Title | Goal | Dependencies | Given | When | Then |
