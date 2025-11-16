@@ -25,4 +25,3 @@ export default {
   coverageDirectory: "codex_output/coverage",
   coverageReporters: ["text", "lcov", "json", "clover"]
 };
-

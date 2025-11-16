@@ -194,6 +194,7 @@ export function initInventory({
   paginationNextButton = document.getElementById('availablePaginationNext'),
   supplierSelect,
   onEdit, // optional
+  createPaginationController: createPaginationControllerOverride,
 }) {
   let supplierEntries = [];
   let supplierIds = new Set();
@@ -405,6 +406,7 @@ export function initInventory({
 
   // ---- live lists + filtering ----
   let currentFilter = '';
+  let currentFilterInput = '';
   let searchActive = false;
   let availableDocs = [];
   let availablePageDocs = [];
@@ -416,7 +418,21 @@ export function initInventory({
     cleanup() {},
   };
 
-  const paginationController = createPaginationController?.({
+  const buildPaginationController =
+    typeof createPaginationControllerOverride === 'function'
+      ? createPaginationControllerOverride
+      : createPaginationController;
+
+  let paginationController;
+
+  const handlePaginationStateChange = () => {
+    paginationShellApi.sync?.();
+    paginationController?.syncToLocation?.((params = {}) => {
+      updateAvailableLocationHash(params);
+    });
+  };
+
+  paginationController = buildPaginationController?.({
     dataSource: createLocalAvailablePaginationDataSource({
       getDocs: () => availableDocs.slice(),
       getSearchTerm: () => (searchActive ? currentFilter : ''),
@@ -431,9 +447,7 @@ export function initInventory({
     }),
     defaultPageSize: AVAILABLE_PAGE_SIZE,
     initialFilters: { searchTerm: '' },
-    onStateChange: () => {
-      paginationShellApi.sync?.();
-    },
+    onStateChange: handlePaginationStateChange,
   });
 
   paginationShellApi = initAvailablePaginationShell({
@@ -444,6 +458,8 @@ export function initInventory({
     controller: paginationController,
   });
 
+  const restoredFromLocation = restorePaginationFromLocation();
+  handlePaginationStateChange();
   function reloadAvailablePagination() {
     if (!paginationController?.setFilters) {
       renderLists();
@@ -451,9 +467,9 @@ export function initInventory({
     }
     paginationController.setFilters({
       searchTerm: searchActive ? currentFilter : '',
+      search: searchActive ? currentFilterInput : '',
       refreshToken: Date.now(),
     });
-    paginationShellApi.sync?.();
   }
 
   reloadAvailablePagination();
@@ -556,6 +572,7 @@ export function initInventory({
 
     if (!isLongEnough) {
       currentFilter = '';
+      currentFilterInput = '';
       searchActive = false;
       availableFilteredCount = availableDocs.length;
       reloadAvailablePagination();
@@ -567,6 +584,7 @@ export function initInventory({
     }
 
     currentFilter = normalizedTerm;
+    currentFilterInput = trimmedTerm;
     searchActive = true;
     const matchesCount = filterAvailableDocs(availableDocs, normalizedTerm).length;
     availableFilteredCount = matchesCount;
@@ -589,6 +607,78 @@ export function initInventory({
     if (!lastAnnouncedTerm && !searchStatus.textContent) return;
     searchStatus.textContent = '';
     lastAnnouncedTerm = '';
+  }
+
+  function restorePaginationFromLocation() {
+    if (typeof window === 'undefined' || !paginationController) return false;
+    const search = extractAvailableHashQuery(window.location.hash || '');
+    if (!search) {
+      return false;
+    }
+    const params = new URLSearchParams(
+      search.startsWith('?') ? search.slice(1) : search
+    );
+    const rawTerm = params.get('search') || '';
+    if (rawTerm) {
+      currentFilterInput = rawTerm;
+      currentFilter = rawTerm.trim().toLowerCase();
+      searchActive = hasSufficientSearchChars(rawTerm);
+      if (availableSearchInput) {
+        availableSearchInput.value = rawTerm;
+      }
+    }
+    paginationController.syncFromLocation?.({
+      search,
+      totalItems: availableFilteredCount,
+    });
+    return true;
+  }
+
+  function extractAvailableHashQuery(hash = '') {
+    if (typeof hash !== 'string') return '';
+    const base = '#manage-books/available';
+    if (!hash.startsWith(base)) return '';
+    const idx = hash.indexOf('?');
+    return idx >= 0 ? hash.slice(idx) : '';
+  }
+
+  function updateAvailableLocationHash(params = {}) {
+    if (typeof window === 'undefined') return;
+    const query = buildAvailableHashQuery(params);
+    const base = '#manage-books/available';
+    const nextHash = query ? `${base}${query}` : base;
+    if (window.location.hash !== nextHash) {
+      window.location.hash = nextHash;
+    }
+  }
+
+  function buildAvailableHashQuery(params = {}) {
+    const searchParams = new URLSearchParams();
+    const safePageSize =
+      Number.isFinite(params.pageSize) && params.pageSize > 0
+        ? params.pageSize
+        : AVAILABLE_PAGE_SIZE;
+    const safeOffset =
+      Number.isFinite(params.offset) && params.offset >= 0
+        ? params.offset
+        : 0;
+    const safePage =
+      Number.isFinite(params.page) && params.page > 0
+        ? params.page
+        : Math.floor(safeOffset / safePageSize) + 1;
+    searchParams.set('page', safePage);
+    searchParams.set('pageSize', safePageSize);
+    searchParams.set('offset', safeOffset);
+    const filters = params.filters || {};
+    const searchTermParam =
+      filters.search ??
+      filters.searchTerm ??
+      (searchActive ? currentFilterInput : '');
+    if (searchTermParam) {
+      searchParams.set('search', searchTermParam);
+    }
+    const queryString = searchParams.toString();
+    return queryString ? `?${queryString}` : '';
   }
 
   function filterAvailableDocs(list = [], term = '') {
@@ -614,8 +704,13 @@ export function initInventory({
       const direction =
         request.direction === 'backward' ? 'backward' : 'forward';
       const safeOffset = Number.isFinite(offset) && offset >= 0 ? offset : 0;
+      const currentOffset =
+        Number.isFinite(request.currentOffset) && request.currentOffset >= 0
+          ? request.currentOffset
+          : safeOffset;
       const desiredTerm =
         filters.searchTerm ??
+        filters.search ??
         (typeof getSearchTerm === 'function' ? getSearchTerm() : '') ??
         '';
       const sourceDocs =
@@ -623,7 +718,7 @@ export function initInventory({
       const filteredDocs = filterAvailableDocs(sourceDocs, desiredTerm);
       const startIndex =
         direction === 'backward'
-          ? Math.max(0, safeOffset - pageSize)
+          ? Math.max(0, currentOffset - pageSize)
           : safeOffset;
       const pageItems = filteredDocs.slice(startIndex, startIndex + pageSize);
       onPage &&
@@ -633,6 +728,10 @@ export function initInventory({
         });
       const hasNext = startIndex + pageItems.length < filteredDocs.length;
       const hasPrev = startIndex > 0;
+      const nextOffset = Math.min(
+        filteredDocs.length,
+        startIndex + pageItems.length
+      );
       return {
         items: pageItems,
         pageMeta: {
@@ -645,7 +744,8 @@ export function initInventory({
             end: pageItems[pageItems.length - 1] || null,
           },
         },
-        offset: startIndex,
+        offset: nextOffset,
+        currentOffset: startIndex,
         totalItems: filteredDocs.length,
       };
     };

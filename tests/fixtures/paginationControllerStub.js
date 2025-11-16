@@ -47,3 +47,14 @@ export function buildPaginationControllerStub(stateSequence = []) {
 
   return controller;
 }
+
+export function buildPaginationControllerFactory(controller) {
+  return (config = {}) => {
+    controller.__config = config;
+    controller.__onStateChange = config?.onStateChange;
+    if (typeof controller.__onStateChange === 'function') {
+      controller.__onStateChange();
+    }
+    return controller;
+  };
+}

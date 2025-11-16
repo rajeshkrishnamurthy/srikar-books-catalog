@@ -1,8 +1,6 @@
 import { jest } from '@jest/globals';
 
 const inventoryModuleUrl = new URL('../../scripts/admin/inventory.js', import.meta.url);
-const dataHelpersModuleUrl = new URL('../../scripts/helpers/data.js', import.meta.url);
-const dataHelpersModulePromise = import(dataHelpersModuleUrl.href);
 
 export async function createAdminInventoryHarness(options = {}) {
   const {
@@ -13,14 +11,6 @@ export async function createAdminInventoryHarness(options = {}) {
 
   jest.resetModules();
   jest.clearAllMocks();
-
-  if (paginationControllerFactory) {
-    const dataHelpers = await dataHelpersModulePromise;
-    jest.unstable_mockModule('../../scripts/helpers/data.js', () => ({
-      ...dataHelpers,
-      createPaginationController: paginationControllerFactory,
-    }));
-  }
 
   const dom = buildDom(onScrollIntoView);
   const firebase = buildFirebaseMocks(firebaseOverrides);
@@ -36,6 +26,7 @@ export async function createAdminInventoryHarness(options = {}) {
     soldList: dom.soldList,
     availableSearchInput: dom.availableSearchInput,
     searchStatus: dom.searchStatus,
+    createPaginationController: paginationControllerFactory,
   });
 
   return {

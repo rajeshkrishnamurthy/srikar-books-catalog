@@ -1,0 +1,98 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false --runTestsByPath tests/spec/admin/F19-TP3-001_RestorePaginationFromLocation.spec.js tests/spec/admin/F19-TP3-002_SyncLocationOnControllerUpdates.spec.js tests/spec/admin/F19-TP3-003_SearchResetsPageAndUpdatesLocation.spec.js
+
+(node:93608) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F19-TP3-002_SyncLocationOnControllerUpdates.spec.js
+  SPEC F19-TP3-002: Location updates mirror controller state
+    ✕ controller.syncToLocation receives an update function that writes page + filters into #manage-books/available (4 ms)
+
+  ● SPEC F19-TP3-002: Location updates mirror controller state › controller.syncToLocation receives an update function that writes page + filters into #manage-books/available
+
+    ReferenceError: jest is not defined
+
+       8 |     const controller = buildPaginationControllerStub();
+       9 |     const updateFns = [];
+    > 10 |     controller.syncToLocation = jest.fn((fn) => {
+         |                                 ^
+      11 |       updateFns.push(fn);
+      12 |     });
+      13 |
+
+      at Object.<anonymous> (tests/spec/admin/F19-TP3-002_SyncLocationOnControllerUpdates.spec.js:10:33)
+
+(node:93609) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F19-TP3-001_RestorePaginationFromLocation.spec.js
+  SPEC F19-TP3-001: Restore pagination state from location hash
+    ✕ initInventory reads available pagination params from hash and forwards them to syncFromLocation (70 ms)
+
+  ● SPEC F19-TP3-001: Restore pagination state from location hash › initInventory reads available pagination params from hash and forwards them to syncFromLocation
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: {"search": "?page=3&pageSize=50&offset=100&search=astro", "totalItems": 0}
+
+    Number of calls: 0
+
+      13 |     });
+      14 |
+    > 15 |     expect(controller.syncFromLocation).toHaveBeenCalledWith({
+         |                                         ^
+      16 |       search: '?page=3&pageSize=50&offset=100&search=astro',
+      17 |       totalItems: 0,
+      18 |     });
+
+      at Object.<anonymous> (tests/spec/admin/F19-TP3-001_RestorePaginationFromLocation.spec.js:15:41)
+
+(node:93607) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F19-TP3-003_SearchResetsPageAndUpdatesLocation.spec.js
+  SPEC F19-TP3-003: Search change resets page and persists to hash
+    ✕ typing a new header search term setsFilters with the term and updates hash with page=1 (2 ms)
+
+  ● SPEC F19-TP3-003: Search change resets page and persists to hash › typing a new header search term setsFilters with the term and updates hash with page=1
+
+    ReferenceError: jest is not defined
+
+       9 |     const controller = buildPaginationControllerStub();
+      10 |     let locationUpdater = null;
+    > 11 |     controller.syncToLocation = jest.fn((fn) => {
+         |                                 ^
+      12 |       locationUpdater = fn;
+      13 |     });
+      14 |     controller.setFilters = jest.fn((filters = {}) => {
+
+      at Object.<anonymous> (tests/spec/admin/F19-TP3-003_SearchResetsPageAndUpdatesLocation.spec.js:11:33)
+
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                   
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------
+All files                  |    1.62 |     1.01 |    1.27 |    1.72 |                                                                                                                                     
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79                                                                                                                               
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                                                                                                                                
+ availablePagination.js    |       0 |        0 |       0 |       0 | 5-188                                                                                                                               
+ bundleList.js             |       0 |        0 |       0 |       0 | 2-510                                                                                                                               
+ bundleStatus.js           |       0 |        0 |       0 |       0 | 7-110                                                                                                                               
+ bundles.js                |       0 |        0 |       0 |       0 | 3-494                                                                                                                               
+ currency.js               |       0 |        0 |       0 |       0 | 6-31                                                                                                                                
+ customerLookup.js         |       0 |        0 |       0 |       0 | 3-392                                                                                                                               
+ customers.js              |       0 |        0 |       0 |       0 | 3-520                                                                                                                               
+ editor.js                 |       0 |        0 |       0 |       0 | 27-411                                                                                                                              
+ inventory.js              |   20.63 |    12.15 |   16.66 |   21.91 | 33,38-49,56-171,180,205,210-229,236-400,421-435,449-450,466,471-475,484-488,522-523,528,533-600,611-636,665,684-686,689-691,701-702 
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483                                                                                                                              
+ main.js                   |       0 |        0 |       0 |       0 | 39-1924                                                                                                                             
+ requests.js               |       0 |        0 |       0 |       0 | 6-73                                                                                                                                
+ salesEntryLauncher.js     |       0 |        0 |       0 |       0 | 2-68                                                                                                                                
+ salesHeader.js            |       0 |        0 |       0 |       0 | 3-505                                                                                                                               
+ salesLineItems.js         |       0 |        0 |       0 |       0 | 3-914                                                                                                                               
+ salesPersist.js           |       0 |        0 |       0 |       0 | 1-170                                                                                                                               
+ salesTitleAutocomplete.js |       0 |        0 |       0 |       0 | 9-225                                                                                                                               
+ suppliers.js              |       0 |        0 |       0 |       0 | 13-319                                                                                                                              
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 3 failed, 3 total
+Tests:       3 failed, 3 total
+Snapshots:   0 total
+Time:        1.553 s
+Ran all test suites within paths "tests/spec/admin/F19-TP3-001_RestorePaginationFromLocation.spec.js", "tests/spec/admin/F19-TP3-002_SyncLocationOnControllerUpdates.spec.js", "tests/spec/admin/F19-TP3-003_SearchResetsPageAndUpdatesLocation.spec.js".

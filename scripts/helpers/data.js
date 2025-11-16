@@ -282,6 +282,7 @@ export function createPaginationController(config = {}) {
     mode,
     filters: { ...initialFilters },
     offset: 0,
+    currentOffset: 0,
     totalItems: 0,
     pageMeta: {
       pageSize: defaultPageSize,
@@ -324,6 +325,9 @@ export function createPaginationController(config = {}) {
     if (Number.isFinite(result.offset)) {
       state.offset = result.offset;
     }
+    if (Number.isFinite(result.currentOffset)) {
+      state.currentOffset = result.currentOffset;
+    }
     state.isLoading = false;
     notifyStateChange();
   };
@@ -338,6 +342,7 @@ export function createPaginationController(config = {}) {
       cursors: state.pageMeta.cursors || {},
       defaults: { pageSize: defaultPageSize, minPageSize: 1, maxPageSize: state.pageMeta.pageSize || defaultPageSize },
     });
+    request.currentOffset = state.currentOffset;
     const response = dataSource({
       request,
       filters: { ...state.filters },
@@ -360,7 +365,7 @@ export function createPaginationController(config = {}) {
       return buildPaginationShellState({
         pageMeta: state.pageMeta,
         totalItems: state.totalItems,
-        offset: state.offset,
+        offset: state.currentOffset,
         isLoading: state.isLoading,
       });
     },
@@ -378,6 +383,7 @@ export function createPaginationController(config = {}) {
     setFilters(partial = {}) {
       state.filters = { ...state.filters, ...partial };
       state.offset = 0;
+      state.currentOffset = 0;
       runDataSource('forward');
     },
     syncFromLocation({ search = '', totalItems = state.totalItems } = {}) {
@@ -396,7 +402,7 @@ export function createPaginationController(config = {}) {
       if (typeof updateFn !== 'function') return;
       const params = buildPaginationLocationParams({
         pageMeta: state.pageMeta,
-        offset: state.offset,
+        offset: state.currentOffset,
         filters: state.filters,
       });
       updateFn(params);
