@@ -1,0 +1,81 @@
+{
+  "topicId": "F19-TP3",
+  "featureId": "F19",
+  "title": "Available Books Pagination State Sync",
+  "area": "Admin / Manage Books",
+  "goal": "Persist pagination and filter state for the Manage > Available list across reloads and navigation.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F19-TP3-001",
+      "title": "RestorePaginationFromLocation",
+      "given": "An admin loads /admin#manage-books/available with pagination params in the hash/query string.",
+      "when": "initInventory bootstraps the Available panel and the pagination controller spins up.",
+      "then": "It forwards the hash query (`?page=&pageSize=&offset=&search=`) into `syncFromLocation` so the controller resumes on the same page/search combo instead of resetting to page 1."
+    },
+    {
+      "id": "F19-TP3-002",
+      "title": "SyncLocationOnControllerUpdates",
+      "given": "The pagination controller emits new state (via goNext/goPrev or loadMore).",
+      "when": "Manage Books receives the controller's `syncToLocation` callback invocations.",
+      "then": "It writes `page/pageSize/offset/search` params onto `#manage-books/available` so refresh/back links preserve the same view."
+    },
+    {
+      "id": "F19-TP3-003",
+      "title": "SearchResetsPageAndUpdatesLocation",
+      "given": "An admin applies a new header search term on the Available list.",
+      "when": "The search input fires the pagination controller's `setFilters` call.",
+      "then": "The controller resets to page 1 and the location hash updates with `page=1&offset=0&search=<term>` so reopening the view restores the filtered state."
+    },
+    {
+      "id": "F19-TP3-004",
+      "title": "NextPrevPaginationCycle",
+      "given": "The Available list spans more items than a single page and the pagination shell is visible.",
+      "when": "The admin clicks Next and then Previous.",
+      "then": "Each button requests the adjacent slice so list rows and summary text update, the hash reflects the new page/offset, and Previous re-enables once the admin leaves page 1."
+    }
+  ],
+  "fixtures": [
+    "tests/fixtures/adminInventoryHarness.js",
+    "tests/fixtures/paginationControllerStub.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F19-TP3-001_RestorePaginationFromLocation.spec.js",
+    "/tests/spec/admin/F19-TP3-002_SyncLocationOnControllerUpdates.spec.js",
+    "/tests/spec/admin/F19-TP3-003_SearchResetsPageAndUpdatesLocation.spec.js",
+    "/tests/spec/admin/F19-TP3-004_PaginationButtonsLoadNextPrev.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F19-TP3_red.txt",
+    "green": "codex_output/reports/F19-TP3_green.txt"
+  },
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --runTestsByPath tests/spec/admin/F19-TP3-001_RestorePaginationFromLocation.spec.js tests/spec/admin/F19-TP3-002_SyncLocationOnControllerUpdates.spec.js tests/spec/admin/F19-TP3-003_SearchResetsPageAndUpdatesLocation.spec.js tests/spec/admin/F19-TP3-004_PaginationButtonsLoadNextPrev.spec.js",
+    "report": "codex_output/reports/F19-TP3_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "initInventory now restores pagination/filter state from #manage-books/available, syncs controller updates back into the hash, resets to page 1 when searches change, and clicking Next/Prev actually loads adjacent slices."
+    }
+  },
+  "changedFiles": [
+    "codex_output/specs/F19-TP3.json",
+    "tests/spec/admin/F19-TP3-001_RestorePaginationFromLocation.spec.js",
+    "tests/spec/admin/F19-TP3-002_SyncLocationOnControllerUpdates.spec.js",
+    "tests/spec/admin/F19-TP3-003_SearchResetsPageAndUpdatesLocation.spec.js",
+    "tests/spec/admin/F19-TP3-004_PaginationButtonsLoadNextPrev.spec.js",
+    "scripts/admin/inventory.js",
+    "scripts/helpers/data.js",
+    "tests/fixtures/adminInventoryHarness.js",
+    "jest.config.js",
+    "codex_output/reports/F19-TP3_red.txt",
+    "codex_output/reports/F19-TP3_green.txt"
+  ],
+  "changeNotes": [
+    "Defined RED specs covering restoring pagination from hash params, syncing new controller state back into the hash, and resetting the page when search filters change.",
+    "Added admin inventory specs that use the harness + pagination controller stubs to assert syncFromLocation and syncToLocation flows plus hash updates for search changes, plus a Next/Prev paging cycle spec to guard against regressions.",
+    "Implemented location/state sync inside scripts/admin/inventory.js (hash parsing, syncToLocation wiring, search reset, page-size persistence) plus controller onState notifications in scripts/helpers/data.js.",
+    "Updated the admin inventory harness and Jest config so pagination controller overrides are injected directly without unstable module mocks; recorded GREEN run output."
+  ]
+}

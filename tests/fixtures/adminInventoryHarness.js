@@ -1,8 +1,6 @@
 import { jest } from '@jest/globals';
 
 const inventoryModuleUrl = new URL('../../scripts/admin/inventory.js', import.meta.url);
-const dataHelpersModuleUrl = new URL('../../scripts/helpers/data.js', import.meta.url);
-const dataHelpersModulePromise = import(dataHelpersModuleUrl.href);
 
 export async function createAdminInventoryHarness(options = {}) {
   const {
@@ -13,14 +11,6 @@ export async function createAdminInventoryHarness(options = {}) {
 
   jest.resetModules();
   jest.clearAllMocks();
-
-  if (paginationControllerFactory) {
-    const dataHelpers = await dataHelpersModulePromise;
-    jest.unstable_mockModule('../../scripts/helpers/data.js', () => ({
-      ...dataHelpers,
-      createPaginationController: paginationControllerFactory,
-    }));
-  }
 
   const dom = buildDom(onScrollIntoView);
   const firebase = buildFirebaseMocks(firebaseOverrides);
@@ -36,6 +26,7 @@ export async function createAdminInventoryHarness(options = {}) {
     soldList: dom.soldList,
     availableSearchInput: dom.availableSearchInput,
     searchStatus: dom.searchStatus,
+    createPaginationController: paginationControllerFactory,
   });
 
   return {
@@ -84,6 +75,14 @@ function buildDom(onScrollIntoView) {
       >
         <p id="availablePaginationSummary" aria-live="polite">Items 0–0 of 0</p>
         <div class="inventory-pagination__controls">
+          <div class="inventory-page-size">
+            <label for="availablePageSize">Items per page</label>
+            <select id="availablePageSize">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+            </select>
+          </div>
           <button
             type="button"
             id="availablePaginationPrev"
@@ -117,6 +116,7 @@ function buildDom(onScrollIntoView) {
     soldPanel: document.getElementById('soldBooksPanel'),
     soldList: document.getElementById('soldList'),
     searchStatus: document.getElementById('availableSearchStatus'),
+    pageSizeSelect: document.getElementById('availablePageSize'),
   };
 }
 

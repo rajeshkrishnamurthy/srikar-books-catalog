@@ -616,25 +616,33 @@
                 aria-live="polite"
               ></p>
             </div>
-            <div id="availList" class="admin-list inventory-list"></div>
-            <div
-              class="inventory-pagination"
-              data-available-pagination
-              aria-busy="false"
-            >
-              <p
-                id="availablePaginationSummary"
-                class="muted"
-                aria-live="polite"
+              <div id="availList" class="admin-list inventory-list"></div>
+              <div
+                class="inventory-pagination"
+                data-available-pagination
+                aria-busy="false"
               >
-                Items 0–0 of 0
-              </p>
-              <div class="inventory-pagination__controls">
-                <button
-                  type="button"
-                  id="availablePaginationPrev"
-                  class="btn btn-secondary"
-                  data-pagination="prev"
+                <p
+                  id="availablePaginationSummary"
+                  class="muted"
+                  aria-live="polite"
+                >
+                  Items 0–0 of 0
+                </p>
+                <div class="inventory-pagination__controls">
+                  <div class="inventory-page-size">
+                    <label for="availablePageSize">Items per page</label>
+                    <select id="availablePageSize" class="md-input">
+                      <option value="10">10</option>
+                      <option value="20" selected>20</option>
+                      <option value="50">50</option>
+                    </select>
+                  </div>
+                  <button
+                    type="button"
+                    id="availablePaginationPrev"
+                    class="btn btn-secondary"
+                    data-pagination="prev"
                   aria-controls="availList"
                 >
                   Previous page

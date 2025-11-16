@@ -1,0 +1,1 @@
+Initial run failed because the Available panel had no page-size selector: tests/spec/admin/F19-TP4-001_PageSizeSelectorRenders.spec.js, F19-TP4-002_PageSizeChangeReloadsAndResetsPage.spec.js, and F19-TP4-003_PageSizePersistsAcrossReload.spec.js all raised missing element / incorrect summary assertions.

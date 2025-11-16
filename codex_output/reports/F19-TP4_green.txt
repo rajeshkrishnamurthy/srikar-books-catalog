@@ -1,0 +1,48 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false --runTestsByPath tests/spec/admin/F19-TP4-001_PageSizeSelectorRenders.spec.js tests/spec/admin/F19-TP4-002_PageSizeChangeReloadsAndResetsPage.spec.js tests/spec/admin/F19-TP4-003_PageSizePersistsAcrossReload.spec.js
+
+(node:73223) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/F19-TP4-003_PageSizePersistsAcrossReload.spec.js
+  SPEC F19-TP4-003: Selected page size persists across reloads (hash/restore)
+    ✓ changing to 100 per page updates hash and a new harness load restores that size before paging (104 ms)
+
+PASS tests/spec/admin/F19-TP4-002_PageSizeChangeReloadsAndResetsPage.spec.js
+  SPEC F19-TP4-002: Changing page size reloads page 1 and updates hash
+    ✓ selecting 50 per page fetches 50 rows, resets page to 1, and updates hash with pageSize=50 (60 ms)
+
+PASS tests/spec/admin/F19-TP4-001_PageSizeSelectorRenders.spec.js
+  SPEC F19-TP4-001: Page size selector renders and defaults to 20
+    ✓ selector shows 10/20/50/100 options with 20 selected and aria labels intact (22 ms)
+
+---------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                      
+---------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                  |    3.75 |     3.75 |    4.07 |    3.94 |                                                                                                                                                        
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                  
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                   
+ availablePagination.js    |       0 |        0 |       0 |       0 | 5-188                                                                                                                                                  
+ bundleList.js             |       0 |        0 |       0 |       0 | 2-510                                                                                                                                                  
+ bundleStatus.js           |       0 |        0 |       0 |       0 | 7-110                                                                                                                                                  
+ bundles.js                |       0 |        0 |       0 |       0 | 3-494                                                                                                                                                  
+ currency.js               |       0 |        0 |       0 |       0 | 6-31                                                                                                                                                   
+ customerLookup.js         |       0 |        0 |       0 |       0 | 3-392                                                                                                                                                  
+ customers.js              |       0 |        0 |       0 |       0 | 3-520                                                                                                                                                  
+ editor.js                 |       0 |        0 |       0 |       0 | 27-411                                                                                                                                                 
+ inventory.js              |   39.67 |    35.27 |   47.54 |   41.77 | 33,38-49,59-68,121-171,180,207,212-231,238-402,441,451,470-471,490-491,513,531-535,569-570,575,580-641,655-659,714,724-726,801,820-822,825-827,837-838 
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                 
+ main.js                   |       0 |        0 |       0 |       0 | 39-1924                                                                                                                                                
+ requests.js               |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                   
+ salesEntryLauncher.js     |       0 |        0 |       0 |       0 | 2-68                                                                                                                                                   
+ salesHeader.js            |       0 |        0 |       0 |       0 | 3-505                                                                                                                                                  
+ salesLineItems.js         |       0 |        0 |       0 |       0 | 3-914                                                                                                                                                  
+ salesPersist.js           |       0 |        0 |       0 |       0 | 1-170                                                                                                                                                  
+ salesTitleAutocomplete.js |       0 |        0 |       0 |       0 | 9-225                                                                                                                                                  
+ suppliers.js              |       0 |        0 |       0 |       0 | 13-319                                                                                                                                                 
+---------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 3 passed, 3 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        1.329 s
+Ran all test suites within paths "tests/spec/admin/F19-TP4-001_PageSizeSelectorRenders.spec.js", "tests/spec/admin/F19-TP4-002_PageSizeChangeReloadsAndResetsPage.spec.js", "tests/spec/admin/F19-TP4-003_PageSizePersistsAcrossReload.spec.js".

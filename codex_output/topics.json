@@ -867,6 +867,21 @@
           "when": "They refresh, deep-link to Manage Books, or use browser back/forward to return.",
           "then": "The controller restores the same filter/page combination (or nearest safe slice), updates the hash/location parameters, resets to page 1 when filters change, and prevents stale cursors from causing blank lists.",
           "notes": "Coordinate with Manage sub nav hash patterns (#manage-books/available) so pagination params append cleanly (e.g., ?page=3) without breaking other panels."
+        },
+        {
+          "id": "F19-TP4",
+          "title": "Available Page Size Selector",
+          "area": "Admin / Manage Books",
+          "goal": "Expose a per-page selector (10/25/50/100) so admins can adjust how many available books load per slice without reloading.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F19-TP2",
+            "F19-TP3"
+          ],
+          "given": "The Available list shows more results than a single page and the pagination shell is visible.",
+          "when": "The admin changes the page-size control to 10, 25, 50, or 100 items per page.",
+          "then": "The controller updates its request pageSize, refetches the first slice for the new size, persists the selection in state sync (hash/query or local storage), and keeps the summary text/Prev-Next state accurate for the chosen size.",
+          "notes": "Default remains 25 until the admin selects a different size. Size options should be keyboard accessible and announced when changed."
         }
       ]
     },
