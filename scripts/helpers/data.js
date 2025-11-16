@@ -394,6 +394,7 @@ export function createPaginationController(config = {}) {
       });
       state.pageMeta.pageSize = parsed.pageSize;
       state.offset = parsed.offset;
+      state.currentOffset = parsed.offset;
       state.filters = { ...state.filters, ...parsed.filters };
       state.totalItems = totalItems;
       runDataSource('forward');
@@ -406,6 +407,21 @@ export function createPaginationController(config = {}) {
         filters: state.filters,
       });
       updateFn(params);
+    },
+    refresh() {
+      state.offset = state.currentOffset;
+      runDataSource('forward');
+    },
+    setPageSize(newSize) {
+      const numeric = Number(newSize);
+      if (!Number.isFinite(numeric) || numeric <= 0) return;
+      const clamped = Math.max(1, Math.round(numeric));
+      if (state.pageMeta.pageSize === clamped) return;
+      state.pageMeta.pageSize = clamped;
+      state.offset = 0;
+      state.currentOffset = 0;
+      state.pageMeta.cursors = { start: null, end: null };
+      runDataSource('forward');
     },
   };
 }

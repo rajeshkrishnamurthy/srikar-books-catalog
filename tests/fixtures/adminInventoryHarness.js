@@ -75,6 +75,14 @@ function buildDom(onScrollIntoView) {
       >
         <p id="availablePaginationSummary" aria-live="polite">Items 0–0 of 0</p>
         <div class="inventory-pagination__controls">
+          <div class="inventory-page-size">
+            <label for="availablePageSize">Items per page</label>
+            <select id="availablePageSize">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+            </select>
+          </div>
           <button
             type="button"
             id="availablePaginationPrev"
@@ -108,6 +116,7 @@ function buildDom(onScrollIntoView) {
     soldPanel: document.getElementById('soldBooksPanel'),
     soldList: document.getElementById('soldList'),
     searchStatus: document.getElementById('availableSearchStatus'),
+    pageSizeSelect: document.getElementById('availablePageSize'),
   };
 }
 

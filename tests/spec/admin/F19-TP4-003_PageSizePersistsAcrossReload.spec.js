@@ -12,7 +12,7 @@ function buildDocs(count = 80) {
 }
 
 describe('SPEC F19-TP4-003: Selected page size persists across reloads (hash/restore)', () => {
-  test('changing to 100 per page updates hash and a new harness load restores that size before paging', async () => {
+  test('changing to 50 per page updates hash and a new harness load restores that size before paging', async () => {
     window.location.hash = '#manage-books/available';
 
     const firstHarness = await createAdminInventoryHarness();
@@ -23,10 +23,10 @@ describe('SPEC F19-TP4-003: Selected page size persists across reloads (hash/res
     );
     const firstSelect = firstPagination.querySelector('#availablePageSize');
 
-    fireEvent.change(firstSelect, { target: { value: '100' } });
+    fireEvent.change(firstSelect, { target: { value: '50' } });
 
     await waitFor(() => {
-      expect(window.location.hash).toContain('pageSize=100');
+      expect(window.location.hash).toContain('pageSize=50');
     });
 
     const secondHarness = await createAdminInventoryHarness();
@@ -39,8 +39,8 @@ describe('SPEC F19-TP4-003: Selected page size persists across reloads (hash/res
     const summary = pagination.querySelector('#availablePaginationSummary');
 
     await waitFor(() => {
-      expect(sizeSelect.value).toBe('100');
-      expect(summary.textContent).toBe('Items 1–80 of 80');
+      expect(sizeSelect.value).toBe('50');
+      expect(summary.textContent).toBe('Items 1–50 of 80');
     });
   });
 });

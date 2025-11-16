@@ -52,11 +52,11 @@
   },
   "validation": {
     "status": "GREEN",
-    "command": "npm test -- --watchAll=false --runTestsByPath tests/spec/admin/F19-TP3-001_RestorePaginationFromLocation.spec.js tests/spec/admin/F19-TP3-002_SyncLocationOnControllerUpdates.spec.js tests/spec/admin/F19-TP3-003_SearchResetsPageAndUpdatesLocation.spec.js",
+    "command": "npm test -- --watchAll=false --runTestsByPath tests/spec/admin/F19-TP3-001_RestorePaginationFromLocation.spec.js tests/spec/admin/F19-TP3-002_SyncLocationOnControllerUpdates.spec.js tests/spec/admin/F19-TP3-003_SearchResetsPageAndUpdatesLocation.spec.js tests/spec/admin/F19-TP3-004_PaginationButtonsLoadNextPrev.spec.js",
     "report": "codex_output/reports/F19-TP3_green.txt",
     "summary": {
       "result": "passed",
-      "details": "initInventory now restores pagination/filter state from #manage-books/available, syncs controller updates back into the hash, and resets to page 1 when searches change."
+      "details": "initInventory now restores pagination/filter state from #manage-books/available, syncs controller updates back into the hash, resets to page 1 when searches change, and clicking Next/Prev actually loads adjacent slices."
     }
   },
   "changedFiles": [

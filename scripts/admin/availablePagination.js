@@ -80,11 +80,21 @@ async function computeAvailableCount(deps, filters) {
   return 0;
 }
 
-function deriveOffset({ direction, safeOffset, pageSize, itemCount }) {
+function deriveOffset({
+  direction,
+  safeOffset,
+  currentOffset,
+  pageSize,
+  itemCount,
+}) {
   const normalizedOffset =
     Number.isFinite(safeOffset) && safeOffset >= 0 ? safeOffset : 0;
+  const normalizedCurrent =
+    Number.isFinite(currentOffset) && currentOffset >= 0
+      ? currentOffset
+      : normalizedOffset;
   if (direction === 'backward') {
-    const pageOffset = Math.max(0, normalizedOffset - pageSize);
+    const pageOffset = Math.max(0, normalizedCurrent - pageSize);
     return {
       pageOffset,
       currentStart: pageOffset,
@@ -92,7 +102,7 @@ function deriveOffset({ direction, safeOffset, pageSize, itemCount }) {
   }
   return {
     pageOffset: normalizedOffset + itemCount,
-    currentStart: normalizedOffset,
+    currentStart: normalizedCurrent,
   };
 }
 
@@ -121,6 +131,10 @@ export function createAvailableBooksDataSource(overrides = {}) {
     const direction = request.direction === 'backward' ? 'backward' : 'forward';
     const pageSize = clampPageSize(request.pageSize);
     const safeOffset = Number.isFinite(offset) && offset >= 0 ? offset : 0;
+    const currentOffset =
+      Number.isFinite(request.currentOffset) && request.currentOffset >= 0
+        ? request.currentOffset
+        : safeOffset;
     const normalizedFilters = normalizeFilters(filters);
     const limitSize = pageSize + 1;
 
@@ -175,6 +189,7 @@ export function createAvailableBooksDataSource(overrides = {}) {
     const { pageOffset, currentStart } = deriveOffset({
       direction,
       safeOffset,
+      currentOffset,
       pageSize,
       itemCount: items.length,
     });
@@ -198,6 +213,7 @@ export function createAvailableBooksDataSource(overrides = {}) {
         },
       },
       offset: pageOffset,
+      currentOffset: currentStart,
       totalItems,
     };
   };

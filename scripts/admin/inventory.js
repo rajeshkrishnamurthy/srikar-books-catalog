@@ -192,6 +192,7 @@ export function initInventory({
   paginationSummary = document.getElementById('availablePaginationSummary'),
   paginationPrevButton = document.getElementById('availablePaginationPrev'),
   paginationNextButton = document.getElementById('availablePaginationNext'),
+  pageSizeSelect = document.getElementById('availablePageSize'),
   supplierSelect,
   onEdit, // optional
   createPaginationController: createPaginationControllerOverride,
@@ -425,8 +426,20 @@ export function initInventory({
 
   let paginationController;
 
+  const syncPageSizeSelect = (size) => {
+    if (!pageSizeSelect) return;
+    const value = String(size ?? AVAILABLE_PAGE_SIZE);
+    if (pageSizeSelect.value !== value) {
+      pageSizeSelect.value = value;
+    }
+  };
+
   const handlePaginationStateChange = () => {
     paginationShellApi.sync?.();
+    const uiState = paginationController?.getUiState?.();
+    if (uiState?.pageMeta?.pageSize) {
+      syncPageSizeSelect(uiState.pageMeta.pageSize);
+    }
     paginationController?.syncToLocation?.((params = {}) => {
       updateAvailableLocationHash(params);
     });
@@ -450,6 +463,18 @@ export function initInventory({
     onStateChange: handlePaginationStateChange,
   });
 
+  const handlePageSizeChange = (event) => {
+    const value = Number(event?.target?.value);
+    if (!paginationController?.setPageSize) return;
+    if (!Number.isFinite(value) || value <= 0) {
+      syncPageSizeSelect(paginationController?.getUiState?.().pageMeta?.pageSize);
+      return;
+    }
+    paginationController.setPageSize(value);
+  };
+
+  pageSizeSelect?.addEventListener('change', handlePageSizeChange);
+
   paginationShellApi = initAvailablePaginationShell({
     container: paginationContainer,
     summaryEl: paginationSummary,
@@ -460,19 +485,25 @@ export function initInventory({
 
   const restoredFromLocation = restorePaginationFromLocation();
   handlePaginationStateChange();
-  function reloadAvailablePagination() {
+  function reloadAvailablePagination({ reset = false } = {}) {
     if (!paginationController?.setFilters) {
       renderLists();
       return;
     }
-    paginationController.setFilters({
-      searchTerm: searchActive ? currentFilter : '',
-      search: searchActive ? currentFilterInput : '',
-      refreshToken: Date.now(),
-    });
+    if (reset) {
+      paginationController.setFilters({
+        searchTerm: searchActive ? currentFilter : '',
+        search: searchActive ? currentFilterInput : '',
+        refreshToken: Date.now(),
+      });
+    } else {
+      paginationController.refresh?.();
+    }
   }
 
-  reloadAvailablePagination();
+  if (!restoredFromLocation) {
+    reloadAvailablePagination({ reset: true });
+  }
 
   function renderLists() {
     const isSearching = searchActive;
@@ -526,7 +557,7 @@ export function initInventory({
     if (!searchActive) {
       availableFilteredCount = availableDocs.length;
     }
-    reloadAvailablePagination();
+    reloadAvailablePagination({ reset: false });
   });
   const unsubscribeSold = onSnapshot(qSold, (snap) => {
     soldDocs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -560,6 +591,7 @@ export function initInventory({
         handleAvailableSearchInput
       );
       paginationShellApi.cleanup?.();
+      pageSizeSelect?.removeEventListener('change', handlePageSizeChange);
     },
   };
 
@@ -575,7 +607,7 @@ export function initInventory({
       currentFilterInput = '';
       searchActive = false;
       availableFilteredCount = availableDocs.length;
-      reloadAvailablePagination();
+      reloadAvailablePagination({ reset: true });
       renderLists();
       if (announce) {
         clearSearchStatus();
@@ -588,7 +620,7 @@ export function initInventory({
     searchActive = true;
     const matchesCount = filterAvailableDocs(availableDocs, normalizedTerm).length;
     availableFilteredCount = matchesCount;
-    reloadAvailablePagination();
+    reloadAvailablePagination({ reset: true });
     renderLists();
     if (announce) {
       announceFilteredResults(trimmedTerm, matchesCount);
@@ -626,6 +658,10 @@ export function initInventory({
       if (availableSearchInput) {
         availableSearchInput.value = rawTerm;
       }
+    }
+    const parsedPageSize = Number(params.get('pageSize'));
+    if (Number.isFinite(parsedPageSize) && parsedPageSize > 0) {
+      syncPageSizeSelect(parsedPageSize);
     }
     paginationController.syncFromLocation?.({
       search,

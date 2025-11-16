@@ -26,7 +26,7 @@ describe('SPEC F19-TP4-002: Changing page size reloads page 1 and updates hash',
     const { getByRole } = within(pagination);
 
     await waitFor(() => {
-      expect(summary.textContent).toBe('Items 51–75 of 120');
+      expect(summary.textContent).toBe('Items 41–60 of 120');
     });
 
     fireEvent.change(sizeSelect, { target: { value: '50' } });

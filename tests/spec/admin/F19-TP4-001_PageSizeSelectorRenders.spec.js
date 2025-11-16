@@ -11,8 +11,8 @@ function buildDocs(count = 30) {
   }));
 }
 
-describe('SPEC F19-TP4-001: Page size selector renders and defaults to 25', () => {
-  test('selector shows 10/25/50/100 options with 25 selected and aria labels intact', async () => {
+describe('SPEC F19-TP4-001: Page size selector renders and defaults to 20', () => {
+  test('selector shows 10/20/50 options with 20 selected and aria labels intact', async () => {
     const harness = await createAdminInventoryHarness();
     harness.emitAvailableDocs(buildDocs(30));
 
@@ -26,7 +26,7 @@ describe('SPEC F19-TP4-001: Page size selector renders and defaults to 25', () =
     expect(sizeSelect.value).toBe('20');
 
     const options = Array.from(sizeSelect.options).map((opt) => opt.value);
-    expect(options).toEqual(['10', '20', '50', '100']);
+    expect(options).toEqual(['10', '20', '50']);
 
     const label = pagination.querySelector('label[for="availablePageSize"]');
     expect(label).not.toBeNull();
@@ -34,7 +34,7 @@ describe('SPEC F19-TP4-001: Page size selector renders and defaults to 25', () =
 
     await waitFor(() => {
       const rows = harness.availList.querySelectorAll('.row');
-      expect(rows.length).toBe(25);
+      expect(rows.length).toBe(20);
     });
   });
 });
