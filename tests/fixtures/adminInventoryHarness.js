@@ -1,12 +1,26 @@
 import { jest } from '@jest/globals';
 
 const inventoryModuleUrl = new URL('../../scripts/admin/inventory.js', import.meta.url);
+const dataHelpersModuleUrl = new URL('../../scripts/helpers/data.js', import.meta.url);
+const dataHelpersModulePromise = import(dataHelpersModuleUrl.href);
 
 export async function createAdminInventoryHarness(options = {}) {
-  const { firebaseOverrides = {}, onScrollIntoView = jest.fn() } = options;
+  const {
+    firebaseOverrides = {},
+    onScrollIntoView = jest.fn(),
+    paginationControllerFactory,
+  } = options;
 
   jest.resetModules();
   jest.clearAllMocks();
+
+  if (paginationControllerFactory) {
+    const dataHelpers = await dataHelpersModulePromise;
+    jest.unstable_mockModule('../../scripts/helpers/data.js', () => ({
+      ...dataHelpers,
+      createPaginationController: paginationControllerFactory,
+    }));
+  }
 
   const dom = buildDom(onScrollIntoView);
   const firebase = buildFirebaseMocks(firebaseOverrides);
@@ -63,6 +77,31 @@ function buildDom(onScrollIntoView) {
       </summary>
       <p id="availableSearchStatus" aria-live="polite" class="sr-only"></p>
       <div id="availList"></div>
+      <div
+        class="inventory-pagination"
+        data-available-pagination
+        aria-busy="false"
+      >
+        <p id="availablePaginationSummary" aria-live="polite">Items 0–0 of 0</p>
+        <div class="inventory-pagination__controls">
+          <button
+            type="button"
+            id="availablePaginationPrev"
+            data-pagination="prev"
+            aria-controls="availList"
+          >
+            Previous page
+          </button>
+          <button
+            type="button"
+            id="availablePaginationNext"
+            data-pagination="next"
+            aria-controls="availList"
+          >
+            Next page
+          </button>
+        </div>
+      </div>
     </details>
     <details id="soldBooksPanel">
       <summary>Sold</summary>

@@ -24,6 +24,7 @@ import {
 } from '../lib/firebase.js';
 import { stripHtmlAndSquash } from '../helpers/text.js';
 import { bookMatchesQuery } from '../helpers/bookSearch.js';
+import { createPaginationController } from '../helpers/data.js';
 import { readCurrencyField } from './currency.js';
 
 // ---- small utils ----
@@ -49,6 +50,7 @@ function formatSupplierLabel(supplier = {}) {
 }
 
 const RUPEE_FORMATTER = new Intl.NumberFormat('en-IN');
+const AVAILABLE_PAGE_SIZE = 20;
 
 function formatPurchasePriceText(value) {
   if (value === undefined || value === null || value === '') {
@@ -186,6 +188,10 @@ export function initInventory({
   soldList,
   availableSearchInput = document.getElementById('availableSearchInput'),
   searchStatus = document.getElementById('availableSearchStatus'),
+  paginationContainer = document.querySelector('[data-available-pagination]'),
+  paginationSummary = document.getElementById('availablePaginationSummary'),
+  paginationPrevButton = document.getElementById('availablePaginationPrev'),
+  paginationNextButton = document.getElementById('availablePaginationNext'),
   supplierSelect,
   onEdit, // optional
 }) {
@@ -398,24 +404,74 @@ export function initInventory({
   addForm?.addEventListener('submit', handleSubmit);
 
   // ---- live lists + filtering ----
-  let currentFilter = ''; // search text
-  let availDocs = []; // latest available docs
-  let soldDocs = []; // latest sold docs
+  let currentFilter = '';
+  let searchActive = false;
+  let availableDocs = [];
+  let availablePageDocs = [];
+  let availableFilteredCount = 0;
+  let soldDocs = [];
   let lastAnnouncedTerm = '';
+  let paginationShellApi = {
+    sync() {},
+    cleanup() {},
+  };
+
+  const paginationController = createPaginationController?.({
+    dataSource: createLocalAvailablePaginationDataSource({
+      getDocs: () => availableDocs.slice(),
+      getSearchTerm: () => (searchActive ? currentFilter : ''),
+      onPage: (pageItems = [], meta = {}) => {
+        availablePageDocs = Array.isArray(pageItems) ? pageItems : [];
+        availableFilteredCount = Number.isFinite(meta.totalItems)
+          ? meta.totalItems
+          : availableFilteredCount;
+        renderLists();
+        paginationShellApi.sync?.();
+      },
+    }),
+    defaultPageSize: AVAILABLE_PAGE_SIZE,
+    initialFilters: { searchTerm: '' },
+    onStateChange: () => {
+      paginationShellApi.sync?.();
+    },
+  });
+
+  paginationShellApi = initAvailablePaginationShell({
+    container: paginationContainer,
+    summaryEl: paginationSummary,
+    prevButton: paginationPrevButton,
+    nextButton: paginationNextButton,
+    controller: paginationController,
+  });
+
+  function reloadAvailablePagination() {
+    if (!paginationController?.setFilters) {
+      renderLists();
+      return;
+    }
+    paginationController.setFilters({
+      searchTerm: searchActive ? currentFilter : '',
+      refreshToken: Date.now(),
+    });
+    paginationShellApi.sync?.();
+  }
+
+  reloadAvailablePagination();
 
   function renderLists() {
-    const isSearching = !!currentFilter;
-    const A = isSearching
-      ? availDocs.filter((d) => matches(d, currentFilter))
-      : availDocs;
-    const S = isSearching
+    const isSearching = searchActive;
+    const availableDisplay =
+      availablePageDocs.length > 0 ? availablePageDocs : availableDocs;
+    const soldDisplay = isSearching
       ? soldDocs.filter((d) => matches(d, currentFilter))
       : soldDocs;
 
     // Available
-    if (A.length) {
-      const map = new Map(A.map((d) => [d.id, d]));
-      availList.innerHTML = A.map((d) => rowHTML(d.id, d, false)).join('');
+    if (availableDisplay.length) {
+      const map = new Map(availableDisplay.map((d) => [d.id, d]));
+      availList.innerHTML = availableDisplay
+        .map((d) => rowHTML(d.id, d, false))
+        .join('');
       wireRowButtons(availList, map, onEdit);
     } else {
       availList.innerHTML = `<p class="muted">${
@@ -424,9 +480,11 @@ export function initInventory({
     }
 
     // Sold
-    if (S.length) {
-      const map = new Map(S.map((d) => [d.id, d]));
-      soldList.innerHTML = S.map((d) => rowHTML(d.id, d, true)).join('');
+    if (soldDisplay.length) {
+      const map = new Map(soldDisplay.map((d) => [d.id, d]));
+      soldList.innerHTML = soldDisplay
+        .map((d) => rowHTML(d.id, d, true))
+        .join('');
       wireRowButtons(soldList, map, onEdit);
     } else {
       soldList.innerHTML = `<p class="muted">${
@@ -448,8 +506,11 @@ export function initInventory({
   );
 
   const unsubscribeAvail = onSnapshot(qAvail, (snap) => {
-    availDocs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    renderLists();
+    availableDocs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    if (!searchActive) {
+      availableFilteredCount = availableDocs.length;
+    }
+    reloadAvailablePagination();
   });
   const unsubscribeSold = onSnapshot(qSold, (snap) => {
     soldDocs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -482,6 +543,7 @@ export function initInventory({
         'input',
         handleAvailableSearchInput
       );
+      paginationShellApi.cleanup?.();
     },
   };
 
@@ -494,6 +556,9 @@ export function initInventory({
 
     if (!isLongEnough) {
       currentFilter = '';
+      searchActive = false;
+      availableFilteredCount = availableDocs.length;
+      reloadAvailablePagination();
       renderLists();
       if (announce) {
         clearSearchStatus();
@@ -502,7 +567,10 @@ export function initInventory({
     }
 
     currentFilter = normalizedTerm;
-    const matchesCount = availDocs.filter((d) => matches(d, normalizedTerm)).length;
+    searchActive = true;
+    const matchesCount = filterAvailableDocs(availableDocs, normalizedTerm).length;
+    availableFilteredCount = matchesCount;
+    reloadAvailablePagination();
     renderLists();
     if (announce) {
       announceFilteredResults(trimmedTerm, matchesCount);
@@ -511,7 +579,8 @@ export function initInventory({
 
   function announceFilteredResults(term, count) {
     if (!searchStatus) return;
-    searchStatus.textContent = `Filtered ${count} results for '${term}'`;
+    const safeCount = Number.isFinite(count) ? count : availableFilteredCount;
+    searchStatus.textContent = `Filtered ${safeCount} results for '${term}'`;
     lastAnnouncedTerm = term;
   }
 
@@ -520,5 +589,118 @@ export function initInventory({
     if (!lastAnnouncedTerm && !searchStatus.textContent) return;
     searchStatus.textContent = '';
     lastAnnouncedTerm = '';
+  }
+
+  function filterAvailableDocs(list = [], term = '') {
+    if (!term) {
+      return Array.isArray(list) ? list.slice() : [];
+    }
+    const normalized = String(term).toLowerCase();
+    return (Array.isArray(list) ? list : []).filter((doc) =>
+      matches(doc, normalized)
+    );
+  }
+
+  function createLocalAvailablePaginationDataSource({
+    getDocs,
+    getSearchTerm,
+    onPage,
+  }) {
+    return async function dataSource({ request = {}, filters = {}, offset = 0 }) {
+      const pageSize =
+        Number.isFinite(request.pageSize) && request.pageSize > 0
+          ? request.pageSize
+          : AVAILABLE_PAGE_SIZE;
+      const direction =
+        request.direction === 'backward' ? 'backward' : 'forward';
+      const safeOffset = Number.isFinite(offset) && offset >= 0 ? offset : 0;
+      const desiredTerm =
+        filters.searchTerm ??
+        (typeof getSearchTerm === 'function' ? getSearchTerm() : '') ??
+        '';
+      const sourceDocs =
+        typeof getDocs === 'function' ? getDocs() : availableDocs;
+      const filteredDocs = filterAvailableDocs(sourceDocs, desiredTerm);
+      const startIndex =
+        direction === 'backward'
+          ? Math.max(0, safeOffset - pageSize)
+          : safeOffset;
+      const pageItems = filteredDocs.slice(startIndex, startIndex + pageSize);
+      onPage &&
+        onPage(pageItems, {
+          totalItems: filteredDocs.length,
+          startIndex,
+        });
+      const hasNext = startIndex + pageItems.length < filteredDocs.length;
+      const hasPrev = startIndex > 0;
+      return {
+        items: pageItems,
+        pageMeta: {
+          pageSize,
+          count: pageItems.length,
+          hasNext,
+          hasPrev,
+          cursors: {
+            start: pageItems[0] || null,
+            end: pageItems[pageItems.length - 1] || null,
+          },
+        },
+        offset: startIndex,
+        totalItems: filteredDocs.length,
+      };
+    };
+  }
+
+  function initAvailablePaginationShell({
+    container,
+    summaryEl,
+    prevButton,
+    nextButton,
+    controller,
+  }) {
+    const summary = summaryEl || container?.querySelector('#availablePaginationSummary');
+    const prev = prevButton || container?.querySelector('[data-pagination=\"prev\"]');
+    const next = nextButton || container?.querySelector('[data-pagination=\"next\"]');
+    if (!container || !summary || !prev || !next || !controller) {
+      return {
+        sync() {},
+        cleanup() {},
+      };
+    }
+
+    const updateUi = () => {
+      if (!controller?.getUiState) return;
+      const state = controller.getUiState() || {};
+      summary.textContent = state.summaryText || 'Items 0–0 of 0';
+      summary.setAttribute('aria-live', summary.getAttribute('aria-live') || 'polite');
+      container.setAttribute('aria-busy', state.isBusy ? 'true' : 'false');
+      const disablePrev = state.prevDisabled || state.isBusy;
+      const disableNext = state.nextDisabled || state.isBusy;
+      prev.disabled = Boolean(disablePrev);
+      next.disabled = Boolean(disableNext);
+    };
+
+    const handlePrev = () => {
+      if (prev.disabled) return;
+      controller.goPrev?.();
+      updateUi();
+    };
+    const handleNext = () => {
+      if (next.disabled) return;
+      controller.goNext?.();
+      updateUi();
+    };
+
+    prev.addEventListener('click', handlePrev);
+    next.addEventListener('click', handleNext);
+    updateUi();
+
+    return {
+      sync: updateUi,
+      cleanup() {
+        prev.removeEventListener('click', handlePrev);
+        next.removeEventListener('click', handleNext);
+      },
+    };
   }
 }

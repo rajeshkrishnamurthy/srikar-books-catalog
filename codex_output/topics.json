@@ -797,6 +797,76 @@
           "when": "They refresh the page, share a link, or use browser back/forward to return to a previously viewed list.",
           "then": "The view restores the same pagination slice (or a safe nearest equivalent) based on URL/hash state, keeps pagination controls in sync, and never shows a different page than the one implied by the URL.",
           "notes": "Defines how page and filter parameters are encoded into the URL/hash and how the pagination helper should reconcile stale or invalid cursor state."
+        },
+        {
+          "id": "F18-TP5",
+          "title": "Pagination Controller Abstraction",
+          "area": "Cross-Cutting / Pagination",
+          "goal": "Introduce a reusable pagination controller that wraps the shared helpers and exposes a tiny, screen-agnostic API for any list view.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F18-TP1",
+            "F18-TP2",
+            "F18-TP3",
+            "F18-TP4"
+          ],
+          "given": "An admin or public list view wants to adopt the shared pagination framework without reimplementing request, UI, and URL wiring on its own.",
+          "when": "The view instantiates the pagination controller with a dataSource callback, default page size, initial filters, and location sync settings.",
+          "then": "The controller manages internal pagination state (items, pageMeta, totalItems, offset, filters), exposes simple methods like goNext/goPrev/loadMore/setFilters, reuses the shared helpers to compute UI state and deep-link params, and keeps the view aligned with URL/back/forward semantics via a consistent callback surface.",
+          "notes": "Defines the shape of the controller config and public API so later topics can plug specific screens into it with minimal glue code."
+        }
+      ]
+    },
+    {
+      "featureId": "F19",
+      "featureTitle": "Available Books Pagination Integration",
+      "description": "Apply the unified pagination controller and shell to the Manage Books > Available view so admins can page through inventory without custom wiring.",
+      "topics": [
+        {
+          "id": "F19-TP1",
+          "title": "Available Books Data Source",
+          "area": "Admin / Manage Books",
+          "goal": "Create a pagination-aware dataSource for the Available list that queries Firestore with the current filters and page cursor.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F16-TP3",
+            "F18-TP1",
+            "F18-TP5"
+          ],
+          "given": "The Manage Books > Available tab is active and the pagination controller initializes.",
+          "when": "The controller requests a page with a specified size, direction, or cursor plus the current filter/search state.",
+          "then": "The dataSource composes the Firestore query, enforces ordering, returns normalized results with paging metadata, and gracefully handles empty or short final pages without duplicating pagination logic.",
+          "notes": "Ensure deduped supplier/search filters feed into the query inputs and that the controller can refetch page 1 whenever filters change."
+        },
+        {
+          "id": "F19-TP2",
+          "title": "Available Books Pagination Shell",
+          "area": "Admin / Manage Books",
+          "goal": "Mount the shared pagination shell within the Available list panel and wire it to the controller methods.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F19-TP1",
+            "F18-TP2"
+          ],
+          "given": "An admin views the Available list that displays more items than the configured page size.",
+          "when": "The controller emits UI state changes or the admin activates Previous/Next controls.",
+          "then": "The shell renders consistent summary text, disables/enables controls per state, triggers goPrev/goNext without double submissions, and keeps focus/ARIA patterns aligned with other paginated lists.",
+          "notes": "Layout should match existing Manage sub panels; ensure the pagination controls remain sticky near list footer and support keyboard activation."
+        },
+        {
+          "id": "F19-TP3",
+          "title": "Available Books Pagination State Sync",
+          "area": "Admin / Manage Books",
+          "goal": "Persist pagination + filter state for the Available list across reloads and navigation.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F19-TP2",
+            "F18-TP4"
+          ],
+          "given": "The admin has navigated across pages or adjusted filters/search within the Available view.",
+          "when": "They refresh, deep-link to Manage Books, or use browser back/forward to return.",
+          "then": "The controller restores the same filter/page combination (or nearest safe slice), updates the hash/location parameters, resets to page 1 when filters change, and prevents stale cursors from causing blank lists.",
+          "notes": "Coordinate with Manage sub nav hash patterns (#manage-books/available) so pagination params append cleanly (e.g., ?page=3) without breaking other panels."
         }
       ]
     },

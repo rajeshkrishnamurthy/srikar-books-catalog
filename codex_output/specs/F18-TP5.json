@@ -1,0 +1,64 @@
+{
+  "topicId": "F18-TP5",
+  "featureId": "F18",
+  "title": "Pagination Controller Abstraction",
+  "area": "Cross-Cutting / Pagination",
+  "goal": "Wrap shared pagination helpers in a reusable controller with a tiny API that any list view can adopt.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F18-TP5-001",
+      "title": "ExposesMinimalControllerApi",
+      "given": "A list view provides a dataSource callback, default page size, initial filters, and mode to the pagination controller factory.",
+      "when": "createPaginationController is invoked with that configuration.",
+      "then": "It returns a controller object exposing methods like getUiState, goNext, goPrev, loadMore, setFilters, syncFromLocation, and syncToLocation so screens do not need to touch low-level helpers directly.",
+      "test": "/tests/unit/pagination/F18-TP5_paginationController.test.js"
+    },
+    {
+      "id": "F18-TP5-002",
+      "title": "UsesDataSourceForPageRequests",
+      "given": "A controller is created with a dataSource function and default pagination settings.",
+      "when": "The view calls goNext (or an equivalent page-advance method) on the controller.",
+      "then": "The controller delegates the request to the supplied dataSource callback so paging behavior is driven through a single, reusable entry point.",
+      "test": "/tests/unit/pagination/F18-TP5_paginationController.test.js"
+    },
+    {
+      "id": "F18-TP5-003",
+      "title": "SyncFromLocationDelegatesToSharedParsers",
+      "given": "A controller is configured with a dataSource and default page size and the user lands on a URL containing page, pageSize, offset, and filter params.",
+      "when": "syncFromLocation is called with the location search string and totalItems.",
+      "then": "The controller uses the shared pagination parsing/contract helpers to normalize state and then calls dataSource with the derived page request so the UI and URL remain aligned.",
+      "test": "/tests/unit/pagination/F18-TP5_paginationController.test.js"
+    }
+  ],
+  "fixtures": [],
+  "tests": [
+    "/tests/unit/pagination/F18-TP5_paginationController.test.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F18-TP5_red.txt",
+    "green": "codex_output/reports/F18-TP5_green.txt"
+  },
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F18-TP5_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "F18-TP5 pagination controller specs pass after implementing createPaginationController using the shared pagination helpers and ensuring goNext/syncFromLocation delegate through the provided dataSource."
+    }
+  },
+  "changedFiles": [
+    "scripts/helpers/data.js",
+    "tests/unit/pagination/F18-TP5_paginationController.test.js",
+    "codex_output/reports/F18-TP5_red.txt",
+    "codex_output/reports/F18-TP5_green.txt",
+    "codex_output/specs/F18-TP5.json"
+  ],
+  "changeNotes": [
+    "Introduced F18-TP5 unit specs describing a reusable pagination controller API that wraps the shared helpers behind a small, screen-agnostic surface.",
+    "Added RED-phase Jest tests in tests/unit/pagination/F18-TP5_paginationController.test.js asserting that the controller exposes a minimal method set, delegates page advances to a provided dataSource, and uses shared parsing helpers when syncing from URL state.",
+    "Implemented createPaginationController plus supporting wiring (including a missing jest import in the tests) so the controller exposes the required API, drives the supplied dataSource, and integrates with the pagination location helpers."
+  ]
+}

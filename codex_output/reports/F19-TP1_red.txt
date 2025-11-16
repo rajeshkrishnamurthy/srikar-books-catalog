@@ -1,6 +1,6 @@
 
 > test
-> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false --runTestsByPath tests/unit/pagination/F18-TP2_paginationShell.test.js
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false --runTestsByPath tests/unit/inventory/F19-TP1_availableBooksDataSource.test.js
 
 ---------------------------|---------|----------|---------|---------|-------------------
 File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
