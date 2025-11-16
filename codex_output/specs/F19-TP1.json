@@ -1,0 +1,61 @@
+{
+  "topicId": "F19-TP1",
+  "featureId": "F19",
+  "title": "Available Books Data Source",
+  "area": "Admin / Manage Books",
+  "goal": "Create a pagination-aware data source for the Manage Books > Available list so controller requests hit Firestore with the right filters and metadata.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F19-TP1-001",
+      "title": "BaseQueryUsesAvailableStatus",
+      "given": "The Manage Books > Available tab is active and the pagination controller asks for the first page.",
+      "when": "The availableBooks data source builds its Firestore query.",
+      "then": "It targets the `books` collection, filters by `status == 'available'`, orders by `createdAt` desc, clamps the page size, and limits the read to the requested slice so we only fetch the docs needed for the current page."
+    },
+    {
+      "id": "F19-TP1-002",
+      "title": "CursorAwareForwardBackwardPaging",
+      "given": "The controller supplies pagination cursors for either the next or previous slice.",
+      "when": "The data source composes the Firestore query for that request.",
+      "then": "Forward requests apply `startAfter` the stored cursor, backward requests apply `endBefore` plus a `limitToLast`, and the resulting metadata flags `hasNext`/`hasPrev` appropriately so the controller can toggle Prev/Next."
+    },
+    {
+      "id": "F19-TP1-003",
+      "title": "ReturnsNormalizedPaginationPayload",
+      "given": "Firestore returns a page of available-book docs (and possibly one extra doc to detect more pages).",
+      "when": "The data source resolves the request.",
+      "then": "It returns items with `id` + `data()`, computes `pageMeta` with count/pageSize/cursors/hasNext/hasPrev, and emits the next offset/total count so the pagination shell can display correct ranges."
+    }
+  ],
+  "fixtures": [],
+  "tests": [
+    "/tests/unit/inventory/F19-TP1_availableBooksDataSource.test.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F19-TP1_red.txt",
+    "green": "codex_output/reports/F19-TP1_green.txt"
+  },
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --runTestsByPath tests/unit/inventory/F19-TP1_availableBooksDataSource.test.js",
+    "report": "codex_output/reports/F19-TP1_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Implemented the available pagination data source plus Firebase exports so the new unit suite passes and exposes normalized cursor/meta payloads."
+    }
+  },
+  "changedFiles": [
+    "codex_output/specs/F19-TP1.json",
+    "tests/unit/inventory/F19-TP1_availableBooksDataSource.test.js",
+    "scripts/admin/availablePagination.js",
+    "scripts/lib/firebase.js",
+    "codex_output/reports/F19-TP1_green.txt"
+  ],
+  "changeNotes": [
+    "Defined the RED specs for F19-TP1 covering the Firestore query (status + ordering + limit), cursor-aware paging, and normalized pagination payload that supplies offsets/meta for the Manage Books > Available list.",
+    "Added failing Jest unit tests under tests/unit/inventory/ to assert the available data source composes the Firestore query, handles start/end cursors, and returns normalized pagination payloads with offsets and totals.",
+    "Implemented scripts/admin/availablePagination.js plus Firebase export updates so the data source composes Firestore queries, counts totals, and returns normalized pagination metadata (offsets, cursors, hasNext/Prev) that satisfy the RED specs."
+  ]
+}

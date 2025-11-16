@@ -1,0 +1,64 @@
+{
+  "topicId": "F18-TP4",
+  "featureId": "F18",
+  "title": "Pagination State and Deep Linking",
+  "area": "Routing / State Management",
+  "goal": "Keep pagination state (page, cursors, filters) restorable via URL/hash so refresh, share, and back/forward land on the same slice.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F18-TP4-001",
+      "title": "EncodePageStateIntoHashParams",
+      "given": "A list view has derived pagination metadata and knows the current offset and filters.",
+      "when": "A pagination helper is asked to encode state for a deep link.",
+      "then": "It returns a plain object suitable for hash/query params containing a 1-based page index, pageSize, offset, and any active filters so URLs can represent the current slice.",
+      "test": "/tests/unit/pagination/F18-TP4_paginationLocation.test.js"
+    },
+    {
+      "id": "F18-TP4-002",
+      "title": "ParseHashRestoresNearestPageState",
+      "given": "A user opens or navigates back to a URL with page, pageSize, offset and filter params that might be out of range for the current total count.",
+      "when": "The pagination helper parses location search/hash with knowledge of totalItems and a default page size.",
+      "then": "It clamps the page and offset into a safe range (nearest available slice) and returns a normalized object containing page, pageSize, offset, and filters.",
+      "test": "/tests/unit/pagination/F18-TP4_paginationLocation.test.js"
+    },
+    {
+      "id": "F18-TP4-003",
+      "title": "RoundTripKeepsPageAndFiltersStable",
+      "given": "A view first encodes its pagination state into URL params and later parses them back after a refresh or deep link.",
+      "when": "The encode and parse helpers run in sequence with the same totalItems context.",
+      "then": "The resulting page, pageSize, offset, and filters match the original state so deep linking and back/forward navigation keep the list aligned with the URL.",
+      "test": "/tests/unit/pagination/F18-TP4_paginationLocation.test.js"
+    }
+  ],
+  "fixtures": [],
+  "tests": [
+    "/tests/unit/pagination/F18-TP4_paginationLocation.test.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F18-TP4_red.txt",
+    "green": "codex_output/reports/F18-TP4_green.txt"
+  },
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F18-TP4_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "F18-TP4 deep-linking specs now pass after introducing helpers that encode pagination state into URL/query params and parse them back with clamped page/offset values."
+    }
+  },
+  "changedFiles": [
+    "scripts/helpers/data.js",
+    "tests/unit/pagination/F18-TP4_paginationLocation.test.js",
+    "codex_output/reports/F18-TP4_red.txt",
+    "codex_output/reports/F18-TP4_green.txt",
+    "codex_output/specs/F18-TP4.json"
+  ],
+  "changeNotes": [
+    "Introduced F18-TP4 unit specs that describe how pagination state should be encoded into URL/hash params (page, pageSize, offset, filters) and later parsed back into a normalized state.",
+    "Added RED-phase Jest tests in tests/unit/pagination/F18-TP4_paginationLocation.test.js that cover encoding, clamped decoding for out-of-range pages, and a round-trip scenario where state survives refresh/back/forward.",
+    "Implemented buildPaginationLocationParams and parsePaginationFromLocation helpers in scripts/helpers/data.js so list views can generate deep-linkable query params and safely restore page, pageSize, offset, and filters from location search."
+  ]
+}

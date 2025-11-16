@@ -188,10 +188,23 @@ Notes:
 | F18-TP2 | Admin List Pagination Shell | Provide a standard pagination control strip for admin lists (Previous/Next, item range, disabled states). | F18-TP1 | An admin list view has more items than the default page size. | The admin uses pagination controls (Next/Previous or page size changes). | The control strip updates pagination via the shared contract, reflects loading/disabled states, and shows a consistent summary like “Items 21–40 of 132.” |
 | F18-TP3 | Public Catalog Pagination Application | Apply the unified pagination framework to the public catalog listings. | F18-TP1 | A visitor browses the catalog and a category has more items than fit on one page. | They reach the end of the list and use the pagination affordance. | Additional books load via the shared contract, the visible slice is clear, and the pattern is consistent across all catalog tabs. |
 | F18-TP4 | Pagination State and Deep Linking | Keep pagination state restorable via URL/hash so refresh and back/forward land on the same slice. | F18-TP1, F15-TP3 | A list view uses the shared pagination contract and the user has navigated across pages/filters. | They refresh, share a link, or use browser back/forward to return to the list. | The view restores the same (or nearest safe) page based on URL/hash, keeps controls in sync, and never shows a different page than implied by the URL. |
+| F18-TP5 | Pagination Controller Abstraction | Wrap shared helpers in a reusable controller with a tiny API for any list view. | F18-TP1, F18-TP2, F18-TP3, F18-TP4 | An admin or public list wants pagination without re-implementing helpers and URL wiring. | The view instantiates the controller with a dataSource, defaults, and location sync settings. | The controller owns pagination state, exposes goNext/goPrev/loadMore/setFilters + UI state callbacks, and keeps the list and URL/back/forward behavior aligned. |
 
 Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom across F18 topics.
 - Establishes a single pagination helper and UI pattern that admin and public views can plug into without duplicating Firestore or routing logic.
+
+# Feature: Available Books Pagination Integration (F19)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F19-TP1 | Available Books Data Source | Create a pagination-aware dataSource for the Available list that queries Firestore with the current filters and cursor. | F16-TP3, F18-TP1, F18-TP5 | Manage Books > Available is active and the pagination controller initializes. | The controller requests a page with size/direction plus the active filter or search state. | The dataSource builds the Firestore query, enforces ordering, and returns normalized results with paging metadata while resetting to page 1 whenever filters change. |
+| F19-TP2 | Available Books Pagination Shell | Mount the shared pagination shell inside the Available panel and wire it to controller methods. | F19-TP1, F18-TP2 | The Available list contains more items than a single page. | The controller emits UI state changes or the admin uses Previous/Next. | The shell shows consistent summary text, toggles disabled states, fires goPrev/goNext without double submissions, and stays accessible for keyboard users. |
+| F19-TP3 | Available Books Pagination State Sync | Persist pagination + filter state for the Available list across reloads and navigation. | F19-TP2, F18-TP4 | The admin has paged through or filtered Available books. | They refresh, deep-link to Manage Books, or use browser history to return. | The controller restores the same (or nearest safe) page/filter combo, updates hashes/query params cleanly, and avoids stale cursors when filters change. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F19 topics.
+- Pagination params must compose cleanly with `#manage-books/available` so other Manage tabs continue to work as-is.
 
 
 # Feature: Backlog (BACKLOG)

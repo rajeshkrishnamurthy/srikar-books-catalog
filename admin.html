@@ -609,17 +609,50 @@
                       autocomplete="off"
                     />
                   </div>
-                </div>
-                <p
-                  id="availableSearchStatus"
-                  class="sr-only"
-                  aria-live="polite"
-                ></p>
               </div>
-              <div id="availList" class="admin-list inventory-list"></div>
+              <p
+                id="availableSearchStatus"
+                class="sr-only"
+                aria-live="polite"
+              ></p>
+            </div>
+            <div id="availList" class="admin-list inventory-list"></div>
+            <div
+              class="inventory-pagination"
+              data-available-pagination
+              aria-busy="false"
+            >
+              <p
+                id="availablePaginationSummary"
+                class="muted"
+                aria-live="polite"
+              >
+                Items 0–0 of 0
+              </p>
+              <div class="inventory-pagination__controls">
+                <button
+                  type="button"
+                  id="availablePaginationPrev"
+                  class="btn btn-secondary"
+                  data-pagination="prev"
+                  aria-controls="availList"
+                >
+                  Previous page
+                </button>
+                <button
+                  type="button"
+                  id="availablePaginationNext"
+                  class="btn"
+                  data-pagination="next"
+                  aria-controls="availList"
+                >
+                  Next page
+                </button>
+              </div>
             </div>
           </div>
-        </details>
+        </div>
+      </details>
 
         <details class="panel" id="soldBooksPanel">
           <summary><strong>Sold</strong></summary>

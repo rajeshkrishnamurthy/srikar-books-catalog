@@ -1,0 +1,73 @@
+{
+  "topicId": "F19-TP2",
+  "featureId": "F19",
+  "title": "Available Books Pagination Shell",
+  "area": "Admin / Manage Books",
+  "goal": "Mount the shared pagination controller UI inside the Available panel so admins can read summaries and page through inventory without custom wiring.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F19-TP2-001",
+      "title": "RenderAndUpdatePaginationSummary",
+      "given": "The Manage Books > Available panel initializes with a pagination controller that exposes its current UI state.",
+      "when": "The controller reports summary text/disabled flags and the admin activates the Next control.",
+      "then": "The shell renders summary text plus Previous/Next buttons that mirror the controller state, triggers goNext once per click, and re-renders with the updated summary/disabled states returned from getUiState()."
+    },
+    {
+      "id": "F19-TP2-002",
+      "title": "DisableControlsWhileBusy",
+      "given": "The controller marks itself busy (e.g., awaiting a page fetch) and reports isBusy true even if more pages exist.",
+      "when": "The shell renders during this busy state or the admin tries clicking the controls anyway.",
+      "then": "Prev/Next stay disabled, the pagination container exposes aria-busy, and clicks on disabled controls never call goPrev/goNext so duplicate fetches are prevented."
+    },
+    {
+      "id": "F19-TP2-003",
+      "title": "PrevNextAriaAndActions",
+      "given": "The admin is on a later page of the Available list with both pagination controls enabled.",
+      "when": "They activate the Previous or Next buttons.",
+      "then": "Each button references the availList via aria-controls, the summary region is aria-live polite for screen readers, and the proper controller method fires exactly once while the summary updates to the new page range."
+    }
+  ],
+  "fixtures": [
+    "tests/fixtures/paginationControllerStub.js",
+    "tests/fixtures/adminInventoryHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F19-TP2-001_AvailablePaginationShellRenders.spec.js",
+    "/tests/spec/admin/F19-TP2-002_DisableControlsWhileBusy.spec.js",
+    "/tests/spec/admin/F19-TP2-003_PrevNextAriaAndActions.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F19-TP2_red.txt",
+    "green": "codex_output/reports/F19-TP2_green.txt"
+  },
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --runTestsByPath tests/spec/admin/F19-TP2-001_AvailablePaginationShellRenders.spec.js tests/spec/admin/F19-TP2-002_DisableControlsWhileBusy.spec.js tests/spec/admin/F19-TP2-003_PrevNextAriaAndActions.spec.js",
+    "report": "codex_output/reports/F19-TP2_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Available pagination specs now pass with the shared controller wired into the Manage Books panel, busy-state handling, and accessible Prev/Next controls."
+    }
+  },
+  "changedFiles": [
+    "codex_output/specs/F19-TP2.json",
+    "tests/fixtures/adminInventoryHarness.js",
+    "tests/fixtures/paginationControllerStub.js",
+    "tests/spec/admin/F19-TP2-001_AvailablePaginationShellRenders.spec.js",
+    "tests/spec/admin/F19-TP2-002_DisableControlsWhileBusy.spec.js",
+    "tests/spec/admin/F19-TP2-003_PrevNextAriaAndActions.spec.js",
+    "codex_output/reports/F19-TP2_red.txt",
+    "codex_output/reports/F19-TP2_green.txt",
+    "scripts/admin/inventory.js",
+    "admin.html"
+  ],
+  "changeNotes": [
+    "Outlined three specs covering pagination shell rendering, busy-state disabling, and Prev/Next accessibility hooks for the Available panel.",
+    "Introduced adminInventoryHarness pagination overrides plus a reusable controller stub fixture so tests can drive predictable UI states.",
+    "Added failing Jest specs that assert the shell renders summary text, reports aria attributes, and calls goPrev/goNext exactly once per activation.",
+    "Implemented the Available panel pagination shell markup plus Prev/Next controls in admin.html to expose aria-live summary text and shared button wiring.",
+    "Updated scripts/admin/inventory.js to initialize the shared pagination controller, manage client-side paging/filtering, and sync the new shell so Prev/Next trigger controller methods while reflecting busy states."
+  ]
+}
