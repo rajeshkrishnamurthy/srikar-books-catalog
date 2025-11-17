@@ -51,6 +51,7 @@ function formatSupplierLabel(supplier = {}) {
 
 const RUPEE_FORMATTER = new Intl.NumberFormat('en-IN');
 const AVAILABLE_PAGE_SIZE = 20;
+const SOLD_PAGE_SIZE = 20;
 
 function formatPurchasePriceText(value) {
   if (value === undefined || value === null || value === '') {
@@ -186,6 +187,7 @@ export function initInventory({
   addMsg,
   availList,
   soldList,
+  soldPanel = document.getElementById('soldBooksPanel'),
   availableSearchInput = document.getElementById('availableSearchInput'),
   searchStatus = document.getElementById('availableSearchStatus'),
   paginationContainer = document.querySelector('[data-available-pagination]'),
@@ -193,6 +195,11 @@ export function initInventory({
   paginationPrevButton = document.getElementById('availablePaginationPrev'),
   paginationNextButton = document.getElementById('availablePaginationNext'),
   pageSizeSelect = document.getElementById('availablePageSize'),
+  soldPaginationContainer = document.querySelector('[data-sold-pagination]'),
+  soldPaginationSummary = document.getElementById('soldPaginationSummary'),
+  soldPaginationPrevButton = document.getElementById('soldPaginationPrev'),
+  soldPaginationNextButton = document.getElementById('soldPaginationNext'),
+  soldPageSizeSelect = document.getElementById('soldPageSize'),
   supplierSelect,
   onEdit, // optional
   createPaginationController: createPaginationControllerOverride,
@@ -413,8 +420,14 @@ export function initInventory({
   let availablePageDocs = [];
   let availableFilteredCount = 0;
   let soldDocs = [];
+  let soldPageDocs = [];
+  let soldFilteredCount = 0;
   let lastAnnouncedTerm = '';
   let paginationShellApi = {
+    sync() {},
+    cleanup() {},
+  };
+  let soldPaginationShellApi = {
     sync() {},
     cleanup() {},
   };
@@ -425,12 +438,39 @@ export function initInventory({
       : createPaginationController;
 
   let paginationController;
+  let soldPaginationController;
+  const shouldSyncSoldHash = () => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location?.hash || '';
+      if (hash.startsWith('#manage-books/sold')) {
+        return true;
+      }
+      if (hash.startsWith('#manage-books/')) {
+        return false;
+      }
+    }
+    if (!soldPanel) return true;
+    if (soldPanel.hidden === true) {
+      return false;
+    }
+    if (typeof soldPanel.open === 'boolean') {
+      return soldPanel.open;
+    }
+    return true;
+  };
 
   const syncPageSizeSelect = (size) => {
     if (!pageSizeSelect) return;
     const value = String(size ?? AVAILABLE_PAGE_SIZE);
     if (pageSizeSelect.value !== value) {
       pageSizeSelect.value = value;
+    }
+  };
+  const syncSoldPageSizeSelect = (size) => {
+    if (!soldPageSizeSelect) return;
+    const value = String(size ?? SOLD_PAGE_SIZE);
+    if (soldPageSizeSelect.value !== value) {
+      soldPageSizeSelect.value = value;
     }
   };
 
@@ -442,6 +482,23 @@ export function initInventory({
     }
     paginationController?.syncToLocation?.((params = {}) => {
       updateAvailableLocationHash(params);
+    });
+  };
+
+  const handleSoldPaginationStateChange = () => {
+    soldPaginationShellApi.sync?.();
+    const uiState = soldPaginationController?.getUiState?.();
+    if (uiState?.pageMeta?.pageSize) {
+      syncSoldPageSizeSelect(uiState.pageMeta.pageSize);
+    }
+    if (!shouldSyncSoldHash()) {
+      return;
+    }
+    soldPaginationController?.syncToLocation?.((params = {}) => {
+      if (!shouldSyncSoldHash()) {
+        return;
+      }
+      updateSoldLocationHash(params);
     });
   };
 
@@ -475,12 +532,13 @@ export function initInventory({
 
   pageSizeSelect?.addEventListener('change', handlePageSizeChange);
 
-  paginationShellApi = initAvailablePaginationShell({
+  paginationShellApi = initPaginationShell({
     container: paginationContainer,
     summaryEl: paginationSummary,
     prevButton: paginationPrevButton,
     nextButton: paginationNextButton,
     controller: paginationController,
+    summaryFormatter: (text) => `${text} available books`,
   });
 
   const restoredFromLocation = restorePaginationFromLocation();
@@ -505,11 +563,76 @@ export function initInventory({
     reloadAvailablePagination({ reset: true });
   }
 
+  soldPaginationController = buildPaginationController?.({
+    dataSource: createLocalAvailablePaginationDataSource({
+      getDocs: () => soldDocs.slice(),
+      getSearchTerm: () => (searchActive ? currentFilter : ''),
+      onPage: (pageItems = [], meta = {}) => {
+        soldPageDocs = Array.isArray(pageItems) ? pageItems : [];
+        soldFilteredCount = Number.isFinite(meta.totalItems)
+          ? meta.totalItems
+          : soldFilteredCount;
+        renderLists();
+        soldPaginationShellApi.sync?.();
+      },
+    }),
+    defaultPageSize: SOLD_PAGE_SIZE,
+    initialFilters: { searchTerm: '' },
+    onStateChange: handleSoldPaginationStateChange,
+  });
+
+  const handleSoldPageSizeChange = (event) => {
+    const value = Number(event?.target?.value);
+    if (!soldPaginationController?.setPageSize) return;
+    if (!Number.isFinite(value) || value <= 0) {
+      syncSoldPageSizeSelect(
+        soldPaginationController?.getUiState?.().pageMeta?.pageSize
+      );
+      return;
+    }
+    soldPaginationController.setPageSize(value);
+  };
+
+  soldPageSizeSelect?.addEventListener('change', handleSoldPageSizeChange);
+
+  soldPaginationShellApi = initPaginationShell({
+    container: soldPaginationContainer,
+    summaryEl: soldPaginationSummary,
+    prevButton: soldPaginationPrevButton,
+    nextButton: soldPaginationNextButton,
+    controller: soldPaginationController,
+    summaryFormatter: (text) => `${text} - Sold`,
+  });
+
+  const restoredSoldFromLocation = restoreSoldPaginationFromLocation();
+  handleSoldPaginationStateChange();
+  function reloadSoldPagination({ reset = false } = {}) {
+    if (!soldPaginationController?.setFilters) {
+      renderLists();
+      return;
+    }
+    if (reset) {
+      soldPaginationController.setFilters({
+        searchTerm: searchActive ? currentFilter : '',
+        search: searchActive ? currentFilterInput : '',
+        refreshToken: Date.now(),
+      });
+    } else {
+      soldPaginationController.refresh?.();
+    }
+  }
+
+  if (!restoredSoldFromLocation) {
+    reloadSoldPagination({ reset: true });
+  }
+
   function renderLists() {
     const isSearching = searchActive;
     const availableDisplay =
       availablePageDocs.length > 0 ? availablePageDocs : availableDocs;
-    const soldDisplay = isSearching
+    const soldDisplay = soldPageDocs.length > 0
+      ? soldPageDocs
+      : isSearching
       ? soldDocs.filter((d) => matches(d, currentFilter))
       : soldDocs;
 
@@ -561,7 +684,10 @@ export function initInventory({
   });
   const unsubscribeSold = onSnapshot(qSold, (snap) => {
     soldDocs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    renderLists();
+    if (!searchActive) {
+      soldFilteredCount = soldDocs.length;
+    }
+    reloadSoldPagination({ reset: false });
   });
 
   // expose to main.js
@@ -591,7 +717,9 @@ export function initInventory({
         handleAvailableSearchInput
       );
       paginationShellApi.cleanup?.();
+      soldPaginationShellApi.cleanup?.();
       pageSizeSelect?.removeEventListener('change', handlePageSizeChange);
+      soldPageSizeSelect?.removeEventListener('change', handleSoldPageSizeChange);
     },
   };
 
@@ -608,6 +736,7 @@ export function initInventory({
       searchActive = false;
       availableFilteredCount = availableDocs.length;
       reloadAvailablePagination({ reset: true });
+      reloadSoldPagination({ reset: true });
       renderLists();
       if (announce) {
         clearSearchStatus();
@@ -621,6 +750,7 @@ export function initInventory({
     const matchesCount = filterAvailableDocs(availableDocs, normalizedTerm).length;
     availableFilteredCount = matchesCount;
     reloadAvailablePagination({ reset: true });
+    reloadSoldPagination({ reset: true });
     renderLists();
     if (announce) {
       announceFilteredResults(trimmedTerm, matchesCount);
@@ -641,24 +771,34 @@ export function initInventory({
     lastAnnouncedTerm = '';
   }
 
+  function createSearchParamsFromHash(search = '') {
+    const raw = typeof search === 'string' ? search : '';
+    const scopedSearch = raw.startsWith('?') ? raw.slice(1) : raw;
+    return new URLSearchParams(scopedSearch);
+  }
+
+  function syncSearchStateFromParams(params) {
+    if (!params) return;
+    const rawTerm = params.get('search') || '';
+    if (!rawTerm) {
+      return;
+    }
+    currentFilterInput = rawTerm;
+    currentFilter = rawTerm.trim().toLowerCase();
+    searchActive = hasSufficientSearchChars(rawTerm);
+    if (availableSearchInput) {
+      availableSearchInput.value = rawTerm;
+    }
+  }
+
   function restorePaginationFromLocation() {
     if (typeof window === 'undefined' || !paginationController) return false;
     const search = extractAvailableHashQuery(window.location.hash || '');
     if (!search) {
       return false;
     }
-    const params = new URLSearchParams(
-      search.startsWith('?') ? search.slice(1) : search
-    );
-    const rawTerm = params.get('search') || '';
-    if (rawTerm) {
-      currentFilterInput = rawTerm;
-      currentFilter = rawTerm.trim().toLowerCase();
-      searchActive = hasSufficientSearchChars(rawTerm);
-      if (availableSearchInput) {
-        availableSearchInput.value = rawTerm;
-      }
-    }
+    const params = createSearchParamsFromHash(search);
+    syncSearchStateFromParams(params);
     const parsedPageSize = Number(params.get('pageSize'));
     if (Number.isFinite(parsedPageSize) && parsedPageSize > 0) {
       syncPageSizeSelect(parsedPageSize);
@@ -712,6 +852,83 @@ export function initInventory({
       (searchActive ? currentFilterInput : '');
     if (searchTermParam) {
       searchParams.set('search', searchTermParam);
+    }
+    const queryString = searchParams.toString();
+    return queryString ? `?${queryString}` : '';
+  }
+
+  function restoreSoldPaginationFromLocation() {
+    if (typeof window === 'undefined' || !soldPaginationController) return false;
+    const search = extractSoldHashQuery(window.location.hash || '');
+    if (!search) {
+      return false;
+    }
+    const params = createSearchParamsFromHash(search);
+    syncSearchStateFromParams(params);
+    const parsedPageSize = Number(params.get('pageSize'));
+    if (Number.isFinite(parsedPageSize) && parsedPageSize > 0) {
+      syncSoldPageSizeSelect(parsedPageSize);
+    }
+    soldPaginationController.syncFromLocation?.({
+      search,
+      totalItems: soldFilteredCount,
+    });
+    return true;
+  }
+
+  function extractSoldHashQuery(hash = '') {
+    if (typeof hash !== 'string') return '';
+    const base = '#manage-books/sold';
+    if (!hash.startsWith(base)) return '';
+    const idx = hash.indexOf('?');
+    return idx >= 0 ? hash.slice(idx) : '';
+  }
+
+  function updateSoldLocationHash(params = {}) {
+    if (typeof window === 'undefined') return;
+    const query = buildSoldHashQuery(params);
+    const base = '#manage-books/sold';
+    const nextHash = query ? `${base}${query}` : base;
+    if (window.location.hash !== nextHash) {
+      window.location.hash = nextHash;
+    }
+  }
+
+  function buildSoldHashQuery(params = {}) {
+    const searchParams = new URLSearchParams();
+    const safePageSize =
+      Number.isFinite(params.pageSize) && params.pageSize > 0
+        ? params.pageSize
+        : SOLD_PAGE_SIZE;
+    const safeOffset =
+      Number.isFinite(params.offset) && params.offset >= 0
+        ? params.offset
+        : 0;
+    const safePage =
+      Number.isFinite(params.page) && params.page > 0
+        ? params.page
+        : Math.floor(safeOffset / safePageSize) + 1;
+    searchParams.set('page', safePage);
+    searchParams.set('pageSize', safePageSize);
+    searchParams.set('offset', safeOffset);
+    const filters = params.filters || {};
+    const searchTermParam =
+      filters.search ??
+      filters.searchTerm ??
+      (searchActive ? currentFilterInput : '');
+    if (searchTermParam) {
+      searchParams.set('search', searchTermParam);
+    }
+    const customerParam =
+      filters.customer ?? filters.customerId ?? filters.customerName;
+    if (customerParam) {
+      const resolvedKey =
+        filters.customer !== undefined
+          ? 'customer'
+          : filters.customerId !== undefined
+          ? 'customerId'
+          : 'customerName';
+      searchParams.set(resolvedKey, String(customerParam));
     }
     const queryString = searchParams.toString();
     return queryString ? `?${queryString}` : '';
@@ -787,15 +1004,18 @@ export function initInventory({
     };
   }
 
-  function initAvailablePaginationShell({
+  function initPaginationShell({
     container,
     summaryEl,
     prevButton,
     nextButton,
     controller,
+    summaryFormatter,
   }) {
     const summary =
-      summaryEl || container?.querySelector('#availablePaginationSummary');
+      summaryEl ||
+      container?.querySelector('#availablePaginationSummary') ||
+      container?.querySelector('[data-pagination-summary]');
     const prev =
       prevButton || container?.querySelector('[data-pagination="prev"]');
     const next =
@@ -809,6 +1029,11 @@ export function initInventory({
         cleanup() {},
       };
     }
+
+    const formatSummary =
+      typeof summaryFormatter === 'function'
+        ? summaryFormatter
+        : (text) => text;
 
     let pages = container.querySelector('[data-pagination-pages]');
     if (!pages) {
@@ -951,7 +1176,7 @@ export function initInventory({
       if (!controller?.getUiState) return;
       const state = controller.getUiState() || {};
       const summaryText = state.summaryText || 'Items 0–0 of 0';
-      summary.textContent = `${summaryText} available books`;
+      summary.textContent = formatSummary(summaryText);
       summary.setAttribute(
         'aria-live',
         summary.getAttribute('aria-live') || 'polite',

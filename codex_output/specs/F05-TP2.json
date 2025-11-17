@@ -43,6 +43,12 @@
     "/tests/fixtures/adminSupplierHarness.js",
     "/tests/fixtures/firebaseProxy.js"
   ],
+  "changedFiles": [
+    "scripts/admin/availablePagination.js"
+  ],
+  "changeNotes": [
+    "feat(F05-TP2): add createSoldBooksDataSource to expose sold pagination implementation used by new tests"
+  ],
   "reports": {
     "red": "codex_output/reports/F05-TP2_red.txt",
     "green": "codex_output/reports/F05-TP2_green.txt"

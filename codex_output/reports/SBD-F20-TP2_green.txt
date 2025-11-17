@@ -1,0 +1,5 @@
+npm test -- --watchAll=false --bail=0
+
+All suites pass, including:
+- SPEC SBD-F20-TP2-001..004 Sold pagination feature specs
+- UNIT SBD-F20-TP2-005 location sync

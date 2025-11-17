@@ -766,7 +766,7 @@
           ],
           "given": "An admin list view (e.g., Manage Books, Suppliers, Customers) has more items than the default page size.",
           "when": "The admin interacts with the pagination controls (clicking Next/Previous or changing page size where supported).",
-          "then": "The control strip updates the underlying pagination request via the shared contract, reflects loading/disabled states correctly, and renders a consistent summary like “Items 21–40 of 132” without each screen reinventing buttons or copy.",
+          "then": "The control strip updates the underlying pagination request via the shared contract, reflects loading/disabled states correctly, and renders a consistent summary like \u201cItems 21\u201340 of 132\u201d without each screen reinventing buttons or copy.",
           "notes": "Establishes shared CSS/markup patterns for pagination controls, including focus/ARIA attributes and a place to plug in future page-size or jump-to-page affordances."
         },
         {
@@ -894,10 +894,171 @@
             "F19-TP3",
             "F19-TP4"
           ],
-          "given": "The Available list spans multiple pages (based on total items ÷ page size) and the pagination bar is visible.",
+          "given": "The Available list spans multiple pages (based on total items \u00f7 page size) and the pagination bar is visible.",
           "when": "The admin clicks Prev, Next, or a specific page number within the numeric pager.",
           "then": "The numeric chips highlight the current page, only render up to the total page count, Prev/Next stay aligned on the right, the per-page dropdown remains alongside them, and the hash/summary update so deep links restore the chosen page.",
-          "notes": "Layout should mirror Amazon’s one-row pagination: Prev button, page numbers, Next button, and the per-page dropdown, all sharing consistent Material styling."
+          "notes": "Layout should mirror Amazon\u2019s one-row pagination: Prev button, page numbers, Next button, and the per-page dropdown, all sharing consistent Material styling."
+        }
+      ]
+    },
+    {
+      "featureId": "F20",
+      "featureTitle": "Sold Books Pagination Integration",
+      "description": "Adopt the shared pagination contract and shell for Manage Books > Sold so historical sales stay fast, filterable, and consistent with Available.",
+      "topics": [
+        {
+          "id": "SBD-F20-TP1",
+          "title": "Sold Books Data Source & Cursor Wiring",
+          "area": "Admin / Sold Books",
+          "goal": "Expose the sold-book history through the shared pagination controller using sale-date ordering and sale-specific fields.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F16-TP4",
+            "F18-TP1",
+            "F18-TP5"
+          ],
+          "given": "An admin opens Manage Books > Sold and there are more sold records than a single page can show.",
+          "when": "The pagination controller requests the first or a subsequent page using the shared contract.",
+          "then": "The sold books query executes via the contract, sorted by sale timestamp, and returns normalized records (book title, sale price, customer, soldOn) plus hasNext/hasPrev/cursor metadata ready for the UI.",
+          "notes": "Reuse the F19 data-source pattern, include sale totals per row so the summary text has counts, and ensure the controller handles empty or short final pages gracefully."
+        },
+        {
+          "id": "SBD-F20-TP2",
+          "title": "Sold Books Pagination Shell & Summary",
+          "area": "Admin / Sold Books",
+          "goal": "Mount the shared pagination shell inside the Sold panel and keep controls/summary text aligned with controller state.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F20-TP1",
+            "F18-TP2",
+            "F18-TP4"
+          ],
+          "given": "The Sold Books panel is visible and more rows exist than the selected page size.",
+          "when": "The admin clicks Previous/Next, uses keyboard navigation, or changes the page size.",
+          "then": "The shell disables controls while loading, calls goPrev/goNext/setPageSize on the controller, re-renders the Sold list and summary (e.g., \"Items 21-40 of 180 - Sold\"), and keeps hash/back-button state aligned via the shared helpers.",
+          "notes": "Use the same markup/CSS tokens as the Available view, keep Prev/Next order and aria-labels per Material guidance, and expose the summary as aria-live=polite text."
+        },
+        {
+          "id": "SBD-F20-TP3",
+          "title": "Sold Books Filter Reset & Cursor Safety",
+          "area": "Admin / Sold Books",
+          "goal": "Reset pagination cursors whenever Sold filters (date range, supplier/customer chips, search) change so results stay accurate.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F20-TP1",
+            "F18-TP4"
+          ],
+          "given": "Filters exist on the Sold view (date range, supplier/customer, search text) and at least one is active.",
+          "when": "The admin modifies or clears any filter or search term.",
+          "then": "The controller drops stored cursors, reloads page 1 with the new filters, recomputes the total-count summary, and updates URL/hash state so reloading or sharing the link restores the filtered page.",
+          "notes": "Guard against stale cursors returning empty pages and ensure clearing all filters switches back to the default sort plus first page without manual refreshes."
+        }
+      ]
+    },
+    {
+      "featureId": "F21",
+      "featureTitle": "Manage Bundles Pagination Integration",
+      "description": "Wire the Manage Bundles grid into the shared pagination controller so bundle operations stay responsive even with hundreds of bundles.",
+      "topics": [
+        {
+          "id": "SBD-F21-TP1",
+          "title": "Manage Bundles Data Source Integration",
+          "area": "Admin / Bundles",
+          "goal": "Provide a pagination-aware data source for Manage Bundles that respects supplier/status filters and updated-at ordering.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F12-TP3",
+            "F17-TP1",
+            "F18-TP1",
+            "F18-TP5"
+          ],
+          "given": "An admin opens Bundles -> Manage and dozens of bundles exist.",
+          "when": "The pagination controller requests page 1 or follow-up pages with the active supplier or status filters.",
+          "then": "The data source composes the Firestore query with the filters, sorts by updatedAt then title, and returns normalized bundle metadata plus paging details without duplicating pagination logic.",
+          "notes": "Surface publish status, supplier, book count, and pricing in the normalized payload so the table can render each row without additional lookups."
+        },
+        {
+          "id": "SBD-F21-TP2",
+          "title": "Manage Bundles Pagination Shell",
+          "area": "Admin / Bundles",
+          "goal": "Embed the shared pagination controls below the Manage Bundles table and sync them with controller state.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F21-TP1",
+            "F18-TP2"
+          ],
+          "given": "The Manage Bundles list renders more rows than the current page size.",
+          "when": "The admin clicks Previous/Next, adjusts the per-page selector, or navigates via keyboard.",
+          "then": "The controls reflect loading/disabled states, the grid refreshes with the requested slice, and the summary shows which bundles (e.g., \"Bundles 41-60 of 210\") are visible for the active filters.",
+          "notes": "Match spacing and alignment used on the Available pagination and keep controls sticky with the table footer on narrow screens."
+        },
+        {
+          "id": "SBD-F21-TP3",
+          "title": "Bundle Actions Preserve Pagination Context",
+          "area": "Admin / Bundles",
+          "goal": "Keep pagination state stable while publishing/unpublishing or editing bundles from the Manage view.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F21-TP1",
+            "F12-TP2",
+            "F18-TP5"
+          ],
+          "given": "An admin is on a later page of Manage Bundles with filters applied.",
+          "when": "They publish/unpublish a bundle or trigger inline edit actions that update Firestore.",
+          "then": "The controller refreshes the affected row or current page without jumping back to page 1, updates totals if the row now hides (for example, filter mismatch), and keeps the same filters and cursors active.",
+          "notes": "Use optimistic UI plus targeted refetch so row order stays stable while ensuring paging metadata stays accurate when bundles move in or out of the current filter."
+        }
+      ]
+    },
+    {
+      "featureId": "F22",
+      "featureTitle": "Open Book Requests Pagination Integration",
+      "description": "Adopt the shared pagination helpers for the Book Requests queue so admins can triage large backlogs with predictable controls.",
+      "topics": [
+        {
+          "id": "SBD-F22-TP1",
+          "title": "Book Requests Data Source",
+          "area": "Admin / Book Requests",
+          "goal": "Serve open book requests through the pagination controller with created-at ordering and quick filter support.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F18-TP1",
+            "F18-TP5"
+          ],
+          "given": "An admin opens the Book Requests panel and many open requests exist.",
+          "when": "The pagination controller asks for the first or subsequent page with optional status or priority filters.",
+          "then": "The data source queries only open or pending requests, sorts by createdAt desc, and returns normalized requester/contact/book data plus paging metadata so the UI can render one slice at a time.",
+          "notes": "Include priority or status chips and requester contact info in the payload, and guard against requests closing mid-fetch so totals stay accurate."
+        },
+        {
+          "id": "SBD-F22-TP2",
+          "title": "Book Requests Pagination Shell",
+          "area": "Admin / Book Requests",
+          "goal": "Drop the shared pagination controls beneath the requests list and keep them accessible.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F22-TP1",
+            "F18-TP2",
+            "F18-TP4"
+          ],
+          "given": "More open requests exist than the default page size.",
+          "when": "The admin pages through the queue via buttons, keyboard shortcuts, or page-size changes.",
+          "then": "Controls disable while the controller loads the requested slice, the list and summaries update (e.g., \"Requests 61-70 of 322 open\"), and URL/hash state tracks the current filters or page for reload safety.",
+          "notes": "Keep the summary copy specific to requests (mentioning status buckets) and ensure focus returns to the list container after a page change for keyboard users."
+        },
+        {
+          "id": "SBD-F22-TP3",
+          "title": "Book Request Actions Maintain Paging",
+          "area": "Admin / Book Requests",
+          "goal": "Ensure fulfilling, snoozing, or assigning requests updates the paged list without duplicates or jumps.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F22-TP1"
+          ],
+          "given": "An admin triages open requests while viewing a paginated slice.",
+          "when": "They mark a request as fulfilled, snoozed, or reassigned (removing it from the open queue).",
+          "then": "The row disappears or updates in place, the controller pulls the next item from the following page to keep the list filled when possible, totals and summary refresh, and the view never jumps back to page 1 unless the queue empties.",
+          "notes": "Handle race conditions where multiple admins close requests simultaneously by reconciling server responses before adjusting cursors."
         }
       ]
     },
