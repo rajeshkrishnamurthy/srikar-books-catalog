@@ -1,0 +1,3 @@
+New F19-TP5 numeric pager tests fail because the pagination UI still lacks the numeric page buttons/row:
+- F19-TP5-001: `[data-pagination-pages]` container is missing so the test can’t find any numeric buttons.
+- F19-TP5-002 / TP5-003: Clicking specific page numbers can’t be tested without the buttons, so the queries return null and throw.

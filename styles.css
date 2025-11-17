@@ -1,3 +1,5 @@
+@import url('./styles/components/pagination.css');
+
 /* Minimal, clean styling */
 :root {
   --bg: #0b0c10;

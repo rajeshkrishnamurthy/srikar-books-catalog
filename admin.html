@@ -616,48 +616,68 @@
                 aria-live="polite"
               ></p>
             </div>
-              <div id="availList" class="admin-list inventory-list"></div>
               <div
-                class="inventory-pagination"
+                class="inventory-pagination pagination-shell"
                 data-available-pagination
                 aria-busy="false"
               >
-                <p
-                  id="availablePaginationSummary"
-                  class="muted"
-                  aria-live="polite"
-                >
-                  Items 0–0 of 0
-                </p>
-                <div class="inventory-pagination__controls">
-                  <div class="inventory-page-size">
-                    <label for="availablePageSize">Items per page</label>
-                    <select id="availablePageSize" class="md-input">
+                <div class="inventory-pagination__summary pagination-shell__summary">
+                  <p
+                    id="availablePaginationSummary"
+                    class="muted"
+                    aria-live="polite"
+                  >
+                    Items 0–0 of 0 available books
+                  </p>
+                </div>
+                <div class="inventory-pagination__actions inventory-pagination__controls pagination-shell__actions">
+                  <div class="pagination-size pagination-shell__size">
+                    <span class="pagination-size__label">Rows per page</span>
+                    <label for="availablePageSize" class="sr-only">Items per page</label>
+                    <select
+                      id="availablePageSize"
+                      class="md-input pagination-size-select"
+                      aria-label="Items per page"
+                    >
                       <option value="10">10</option>
                       <option value="20" selected>20</option>
                       <option value="50">50</option>
                     </select>
                   </div>
-                  <button
-                    type="button"
-                    id="availablePaginationPrev"
-                    class="btn btn-secondary"
-                    data-pagination="prev"
-                  aria-controls="availList"
-                >
-                  Previous page
-                </button>
-                <button
-                  type="button"
-                  id="availablePaginationNext"
-                  class="btn"
-                  data-pagination="next"
-                  aria-controls="availList"
-                >
-                  Next page
-                </button>
+                  <div class="pagination-stepper pagination-shell__stepper">
+                    <button
+                      type="button"
+                      id="availablePaginationPrev"
+                      class="btn btn-secondary pagination-shell__prev"
+                      data-pagination="prev"
+                      aria-controls="availList"
+                      aria-label="Previous page"
+                    >
+                      <span aria-hidden="true">‹</span>
+                      <span class="pagination-control__label">Prev</span>
+                    </button>
+                    <div
+                      class="inventory-pagination__pages pagination-shell__pages"
+                      data-pagination-pages
+                      role="group"
+                      aria-label="Page selection"
+                      hidden
+                    ></div>
+                    <button
+                      type="button"
+                      id="availablePaginationNext"
+                      class="btn pagination-shell__next"
+                      data-pagination="next"
+                      aria-controls="availList"
+                      aria-label="Next page"
+                    >
+                      <span class="pagination-control__label">Next</span>
+                      <span aria-hidden="true">›</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+              <div id="availList" class="admin-list inventory-list"></div>
           </div>
         </div>
       </details>

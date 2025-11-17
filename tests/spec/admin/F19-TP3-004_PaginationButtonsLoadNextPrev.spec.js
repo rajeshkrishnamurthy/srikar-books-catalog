@@ -40,13 +40,13 @@ describe('SPEC F19-TP3-004: Pagination buttons fetch next/previous slices', () =
     const prevButton = getByRole('button', { name: /previous page/i });
     const summary = pagination.querySelector('#availablePaginationSummary');
 
-    expect(summary.textContent).toBe('Items 1–20 of 45');
+    expect(summary.textContent).toBe('Items 1–20 of 45 available books');
     expect(prevButton.disabled).toBe(true);
 
     fireEvent.click(nextButton);
 
     await waitFor(() => {
-      expect(summary.textContent).toBe('Items 21–40 of 45');
+      expect(summary.textContent).toBe('Items 21–40 of 45 available books');
     });
     expectHashIncludes({ page: 2, offset: 20, pageSize: 20 });
     const firstNextRow = harness.availList.querySelector('.row strong');
@@ -57,7 +57,7 @@ describe('SPEC F19-TP3-004: Pagination buttons fetch next/previous slices', () =
     fireEvent.click(prevButton);
 
     await waitFor(() => {
-      expect(summary.textContent).toBe('Items 1–20 of 45');
+      expect(summary.textContent).toBe('Items 1–20 of 45 available books');
     });
     expectHashIncludes({ page: 1, offset: 0 });
     const firstPrevRow = harness.availList.querySelector('.row strong');

@@ -362,12 +362,42 @@ export function createPaginationController(config = {}) {
 
   return {
     getUiState() {
-      return buildPaginationShellState({
+      const shell = buildPaginationShellState({
         pageMeta: state.pageMeta,
         totalItems: state.totalItems,
         offset: state.currentOffset,
         isLoading: state.isLoading,
       });
+      const pageMetaSize =
+        Number.isFinite(state.pageMeta?.pageSize) && state.pageMeta.pageSize > 0
+          ? state.pageMeta.pageSize
+          : defaultPageSize;
+      const normalizedTotal =
+        Number.isFinite(state.totalItems) && state.totalItems >= 0
+          ? state.totalItems
+          : Number.isFinite(state.pageMeta?.count) && state.pageMeta.count >= 0
+          ? state.pageMeta.count
+          : 0;
+      const currentOffset =
+        Number.isFinite(state.currentOffset) && state.currentOffset >= 0
+          ? state.currentOffset
+          : 0;
+      const totalPages =
+        pageMetaSize > 0
+          ? Math.max(1, Math.ceil(normalizedTotal / pageMetaSize || 0))
+          : 1;
+      const currentPage = Math.min(
+        totalPages,
+        Math.max(1, Math.floor(currentOffset / (pageMetaSize || 1)) + 1)
+      );
+      return {
+        ...shell,
+        pageMeta: { ...state.pageMeta },
+        totalItems: normalizedTotal,
+        currentOffset,
+        totalPages,
+        currentPage,
+      };
     },
     goNext() {
       runDataSource('forward');
@@ -410,6 +440,32 @@ export function createPaginationController(config = {}) {
     },
     refresh() {
       state.offset = state.currentOffset;
+      runDataSource('forward');
+    },
+    goToPage(pageNumber) {
+      const numeric = Number(pageNumber);
+      if (!Number.isFinite(numeric)) return;
+      const pageSize =
+        Number.isFinite(state.pageMeta?.pageSize) && state.pageMeta.pageSize > 0
+          ? state.pageMeta.pageSize
+          : defaultPageSize;
+      if (!pageSize || pageSize <= 0) return;
+      const total =
+        Number.isFinite(state.totalItems) && state.totalItems >= 0
+          ? state.totalItems
+          : Number.isFinite(state.pageMeta?.count) && state.pageMeta.count >= 0
+          ? state.pageMeta.count
+          : 0;
+      const maxPage =
+        total > 0 ? Math.max(1, Math.ceil(total / pageSize)) : Math.max(1, 1);
+      const safePage = Math.min(
+        maxPage,
+        Math.max(1, Math.round(numeric))
+      );
+      const targetOffset = (safePage - 1) * pageSize;
+      state.offset = targetOffset;
+      state.currentOffset = targetOffset;
+      state.pageMeta.cursors = { start: null, end: null };
       runDataSource('forward');
     },
     setPageSize(newSize) {

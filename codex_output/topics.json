@@ -872,16 +872,32 @@
           "id": "F19-TP4",
           "title": "Available Page Size Selector",
           "area": "Admin / Manage Books",
-          "goal": "Expose a per-page selector (10/25/50/100) so admins can adjust how many available books load per slice without reloading.",
+          "goal": "Expose a per-page selector (10/20/50) so admins can adjust how many available books load per slice without reloading.",
           "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
           "dependencies": [
             "F19-TP2",
             "F19-TP3"
           ],
           "given": "The Available list shows more results than a single page and the pagination shell is visible.",
-          "when": "The admin changes the page-size control to 10, 25, 50, or 100 items per page.",
+          "when": "The admin changes the page-size control to 10, 20, or 50 items per page.",
           "then": "The controller updates its request pageSize, refetches the first slice for the new size, persists the selection in state sync (hash/query or local storage), and keeps the summary text/Prev-Next state accurate for the chosen size.",
-          "notes": "Default remains 25 until the admin selects a different size. Size options should be keyboard accessible and announced when changed."
+          "notes": "Default remains 20 until the admin selects a different size. Size options should be keyboard accessible and announced when changed."
+        },
+        {
+          "id": "F19-TP5",
+          "title": "Available Numeric Pager",
+          "area": "Admin / Manage Books",
+          "goal": "Add an Amazon-style numeric pager (Prev, page numbers, Next, per-page dropdown) presented in a single right-aligned row.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F19-TP2",
+            "F19-TP3",
+            "F19-TP4"
+          ],
+          "given": "The Available list spans multiple pages (based on total items ÷ page size) and the pagination bar is visible.",
+          "when": "The admin clicks Prev, Next, or a specific page number within the numeric pager.",
+          "then": "The numeric chips highlight the current page, only render up to the total page count, Prev/Next stay aligned on the right, the per-page dropdown remains alongside them, and the hash/summary update so deep links restore the chosen page.",
+          "notes": "Layout should mirror Amazon’s one-row pagination: Prev button, page numbers, Next button, and the per-page dropdown, all sharing consistent Material styling."
         }
       ]
     },
