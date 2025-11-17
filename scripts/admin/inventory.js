@@ -732,7 +732,7 @@ export function initInventory({
     getSearchTerm,
     onPage,
   }) {
-    return async function dataSource({ request = {}, filters = {}, offset = 0 }) {
+    return function dataSource({ request = {}, filters = {}, offset = 0 }) {
       const pageSize =
         Number.isFinite(request.pageSize) && request.pageSize > 0
           ? request.pageSize
@@ -794,26 +794,177 @@ export function initInventory({
     nextButton,
     controller,
   }) {
-    const summary = summaryEl || container?.querySelector('#availablePaginationSummary');
-    const prev = prevButton || container?.querySelector('[data-pagination=\"prev\"]');
-    const next = nextButton || container?.querySelector('[data-pagination=\"next\"]');
-    if (!container || !summary || !prev || !next || !controller) {
+    const summary =
+      summaryEl || container?.querySelector('#availablePaginationSummary');
+    const prev =
+      prevButton || container?.querySelector('[data-pagination="prev"]');
+    const next =
+      nextButton || container?.querySelector('[data-pagination="next"]');
+    const doc =
+      container?.ownerDocument ||
+      (typeof document !== 'undefined' ? document : null);
+    if (!container || !summary || !prev || !next || !controller || !doc) {
       return {
         sync() {},
         cleanup() {},
       };
     }
 
+    let pages = container.querySelector('[data-pagination-pages]');
+    if (!pages) {
+      pages = doc.createElement('div');
+      pages.setAttribute('data-pagination-pages', '');
+      pages.classList.add('inventory-pagination__pages');
+      pages.hidden = true;
+    }
+    if (pages) {
+      const host = prev.parentElement || container;
+      if (host) {
+        const referenceNode =
+          next.parentElement === host ? next : prev.nextSibling;
+        host.insertBefore(pages, referenceNode || null);
+      }
+      pages.classList.add('inventory-pagination__pages');
+      if (typeof pages.hidden !== 'boolean') {
+        pages.hidden = true;
+      }
+      pages.setAttribute('role', 'group');
+      pages.setAttribute('aria-label', 'Page selection');
+    }
+
+    const derivePageSize = (state = {}) => {
+      const metaSize = state.pageMeta?.pageSize;
+      return Number.isFinite(metaSize) && metaSize > 0 ? metaSize : 0;
+    };
+
+    const deriveTotalPages = (state = {}) => {
+      if (Number.isFinite(state.totalPages) && state.totalPages > 0) {
+        return state.totalPages;
+      }
+      const size = derivePageSize(state);
+      if (!size) return 0;
+      const total =
+        Number.isFinite(state.totalItems) && state.totalItems >= 0
+          ? state.totalItems
+          : Number.isFinite(state.pageMeta?.count) && state.pageMeta.count >= 0
+          ? state.pageMeta.count
+          : 0;
+      if (total <= 0) return 1;
+      return Math.max(1, Math.ceil(total / size));
+    };
+
+    const deriveCurrentPage = (state = {}, totalPages = 1) => {
+      if (Number.isFinite(state.currentPage) && state.currentPage > 0) {
+        return Math.min(totalPages || 1, state.currentPage);
+      }
+      const size = derivePageSize(state);
+      if (!size) return 1;
+      const offset =
+        Number.isFinite(state.currentOffset) && state.currentOffset >= 0
+          ? state.currentOffset
+          : 0;
+      return Math.min(totalPages || 1, Math.floor(offset / size) + 1);
+    };
+
+    const renderNumericButtons = (state = {}) => {
+      if (!pages) return;
+      const totalPages = deriveTotalPages(state);
+      if (!totalPages || totalPages <= 1) {
+        pages.replaceChildren();
+        pages.hidden = true;
+        return;
+      }
+      const currentPage = deriveCurrentPage(state, totalPages);
+      const maxVisibleButtons = 7;
+
+      const hydrateButton = (button, pageNumber) => {
+        button.dataset.pageButton = String(pageNumber);
+        button.textContent = String(pageNumber);
+        button.setAttribute('aria-label', `Go to page ${pageNumber}`);
+        if (pageNumber === currentPage) {
+          button.setAttribute('aria-current', 'page');
+        } else {
+          button.removeAttribute('aria-current');
+        }
+        button.disabled = Boolean(state.isBusy);
+      };
+
+      if (totalPages <= maxVisibleButtons) {
+        pages
+          .querySelectorAll('.pagination-ellipsis')
+          .forEach((node) => node.remove());
+        let buttons = Array.from(pages.querySelectorAll('button'));
+        while (buttons.length < totalPages) {
+          const button = doc.createElement('button');
+          button.type = 'button';
+          pages.appendChild(button);
+          buttons.push(button);
+        }
+        while (buttons.length > totalPages) {
+          const button = buttons.pop();
+          button?.remove();
+        }
+        buttons = Array.from(pages.querySelectorAll('button'));
+        buttons.forEach((button, index) => {
+          hydrateButton(button, index + 1);
+        });
+        pages.hidden = false;
+        return;
+      }
+
+      const fragment = doc.createDocumentFragment();
+      const createPageButton = (pageNumber) => {
+        const button = doc.createElement('button');
+        button.type = 'button';
+        hydrateButton(button, pageNumber);
+        fragment.appendChild(button);
+      };
+      const createEllipsis = () => {
+        const ellipsis = doc.createElement('span');
+        ellipsis.className = 'pagination-ellipsis';
+        ellipsis.textContent = '…';
+        ellipsis.setAttribute('aria-hidden', 'true');
+        fragment.appendChild(ellipsis);
+      };
+      const visiblePages = new Set([1, totalPages, currentPage]);
+      for (let offset = 1; offset <= 2; offset += 1) {
+        const prevPageNumber = currentPage - offset;
+        const nextPageNumber = currentPage + offset;
+        if (prevPageNumber > 1) visiblePages.add(prevPageNumber);
+        if (nextPageNumber < totalPages) visiblePages.add(nextPageNumber);
+      }
+      const sortedPages = Array.from(visiblePages).sort((a, b) => a - b);
+      let lastPage = null;
+      sortedPages.forEach((pageNumber) => {
+        if (lastPage !== null && pageNumber - lastPage > 1) {
+          createEllipsis();
+        }
+        createPageButton(pageNumber);
+        lastPage = pageNumber;
+      });
+      pages.replaceChildren();
+      pages.appendChild(fragment);
+      pages.hidden = false;
+    };
+
     const updateUi = () => {
       if (!controller?.getUiState) return;
       const state = controller.getUiState() || {};
-      summary.textContent = state.summaryText || 'Items 0–0 of 0';
-      summary.setAttribute('aria-live', summary.getAttribute('aria-live') || 'polite');
+      const summaryText = state.summaryText || 'Items 0–0 of 0';
+      summary.textContent = `${summaryText} available books`;
+      summary.setAttribute(
+        'aria-live',
+        summary.getAttribute('aria-live') || 'polite',
+      );
       container.setAttribute('aria-busy', state.isBusy ? 'true' : 'false');
+      container.dataset.loading = state.isBusy ? 'true' : 'false';
       const disablePrev = state.prevDisabled || state.isBusy;
       const disableNext = state.nextDisabled || state.isBusy;
       prev.disabled = Boolean(disablePrev);
       next.disabled = Boolean(disableNext);
+      prev.setAttribute('aria-disabled', String(Boolean(disablePrev)));
+      next.setAttribute('aria-disabled', String(Boolean(disableNext)));
+      renderNumericButtons(state);
     };
 
     const handlePrev = () => {
@@ -827,8 +978,23 @@ export function initInventory({
       updateUi();
     };
 
+    const handlePageButtonClick = (event) => {
+      if (!pages || typeof controller?.goToPage !== 'function') return;
+      const target = event.target?.closest?.('button[data-page-button]');
+      if (!target || target.disabled) return;
+      const pageNumber = Number.parseInt(target.dataset.pageButton || '', 10);
+      if (!Number.isFinite(pageNumber)) return;
+      const state = controller.getUiState?.() || {};
+      if (state.isBusy) return;
+      const currentPage = deriveCurrentPage(state, deriveTotalPages(state));
+      if (pageNumber === currentPage) return;
+      controller.goToPage(pageNumber);
+      updateUi();
+    };
+
     prev.addEventListener('click', handlePrev);
     next.addEventListener('click', handleNext);
+    pages?.addEventListener('click', handlePageButtonClick);
     updateUi();
 
     return {
@@ -836,6 +1002,7 @@ export function initInventory({
       cleanup() {
         prev.removeEventListener('click', handlePrev);
         next.removeEventListener('click', handleNext);
+        pages?.removeEventListener('click', handlePageButtonClick);
       },
     };
   }

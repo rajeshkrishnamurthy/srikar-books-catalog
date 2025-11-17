@@ -31,7 +31,7 @@ describe('SPEC F19-TP2-003: Prev/Next wire to controller and expose aria hooks',
     const summary = pagination.querySelector('#availablePaginationSummary');
     expect(summary).not.toBeNull();
     expect(summary.getAttribute('aria-live')).toBe('polite');
-    expect(summary.textContent).toBe('Items 11–20 of 25');
+    expect(summary.textContent).toBe('Items 11–20 of 25 available books');
 
     const { getByRole } = within(pagination);
     const prevButton = getByRole('button', { name: /previous page/i });
@@ -44,7 +44,7 @@ describe('SPEC F19-TP2-003: Prev/Next wire to controller and expose aria hooks',
     fireEvent.click(prevButton);
 
     await waitFor(() => {
-      expect(summary.textContent).toBe('Items 1–10 of 25');
+      expect(summary.textContent).toBe('Items 1–10 of 25 available books');
     });
 
     expect(controller.goPrev).toHaveBeenCalledTimes(1);

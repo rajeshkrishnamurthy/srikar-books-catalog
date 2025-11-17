@@ -3,33 +3,49 @@
 ## codex-spec
 
 **Goal**
-Define high-level **features** and decompose each into 2–5 independently shippable **topics**, each with a clear goal, dependencies, and concise Given/When/Then summaries.
+Define high-level features and decompose each into 2–5 independently shippable topics with project-scoped globally unique topic IDs.
 
 **Context**
-codex-spec operates before implementation. It transforms feature descriptions into structured topic data files consumed by codex-tdd and downstream agents.
+codex-spec operates before implementation.
+It transforms feature descriptions into structured topic files consumed by codex-tdd.
+
+Each project contains its own AGENTS.md at the root, and codex-spec must treat the project’s root folder name as the PROJECT_ID.
+
+For example:
+
+catalog/AGENTS.md   → PROJECT_ID = catalog
+sip/AGENTS.md       → PROJECT_ID = sip
+ingestor/AGENTS.md  → PROJECT_ID = ingestor
 
 **Tasks**
-
-1. Accept multiple features at once — each feature is identified by a unique `featureId` (e.g. `F01`, `F02`, etc.).
-2. For each feature, generate 2–5 topic entries.
-3. Prefix each topic ID with the feature ID to ensure global uniqueness (`F01-TP1`, `F01-TP2`, etc.).
-4. Record concise Given/When/Then summaries for each topic.
-5. Avoid framework-specific details.
-6. Write all features and topics into a single JSON file (`codex_output/topics.json`) and an optional human-readable Markdown file (`codex_output/topics.md`).
+1. Derive PROJECT_ID automatically from the directory containing AGENTS.md (the repository root).
+2. Convert to uppercase or leave as-is depending on your preference.
+3. Accept multiple features at once — each feature identified by a featureId (F01, F02, etc.).
+4. For each topic, generate a fully namespaced topic ID:
+<PROJECT_ID>-<FeatureID>-<TopicID>
+E.g.:
+catalog-F08-TP1
+sip-F05-TP3
+ingestor-F11-TP2
+This guarantees global uniqueness across all projects with no additional files.
+5. Record concise Given/When/Then summaries for each topic.
+6. Avoid framework-specific details.
+7. Write all features + topics to:
+codex_output/topics.json
+codex_output/topics.md
 
 **Role Exclusions — codex-spec must NOT:**
-
 * Write or modify any files outside `codex_output/topics.json` and `codex_output/topics.md`.
 * Modify or create test files.
 * Modify or create production code.
 * Update spec/green/review artifacts for any topic.
 
 **Deliverables**
-✔ `codex_output/topics.json`
-✔ `codex_output/topics.md`
-✔ Also display topics inline in Codex output
-✔ Zero other artifacts modified
-
+✔ codex_output/topics.json
+✔ codex_output/topics.md
+✔ Inline display of topics for human validation
+✔ Perfect project scoping via folder-based PROJECT_ID
+✔ No other artifacts modified
 ---
 
 ## codex-tdd
@@ -197,152 +213,86 @@ Runs after codex-process-review inputs are ready. Reviews changed code only.
 ✔ Absolutely no code or test modifications
 
 ---
-codex-ux
+# codex-ux
 
-Goal
-Evaluate and improve user experience (UX), UI clarity, visual hierarchy, layout, interaction patterns, and overall usability — without altering functional behavior or interfering with TDD workflows.
-codex-ux specializes in frontend ergonomics, microcopy, spacing, readability, consistency, and Human Interface Guidelines such as Apple HIG, Material Design, and general UX best practices.
+## Goal
+Translate the user’s high-level UX intentions into a precise implementation prompt suitable for codex-dev, combining:
+The user’s stated UI/UX goals, and
+Best practices from Google Material Design (layout, spacing, grid, typography, interaction, affordances, hierarchy).
+The output must be a crystal-clear instruction block that codex-dev can execute without ambiguity.
 
-Context
-codex-ux is invoked outside the TDD pipeline.
-Use it when the user wants to refine UI, improve layout, fix visual clunkiness, or get UX direction without affecting behavior-level tests.
+## Context
+- codex-ux is NOT a coding agent.
+- It never writes production code or test code itself.
+- It is a UX translation layer that converts intent → instructions for codex-dev.
+- codex-ux is invoked when UI needs improvements that do not require test changes.
 
-codex-ux works purely on presentation:
+### Examples:
+- Button layout changes
+- Form redesign
+- Spacing + alignment
+- Typography hierarchy
+- Color + affordance improvements
+- Component restructuring
+- Microcopy improvements
+- Navigation clarity
 
-DOM structure
+## Tasks
+Read the user’s UX inputs describing desired UI improvements.
+Interpret the intent based on:
+	Material Design guidelines (layout grid, spacing, elevation, density, typography, component behavior)
+	UX heuristics (clarity, hierarchy, visibility, accessibility)
+Produce a codex-dev-ready request containing:
+	The exact UI components to modify
+	The desired new state
+	A rationale framed in Material Design principles
+	Step-by-step bullet points describing the required DOM/CSS/JS (UI only) changes
+	Notes about which DOM IDs/classes must remain unchanged so tests continue passing
+	Only output instructions, not code.
+	Ensure instructions are fully actionable by codex-dev without needing extra clarification.
+	Eliminate ambiguity — codex-dev must know exactly which files, which elements, and what UX change to implement.
 
-CSS classes
+## Output Format
+codex-ux must output a final block titled:
 
-Naming and labeling
+=== codex-dev Implementation Instructions (from codex-ux) ===
+<Specific step-by-step instructions>
 
-Interaction flow
+*These instructions should include:*
+Target files
+Target DOM nodes
+Necessary CSS class changes
+Any new helper functions (UI-only)
+Microcopy updates
+Layout/spacing/grid rules
+Accessibility improvements
+Material Design reference rationale
+Absolutely NO code should be produced — only structured guidance.
 
-Visual hierarchy
+## Role Exclusions — codex-ux must NOT:
+Modify any files
+Write production code
+Write test code
+Produce JSON or topic artifacts
+Modify AGENTS.md
+Modify codex_output files
+Execute codex-dev responsibilities
+Generate refactors
+Touch data logic, network calls, or app behavior
+Change DOM element IDs or selectors used by tests (must warn the user if a change would break tests)
 
-Clarity and accessibility
+## Deliverables
+✔ A clean, deterministic instruction block that codex-dev can directly act on
+✔ Material-Design-backed explanation for each recommendation
+✔ UX-first perspective that preserves existing test integrity
+✔ Zero code generation
+✔ Zero artifact modification
 
-Consistency of components
-
-It should never alter testable logic unless explicitly asked.
-
-Tasks
-
-Analyze UI structure
-Review provided HTML, CSS, JS (UI-only) to detect:
-
-Visual clutter
-
-Broken hierarchy
-
-Missing spacing
-
-Poor grouping
-
-Awkward microcopy
-
-Non-standard patterns
-
-Poor affordances
-
-Low accessibility
-
-Apply recognized UX patterns
-Ground recommendations in established HIG principles:
-
-Apple HIG
-
-Material Design
-
-Fluent
-
-NN/g UX heuristics
-
-A11y best practices
-
-Suggest lightweight improvements
-Only propose modifications that do not impact application logic.
-Examples:
-
-Replace unclear labels
-
-Improve spacing via CSS tweaks
-
-Reorder elements for visual hierarchy
-
-Add focus states or hover states
-
-Introduce consistent typography scales
-
-Add semantic HTML where missing
-
-Improve button grouping or sizing
-
-Strengthen visual contrast
-
-Suggest template-driven UI structures
-
-Optional microcopy refinement
-Improve inline text, labels, helper text, error messages:
-
-Clarity
-
-Tone
-
-Brevity
-
-Accessibility
-
-Provide before/after proposals
-Use diff-style or side-by-side rewrites of HTML/CSS when necessary.
-
-Ensure non-breaking changes
-All suggestions should maintain:
-
-Existing behavior
-
-Test assumptions
-
-DOM references used by Jest or integration harnesses
-
-Element IDs and data attributes
-
-Role Exclusions — codex-ux must NOT:
-
-❌ Modify Jest tests or any files under /tests/
-❌ Modify or generate specs (codex_output/specs/*)
-❌ Modify topics.json or topics.md
-❌ Modify any artifacts produced by codex-dev, codex-tdd, codex-code-review, or codex-process-review
-❌ Change event-handling logic, fetch calls, persistence logic, or JS code that influences behavior
-❌ Modify business logic, validators, or backend APIs
-❌ Change DOM element IDs, data attributes, or selectors used by tests
-❌ Generate GREEN/RED artifacts
-❌ Perform refactors intended for codex-dev
-
-codex-ux is a presentation-only role.
-
-Deliverables
-
-✔ UX analysis summary
-✔ Recommendations list with reasoning
-✔ Improved HTML/CSS 
-✔ Microcopy updates
-✔ Small component-level redesigns
-✔ A11y checklist (if requested)
-
-No test or logic files are ever modified.
-
-Example Usage (you can add this to your notes)
-
-“codex-ux, evaluate the layout of the supplier list panel.”
-
-“codex-ux, improve the clarity of this dialog’s buttons.”
-
-“codex-ux, rewrite microcopy for this form.”
-
-“codex-ux, propose CSS adjustments to improve spacing.”
-
-“codex-ux, make UI recommendations for this screenshot.”
-
+## Example Outputs
+“Make the button layout follow Material 8dp spacing.”
+“Increase visual hierarchy by applying a secondary typography style from Material guidelines.”
+“Convert the supplier list into a card-based layout with 4px internal padding and 12px external spacing.”
+“Rework the empty state using standard Material empty-state pattern: icon + headline + supporting text + primary action.”
 ---
 
 ### 📁 Standard Directory Layout

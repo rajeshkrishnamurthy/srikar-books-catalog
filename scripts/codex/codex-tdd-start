@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# codex-tdd-start <TopicID>
+
+usage() {
+  echo "Usage: codex-tdd-start <TopicID>" >&2
+  exit 1
+}
+
+if [ $# -ne 1 ]; then
+  usage
+fi
+
+TOPIC_ID="$1"
+
+# Move to repo root
+if git rev-parse --show-toplevel >/dev/null 2>&1; then
+  REPO_ROOT="$(git rev-parse --show-toplevel)"
+  cd "$REPO_ROOT"
+fi
+
+if [ ! -f "codex_output/topics.json" ]; then
+  echo "ERROR: codex_output/topics.json not found." >&2
+  exit 1
+fi
+
+mkdir -p codex_output/specs codex_output/reports
+
+# Build the startup prompt as a single argument
+PROMPT=$(cat <<EOF
+Switch to the codex-tdd role as defined in AGENTS.md.
+
+We are beginning **Topic ${TOPIC_ID}**.
+
+The topic definition is in:
+  codex_output/topics.json
+
+Your tasks for Topic ${TOPIC_ID}:
+
+1. Load Topic ${TOPIC_ID} from codex_output/topics.json.
+2. Expand it into 3–7 observable behavior specs.
+3. Generate failing Jest tests for this topic:
+     - /tests/spec/...
+     - /tests/unit/...
+     - optional integration specs
+4. Write/update:
+     codex_output/specs/${TOPIC_ID}.json
+   With:
+     - spec definitions
+     - fixtures (if any)
+     - "status": "RED"
+5. Run Jest:
+     npm test -- --watchAll=false
+   And save the RED summary to:
+     codex_output/reports/${TOPIC_ID}_red.txt
+
+Obey all codex-tdd exclusions:
+  - DO NOT modify production code
+  - DO NOT modify topics.json or topics.md
+  - DO NOT write GREEN or review artifacts
+
+Begin RED phase for Topic ${TOPIC_ID}.
+EOF
+)
+
+# Start codex with this prompt
+codex "$PROMPT"
+

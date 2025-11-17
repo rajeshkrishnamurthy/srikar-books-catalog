@@ -1,0 +1,57 @@
+{
+  "topicId": "F19-TP5",
+  "featureId": "F19",
+  "title": "Available Numeric Pager",
+  "area": "Admin / Manage Books",
+  "goal": "Introduce an Amazon-style numeric pager (Prev, numbered buttons, Next, and the per-page dropdown) laid out on a single row for the Available list.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F19-TP5-001",
+      "title": "NumericPagerRendersCorrectPageCount",
+      "given": "The Available list contains enough rows for multiple pages (e.g., 4 pages worth of docs).",
+      "when": "The pagination shell renders",
+      "then": "Prev button, page-number buttons (1…N), Next button, and the page-size dropdown appear on the same row with the buttons showing the total number of pages based on totalItems/pageSize."
+    },
+    {
+      "id": "F19-TP5-002",
+      "title": "ClickingPageNumberLoadsSelectedPage",
+      "given": "Page 1 is visible and numeric buttons 1…N are present",
+      "when": "The admin clicks a specific page number (e.g., 3)",
+      "then": "That page button becomes active, the list renders the correct slice, the summary/hash show the new page, and Prev/Next enable/disable accordingly."
+    },
+    {
+      "id": "F19-TP5-003",
+      "title": "PrevNextWorkWithNumericPager",
+      "given": "The admin is on the middle page of a multi-page list",
+      "when": "They click Prev or Next",
+      "then": "The highlighted numeric button moves, rows update, and the hash/summary reflect the new page while staying on the single-row layout."
+    }
+  ],
+  "fixtures": [
+    "tests/fixtures/adminInventoryHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F19-TP5-001_NumericPagerRenders.spec.js",
+    "/tests/spec/admin/F19-TP5-002_ClickPageNumberLoadsSlice.spec.js",
+    "/tests/spec/admin/F19-TP5-003_PrevNextWithNumericPager.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F19-TP5_red.txt",
+    "green": "codex_output/reports/F19-TP5_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "styles/admin.css",
+    "scripts/admin/inventory.js",
+    "scripts/helpers/data.js",
+    "codex_output/reports/F19-TP5_green.txt",
+    "codex_output/specs/F19-TP5.json"
+  ],
+  "changeNotes": [
+    "Added the numeric pager container to admin.html plus lightweight styling so the page-size select, numbered buttons, and Prev/Next line up on a single row.",
+    "Extended scripts/admin/inventory.js to render numeric page buttons, handle clicks through the pagination controller, and keep buttons in sync with Prev/Next plus the busy state.",
+    "Enhanced scripts/helpers/data.js so getUiState exposes paging metadata (current page, total pages, offsets) and added a goToPage helper for direct navigation."
+  ]
+}

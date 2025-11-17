@@ -36,6 +36,7 @@ export async function createAdminInventoryHarness(options = {}) {
     availList: dom.availList,
     soldList: dom.soldList,
     searchStatus: dom.searchStatus,
+    pageSizeSelect: dom.pageSizeSelect,
     mocks: firebase.mocks,
     inventoryApi,
     emitAvailableDocs(docs = []) {
@@ -67,40 +68,58 @@ function buildDom(onScrollIntoView) {
         </div>
       </summary>
       <p id="availableSearchStatus" aria-live="polite" class="sr-only"></p>
-      <div id="availList"></div>
       <div
-        class="inventory-pagination"
+        class="inventory-pagination pagination-shell"
         data-available-pagination
         aria-busy="false"
       >
-        <p id="availablePaginationSummary" aria-live="polite">Items 0–0 of 0</p>
-        <div class="inventory-pagination__controls">
-          <div class="inventory-page-size">
-            <label for="availablePageSize">Items per page</label>
-            <select id="availablePageSize">
+        <div class="inventory-pagination__summary pagination-shell__summary">
+          <p id="availablePaginationSummary" aria-live="polite">
+            Items 0–0 of 0 available books
+          </p>
+        </div>
+        <div class="inventory-pagination__actions inventory-pagination__controls pagination-shell__actions">
+          <div class="pagination-size pagination-shell__size">
+            <span class="pagination-size__label">Rows per page</span>
+            <label for="availablePageSize" class="sr-only">Items per page</label>
+            <select id="availablePageSize" aria-label="Items per page" class="pagination-size-select">
               <option value="10">10</option>
               <option value="20" selected>20</option>
               <option value="50">50</option>
             </select>
           </div>
-          <button
-            type="button"
-            id="availablePaginationPrev"
-            data-pagination="prev"
-            aria-controls="availList"
-          >
-            Previous page
-          </button>
-          <button
-            type="button"
-            id="availablePaginationNext"
-            data-pagination="next"
-            aria-controls="availList"
-          >
-            Next page
-          </button>
+          <div class="pagination-stepper pagination-shell__stepper">
+            <button
+              type="button"
+              id="availablePaginationPrev"
+              class="pagination-shell__prev"
+              data-pagination="prev"
+              aria-controls="availList"
+              aria-label="Previous page"
+            >
+              Prev
+            </button>
+            <div
+              class="inventory-pagination__pages pagination-shell__pages"
+              data-pagination-pages
+              role="group"
+              aria-label="Page selection"
+              hidden
+            ></div>
+            <button
+              type="button"
+              id="availablePaginationNext"
+              class="pagination-shell__next"
+              data-pagination="next"
+              aria-controls="availList"
+              aria-label="Next page"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
+      <div id="availList"></div>
     </details>
     <details id="soldBooksPanel">
       <summary>Sold</summary>
@@ -117,6 +136,8 @@ function buildDom(onScrollIntoView) {
     soldList: document.getElementById('soldList'),
     searchStatus: document.getElementById('availableSearchStatus'),
     pageSizeSelect: document.getElementById('availablePageSize'),
+    topPrevButton: document.getElementById('availablePaginationPrevTop'),
+    topNextButton: document.getElementById('availablePaginationNextTop'),
   };
 }
 

@@ -40,7 +40,7 @@ describe('SPEC F19-TP4-003: Selected page size persists across reloads (hash/res
 
     await waitFor(() => {
       expect(sizeSelect.value).toBe('50');
-      expect(summary.textContent).toBe('Items 1–50 of 80');
+      expect(summary.textContent).toBe('Items 1–50 of 80 available books');
     });
   });
 });
