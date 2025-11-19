@@ -697,6 +697,7 @@
                 <div class="inventory-pagination__summary pagination-shell__summary">
                   <p
                     id="soldPaginationSummary"
+                    class="muted"
                     aria-live="polite"
                     data-pagination-summary
                   >
@@ -707,7 +708,11 @@
                   <div class="pagination-size pagination-shell__size">
                     <span class="pagination-size__label">Rows per page</span>
                     <label for="soldPageSize" class="sr-only">Items per page</label>
-                    <select id="soldPageSize" aria-label="Items per page" class="pagination-size-select">
+                    <select
+                      id="soldPageSize"
+                      aria-label="Items per page"
+                      class="md-input pagination-size-select"
+                    >
                       <option value="10">10</option>
                       <option value="20" selected>20</option>
                       <option value="50">50</option>

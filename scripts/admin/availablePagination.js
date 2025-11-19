@@ -147,10 +147,15 @@ export function createAvailableBooksDataSource(overrides = {}) {
       deps.orderBy('createdAt', 'desc'),
     ];
 
-    if (direction === 'forward' && request.cursor) {
-      queryConstraints.push(deps.startAfter(request.cursor));
-    } else if (direction === 'backward' && request.cursor) {
-      queryConstraints.push(deps.endBefore(request.cursor));
+    const forwardCursor =
+      request.cursorAfter ?? request.cursor ?? null;
+    const backwardCursor =
+      request.cursorBefore ?? request.cursor ?? null;
+
+    if (direction === 'forward' && forwardCursor) {
+      queryConstraints.push(deps.startAfter(forwardCursor));
+    } else if (direction === 'backward' && backwardCursor) {
+      queryConstraints.push(deps.endBefore(backwardCursor));
     }
 
     if (direction === 'forward') {
@@ -291,10 +296,15 @@ export function createSoldBooksDataSource(overrides = {}) {
       deps.orderBy('soldOn', 'desc'),
     ];
 
-    if (direction === 'forward' && request.cursor) {
-      queryConstraints.push(deps.startAfter(request.cursor));
-    } else if (direction === 'backward' && request.cursor) {
-      queryConstraints.push(deps.endBefore(request.cursor));
+    const forwardCursor =
+      request.cursorAfter ?? request.cursor ?? null;
+    const backwardCursor =
+      request.cursorBefore ?? request.cursor ?? null;
+
+    if (direction === 'forward' && forwardCursor) {
+      queryConstraints.push(deps.startAfter(forwardCursor));
+    } else if (direction === 'backward' && backwardCursor) {
+      queryConstraints.push(deps.endBefore(backwardCursor));
     }
 
     if (direction === 'forward') {

@@ -64,11 +64,9 @@
     "scripts/admin/inventory.js"
   ],
   "changeNotes": [
-    "Mounted the Sold panel pagination shell markup with summary, rows-per-page select, and Prev/Next controls matching the shared Available UI.",
-    "Instantiated a Sold pagination controller that pages through the local sold docs/search results, syncs busy state, disabling, and page-size changes to the shell.",
-    "Hooked Sold pagination into hash sync/update logic so controller state rewrites '#manage-books/sold?...' for back-button/link restores.",
-    "Synced Sold deep-link restoration with the shared search UI/state so header filters, aria messaging, and both controllers agree on the active term.",
-    "Restricted Sold hash serialization to shareable filters and only apply updates when the Sold panel is active, preventing refresh tokens/background updates from hijacking manage URLs."
+    "Header search now derives its announced count from both Available and Sold matches so the aria status mirrors what the filtered lists show.",
+    "Sold pagination markup gained the muted summary text and md-input rows-per-page select to keep its shell visually aligned with the Available panel.",
+    "Introduced initInventoryPaginationSection to centralize controller wiring, giving Available and Sold the same setup, reload, and location-sync paths."
   ],
   "validation": {
     "status": "RED",

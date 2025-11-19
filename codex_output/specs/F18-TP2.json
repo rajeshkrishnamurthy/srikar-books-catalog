@@ -1,60 +1,75 @@
 {
   "topicId": "F18-TP2",
+  "featureId": "F18",
   "title": "Admin List Pagination Shell",
   "area": "Admin / Lists",
-  "goal": "Provide a standard pagination control strip (Previous/Next, item range, and disabled states) that admin list views can drop in with minimal wiring.",
+  "goal": "Provide the shared pagination shell (summary copy, Prev/Next, numeric pager, optional load-more) so every admin list reuses one DOM pattern.",
   "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
   "status": "GREEN",
   "specs": [
     {
       "id": "F18-TP2-001",
-      "title": "FirstPagePrevDisabled",
-      "given": "An admin list view uses the shared pagination contract and the first page of results is loaded.",
-      "when": "The pagination shell derives its UI state from the page metadata and total count while not loading.",
-      "then": "The shell marks the Previous control disabled, leaves the Next control enabled when hasNext is true, and renders a summary string like `Items 1–20 of 132` for a 20-item page.",
+      "title": "BusyStateDisablesPrevNext",
+      "given": "The shell receives UI state where prevDisabled/nextDisabled flags come from the controller and isBusy is true while fetching.",
+      "when": "buildPaginationShellState derives summary copy for the view.",
+      "then": "It emits a summary string for the active slice and forces both Prev and Next buttons into disabled/aria-disabled states whenever the controller is busy.",
       "test": "/tests/unit/pagination/F18-TP2_paginationShell.test.js"
     },
     {
       "id": "F18-TP2-002",
-      "title": "LastPageNextDisabled",
-      "given": "A later page of results is loaded and the pagination metadata reports hasPrev true and hasNext false.",
-      "when": "The pagination shell derives its UI state using an offset and total item count.",
-      "then": "The shell marks the Next control disabled, leaves Previous enabled, and renders a range summary reflecting the later slice, for example `Items 21–40 of 40`.",
+      "title": "NumericPagerCompressesRanges",
+      "given": "An admin view exposes ten or more pages so the numeric pager should collapse middle ranges.",
+      "when": "The shared shell syncs DOM nodes inside [data-pagination-pages].",
+      "then": "It renders buttons for the first/last/current pages, inserts \u2026 gaps where pages are skipped, and marks the active page with aria-current=page for keyboard users.",
       "test": "/tests/unit/pagination/F18-TP2_paginationShell.test.js"
     },
     {
       "id": "F18-TP2-003",
-      "title": "LoadingDisablesBothEnds",
-      "given": "An admin triggers a page change and the list is waiting for the next page of data.",
-      "when": "The pagination shell is told that it is loading while building its UI state.",
-      "then": "Both Previous and Next controls are disabled, an `isBusy` flag is exposed, and the last known summary text remains stable instead of jumping to an incorrect range.",
+      "title": "NumericButtonsCallGoToPage",
+      "given": "A controller exposes goToPage and the numeric pager shows more than one page button.",
+      "when": "An admin clicks a different page chip.",
+      "then": "The shell calls controller.goToPage with that page number exactly once and keeps focus on the activated button while the summary re-announces via aria-live.",
+      "test": "/tests/unit/pagination/F18-TP2_paginationShell.test.js"
+    },
+    {
+      "id": "F18-TP2-004",
+      "title": "PageSizeSelectDelegatesAndResyncs",
+      "given": "The shared \"Rows per page\" select exists for both Available and Sold panels.",
+      "when": "An admin changes the value (or types an invalid entry).",
+      "then": "The shell calls controller.setPageSize with the sanitized number, resets the select to a safe value when invalid text is entered, and re-runs sync so the summary reflects the new range.",
+      "test": "/tests/unit/pagination/F18-TP2_paginationShell.test.js"
+    },
+    {
+      "id": "F18-TP2-005",
+      "title": "LoadMoreModeProvidesButton",
+      "given": "Some adopters prefer load-more instead of Prev/Next and the controller exposes mode='loadMore' plus a loadMoreLabel.",
+      "when": "The shell syncs while in load-more mode.",
+      "then": "It renders a dedicated Load more button that reads the provided label, disables it while the controller is busy, and calls controller.loadMore when activated.",
       "test": "/tests/unit/pagination/F18-TP2_paginationShell.test.js"
     }
   ],
-  "fixtures": [],
+  "fixtures": [
+    "/tests/fixtures/adminInventoryHarness.js",
+    "/tests/fixtures/paginationControllerStub.js",
+    "/tests/fixtures/availableSoldControllerFactory.js"
+  ],
+  "tests": [
+    "/tests/unit/pagination/F18-TP2_paginationShell.test.js"
+  ],
   "reports": {
     "red": "codex_output/reports/F18-TP2_red.txt",
     "green": "codex_output/reports/F18-TP2_green.txt"
   },
-  "validation": {
-    "status": "GREEN",
-    "command": "npm test -- --watchAll=false --runTestsByPath tests/unit/pagination/F18-TP2_paginationShell.test.js",
-    "report": "codex_output/reports/F18-TP2_green.txt",
-    "summary": {
-      "result": "passed",
-      "details": "F18-TP2 pagination shell specs now pass after buildPaginationShellState drives summary text plus prev/next disabled states and loading behavior."
-    }
-  },
   "changedFiles": [
-    "scripts/helpers/data.js",
-    "tests/unit/pagination/F18-TP2_paginationShell.test.js",
-    "codex_output/reports/F18-TP2_red.txt",
-    "codex_output/reports/F18-TP2_green.txt",
-    "codex_output/specs/F18-TP2.json"
+    "scripts/admin/inventory.js"
   ],
   "changeNotes": [
-    "Introduced F18-TP2 unit specs that describe how the admin pagination shell should derive summary text and Previous/Next disabled states from the shared pagination metadata, total item count, and loading flag.",
-    "Added RED-phase Jest tests in tests/unit/pagination/F18-TP2_paginationShell.test.js that exercise first-page, last-page, and loading scenarios against a future buildPaginationShellState helper.",
-    "Implemented buildPaginationShellState in scripts/helpers/data.js to compute summary text (Items X–Y of N) and prev/next disabled flags plus isBusy from page metadata, total items, offset, and loading state so all F18-TP2 pagination shell tests pass."
-  ]
+    "initPaginationShell now renders a dedicated Load more button whenever the controller reports mode='loadMore', wiring clicks to controller.loadMore and mirroring the busy/aria state from the pager.",
+    "Numeric page chips stay hidden in load-more mode to avoid conflicting controls while the existing prev/next wiring continues to drive pager mode."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false",
+    "report": "codex_output/reports/F18-TP2_green.txt"
+  }
 }
