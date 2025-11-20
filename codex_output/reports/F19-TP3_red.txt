@@ -1,0 +1,1575 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false
+
+(node:61452) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:61455) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/F09-TP4-003_LogsUnmatchedQueries.spec.js
+  SPEC F09-TP4-003: Log unmatched queries
+    ✓ onNoMatch callback receives the normalized query text once per attempt (43 ms)
+
+(node:61454) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:61453) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/F07-TP2-002_PersistCustomerEdit.spec.js
+  SPEC F07-TP2-002: Customer edits persist via updateDoc
+    ✓ submitting in edit mode updates Firestore with normalized fields (98 ms)
+
+PASS tests/spec/admin/F05-TP2-001_InlineEditPrefillsSupplier.spec.js
+  SPEC F05-TP2-001: Inline edit pre-fills supplier
+    ✓ clicking edit populates the form with supplier values and sets edit mode (90 ms)
+    ✓ cancel button exits edit mode and clears hidden id (26 ms)
+
+PASS tests/spec/admin/F17-TP3-003_CustomersSubNav.spec.js
+  SPEC F17-TP3-003: Customers sub nav supports Create/Manage views
+    ✓ Customers nav defaults to Create and routes Manage via hash (152 ms)
+    ✓ Deep-link #customers/manage highlights Manage tab (25 ms)
+
+PASS tests/unit/customers/F07-TP3-001_NormalizeLookupQuery.test.js
+  UNIT F07-TP3 normalizeLookupQuery helper
+    ✓ trims, collapses whitespace, lowercases, and drops short inputs (1 ms)
+
+PASS tests/spec/admin/F13-TP2-002_ClearBundlePriceShowsError.spec.js
+  SPEC F13-TP2-002: Clearing bundle price blocks submit
+    ✓ clearing the price after it is suggested shows inline error and prevents save (35 ms)
+
+(node:61451) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F19-TP3-006_HashChangeResyncsPagination.spec.js
+  SPEC F19-TP3-006: Hash changes replay pagination state
+    ✕ dispatching hashchange with #manage-books/available triggers syncFromLocation (500 ms)
+
+  ● SPEC F19-TP3-006: Hash changes replay pagination state › dispatching hashchange with #manage-books/available triggers syncFromLocation
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 2
+    Received number of calls: 1
+
+      19 |     window.dispatchEvent(new Event('hashchange'));
+      20 |
+    > 21 |     expect(controller.syncFromLocation).toHaveBeenCalledTimes(initialCalls + 1);
+         |                                         ^
+      22 |     const lastCall =
+      23 |       controller.syncFromLocation.mock.calls[
+      24 |         controller.syncFromLocation.mock.calls.length - 1
+
+      at Object.<anonymous> (tests/spec/admin/F19-TP3-006_HashChangeResyncsPagination.spec.js:21:41)
+
+PASS tests/spec/admin/F17-TP2-002_SaleSubNavRenders.spec.js
+  SPEC F17-TP2-002: Sale sub nav renders with shared helper
+    ✓ Clicking Sale reveals a dropdown with Record tab using shared helper (187 ms)
+
+(node:61450) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/F19-TP3-005_DeepLinkLoadsRequestedPage.spec.js
+  SPEC F19-TP3-005: Deep link restores requested page and size
+    ✓ hash-defined page + pageSize render once snapshots arrive (466 ms)
+
+PASS tests/spec/admin/F15-TP4-002_NavButtonsRouteWithoutCTAs.spec.js
+  SPEC F15-TP3-001: Hash deep link activates target panel
+    ✓ #bundles opens the Bundles panel and marks the nav tile active (102 ms)
+
+PASS tests/spec/admin/F11-TP3-001_PersistSkipsRemovedLines.spec.js
+  SPEC F11-TP3-001: Persist skips removed lines
+    ✓ removed lineIds never appear in the persisted Firestore payload or status list (29 ms)
+
+PASS tests/spec/admin/TP1-003_BlocksNonNumericPurchasePrice.spec.js
+  SPEC TP1-003: Validation against non-numeric input
+    ✓ prevents addDoc and surfaces an inline error (102 ms)
+
+(node:61449) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/TP1-004_BlocksNegativePurchasePrice.spec.js
+  SPEC TP1-004: Validation against negative purchase price
+    ✓ stops the submission when the value is below zero (56 ms)
+
+  console.error
+    Error: Not implemented: window.scrollTo
+        at module.exports (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+        at /Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:67:21)
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:51:5)
+        at HTMLButtonElement.activateLauncher (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:25:5)
+        at HTMLButtonElement.callTheUserObjectsOperation (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+        at innerInvokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+        at invokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+        at HTMLButtonElementImpl._dispatch (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+        at HTMLButtonElementImpl.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+        at HTMLButtonElement.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+        at /Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:19:20
+        at Object.eventWrapper (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/config.js:25:23)
+        at fireEvent (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:12:35)
+        at fireEvent.<computed> [as click] (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:110:36)
+        at Object.clickRecordSale (/Users/rajeshk/Downloads/catalog/tests/fixtures/salesEntryLauncherHarness.js:32:17)
+        at Object.<anonymous> (/Users/rajeshk/Downloads/catalog/tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js:11:13)
+        at processTicksAndRejections (node:internal/process/task_queues:103:5) {
+      type: 'not implemented'
+    }
+
+      65 |       }
+      66 |     }
+    > 67 |     window?.scrollTo?.(scrollX, scrollY);
+         |                     ^
+      68 |     searchInput?.setAttribute?.('aria-describedby', panel.id);
+      69 |   }
+      70 | }
+
+      at VirtualConsole.<anonymous> (node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at module.exports (node_modules/jsdom/lib/jsdom/browser/not-implemented.js:12:26)
+      at node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
+      at openPanel (scripts/admin/salesEntryLauncher.js:67:21)
+      at openPanel (scripts/admin/salesEntryLauncher.js:51:5)
+      at HTMLButtonElement.activateLauncher (scripts/admin/salesEntryLauncher.js:25:5)
+      at HTMLButtonElement.callTheUserObjectsOperation (node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLButtonElementImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLButtonElementImpl.dispatchEvent (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLButtonElement.dispatchEvent (node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at node_modules/@testing-library/dom/dist/events.js:19:20
+      at Object.eventWrapper (node_modules/@testing-library/dom/dist/config.js:25:23)
+      at fireEvent (node_modules/@testing-library/dom/dist/events.js:12:35)
+      at fireEvent.<computed> [as click] (node_modules/@testing-library/dom/dist/events.js:110:36)
+      at Object.clickRecordSale (tests/fixtures/salesEntryLauncherHarness.js:32:17)
+      at Object.<anonymous> (tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js:11:13)
+
+  console.error
+    Error: Not implemented: window.scrollTo
+        at module.exports (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+        at /Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:67:21)
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:51:5)
+        at HTMLButtonElement.activateLauncher (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:25:5)
+        at HTMLButtonElement.callTheUserObjectsOperation (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+        at innerInvokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+        at invokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+        at HTMLButtonElementImpl._dispatch (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+        at HTMLButtonElementImpl.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+        at HTMLButtonElement.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+        at /Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:19:20
+        at Object.eventWrapper (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/config.js:25:23)
+        at fireEvent (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:12:35)
+        at fireEvent.<computed> [as click] (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:110:36)
+        at Object.clickRecordSale (/Users/rajeshk/Downloads/catalog/tests/fixtures/salesEntryLauncherHarness.js:32:17)
+        at Object.<anonymous> (/Users/rajeshk/Downloads/catalog/tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js:14:13)
+        at processTicksAndRejections (node:internal/process/task_queues:103:5) {
+      type: 'not implemented'
+    }
+
+      65 |       }
+      66 |     }
+    > 67 |     window?.scrollTo?.(scrollX, scrollY);
+         |                     ^
+      68 |     searchInput?.setAttribute?.('aria-describedby', panel.id);
+      69 |   }
+      70 | }
+
+      at VirtualConsole.<anonymous> (node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at module.exports (node_modules/jsdom/lib/jsdom/browser/not-implemented.js:12:26)
+      at node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
+      at openPanel (scripts/admin/salesEntryLauncher.js:67:21)
+      at openPanel (scripts/admin/salesEntryLauncher.js:51:5)
+      at HTMLButtonElement.activateLauncher (scripts/admin/salesEntryLauncher.js:25:5)
+      at HTMLButtonElement.callTheUserObjectsOperation (node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLButtonElementImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLButtonElementImpl.dispatchEvent (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLButtonElement.dispatchEvent (node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at node_modules/@testing-library/dom/dist/events.js:19:20
+      at Object.eventWrapper (node_modules/@testing-library/dom/dist/config.js:25:23)
+      at fireEvent (node_modules/@testing-library/dom/dist/events.js:12:35)
+      at fireEvent.<computed> [as click] (node_modules/@testing-library/dom/dist/events.js:110:36)
+      at Object.clickRecordSale (tests/fixtures/salesEntryLauncherHarness.js:32:17)
+      at Object.<anonymous> (tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js:14:13)
+
+  console.error
+    Error: Not implemented: window.scrollTo
+        at module.exports (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+        at /Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:67:21)
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:51:5)
+        at HTMLButtonElement.activateLauncher (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:33:5)
+        at HTMLButtonElement.callTheUserObjectsOperation (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+        at innerInvokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+        at invokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+        at HTMLButtonElementImpl._dispatch (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+        at HTMLButtonElementImpl.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+        at HTMLButtonElement.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+        at /Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:19:20
+        at Object.eventWrapper (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/config.js:25:23)
+        at fireEvent (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:12:35)
+        at fireEvent.<computed> [as keyDown] (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:110:36)
+        at Object.pressRecordSaleEnter (/Users/rajeshk/Downloads/catalog/tests/fixtures/salesEntryLauncherHarness.js:35:17)
+        at Object.<anonymous> (/Users/rajeshk/Downloads/catalog/tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js:15:13)
+        at processTicksAndRejections (node:internal/process/task_queues:103:5) {
+      type: 'not implemented'
+    }
+
+      65 |       }
+      66 |     }
+    > 67 |     window?.scrollTo?.(scrollX, scrollY);
+         |                     ^
+      68 |     searchInput?.setAttribute?.('aria-describedby', panel.id);
+      69 |   }
+      70 | }
+
+      at VirtualConsole.<anonymous> (node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at module.exports (node_modules/jsdom/lib/jsdom/browser/not-implemented.js:12:26)
+      at node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
+      at openPanel (scripts/admin/salesEntryLauncher.js:67:21)
+      at openPanel (scripts/admin/salesEntryLauncher.js:51:5)
+      at HTMLButtonElement.activateLauncher (scripts/admin/salesEntryLauncher.js:33:5)
+      at HTMLButtonElement.callTheUserObjectsOperation (node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLButtonElementImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLButtonElementImpl.dispatchEvent (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLButtonElement.dispatchEvent (node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at node_modules/@testing-library/dom/dist/events.js:19:20
+      at Object.eventWrapper (node_modules/@testing-library/dom/dist/config.js:25:23)
+      at fireEvent (node_modules/@testing-library/dom/dist/events.js:12:35)
+      at fireEvent.<computed> [as keyDown] (node_modules/@testing-library/dom/dist/events.js:110:36)
+      at Object.pressRecordSaleEnter (tests/fixtures/salesEntryLauncherHarness.js:35:17)
+      at Object.<anonymous> (tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js:15:13)
+
+PASS tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js
+  SPEC F09-TP5-003: Launcher initializes sale workflow once on first activation
+    ✓ startSaleWorkflow runs only after the first click and not on repeated activations (44 ms)
+
+PASS tests/spec/admin/F08-TP2-002_SaleLineRequiresSellingPrice.spec.js
+  SPEC F08-TP2-002: Sale line requires selling price
+    ✓ adding a line without price shows inline validation and blocks submission (19 ms)
+
+PASS tests/spec/admin/F05-TP4-004_HandleStaleSupplierDuringEdit.spec.js
+  SPEC F05-TP4-004: Handle stale supplier during edit
+    ✓ if previously selected supplier disappears, save is blocked and warning shown (25 ms)
+
+PASS tests/spec/admin/F07-TP1-005_AdminCustomerForm.spec.js
+  SPEC F07-TP1-005: Admin customer form is present without country code input
+    ✓ admin.html exposes the add customer form fields but hides country code (569 ms)
+
+PASS tests/spec/admin/F12-TP2-002_UnpublishBundle.spec.js
+  SPEC F12-TP2-002: Unpublish bundle
+    ✓ clicking Unpublish flips status back to Draft/Hidden (26 ms)
+
+PASS tests/spec/admin/F19-TP4-001_PageSizeSelectorRenders.spec.js
+  SPEC F19-TP4-001: Page size selector renders and defaults to 20
+    ✓ selector shows 10/20/50 options with 20 selected and aria labels intact (53 ms)
+
+PASS tests/spec/admin/F08-TP1-001_SaleHeaderRequiresCustomer.spec.js
+  SPEC F08-TP1-001: Sale header requires customer selection
+    ✓ customer lookup selection populates summary and hidden field (9 ms)
+    ✓ submitting without a customer surfaces inline error and blocks continuation (6 ms)
+
+PASS tests/spec/admin/F17-TP1-002_BundlesSubNavRenders.spec.js
+  SPEC F17-TP1-002: Bundles sub nav renders with shared helper
+    ✓ Clicking Bundles reveals a Create/Manage dropdown wired like Manage Books (45 ms)
+
+PASS tests/spec/admin/F12-TP1-001_SupplierScopedBookLookup.spec.js
+  SPEC F12-TP1-001: Supplier-scoped lookup and reset
+    ✓ supplier lock + reset flow scopes lookup to a single supplier at a time (16 ms)
+
+PASS tests/spec/admin/F17-TP1-003_BundlesSubNavRoutesManage.spec.js
+  SPEC F17-TP1-003: Bundles sub nav routes Manage tab
+    ✓ Selecting Manage rewrites hash and updates aria-current (54 ms)
+
+PASS tests/spec/admin/F14-TP2-003_CtaRoutesNavTarget.spec.js
+  SPEC F14-TP2-003: Nav button routing keeps tile expanded
+    ✓ Clicking the Bundles nav button updates the hash and keeps the tile active (65 ms)
+
+PASS tests/spec/admin/F05-TP3-004_HandlesStaleSupplierSelection.spec.js
+  SPEC F05-TP3-004: Handle stale/invalid supplier selections
+    ✓ Submitting with a stale supplier id is blocked and surfaces warning (67 ms)
+
+PASS tests/spec/admin/F07-TP1-001_CustomerFormRequiresMandatoryFields.spec.js
+  SPEC F07-TP1-001: Customer form enforces required fields
+    ✓ missing customer name blocks submission with inline guidance (12 ms)
+    ✓ missing WhatsApp number blocks submission as well (12 ms)
+
+PASS tests/spec/admin/F08-TP2-001_SaleLineDraftReflectsBookSelection.spec.js
+  SPEC F08-TP2-001: Sale line draft reflects selected book metadata
+    ✓ book lookup selection populates summary and hidden inputs (12 ms)
+
+PASS tests/spec/admin/F11-TP2-003_FinalRemovalResetsDraft.spec.js
+  SPEC F11-TP2-003: Final removal resets draft + persist state
+    ✓ confirming the last row removal clears draft inputs, focuses title, and disables Persist sale (57 ms)
+
+PASS tests/spec/admin/F15-TP2-002_CustomersNavPreservesFormState.spec.js
+  SPEC F15-TP2-002: Customers nav preserves Customer Master form state
+    ✓ Switching between Manage and Customers keeps entered form data intact (68 ms)
+
+PASS tests/spec/admin/F16-TP4-003_SoldTabRestoreState.spec.js
+  SPEC F16-TP4-003: Sold tab defaults when returning to Manage after a Sold deep link
+    ✓ After navigating to Sold via deep link and leaving Manage, coming back defaults to Add tab (62 ms)
+
+PASS tests/unit/editor/TP2-001_EditFormShowsPurchasePrice.test.js
+  UNIT TP2-001: Edit form mirrors existing purchase price
+    ✓ open() copies stored purchasePrice (including zero) into the field value (12 ms)
+
+PASS tests/spec/admin/F12-TP1-002_BundleRequiresTwoUniqueBooks.spec.js
+  SPEC F12-TP1-002: Require 2+ unique books + title before save
+    ✓ submit stays disabled until supplier, title, and two unique books exist (28 ms)
+
+PASS tests/spec/admin/F16-TP4-002_SoldTabDeepLink.spec.js
+  SPEC F16-TP4-002: Sold tab honors deep links
+    ✓ Loading #manage-books/sold selects the Sold tab and hides other panels (28 ms)
+
+PASS tests/spec/admin/F13-TP1-001_AddBookRequiresPrice.spec.js
+  SPEC F13-TP1-001: Book price is required
+    ✓ empty price blocks submission with inline feedback (34 ms)
+
+PASS tests/spec/admin/F16-TP2-003_ReturningToManageDefaultsToAdd.spec.js
+  SPEC F16-TP2-003: Returning to Manage defaults to Add tab
+    ✓ After visiting another nav section, clicking Manage reselects Add and shows only Add panel (47 ms)
+
+PASS tests/spec/admin/TP2-004_PersistsPurchasePriceUpdate.spec.js
+  SPEC TP2-004: Persist edited purchase price
+    ✓ sends numeric purchasePrice in the updateDoc payload when save succeeds (25 ms)
+
+PASS tests/spec/admin/F11-TP2-001_ConfirmRemovalDeletesRow.spec.js
+  SPEC F11-TP2-001: Confirm removal deletes the row and logs status
+    ✓ click remove → confirm removes the row, updates totals/state, and logs status text (40 ms)
+
+PASS tests/spec/admin/F19-TP5-002_ClickPageNumberLoadsSlice.spec.js
+  SPEC F19-TP5-002: Clicking a numeric page loads that slice
+    ✓ clicking page 3 highlights button, updates rows, summary, and hash (124 ms)
+
+PASS tests/unit/editor/TP2-002_RejectsNonNumericPurchasePrice.test.js
+  UNIT TP2-002: Validate numeric purchase price on edit save
+    ✓ non-numeric input keeps dialog open and skips updateDoc (22 ms)
+
+PASS tests/spec/admin/F12-TP3-001_SearchBundlesByBook.spec.js
+  SPEC F12-TP3-001: Autocomplete selection filters bundles
+    ✓ only selected book IDs filter results; typing alone does nothing; clearing restores list (53 ms)
+
+PASS tests/spec/admin/F09-TP5-002_ChangeCustomerClearsSelection.spec.js
+  SPEC F09-TP5-002: Selecting a new customer replaces the previous summary
+    ✓ choosing another customer overwrites the hidden ID and summary text (12 ms)
+
+PASS tests/spec/admin/F08-TP1-002_SaleHeaderRequiresDate.spec.js
+  SPEC F08-TP1-002: Sale header requires a valid sale date
+    ✓ missing date blocks submission even if customer selected (16 ms)
+    ✓ wrong formats surface guidance about dd-mon-yy (15 ms)
+    ✓ future dates are rejected with inline error (14 ms)
+    ✓ same calendar day in ahead-of-UTC timezones is accepted (13 ms)
+
+PASS tests/spec/admin/F07-TP1-007_RequiresTenDigitWhatsapp.spec.js
+  SPEC F07-TP1-007: WhatsApp number must be exactly 10 digits
+    ✓ submission with fewer than 10 digits shows an inline error (22 ms)
+    ✓ submission with more than 10 digits is rejected instead of truncated (12 ms)
+
+PASS tests/spec/admin/F05-TP2-003_PreventDeleteWhenInUse.spec.js
+  SPEC F05-TP2-003: Prevent deleting suppliers in use
+    ✓ delete action checks book references and blocks removal when in use (48 ms)
+
+PASS tests/spec/admin/F12-TP2-004_PublishButtonsDisableMatchingStatus.spec.js
+  SPEC F12-TP2-004: Publish controls reflect current status
+    ✓ Toggle reflects current status and shows busy state while updating (23 ms)
+
+PASS tests/spec/admin/F09-TP1-006_SaleLookupMatchesInventoryFilter.spec.js
+  SPEC F09-TP1-006: Record sale lookup matches inventory filter results
+    ✓ autocomplete suggestions only include the same matches as the inventory search (7 ms)
+
+FAIL tests/spec/admin/F19-TP3-007_ClampStaleOffsetAfterShrink.spec.js
+  SPEC F19-TP3-007: Shrinking data clamps stale pagination offsets
+    ✕ page 3 with 60 items snaps back to page 2 when only 25 remain (1744 ms)
+
+  ● SPEC F19-TP3-007: Shrinking data clamps stale pagination offsets › page 3 with 60 items snaps back to page 2 when only 25 remain
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Items 21–25 of 25"
+    Received: "Items 0–0 of 25"
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [0m
+        [0m
+        [36m<details[39m
+          [33mid[39m=[32m"availableBooksPanel"[39m
+          [33mopen[39m=[32m""[39m
+        [36m>[39m
+          [0m
+          [0m
+          [36m<summary>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"available-summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<strong>[39m
+                [0mAvailable[0m
+              [36m</strong>[39m
+              [0m
+              [0m
+              [36m<label[39m
+                [33mclass[39m=[32m"sr-only"[39m
+                [33mfor[39m=[32m"availableSearchInput"[39m
+                [33mid[39m=[32m"availableSearchLabel"[39m
+              [36m>[39m
+                [0m
+                Search available books
+              [0m
+              [36m</label>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33maria-labelledby[39m=[32m"availableSearchLabel"[39m
+                [33mid[39m=[32m"availableSearchInput"[39m
+                [33mplaceholder[39m=[32m"Search title or author"[39m
+                [33mtype[39m=[32m"search"[39m
+              [36m/>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</summary>[39m
+          [0m
+          [0m
+          [36m<p[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"sr-only"[39m
+            [33mid[39m=[32m"availableSearchStatus"[39m
+          [36m/>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33maria-busy[39m=[32m"false"[39m
+            [33mclass[39m=[32m"inventory-pagination"[39m
+            [33mdata-available-pagination[39m=[32m""[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<p[39m
+              [33maria-live[39m=[32m"polite"[39m
+              [33mid[39m=[32m"availablePaginationSummary"[39m
+            [36m>[39m
+              [0mItems 0–0 of 25[0m
+            [36m</p>[39m
+            [0m
+            [0m
+            [36m<label[39m
+              [33mclass[39m=[32m"sr-only"[39m
+              [33mfor[39m=[32m"availablePageSize"[39m
+            [36m>[39m
+              [0mItems per page[0m
+            [36m</label>[39m
+            [0m
+            [0m
+            [36m<select[39m
+              [33maria-label[39m=[32m"Items per page"[39m
+              [33mid[39m=[32m"availablePageSize"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<option[39m
+                [33mvalue[39m=[32m"10"[39m
+              [36m>[39m
+                [0m10[0m
+              [36m</option>[39m
+              [0m
+              [0m
+              [36m<option[39m
+                [33mselected[39m=[32m""[39m
+                [33mvalue[39m=[32m"20"[39m
+              [36m>[39m
+                [0m20[0m
+              [36m</option>[39m
+              [0m
+              [0m
+              [36m<option[39m
+                [33mvalue[39m=[32m"50"[39m
+              [36m>[39m
+                [0m50[0m
+              [36m</option>[39m
+              [0m
+            [0m
+            [36m</select>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__controls"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33maria-label[39m=[32m"Pages"[39m
+                [33mclass[39m=[32m"inventory-pagination__pages"[39m
+                [33mdata-pagination-pages[39m=[32m""[39m
+                [33mrole[39m=[32m"group"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33maria-label[39m=[32m"Go to page 1"[39m
+                  [33mdata-page-button[39m=[32m"1"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-current[39m=[32m"page"[39m
+                  [33maria-label[39m=[32m"Go to page 2"[39m
+                  [33mdata-page-button[39m=[32m"2"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m2[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"availList"[39m
+                [33maria-label[39m=[32m"Previous page"[39m
+                [33mdata-pagination[39m=[32m"prev"[39m
+                [33mid[39m=[32m"availablePaginationPrev"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                Prev
+              [0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"availList"[39m
+                [33maria-label[39m=[32m"Next page"[39m
+                [33mdata-pagination[39m=[32m"next"[39m
+                [33mdisabled[39m=[32m""[39m
+                [33mid[39m=[32m"availablePaginationNext"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                Next
+              [0m
+              [36m</button>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</div>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33mid[39m=[32m"availList"[39m
+          [36m>[39m
+            [0m
+    [0m
+            [36m<article[39m
+              [33mclass[39m=[32m"row"[39m
+              [33mdata-id[39m=[32m"book-1"[39m
+            [36m>[39m
+              [0m
+      [0m
+              [36m<img[39m
+                [33malt[39m=[32m""[39m
+                [33msrc[39m=[32m"./assets/placeholder.webp"[39m
+              [36m/>[39m
+              [0m
+      [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"row-meta"[39m
+              [36m>[39m
+                [0m
+        [0m
+                [36m<strong>[39m
+                  [0mBook 1[0m
+                [36m</strong>[39m
+                [0m
+        [0m
+                [36m<div[39m
+                  [33mclass[39m=[32m"muted"[39m
+                [36m>[39m
+                  [0m
+          Test Author · Fiction · Paperback
+        [0m
+                [36m</div>[39m
+                [0m
+        [0m
+                [36m<div[39m
+                  [33mclass[39m=[32m"purchase-price muted"[39m
+                [36m>[39m
+                  [0mPurchase price: Not set[0m
+                [36m</div>[39m
+                [0m
+      [0m
+              [36m</div>[39m
+              [0m
+      [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"row-actions"[39m
+              [36m>[39m
+                [0m
+        [0m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn"[39m
+                  [33mdata-action[39m=[32m"feature"[39m
+                [36m>[39m
+                  [0mFeature[0m
+                [36m</button>[39m
+                [0m
+        [0m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-secondary"[39m
+                  [33mdata-action[39m=[32m"edit"[39m
+                [36m>[39m
+                  [0mEdit[0m
+                [36m</button>[39m
+                [0m
+        [0m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn"[39m
+                  [33mdata-action[39m=[32m"sold"[39m
+                [36m>[39m
+                  [0mMark sold[0m
+         ...
+
+      53 |
+      54 |     await waitFor(() => {
+    > 55 |       expect(summary.textContent).toBe('Items 21–25 of 25');
+         |                                   ^
+      56 |       const rows = harness.availList.querySelectorAll('.row');
+      57 |       expect(rows.length).toBe(5);
+      58 |       expect(rows[0].querySelector('strong').textContent).toContain('Book 21');
+
+      at tests/spec/admin/F19-TP3-007_ClampStaleOffsetAfterShrink.spec.js:55:35
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+PASS tests/spec/admin/F11-TP1-002_ConfirmBeforeRemoval.spec.js
+  SPEC F11-TP1-002: Remove controls require confirmation before deleting
+    ✓ first click toggles pending state and announces via aria-live without removing the row (52 ms)
+
+PASS tests/spec/admin/F05-TP1-003_PersistSupplierRecord.spec.js
+  SPEC F05-TP1-003: Persist supplier record
+    ✓ valid submission calls addDoc with trimmed payload and resets form (12 ms)
+
+PASS tests/spec/admin/F05-TP3-003_PersistsSupplierReference.spec.js
+  SPEC F05-TP3-003: Persist supplier reference on add
+    ✓ Valid submission includes supplierId in the Firestore payload (61 ms)
+
+PASS tests/spec/admin/F14-TP3-001_BundlesNavHidesManagePanels.spec.js
+  SPEC F14-TP3-001: Bundles nav loads a dedicated page
+    ✓ Clicking Bundles hides the Manage panels and reveals the bundles screen (64 ms)
+
+PASS tests/spec/admin/F07-TP2-004_CancelCustomerEdit.spec.js
+  SPEC F07-TP2-004: Cancel clears edit mode
+    ✓ cancel button exits edit mode, clears hidden id, and restores blank form (63 ms)
+
+PASS tests/spec/admin/F12-TP3-003_BundleRowDisplaysMetadata.spec.js
+  SPEC F12-TP3-003: Hydrate legacy bundles before filtering
+    ✓ hydrateBundleBooks runs so bundles with only bookIds can still match selections (53 ms)
+
+PASS tests/spec/admin/F16-TP3-001_AvailableTabShowsOnlyAvailablePanel.spec.js
+  SPEC F16-TP3-001: Available tab shows only the Available list
+    ✓ Switching to Available hides Add/Sold panels and shows only the list view (99 ms)
+
+PASS tests/spec/admin/TP2-001_EditFormShowsPurchasePrice.spec.js
+  SPEC TP2-001: Edit form exposes purchase price field
+    ✓ pre-fills purchase price input with stored value when opening edit dialog (20 ms)
+
+PASS tests/spec/admin/F09-TP8-002_RejectNegativeSellingPrice.spec.js
+  SPEC F09-TP8-002: Selling price rejects negative values with positive-number guidance
+    ✓ submitting a negative price shows positive-number validation and does not add the line (36 ms)
+
+PASS tests/spec/admin/F13-TP1-002_AddBookRequiresMrp.spec.js
+  SPEC F13-TP1-002: Book MRP is required
+    ✓ empty MRP prevents addDoc and surfaces inline guidance (94 ms)
+
+PASS tests/spec/admin/F19-TP3-004_PaginationButtonsLoadNextPrev.spec.js
+  SPEC F19-TP3-004: Pagination buttons fetch next/previous slices
+    ✓ clicking Next then Previous refreshes rows, summary text, and hash params (283 ms)
+
+PASS tests/spec/admin/F09-TP4-005_WiringNoMatchKeepsDraftDisabled.spec.js
+  SPEC F09-TP4-005: Wiring — no-match clears selection and disables draft
+    ✓ after a valid selection, a subsequent no-match query clears the hidden bookId and re-disables the draft (67 ms)
+
+PASS tests/spec/admin/F19-TP4-003_PageSizePersistsAcrossReload.spec.js
+  SPEC F19-TP4-003: Selected page size persists across reloads (hash/restore)
+    ✓ changing to 50 per page updates hash and a new harness load restores that size before paging (563 ms)
+
+PASS tests/spec/admin/F08-TP1-007_SaleHeaderSummaryChip.spec.js
+  SPEC F08-TP1-006: Sale header summary shows selected customer details
+    ✓ selecting a customer surfaces name plus meta chip without extra controls (47 ms)
+
+PASS tests/spec/admin/F17-TP3-001_BookRequestsSubNav.spec.js
+  SPEC F17-TP3-001: Book Requests sub nav mirrors shared helper
+    ✓ Clicking Book requests shows Open/Closed tabs and toggles hash/panels (99 ms)
+    ✓ Deep-link #book-requests/closed preselects Closed tab (114 ms)
+
+PASS tests/spec/admin/F07-TP3-002_DebouncedLookupQueries.spec.js
+  SPEC F07-TP3-002: Lookup debounces queries before filtering results
+    ✓ typing waits for debounce then filters customers by name only (261 ms)
+
+PASS tests/spec/admin/F09-TP1-005_SaleLineDraftLabelUpdates.spec.js
+  SPEC F09-TP1-005: Draft label stays stable after book selection
+    ✓ selecting a title keeps the label static and shifts focus to the price input (70 ms)
+
+PASS tests/spec/admin/F07-TP1-006_StoresCountryCode.spec.js
+  SPEC F07-TP1-006: Customer payload stores country code independently
+    ✓ submissions persist a dedicated countryCode field fixed to +91 (53 ms)
+
+PASS tests/spec/admin/TP1-001_AddFormShowsPurchasePrice.spec.js
+  SPEC TP1-001: Purchase price field is visible
+    ✓ add book form includes a numeric purchase price input (383 ms)
+
+PASS tests/spec/admin/TP1-002_PersistsPurchasePrice.spec.js
+  SPEC TP1-002: Persist purchase price
+    ✓ includes purchasePrice number in the addDoc payload (116 ms)
+
+PASS tests/unit/inventory/TP3-003_PurchasePricePlaceholder.test.js
+  UNIT TP3-003: Placeholder for missing purchase price
+    ✓ renders descriptive placeholder text inside .purchase-price (90 ms)
+
+PASS tests/spec/admin/F07-TP2-001_PrefillCustomerEditForm.spec.js
+  SPEC F07-TP2-001: Edit button pre-fills the customer form
+    ✓ clicking edit switches the form to edit mode with populated fields (106 ms)
+
+PASS tests/unit/inventory/TP3-004_PurchasePriceFormatting.test.js
+  UNIT TP3-004: Purchase price formatting helper
+    ✓ text uses ₹ prefix with comma separators (79 ms)
+
+PASS tests/spec/admin/F15-TP4-003_NoDetailLayoutArtifacts.spec.js
+  SPEC F15-TP4-003: Nav detail wrappers are absent from DOM
+    ✓ adminNavDetails wrapper no longer renders after the cleanup (167 ms)
+
+PASS tests/unit/public/TP4-004_CatalogPayloadStripsPurchasePrice.test.js
+  UNIT TP4-004: Catalog payload strips purchase price
+    ✓ subscribeToAllAvailable removes purchasePrice before invoking callback (91 ms)
+
+PASS tests/spec/admin/F16-TP1-003_ManageSubNavDeepLinkSold.spec.js
+  SPEC F16-TP1-003: Manage sub nav honors deep links
+    ✓ Loading #manage-books/sold selects the Sold tab (45 ms)
+
+PASS tests/spec/admin/F08-TP2-004_SaleLineTotalsAllowDuplicates.spec.js
+  SPEC F08-TP2-004: Sale line totals allow duplicate book entries
+    ✓ adding the same book twice tracks unique lines and updates totals (46 ms)
+
+PASS tests/spec/admin/F07-TP1-003_PreventsDuplicateCustomers.spec.js
+  SPEC F07-TP1-003: Duplicate customers are rejected before writes
+    ✓ WhatsApp digits + country code drive the duplicate query (28 ms)
+
+PASS tests/spec/admin/F15-TP1-002_AdminNavAriaControls.spec.js
+  SPEC F15-TP1-002: Admin nav buttons expose aria-controls for their panels
+    ✓ Each nav item wires aria-controls to a real panel element (43 ms)
+
+PASS tests/spec/admin/F19-TP5-001_NumericPagerRenders.spec.js
+  SPEC F19-TP5-001: Numeric pager renders the full page count
+    ✓ pagination row shows Prev, numeric buttons, Next, and the page-size select in one row (77 ms)
+
+PASS tests/spec/admin/F14-TP2-002_ClickingNavExpandsCorrespondingDetails.spec.js
+  SPEC F14-TP2-002: Clicking a nav tile expands its detail drawer
+    ✓ Switching from Manage to Bundles toggles aria-expanded and detail visibility (74 ms)
+
+PASS tests/spec/admin/F05-TP3-002_RequiresSupplierSelection.spec.js
+  SPEC F05-TP3-002: Supplier selection is required
+    ✓ Submitting without a supplier prevents addDoc and shows inline error (63 ms)
+
+PASS tests/spec/admin/F16-TP2-002_AddTabResetHash.spec.js
+  SPEC F16-TP2-002: Add tab resets hash and hides other panels
+    ✓ Switching from Available back to Add hides the lists and restores #add-book (74 ms)
+
+PASS tests/spec/admin/F10-TP1-003_AnnounceFilteredResults.spec.js
+  SPEC F10-TP1-003: Announce filtered results from the Available header search
+    ✓ qualifying query announces the filtered count inside the panel (47 ms)
+
+PASS tests/spec/admin/F15-TP1-001_AdminNavButtonsCoverAllPanels.spec.js
+  SPEC F15-TP1-001: Admin nav renders entries for every major panel
+    ✓ Nav includes Manage, Bundles, Record Sale, Book Requests, Suppliers, and Customers (69 ms)
+
+PASS tests/spec/admin/F15-TP3-001_BundlesHashDeepLink.spec.js
+  SPEC F15-TP3-001: Hash deep link activates target panel
+    ✓ #bundles opens the Bundles panel and marks the nav tile active (57 ms)
+
+PASS tests/spec/admin/TP3-003_ShowsPlaceholderWhenMissing.spec.js
+  SPEC TP3-003: Placeholder when purchase price missing
+    ✓ renders “Purchase price: not set” when value absent (34 ms)
+
+PASS tests/unit/admin/F08-TP1-001_SaleHeaderPayload.test.js
+  UNIT F08-TP1: buildSaleHeaderPayload
+    ✓ normalizes customer data, enforces UTC sale date, and stamps metadata (11 ms)
+
+PASS tests/spec/admin/F17-TP3-002_SuppliersSubNav.spec.js
+  SPEC F17-TP3-002: Suppliers sub nav exposes Create/Manage views
+    ✓ Suppliers nav toggles between Create and Manage panels with canonical hash (59 ms)
+    ✓ Deep links #suppliers/manage preselect Manage tab (95 ms)
+
+PASS tests/spec/admin/F09-TP6-002_ButtonOpensSalePanel.spec.js
+  SPEC F09-TP5-002: Record sale button opens the sale panel
+    ✓ clicking the button opens the panel, scrolls it into view, and focuses the sale header date input (12 ms)
+
+PASS tests/spec/admin/F19-TP4-002_PageSizeChangeReloadsAndResetsPage.spec.js
+  SPEC F19-TP4-002: Changing page size reloads page 1 and updates hash
+    ✓ selecting 50 per page fetches 50 rows, resets page to 1, and updates hash with pageSize=50 (147 ms)
+
+PASS tests/spec/admin/F08-TP1-003_SaleHeaderEmitsPayload.spec.js
+  SPEC F08-TP1-003: Sale header emits normalized payload when valid
+    ✓ valid customer + date triggers onHeaderReady with UTC timestamp and metadata (31 ms)
+
+PASS tests/spec/public/TP4-003_PurchaseMessageHidesPurchasePrice.spec.js
+  SPEC TP4-003: WhatsApp message hides purchase price
+    ✓ purchaseMessage ignores purchasePrice field entirely (3 ms)
+
+PASS tests/spec/admin/F14-TP3-003_ReturnToManageRestoresDefaultPanels.spec.js
+  SPEC F14-TP3-003: Returning to Manage restores the default workspace
+    ✓ Switching back to Manage reopens its panels and hides the previous task page (86 ms)
+
+PASS tests/spec/admin/F07-TP3-004_ClearCustomerLookup.spec.js
+  SPEC F07-TP3-004: Clearing the lookup resets state
+    ✓ clear button wipes search input, hides list, and notifies consumer (32 ms)
+
+PASS tests/spec/admin/F12-TP1-004_PersistDraftBundlePayload.spec.js
+  SPEC F12-TP1-004: Persist draft bundle payload
+    ✓ valid submission stores supplier, bookIds, rupee price fields, and Draft status (41 ms)
+
+PASS tests/spec/admin/F19-TP5-003_PrevNextWithNumericPager.spec.js
+  SPEC F19-TP5-003: Prev/Next interact with numeric pager
+    ✓ deep-link to page 3, Next goes to 4, Prev back to 3 with correct highlights (236 ms)
+
+PASS tests/spec/admin/F12-TP3-002_FilterBySupplierAndStatus.spec.js
+  SPEC F12-TP3-002: Supplier/status filters stack with selection
+    ✓ filters combine with selected book ID (42 ms)
+
+PASS tests/spec/admin/TP3-001_AvailableRowShowsPurchasePrice.spec.js
+  SPEC TP3-001: Available list shows purchase price
+    ✓ renders purchase price text with rupee value for available rows (35 ms)
+
+PASS tests/unit/inventory/TP3-001_PurchasePriceElement.test.js
+  UNIT TP3-001: Purchase price element exists for available rows
+    ✓ available row contains .purchase-price element with rupee value (34 ms)
+
+PASS tests/spec/admin/F15-TP3-002_CustomersSectionQueryCanonicalizesHash.spec.js
+  SPEC F15-TP3-002: ?section deep link normalizes to canonical hash
+    ✓ ?section=customer-master activates Customers and trims the query string (75 ms)
+
+PASS tests/spec/admin/F17-TP1-001_BundlesNavRenamed.spec.js
+  SPEC F17-TP1-001: Bundles nav is renamed and visible
+    ✓ Bundles nav button label reads "Bundles" (78 ms)
+
+  console.error
+    Error: Not implemented: window.scrollTo
+        at module.exports (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+        at /Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:67:21)
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:51:5)
+        at HTMLButtonElement.activateLauncher (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:25:5)
+        at HTMLButtonElement.callTheUserObjectsOperation (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+        at innerInvokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+        at invokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+        at HTMLButtonElementImpl._dispatch (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+        at HTMLButtonElementImpl.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+        at HTMLButtonElement.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+        at /Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:19:20
+        at Object.eventWrapper (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/config.js:25:23)
+        at fireEvent (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:12:35)
+        at fireEvent.<computed> [as click] (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:110:36)
+        at Object.clickRecordSale (/Users/rajeshk/Downloads/catalog/tests/fixtures/salesEntryLauncherHarness.js:32:17)
+        at Object.<anonymous> (/Users/rajeshk/Downloads/catalog/tests/spec/admin/F09-TP6-004_SearchValuePreserved.spec.js:8:13)
+        at processTicksAndRejections (node:internal/process/task_queues:103:5) {
+      type: 'not implemented'
+    }
+
+      65 |       }
+      66 |     }
+    > 67 |     window?.scrollTo?.(scrollX, scrollY);
+         |                     ^
+      68 |     searchInput?.setAttribute?.('aria-describedby', panel.id);
+      69 |   }
+      70 | }
+
+      at VirtualConsole.<anonymous> (node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at module.exports (node_modules/jsdom/lib/jsdom/browser/not-implemented.js:12:26)
+      at node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
+      at openPanel (scripts/admin/salesEntryLauncher.js:67:21)
+      at openPanel (scripts/admin/salesEntryLauncher.js:51:5)
+      at HTMLButtonElement.activateLauncher (scripts/admin/salesEntryLauncher.js:25:5)
+      at HTMLButtonElement.callTheUserObjectsOperation (node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLButtonElementImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLButtonElementImpl.dispatchEvent (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLButtonElement.dispatchEvent (node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at node_modules/@testing-library/dom/dist/events.js:19:20
+      at Object.eventWrapper (node_modules/@testing-library/dom/dist/config.js:25:23)
+      at fireEvent (node_modules/@testing-library/dom/dist/events.js:12:35)
+      at fireEvent.<computed> [as click] (node_modules/@testing-library/dom/dist/events.js:110:36)
+      at Object.clickRecordSale (tests/fixtures/salesEntryLauncherHarness.js:32:17)
+      at Object.<anonymous> (tests/spec/admin/F09-TP6-004_SearchValuePreserved.spec.js:8:13)
+
+PASS tests/spec/admin/F09-TP6-004_SearchValuePreserved.spec.js
+  SPEC F09-TP5-004: Search field retains value and context while launching sale flow
+    ✓ typing in search and launching Record sale keeps the search field untouched and button aria-controls points to the panel (42 ms)
+
+PASS tests/spec/admin/F05-TP4-003_RequireValidSupplierOnEdit.spec.js
+  SPEC F05-TP4-003: Require valid supplier when saving edits
+    ✓ empty supplier selection blocks save with inline message (40 ms)
+
+PASS tests/spec/admin/F19-TP3-003_SearchResetsPageAndUpdatesLocation.spec.js
+  SPEC F19-TP3-003: Search change resets page and persists to hash
+    ✓ typing a new header search term setsFilters with the term and updates hash with page=1 (36 ms)
+
+PASS tests/unit/inventory/F19-TP1_availableBooksDataSource.test.js
+  UNIT F19-TP1: available books data source
+    ✓ F19-TP1-001_BaseQueryUsesAvailableStatus (9 ms)
+    ✓ F19-TP1-002_CursorAwareForwardBackwardPaging
+    ✓ F19-TP1-003_ReturnsNormalizedPaginationPayload (2 ms)
+
+PASS tests/spec/admin/F11-TP1-001_LineShowsRemoveControl.spec.js
+  SPEC F11-TP1-001: Each sale line renders an accessible Remove control
+    ✓ two added lines each expose a Remove button with aria-label referencing the title (64 ms)
+
+PASS tests/spec/admin/F08-TP2-003_SaleLineAddsRowWithSnapshot.spec.js
+  SPEC F08-TP2-003: Sale line adds row with supplier snapshot
+    ✓ valid book + price appends row and notifies consumer with normalized payload (59 ms)
+
+PASS tests/unit/admin/F08-TP2-001_SaleLinePayload.test.js
+  UNIT F08-TP2-001: Sale line payload helper
+    ✓ normalizes book snapshot, supplier data, and timestamps (2 ms)
+
+PASS tests/spec/admin/F13-TP1-003_AddBookRequiresPurchasePrice.spec.js
+  SPEC F13-TP1-003: Purchase price is required
+    ✓ empty purchase price blocks submission and shows inline message (46 ms)
+
+PASS tests/unit/customers/F07-TP2-001_EditPayload.test.js
+  UNIT F07-TP2 edit payload helper
+    ✓ normalizes inputs, preserves immutable fields, and refreshes keys (8 ms)
+
+PASS tests/unit/inventory/TP3-002_SoldPurchasePriceElement.test.js
+  UNIT TP3-002: Sold rows keep purchase price element
+    ✓ sold list row includes .purchase-price with rupee amount (40 ms)
+
+PASS tests/spec/admin/F17-TP2-003_SaleSubNavDeepLink.spec.js
+  SPEC F17-TP2-003: Sale sub nav honors #sale/record deep link
+    ✓ Loading #sale/record selects the Sale tile and Record sub tab (69 ms)
+
+PASS tests/spec/admin/F19-TP2-003_PrevNextAriaAndActions.spec.js
+  SPEC F19-TP2-003: Prev/Next wire to controller and expose aria hooks
+    ✓ buttons point to availList, use aria-live summary, and trigger goPrev once enabled (75 ms)
+
+PASS tests/spec/admin/F15-TP4-001_NavDetailsRemoved.spec.js
+  SPEC F15-TP4-001: Admin nav detail sections are removed
+    ✓ navDetail-* nodes are absent so tiles render as simple buttons (103 ms)
+
+PASS tests/spec/admin/F05-TP1-002_RejectDuplicateSupplierNames.spec.js
+  SPEC F05-TP1-002: Reject duplicate supplier names
+    ✓ duplicate names (case-insensitive) are blocked with warning (41 ms)
+
+PASS tests/spec/admin/F14-TP3-002_RecordSaleNavShowsStandalonePanel.spec.js
+  SPEC F14-TP3-002: Record Sale nav loads a standalone page
+    ✓ Record Sale shows its panel while Manage panels stay collapsed (128 ms)
+
+PASS tests/spec/admin/F11-TP3-003_StatusAnnouncesSavedCount.spec.js
+  SPEC F11-TP3-003: Persist status announces saved count
+    ✓ saving two lines announces the total count in the aria-live persist message (69 ms)
+
+PASS tests/spec/admin/F14-TP1-002_ManageNavAriaCurrent.spec.js
+  SPEC F14-TP1-002: Manage books nav tile announces default landing
+    ✓ Manage tile gains aria-current="page" and peers clear the attribute after sign-in (137 ms)
+
+PASS tests/spec/admin/F10-TP1-002_IgnoreShortQueries.spec.js
+  SPEC F10-TP1-002: Ignore short header search queries
+    ✓ dropping below two characters restores the full list without announcements (63 ms)
+
+PASS tests/spec/admin/TP2-002_RejectsNonNumericPurchasePrice.spec.js
+  SPEC TP2-002: Reject non-numeric purchase price on edit
+    ✓ blocks save and surfaces numeric guidance when value contains letters (41 ms)
+
+PASS tests/spec/admin/F05-TP2-004_DeleteSupplierWhenUnused.spec.js
+  SPEC F05-TP2-004: Delete supplier when unused
+    ✓ delete removes supplier when no books reference it (21 ms)
+
+PASS tests/spec/admin/F19-TP3-001_RestorePaginationFromLocation.spec.js
+  SPEC F19-TP3-001: Restore pagination state from location hash
+    ✓ initInventory reads available pagination params from hash and forwards them to syncFromLocation (36 ms)
+
+PASS tests/unit/suppliers/F05-TP1-001_NormalizeSupplierName.test.js
+  UNIT F05-TP1 helpers
+    ✓ normalizeSupplierName trims whitespace and collapses gaps (2 ms)
+    ✓ isDuplicateSupplierName compares case-insensitively (1 ms)
+    ✓ formatSupplierDisplay returns readable string (1 ms)
+    ✓ buildSupplierPayload trims inputs and adds timestamps (3 ms)
+
+PASS tests/spec/public/TP4-001_CatalogCardsHidePurchasePrice.spec.js
+  SPEC TP4-001: Catalog cards hide purchase price
+    ✓ rendered cards omit any purchase price labels or values (10 ms)
+
+PASS tests/spec/admin/F07-TP2-003_PreventDuplicateCustomerEdits.spec.js
+  SPEC F07-TP2-003: Duplicate edits are blocked
+    ✓ editing to a duplicate WhatsApp + country code combination surfaces an error (33 ms)
+
+PASS tests/spec/admin/F11-TP3-002_DisablePersistWhenEmpty.spec.js
+  SPEC F11-TP3-002: Persist sale disables itself when no lines remain
+    ✓ after removing the final line, Persist sale is disabled and clicking shows the guidance message (53 ms)
+
+PASS tests/spec/admin/F05-TP3-001_PopulatesSupplierDropdown.spec.js
+  SPEC F05-TP3-001: Supplier dropdown is present
+    ✓ Add Book form contains a supplier select with a placeholder option (80 ms)
+
+PASS tests/spec/admin/F05-TP1-004_RenderNewSupplierInList.spec.js
+  SPEC F05-TP1-004: Render supplier list
+    ✓ renders suppliers sorted alphabetically with name and location (30 ms)
+
+PASS tests/spec/admin/F16-TP1-002_ManageSubNavNavigatesAvailable.spec.js
+  SPEC F16-TP1-002: Manage sub nav routes to Available
+    ✓ Clicking Available updates hash and active tab state (72 ms)
+
+PASS tests/spec/admin/F16-TP4-001_SoldTabShowsOnlySoldPanel.spec.js
+  SPEC F16-TP4-001: Sold tab shows only the Sold list
+    ✓ Clicking Sold hides Add/Available and shows only the Sold view (158 ms)
+
+PASS tests/spec/admin/F09-TP4-002_EnterWithoutMatch.spec.js
+  SPEC F09-TP4-002: Block Enter key when no matches exist
+    ✓ pressing Enter with zero suggestions reiterates the guidance and never selects a book (22 ms)
+
+PASS tests/spec/admin/F15-TP1-003_AdminNavMapExport.spec.js
+  SPEC F15-TP1-003: Admin nav map is exposed for deep-link helpers
+    ✓ Global nav map lists every nav key and panel id pairing (113 ms)
+
+PASS tests/unit/pagination/F18-TP4_paginationLocation.test.js
+  UNIT F18-TP4: pagination state and deep linking
+    ✓ F18-TP4-001_EncodePageStateIntoHashParams (3 ms)
+    ✓ F18-TP4-002_ParseHashRestoresNearestPageState (3 ms)
+    ✓ F18-TP4-003_RoundTripKeepsPageAndFiltersStable (1 ms)
+
+PASS tests/spec/admin/F15-TP2-001_CustomersNavOpensPanel.spec.js
+  SPEC F15-TP2-001: Customers nav opens the Customer Master panel
+    ✓ Clicking the Customers nav button expands the panel and marks the nav as current (66 ms)
+
+PASS tests/spec/admin/F16-TP3-003_AvailableDeepLink.spec.js
+  SPEC F16-TP3-003: #manage-books/available deep link selects Available tab
+    ✓ Loading #manage-books/available activates the Available view on boot (68 ms)
+
+PASS tests/spec/admin/F12-TP2-001_PublishBundle.spec.js
+  SPEC F12-TP2-001: Publish bundle
+    ✓ clicking Publish on a Draft bundle updates status to Published (108 ms)
+
+PASS tests/spec/admin/F09-TP3-002_HeaderReadyUnlocksDraft.spec.js
+  SPEC F09-TP3-002: Unlock draft when header becomes valid
+    ✓ header ready state gates the Submit button even when book + price exist (36 ms)
+
+PASS tests/spec/admin/TP2-003_RejectsNegativePurchasePrice.spec.js
+  SPEC TP2-003: Reject negative purchase price on edit
+    ✓ prevents update when a negative purchase price is submitted (60 ms)
+
+PASS tests/spec/admin/F16-TP1-004_ManageSubNavExportsConfig.spec.js
+  SPEC F16-TP1-004: Manage sub nav exports config for reuse
+    ✓ Manage sub nav registers its config map for downstream navs (183 ms)
+
+PASS tests/unit/pagination/F18-TP1_paginationContract.test.js
+  UNIT F18-TP1: pagination contract helpers
+    ✓ F18-TP1-001_NormalizeDefaults (8 ms)
+    ✓ F18-TP1-002_ClampPageSizeIntoSafeRange (1 ms)
+    ✓ F18-TP1-003_BuildsNormalizedPageStateMetadata (1 ms)
+
+PASS tests/spec/admin/F15-TP3-003_InvalidDeepLinkFallsBackToManage.spec.js
+  SPEC F15-TP3-003: Unknown deep link falls back to Manage Books
+    ✓ Unrecognized hash activates default landing and #add-book (156 ms)
+
+PASS tests/unit/pagination/F18-TP3_catalogPaginationUi.test.js
+  UNIT F18-TP3: public catalog pagination UI
+    ✓ F18-TP3-001_FirstPageUsesPagerSummary (4 ms)
+    ✓ F18-TP3-002_LaterPageKeepsSamePatternAcrossTabs (2 ms)
+    ✓ F18-TP3-003_LoadMoreModeUsesFriendlyLabel (2 ms)
+
+PASS tests/spec/admin/TP3-002_SoldRowShowsPurchasePrice.spec.js
+  SPEC TP3-002: Sold list also shows purchase price
+    ✓ sold rows mirror the purchase price label (150 ms)
+
+PASS tests/spec/admin/F16-TP3-002_AvailableTabPreservesState.spec.js
+  SPEC F16-TP3-002: Available tab preserves list state
+    ✓ After typing in available search, switching away and back restores the same list view (221 ms)
+
+PASS tests/spec/admin/F05-TP2-002_PersistSupplierEdit.spec.js
+  SPEC F05-TP2-002: Persist supplier edits
+    ✓ submitting in edit mode calls updateDoc with trimmed values (286 ms)
+    ✓ duplicate name during edit is blocked with inline message (328 ms)
+
+PASS tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js
+  SPEC F09-TP7-001: Customer lookup clears search input after selection
+    ✓ selecting a result clears the input, hides the list, and keeps helper copy visible (46 ms)
+
+PASS tests/spec/admin/F05-TP4-002_PersistSupplierChange.spec.js
+  SPEC F05-TP4-002: Persist supplier change from edit dialog
+    ✓ submitting edit with a different supplier updates Firestore payload (104 ms)
+
+PASS tests/spec/admin/F07-TP1-002_RejectsInvalidWhatsAppFormat.spec.js
+  SPEC F07-TP1-002: WhatsApp numbers must be valid and normalized
+    ✓ non-numeric characters produce an inline WhatsApp validation error (55 ms)
+
+PASS tests/spec/admin/F19-TP2-002_DisableControlsWhileBusy.spec.js
+  SPEC F19-TP2-002: Busy pagination shell disables controls and blocks duplicate clicks
+    ✓ when controller reports isBusy, both buttons stay disabled and ignore clicks (294 ms)
+
+PASS tests/spec/admin/F09-TP8-001_BlockNonNumericSellingPrice.spec.js
+  SPEC F09-TP8-001: Selling price input strips non-numeric characters
+    ✓ typing alpha characters is ignored so the field only keeps digits/decimal separator (86 ms)
+
+PASS tests/spec/admin/F08-TP1-004_SaleHeaderLocksLineItems.spec.js
+  SPEC F08-TP1-004: Sale header gates access to line items
+    ✓ continue button stays disabled until both customer and date are set (43 ms)
+    ✓ after emitting header payload, form locks to prevent duplicate submissions until reset (26 ms)
+
+PASS tests/spec/admin/F10-TP1-001_HeaderSearchFiltersAvailable.spec.js
+  SPEC F10-TP1-001: Header search filters Available list in place
+    ✓ typing a qualifying query in the header re-renders availList with only matches (68 ms)
+
+PASS tests/spec/admin/F14-TP1-001_CollapseSecondaryPanels.spec.js
+  SPEC F14-TP1-001: Default workspace hides non-Manage panels
+    ✓ Book Requests and Suppliers collapse when the admin lands without a nav hash (100 ms)
+
+PASS tests/spec/admin/F09-TP4-004_NewMatchClearsError.spec.js
+  SPEC F09-TP4-004: Clear error when matches appear
+    ✓ after a no-match warning, a subsequent valid query clears the message and allows selection (46 ms)
+
+PASS tests/spec/admin/F07-TP3-006_PreSearchShowsHelper.spec.js
+  SPEC F07-TP3-006: Lookup stays empty with helper copy before searching
+    ✓ snapshot results do not render until the admin types a valid query (42 ms)
+
+PASS tests/spec/admin/F09-TP3-004_HeaderResetLocksDraft.spec.js
+  SPEC F09-TP3-004: Header reset relocks the draft row
+    ✓ toggling header back to invalid state disables controls and surfaces guidance (66 ms)
+
+PASS tests/spec/admin/F12-TP1-006_PersistBooksWithSupplier.spec.js
+  SPEC F12-TP1-006: Persist embedded book metadata
+    ✓ book entries include id, title, price, and supplierId in the payload (70 ms)
+
+PASS tests/spec/admin/F13-TP2-003_BundlePricePersistsWhenProvided.spec.js
+  SPEC F13-TP2-003: Bundle price persists when provided
+    ✓ typing a valid bundle price enables submit and persists bundlePriceRupees (76 ms)
+
+PASS tests/spec/admin/F12-TP1-005_BundleUsesPriceField.spec.js
+  SPEC F12-TP1-005: Bundle uses Price field for totals
+    ✓ derives totals and recommended price from the Price field even when price property is missing (56 ms)
+
+PASS tests/unit/pagination/F18-TP2_paginationShell.test.js
+  UNIT F18-TP2: admin pagination shell state
+    ✓ F18-TP2-001_FirstPagePrevDisabled (9 ms)
+    ✓ F18-TP2-002_LastPageNextDisabled (1 ms)
+    ✓ F18-TP2-003_LoadingDisablesBothEnds
+
+PASS tests/unit/editor/TP2-003_RejectsNegativePurchasePrice.test.js
+  UNIT TP2-003: Prevent negative purchase price submissions
+    ✓ negative numbers trigger an inline error and avoid updateDoc (57 ms)
+
+PASS tests/spec/admin/F12-TP2-003_ImmutableBundleFields.spec.js
+  SPEC F12-TP2-003: Immutable bundle fields
+    ✓ attempting to edit title/price after creation is blocked with inline message (26 ms)
+
+PASS tests/spec/public/TP4-002_SearchResultsHidePurchasePrice.spec.js
+  SPEC TP4-002: Search results hide purchase price
+    ✓ filtered render never mentions purchase price even when sale price is shown (23 ms)
+
+PASS tests/spec/admin/F12-TP1-003_RecommendedPriceDefaultAndValidation.spec.js
+  SPEC F12-TP1-003: Recommended price + validation
+    ✓ applies 25% discount recommendation and enforces min/max boundaries (61 ms)
+
+PASS tests/spec/admin/F19-TP3-002_SyncLocationOnControllerUpdates.spec.js
+  SPEC F19-TP3-002: Location updates mirror controller state
+    ✓ controller.syncToLocation receives an update function that writes page + filters into #manage-books/available (71 ms)
+
+PASS tests/spec/admin/F11-TP2-002_TotalsRecalculateAfterRemoval.spec.js
+  SPEC F11-TP2-002: Totals recalculate after removal
+    ✓ removing a line recomputes totals amount to match remaining lines (136 ms)
+
+PASS tests/spec/admin/F16-TP1-001_ManageSubNavRenders.spec.js
+  SPEC F16-TP1-001: Manage Books renders secondary sub nav
+    ✓ Sub nav shows Add, Available, and Sold when Manage loads (139 ms)
+
+PASS tests/unit/editor/TP2-004_PersistsPurchasePriceUpdate.test.js
+  UNIT TP2-004: Persist purchase price edits to Firestore
+    ✓ updateDoc receives purchasePrice as a number when submission passes validation (52 ms)
+
+PASS tests/spec/admin/F16-TP2-001_AddTabShowsOnlyAddPanel.spec.js
+  SPEC F16-TP2-001: Add tab shows only the Add Book workflow
+    ✓ Landing on Manage keeps only the Add Book panel visible (162 ms)
+
+PASS tests/spec/admin/F13-TP2-001_BundlePriceRequiresManualEntry.spec.js
+  SPEC F13-TP2-001: Bundle price requires manual entry
+    ✓ auto-recommended price is not enough—admin must enter a value before submit (219 ms)
+
+PASS tests/spec/admin/F11-TP1-003_HeaderLockDisablesRemove.spec.js
+  SPEC F11-TP1-003: Remove controls respect the sale header lock
+    ✓ when the header becomes locked, remove buttons disable and ignore clicks (370 ms)
+
+PASS tests/spec/admin/F09-TP4-001_NoMatchShowsGuidance.spec.js
+  SPEC F09-TP4-001: No-match guidance messaging
+    ✓ typing an unknown title shows guidance and keeps the hidden bookId empty (46 ms)
+
+PASS tests/spec/admin/F07-TP1-004_PersistsCustomerRecord.spec.js
+  SPEC F07-TP1-004: Successful add persists normalized customer payload
+    ✓ payload trims strings, normalizes WhatsApp, stores timestamps, and clears the form (303 ms)
+
+PASS tests/unit/customers/F07-TP1-001_CustomerHelpers.test.js
+  UNIT F07-TP1 customer helper functions
+    ✓ normalize helpers trim input and collapse whitespace (7 ms)
+    ✓ sanitizeWhatsAppNumber strips separators and country code so only digits remain (4 ms)
+    ✓ buildCustomerPayload normalizes inputs, stores digits, and timestamps the record (8 ms)
+
+PASS tests/spec/admin/TP3-004_FormatsPurchasePrice.spec.js
+  SPEC TP3-004: Purchase price formatting
+    ✓ applies rupee prefix and thousand separators (99 ms)
+
+PASS tests/spec/admin/F05-TP4-001_EditDialogShowsSupplierSelect.spec.js
+  SPEC F05-TP4-001: Edit dialog supplier select
+    ✓ Edit Book dialog contains supplier dropdown with placeholder (166 ms)
+
+PASS tests/spec/admin/F07-TP2-005_BlockInvalidCustomerEdits.spec.js
+  SPEC F07-TP2-005: Edit validation mirrors add form rules
+    ✓ edit mode still requires name and WhatsApp numbers before updateDoc runs (329 ms)
+
+PASS tests/spec/admin/F14-TP2-001_NavButtonsExposeTabSemantics.spec.js
+  SPEC F14-TP2-001: Icon nav exposes tab semantics + default expansion
+    ✓ Manage tile starts expanded with aria wiring and peers collapsed (122 ms)
+
+PASS tests/spec/admin/F14-TP1-003_DefaultsToAddBookHash.spec.js
+  SPEC F14-TP1-003: Default route writes #add-book for deep linking
+    ✓ Loading /admin without a hash rewrites window.location.hash to #add-book (100 ms)
+
+PASS tests/unit/pagination/F18-TP5_paginationController.test.js
+  UNIT F18-TP5: pagination controller abstraction
+    ✓ F18-TP5-001_ExposesMinimalControllerApi (2 ms)
+    ✓ F18-TP5-002_UsesDataSourceForPageRequests (1 ms)
+    ✓ F18-TP5-003_SyncFromLocationDelegatesToSharedParsers (1 ms)
+
+PASS tests/spec/admin/F09-TP3-001_SaleDraftLockedUntilHeaderReady.spec.js
+  SPEC F09-TP3-001: Draft form locked until header is valid
+    ✓ book title input, price field, and add button stay disabled with Add another book label (34 ms)
+
+PASS tests/spec/admin/F05-TP1-001_SupplierFormRequiresFields.spec.js
+  SPEC F05-TP1-001: Supplier form requires name/location
+    ✓ missing name blocks submission and surfaces inline error (36 ms)
+
+PASS tests/spec/admin/F09-TP3-003_LineSubmitResetsFocus.spec.js
+  SPEC F09-TP3-003: Draft reset refocuses the Book title input
+    ✓ after a line is saved, the draft clears and focus returns to the title input for rapid entry (47 ms)
+
+PASS tests/spec/admin/F17-TP2-001_SaleNavRenamed.spec.js
+  SPEC F17-TP2-001: Sale nav is renamed and ready for sub nav
+    ✓ Nav button label reads "Sale" (77 ms)
+
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                                                                                                               
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                  |      65 |    48.23 |    62.2 |   68.54 |                                                                                                                                                                                                                                                                                                 
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                                                                                                                                                           
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                                                                                                                                                            
+ availablePagination.js    |   71.11 |    49.09 |   81.81 |   73.25 | 47-80,126,177                                                                                                                                                                                                                                                                                   
+ bundleList.js             |   71.37 |    54.91 |    62.5 |   75.73 | 26-29,43,74,81,88,91,112-135,156-157,163-164,177,184-189,222-230,258-261,272,351-352,359,422-428,434,450-461,469,491                                                                                                                                                                            
+ bundleStatus.js           |   76.11 |     50.9 |   66.66 |   80.95 | 8-9,12-13,35-39,62-64,94                                                                                                                                                                                                                                                                        
+ bundles.js                |      77 |     59.6 |   71.15 |    82.5 | 28-29,34,65-70,117,124-125,165-166,170-171,174,177-178,191-197,244,265,287,308-309,312-314,356-357,403-404,429-436,453,482-485                                                                                                                                                                  
+ currency.js               |     100 |     64.7 |     100 |     100 | 5,7,12,17-24,30                                                                                                                                                                                                                                                                                 
+ customerLookup.js         |   76.74 |    54.83 |   79.48 |   83.62 | 17-18,52-58,135-141,184,244-245,275-277,292,310-314,321,335,341-345,354-355,361-362                                                                                                                                                                                                             
+ customers.js              |   78.78 |    50.85 |   78.94 |    83.6 | 8-9,26-27,74-82,133,168,187,277-281,289-290,295-297,322-323,346,356-357,368,380,393,411-415,437-438,499-502                                                                                                                                                                                     
+ editor.js                 |   70.79 |    68.24 |   73.07 |   72.55 | 46-47,53,93,122-151,155,185,192,199,339,353-371,378-395                                                                                                                                                                                                                                         
+ inventory.js              |   79.76 |    60.13 |   83.58 |   82.91 | 61,121-171,207,229,266-269,278-280,283-285,294-296,299-301,382-386,401-402,451,470-471,490-491,513,580,586-594,820-825,847-853,860-866,951-953                                                                                                                                                  
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                                                                                                                                                          
+ main.js                   |   51.45 |    36.11 |   39.73 |   54.33 | 313-319,327-328,341-346,350,375,391-411,418,439,445-450,458-700,735,799-804,864,904,914-921,941-962,967-968,1004-1007,1033-1034,1076,1104-1110,1123,1136,1142-1146,1156,1166,1176,1186,1196-1198,1201,1210,1215-1216,1234,1242,1272-1283,1302-1320,1417-1426,1440-1462,1470-1526,1532,1566-1924 
+ requests.js               |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                                                                                                                                                            
+ salesEntryLauncher.js     |      85 |    54.83 |   71.42 |      85 | 8-11,30,41-42,64                                                                                                                                                                                                                                                                                
+ salesHeader.js            |   70.56 |    56.72 |   70.83 |   73.79 | 30-33,40,86-87,94-101,135-136,145-152,164,172-197,206-210,230-241,248-251,282-286,297,321,372,379,384,417,445,460,463,466,479,482,498,503                                                                                                                                                       
+ salesLineItems.js         |    79.7 |    60.49 |   78.88 |   83.92 | 27-30,42-44,111-112,135-145,154-157,175,205,211-228,253-254,268,279,315,366-373,430-438,446-447,486-493,562,610-611,625-627,643-644,748,798,828,836-846,857,868-876,914                                                                                                                         
+ salesPersist.js           |   68.29 |    45.88 |   54.54 |   72.72 | 12-18,23-24,40,47-48,77,84-85,117,152-155,163,168                                                                                                                                                                                                                                               
+ salesTitleAutocomplete.js |   52.71 |    45.65 |   66.66 |    53.6 | 18-21,25,45-58,68-76,85-87,97-99,105-106,125-127,136-137,147,161-190                                                                                                                                                                                                                            
+ suppliers.js              |   81.64 |    57.37 |   85.18 |   86.48 | 15,116-117,136-138,149-151,177-178,190-191,221-224,254-258,267,273-274,295-302                                                                                                                                                                                                                  
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Summary of all failing tests
+FAIL tests/spec/admin/F19-TP3-006_HashChangeResyncsPagination.spec.js
+  ● SPEC F19-TP3-006: Hash changes replay pagination state › dispatching hashchange with #manage-books/available triggers syncFromLocation
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 2
+    Received number of calls: 1
+
+      19 |     window.dispatchEvent(new Event('hashchange'));
+      20 |
+    > 21 |     expect(controller.syncFromLocation).toHaveBeenCalledTimes(initialCalls + 1);
+         |                                         ^
+      22 |     const lastCall =
+      23 |       controller.syncFromLocation.mock.calls[
+      24 |         controller.syncFromLocation.mock.calls.length - 1
+
+      at Object.<anonymous> (tests/spec/admin/F19-TP3-006_HashChangeResyncsPagination.spec.js:21:41)
+
+FAIL tests/spec/admin/F19-TP3-007_ClampStaleOffsetAfterShrink.spec.js
+  ● SPEC F19-TP3-007: Shrinking data clamps stale pagination offsets › page 3 with 60 items snaps back to page 2 when only 25 remain
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Items 21–25 of 25"
+    Received: "Items 0–0 of 25"
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [0m
+        [0m
+        [36m<details[39m
+          [33mid[39m=[32m"availableBooksPanel"[39m
+          [33mopen[39m=[32m""[39m
+        [36m>[39m
+          [0m
+          [0m
+          [36m<summary>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"available-summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<strong>[39m
+                [0mAvailable[0m
+              [36m</strong>[39m
+              [0m
+              [0m
+              [36m<label[39m
+                [33mclass[39m=[32m"sr-only"[39m
+                [33mfor[39m=[32m"availableSearchInput"[39m
+                [33mid[39m=[32m"availableSearchLabel"[39m
+              [36m>[39m
+                [0m
+                Search available books
+              [0m
+              [36m</label>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33maria-labelledby[39m=[32m"availableSearchLabel"[39m
+                [33mid[39m=[32m"availableSearchInput"[39m
+                [33mplaceholder[39m=[32m"Search title or author"[39m
+                [33mtype[39m=[32m"search"[39m
+              [36m/>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</summary>[39m
+          [0m
+          [0m
+          [36m<p[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"sr-only"[39m
+            [33mid[39m=[32m"availableSearchStatus"[39m
+          [36m/>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33maria-busy[39m=[32m"false"[39m
+            [33mclass[39m=[32m"inventory-pagination"[39m
+            [33mdata-available-pagination[39m=[32m""[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<p[39m
+              [33maria-live[39m=[32m"polite"[39m
+              [33mid[39m=[32m"availablePaginationSummary"[39m
+            [36m>[39m
+              [0mItems 0–0 of 25[0m
+            [36m</p>[39m
+            [0m
+            [0m
+            [36m<label[39m
+              [33mclass[39m=[32m"sr-only"[39m
+              [33mfor[39m=[32m"availablePageSize"[39m
+            [36m>[39m
+              [0mItems per page[0m
+            [36m</label>[39m
+            [0m
+            [0m
+            [36m<select[39m
+              [33maria-label[39m=[32m"Items per page"[39m
+              [33mid[39m=[32m"availablePageSize"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<option[39m
+                [33mvalue[39m=[32m"10"[39m
+              [36m>[39m
+                [0m10[0m
+              [36m</option>[39m
+              [0m
+              [0m
+              [36m<option[39m
+                [33mselected[39m=[32m""[39m
+                [33mvalue[39m=[32m"20"[39m
+              [36m>[39m
+                [0m20[0m
+              [36m</option>[39m
+              [0m
+              [0m
+              [36m<option[39m
+                [33mvalue[39m=[32m"50"[39m
+              [36m>[39m
+                [0m50[0m
+              [36m</option>[39m
+              [0m
+            [0m
+            [36m</select>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__controls"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33maria-label[39m=[32m"Pages"[39m
+                [33mclass[39m=[32m"inventory-pagination__pages"[39m
+                [33mdata-pagination-pages[39m=[32m""[39m
+                [33mrole[39m=[32m"group"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33maria-label[39m=[32m"Go to page 1"[39m
+                  [33mdata-page-button[39m=[32m"1"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-current[39m=[32m"page"[39m
+                  [33maria-label[39m=[32m"Go to page 2"[39m
+                  [33mdata-page-button[39m=[32m"2"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m2[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"availList"[39m
+                [33maria-label[39m=[32m"Previous page"[39m
+                [33mdata-pagination[39m=[32m"prev"[39m
+                [33mid[39m=[32m"availablePaginationPrev"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                Prev
+              [0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"availList"[39m
+                [33maria-label[39m=[32m"Next page"[39m
+                [33mdata-pagination[39m=[32m"next"[39m
+                [33mdisabled[39m=[32m""[39m
+                [33mid[39m=[32m"availablePaginationNext"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                Next
+              [0m
+              [36m</button>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</div>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33mid[39m=[32m"availList"[39m
+          [36m>[39m
+            [0m
+    [0m
+            [36m<article[39m
+              [33mclass[39m=[32m"row"[39m
+              [33mdata-id[39m=[32m"book-1"[39m
+            [36m>[39m
+              [0m
+      [0m
+              [36m<img[39m
+                [33malt[39m=[32m""[39m
+                [33msrc[39m=[32m"./assets/placeholder.webp"[39m
+              [36m/>[39m
+              [0m
+      [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"row-meta"[39m
+              [36m>[39m
+                [0m
+        [0m
+                [36m<strong>[39m
+                  [0mBook 1[0m
+                [36m</strong>[39m
+                [0m
+        [0m
+                [36m<div[39m
+                  [33mclass[39m=[32m"muted"[39m
+                [36m>[39m
+                  [0m
+          Test Author · Fiction · Paperback
+        [0m
+                [36m</div>[39m
+                [0m
+        [0m
+                [36m<div[39m
+                  [33mclass[39m=[32m"purchase-price muted"[39m
+                [36m>[39m
+                  [0mPurchase price: Not set[0m
+                [36m</div>[39m
+                [0m
+      [0m
+              [36m</div>[39m
+              [0m
+      [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"row-actions"[39m
+              [36m>[39m
+                [0m
+        [0m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn"[39m
+                  [33mdata-action[39m=[32m"feature"[39m
+                [36m>[39m
+                  [0mFeature[0m
+                [36m</button>[39m
+                [0m
+        [0m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-secondary"[39m
+                  [33mdata-action[39m=[32m"edit"[39m
+                [36m>[39m
+                  [0mEdit[0m
+                [36m</button>[39m
+                [0m
+        [0m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn"[39m
+                  [33mdata-action[39m=[32m"sold"[39m
+                [36m>[39m
+                  [0mMark sold[0m
+         ...
+
+      53 |
+      54 |     await waitFor(() => {
+    > 55 |       expect(summary.textContent).toBe('Items 21–25 of 25');
+         |                                   ^
+      56 |       const rows = harness.availList.querySelectorAll('.row');
+      57 |       expect(rows.length).toBe(5);
+      58 |       expect(rows[0].querySelector('strong').textContent).toContain('Book 21');
+
+      at tests/spec/admin/F19-TP3-007_ClampStaleOffsetAfterShrink.spec.js:55:35
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+
+Test Suites: 2 failed, 1 skipped, 180 passed, 182 of 183 total
+Tests:       2 failed, 1 skipped, 209 passed, 212 total
+Snapshots:   0 total
+Time:        14.967 s
+Ran all test suites.

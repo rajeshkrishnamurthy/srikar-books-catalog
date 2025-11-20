@@ -4,23 +4,23 @@
 
   console.error
     Error: Not implemented: window.scrollTo
-        at module.exports (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
-        at /Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
-        at openPanel (/Users/rajeshk/Downloads/sbd/scripts/admin/salesEntryLauncher.js:67:21)
-        at openPanel (/Users/rajeshk/Downloads/sbd/scripts/admin/salesEntryLauncher.js:51:5)
-        at HTMLButtonElement.activateLauncher (/Users/rajeshk/Downloads/sbd/scripts/admin/salesEntryLauncher.js:25:5)
-        at HTMLButtonElement.callTheUserObjectsOperation (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
-        at innerInvokeEventListeners (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
-        at invokeEventListeners (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
-        at HTMLButtonElementImpl._dispatch (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
-        at HTMLButtonElementImpl.dispatchEvent (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
-        at HTMLButtonElement.dispatchEvent (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
-        at /Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/events.js:19:20
-        at Object.eventWrapper (/Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/config.js:25:23)
-        at fireEvent (/Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/events.js:12:35)
-        at fireEvent.<computed> [as click] (/Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/events.js:110:36)
-        at Object.clickRecordSale (/Users/rajeshk/Downloads/sbd/tests/fixtures/salesEntryLauncherHarness.js:32:17)
-        at Object.<anonymous> (/Users/rajeshk/Downloads/sbd/tests/spec/admin/F09-TP6-004_SearchValuePreserved.spec.js:8:13)
+        at module.exports (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+        at /Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:67:21)
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:51:5)
+        at HTMLButtonElement.activateLauncher (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:25:5)
+        at HTMLButtonElement.callTheUserObjectsOperation (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+        at innerInvokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+        at invokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+        at HTMLButtonElementImpl._dispatch (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+        at HTMLButtonElementImpl.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+        at HTMLButtonElement.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+        at /Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:19:20
+        at Object.eventWrapper (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/config.js:25:23)
+        at fireEvent (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:12:35)
+        at fireEvent.<computed> [as click] (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:110:36)
+        at Object.clickRecordSale (/Users/rajeshk/Downloads/catalog/tests/fixtures/salesEntryLauncherHarness.js:32:17)
+        at Object.<anonymous> (/Users/rajeshk/Downloads/catalog/tests/spec/admin/F09-TP6-004_SearchValuePreserved.spec.js:8:13)
         at processTicksAndRejections (node:internal/process/task_queues:103:5) {
       type: 'not implemented'
     }
@@ -54,23 +54,23 @@
 
   console.error
     Error: Not implemented: window.scrollTo
-        at module.exports (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
-        at /Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
-        at openPanel (/Users/rajeshk/Downloads/sbd/scripts/admin/salesEntryLauncher.js:67:21)
-        at openPanel (/Users/rajeshk/Downloads/sbd/scripts/admin/salesEntryLauncher.js:51:5)
-        at HTMLButtonElement.activateLauncher (/Users/rajeshk/Downloads/sbd/scripts/admin/salesEntryLauncher.js:25:5)
-        at HTMLButtonElement.callTheUserObjectsOperation (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
-        at innerInvokeEventListeners (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
-        at invokeEventListeners (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
-        at HTMLButtonElementImpl._dispatch (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
-        at HTMLButtonElementImpl.dispatchEvent (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
-        at HTMLButtonElement.dispatchEvent (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
-        at /Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/events.js:19:20
-        at Object.eventWrapper (/Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/config.js:25:23)
-        at fireEvent (/Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/events.js:12:35)
-        at fireEvent.<computed> [as click] (/Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/events.js:110:36)
-        at Object.clickRecordSale (/Users/rajeshk/Downloads/sbd/tests/fixtures/salesEntryLauncherHarness.js:32:17)
-        at Object.<anonymous> (/Users/rajeshk/Downloads/sbd/tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js:11:13)
+        at module.exports (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+        at /Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:67:21)
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:51:5)
+        at HTMLButtonElement.activateLauncher (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:25:5)
+        at HTMLButtonElement.callTheUserObjectsOperation (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+        at innerInvokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+        at invokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+        at HTMLButtonElementImpl._dispatch (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+        at HTMLButtonElementImpl.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+        at HTMLButtonElement.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+        at /Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:19:20
+        at Object.eventWrapper (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/config.js:25:23)
+        at fireEvent (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:12:35)
+        at fireEvent.<computed> [as click] (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:110:36)
+        at Object.clickRecordSale (/Users/rajeshk/Downloads/catalog/tests/fixtures/salesEntryLauncherHarness.js:32:17)
+        at Object.<anonymous> (/Users/rajeshk/Downloads/catalog/tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js:11:13)
         at processTicksAndRejections (node:internal/process/task_queues:103:5) {
       type: 'not implemented'
     }
@@ -104,23 +104,23 @@
 
   console.error
     Error: Not implemented: window.scrollTo
-        at module.exports (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
-        at /Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
-        at openPanel (/Users/rajeshk/Downloads/sbd/scripts/admin/salesEntryLauncher.js:67:21)
-        at openPanel (/Users/rajeshk/Downloads/sbd/scripts/admin/salesEntryLauncher.js:51:5)
-        at HTMLButtonElement.activateLauncher (/Users/rajeshk/Downloads/sbd/scripts/admin/salesEntryLauncher.js:25:5)
-        at HTMLButtonElement.callTheUserObjectsOperation (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
-        at innerInvokeEventListeners (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
-        at invokeEventListeners (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
-        at HTMLButtonElementImpl._dispatch (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
-        at HTMLButtonElementImpl.dispatchEvent (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
-        at HTMLButtonElement.dispatchEvent (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
-        at /Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/events.js:19:20
-        at Object.eventWrapper (/Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/config.js:25:23)
-        at fireEvent (/Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/events.js:12:35)
-        at fireEvent.<computed> [as click] (/Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/events.js:110:36)
-        at Object.clickRecordSale (/Users/rajeshk/Downloads/sbd/tests/fixtures/salesEntryLauncherHarness.js:32:17)
-        at Object.<anonymous> (/Users/rajeshk/Downloads/sbd/tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js:14:13)
+        at module.exports (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+        at /Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:67:21)
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:51:5)
+        at HTMLButtonElement.activateLauncher (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:25:5)
+        at HTMLButtonElement.callTheUserObjectsOperation (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+        at innerInvokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+        at invokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+        at HTMLButtonElementImpl._dispatch (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+        at HTMLButtonElementImpl.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+        at HTMLButtonElement.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+        at /Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:19:20
+        at Object.eventWrapper (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/config.js:25:23)
+        at fireEvent (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:12:35)
+        at fireEvent.<computed> [as click] (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:110:36)
+        at Object.clickRecordSale (/Users/rajeshk/Downloads/catalog/tests/fixtures/salesEntryLauncherHarness.js:32:17)
+        at Object.<anonymous> (/Users/rajeshk/Downloads/catalog/tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js:14:13)
         at processTicksAndRejections (node:internal/process/task_queues:103:5) {
       type: 'not implemented'
     }
@@ -154,23 +154,23 @@
 
   console.error
     Error: Not implemented: window.scrollTo
-        at module.exports (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
-        at /Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
-        at openPanel (/Users/rajeshk/Downloads/sbd/scripts/admin/salesEntryLauncher.js:67:21)
-        at openPanel (/Users/rajeshk/Downloads/sbd/scripts/admin/salesEntryLauncher.js:51:5)
-        at HTMLButtonElement.activateLauncher (/Users/rajeshk/Downloads/sbd/scripts/admin/salesEntryLauncher.js:33:5)
-        at HTMLButtonElement.callTheUserObjectsOperation (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
-        at innerInvokeEventListeners (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
-        at invokeEventListeners (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
-        at HTMLButtonElementImpl._dispatch (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
-        at HTMLButtonElementImpl.dispatchEvent (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
-        at HTMLButtonElement.dispatchEvent (/Users/rajeshk/Downloads/sbd/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
-        at /Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/events.js:19:20
-        at Object.eventWrapper (/Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/config.js:25:23)
-        at fireEvent (/Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/events.js:12:35)
-        at fireEvent.<computed> [as keyDown] (/Users/rajeshk/Downloads/sbd/node_modules/@testing-library/dom/dist/events.js:110:36)
-        at Object.pressRecordSaleEnter (/Users/rajeshk/Downloads/sbd/tests/fixtures/salesEntryLauncherHarness.js:35:17)
-        at Object.<anonymous> (/Users/rajeshk/Downloads/sbd/tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js:15:13)
+        at module.exports (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+        at /Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/browser/Window.js:960:7
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:67:21)
+        at openPanel (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:51:5)
+        at HTMLButtonElement.activateLauncher (/Users/rajeshk/Downloads/catalog/scripts/admin/salesEntryLauncher.js:33:5)
+        at HTMLButtonElement.callTheUserObjectsOperation (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+        at innerInvokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+        at invokeEventListeners (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+        at HTMLButtonElementImpl._dispatch (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+        at HTMLButtonElementImpl.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+        at HTMLButtonElement.dispatchEvent (/Users/rajeshk/Downloads/catalog/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+        at /Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:19:20
+        at Object.eventWrapper (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/config.js:25:23)
+        at fireEvent (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:12:35)
+        at fireEvent.<computed> [as keyDown] (/Users/rajeshk/Downloads/catalog/node_modules/@testing-library/dom/dist/events.js:110:36)
+        at Object.pressRecordSaleEnter (/Users/rajeshk/Downloads/catalog/tests/fixtures/salesEntryLauncherHarness.js:35:17)
+        at Object.<anonymous> (/Users/rajeshk/Downloads/catalog/tests/spec/admin/F09-TP6-003_LauncherInitializesWorkflowOnce.spec.js:15:13)
         at processTicksAndRejections (node:internal/process/task_queues:103:5) {
       type: 'not implemented'
     }
@@ -205,10 +205,9 @@
 ---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                                                                                                               
 ---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-All files                  |   64.54 |    48.11 |   61.81 |   68.04 |                                                                                                                                                                                                                                                                                                 
+All files                  |   63.65 |    46.84 |   60.85 |   67.13 |                                                                                                                                                                                                                                                                                                 
  auth.js                   |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                                                                                                                                                           
  autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                                                                                                                                                            
- availablePagination.js    |   67.36 |    47.19 |      75 |   69.06 | 47-80,126,177,223-254,274                                                                                                                                                                                                                                                                       
  bundleList.js             |   71.37 |    54.91 |    62.5 |   75.73 | 26-29,43,74,81,88,91,112-135,156-157,163-164,177,184-189,222-230,258-261,272,351-352,359,422-428,434,450-461,469,491                                                                                                                                                                            
  bundleStatus.js           |   76.11 |     50.9 |   66.66 |   80.95 | 8-9,12-13,35-39,62-64,94                                                                                                                                                                                                                                                                        
  bundles.js                |      77 |     59.6 |   71.15 |    82.5 | 28-29,34,65-70,117,124-125,165-166,170-171,174,177-178,191-197,244,265,287,308-309,312-314,356-357,403-404,429-436,453,482-485                                                                                                                                                                  
@@ -216,7 +215,7 @@ All files                  |   64.54 |    48.11 |   61.81 |   68.04 |
  customerLookup.js         |   76.74 |    54.83 |   79.48 |   83.62 | 17-18,52-58,135-141,184,244-245,275-277,292,310-314,321,335,341-345,354-355,361-362                                                                                                                                                                                                             
  customers.js              |   78.78 |    50.85 |   78.94 |    83.6 | 8-9,26-27,74-82,133,168,187,277-281,289-290,295-297,322-323,346,356-357,368,380,393,411-415,437-438,499-502                                                                                                                                                                                     
  editor.js                 |   70.79 |    68.24 |   73.07 |   72.55 | 46-47,53,93,122-151,155,185,192,199,339,353-371,378-395                                                                                                                                                                                                                                         
- inventory.js              |   75.13 |     59.4 |   78.08 |   78.27 | 61,121-171,207,229,266-269,278-280,283-285,294-296,299-301,382-386,401-402,451,470-471,490-491,513,580,586-594,815-818,829,847-853,860-866,895,915-947,1003-1005                                                                                                                                
+ inventory.js              |    73.8 |    53.23 |   81.57 |    75.2 | 59,119-169,199,221,258-261,270-272,275-277,286-288,291-293,374-378,393-394,412,467,472,478-481                                                                                                                                                                                                  
  lookup.js                 |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                                                                                                                                                          
  main.js                   |   51.45 |    36.11 |   39.73 |   54.33 | 313-319,327-328,341-346,350,375,391-411,418,439,445-450,458-700,735,799-804,864,904,914-921,941-962,967-968,1004-1007,1033-1034,1076,1104-1110,1123,1136,1142-1146,1156,1166,1176,1186,1196-1198,1201,1210,1215-1216,1234,1242,1272-1283,1302-1320,1417-1426,1440-1462,1470-1526,1532,1566-1924 
  requests.js               |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                                                                                                                                                            

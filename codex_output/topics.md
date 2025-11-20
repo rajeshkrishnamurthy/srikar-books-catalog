@@ -180,6 +180,73 @@ Notes:
 - Reuse the existing Manage Books dropdown helper and CSS; adding future Bundles/Sale tabs should be data-only updates, not new DOM scaffolding.
 
 
+# Feature: Unified Pagination Framework (F18)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F18-TP1 | Pagination Contract and Data Model | Define a reusable pagination contract (inputs, outputs, metadata) that all list views can adopt. | — | A view needs to load Firestore-backed records in pages instead of all at once. | The view requests a page of results using the shared pagination helper/contract. | The helper accepts consistent parameters and returns normalized records plus paging metadata (hasNext, hasPrev, cursors) without exposing Firestore details. |
+| F18-TP2 | Admin List Pagination Shell | Provide a standard pagination control strip for admin lists (Previous/Next, item range, disabled states). | F18-TP1 | An admin list view has more items than the default page size. | The admin uses pagination controls (Next/Previous or page size changes). | The control strip updates pagination via the shared contract, reflects loading/disabled states, and shows a consistent summary like “Items 21–40 of 132.” |
+| F18-TP3 | Public Catalog Pagination Application | Apply the unified pagination framework to the public catalog listings. | F18-TP1 | A visitor browses the catalog and a category has more items than fit on one page. | They reach the end of the list and use the pagination affordance. | Additional books load via the shared contract, the visible slice is clear, and the pattern is consistent across all catalog tabs. |
+| F18-TP4 | Pagination State and Deep Linking | Keep pagination state restorable via URL/hash so refresh and back/forward land on the same slice. | F18-TP1, F15-TP3 | A list view uses the shared pagination contract and the user has navigated across pages/filters. | They refresh, share a link, or use browser back/forward to return to the list. | The view restores the same (or nearest safe) page based on URL/hash, keeps controls in sync, and never shows a different page than implied by the URL. |
+| F18-TP5 | Pagination Controller Abstraction | Wrap shared helpers in a reusable controller with a tiny API for any list view. | F18-TP1, F18-TP2, F18-TP3, F18-TP4 | An admin or public list wants pagination without re-implementing helpers and URL wiring. | The view instantiates the controller with a dataSource, defaults, and location sync settings. | The controller owns pagination state, exposes goNext/goPrev/loadMore/setFilters + UI state callbacks, and keeps the list and URL/back/forward behavior aligned. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom across F18 topics.
+- Establishes a single pagination helper and UI pattern that admin and public views can plug into without duplicating Firestore or routing logic.
+
+# Feature: Available Books Pagination Integration (F19)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| F19-TP1 | Available Books Data Source | Create a pagination-aware dataSource for the Available list that queries Firestore with the current filters and cursor. | F16-TP3, F18-TP1, F18-TP5 | Manage Books > Available is active and the pagination controller initializes. | The controller requests a page with size/direction plus the active filter or search state. | The dataSource builds the Firestore query, enforces ordering, and returns normalized results with paging metadata while resetting to page 1 whenever filters change. |
+| F19-TP2 | Available Books Pagination Shell | Mount the shared pagination shell inside the Available panel and wire it to controller methods. | F19-TP1, F18-TP2 | The Available list contains more items than a single page. | The controller emits UI state changes or the admin uses Previous/Next. | The shell shows consistent summary text, toggles disabled states, fires goPrev/goNext without double submissions, and stays accessible for keyboard users. |
+| F19-TP3 | Available Books Pagination State Sync | Persist pagination + filter state for the Available list across reloads and navigation. | F19-TP2, F18-TP4 | The admin has paged through or filtered Available books. | They refresh, deep-link to Manage Books, or use browser history to return. | The controller restores the same (or nearest safe) page/filter combo, updates hashes/query params cleanly, and avoids stale cursors when filters change. |
+| F19-TP4 | Available Page Size Selector | Provide a 10/20/50 selector so admins control how many books show per page. | F19-TP2, F19-TP3 | The Available list displays more results than a single page and the pagination shell is visible. | The admin changes the per-page selector value. | The controller requests the new page size, reloads page 1 for that size, saves the preference for future sessions, and keeps summary/Prev-Next states accurate. |
+| F19-TP5 | Available Numeric Pager | Add an Amazon-style numeric pager (Prev, page numbers, Next, per-page dropdown) in a single row. | F19-TP2, F19-TP3, F19-TP4 | The Available list spans multiple pages. | The admin clicks Prev, Next, or a page number. | The highlighted page chip, hash, and summary all reflect the chosen page while buttons and dropdown stay aligned on one row. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F19 topics.
+- Pagination params must compose cleanly with `#manage-books/available` so other Manage tabs continue to work as-is.
+
+# Feature: Sold Books Pagination Integration (F20)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| SBD-F20-TP1 | Sold Books Data Source & Cursor Wiring | Expose sold-book history through the shared pagination controller using sale-date ordering and sale-specific fields. | F16-TP4, F18-TP1, F18-TP5 | Manage Books > Sold is open with more sold records than a single page. | The pagination controller requests the first or next slice via the shared contract. | A sale-date-sorted Firestore query returns normalized sale rows plus hasNext/hasPrev/cursor metadata ready for the UI. |
+| SBD-F20-TP2 | Sold Books Pagination Shell & Summary | Mount the shared pagination shell inside the Sold panel and keep controls/summary text aligned with controller state. | SBD-F20-TP1, F18-TP2, F18-TP4 | The Sold Books panel is visible and exceeds the selected page size. | An admin clicks Prev/Next, changes page size, or keyboard-navigates the shell. | Controls disable while loading, the list and summary ("Items 21-40 of 180 - Sold") update, and hash/back-button state stays in sync. |
+| SBD-F20-TP3 | Sold Books Filter Reset & Cursor Safety | Reset pagination whenever Sold filters or search change so stale cursors never surface empty pages. | SBD-F20-TP1, F18-TP4 | Date/supplier/customer/search filters are active on Sold Books. | Any filter value is edited or cleared. | Stored cursors drop, page 1 loads with the new filters, totals recompute, and sharable URLs reflect the filtered slice. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F20 topics.
+- Reuse the Available pagination markup/tokens so Sold inherits the same accessible controls, summary aria-live region, and controller contract.
+
+
+# Feature: Manage Bundles Pagination Integration (F21)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| SBD-F21-TP1 | Manage Bundles Data Source Integration | Provide a pagination-aware data source for Manage Bundles that respects supplier/status filters and updated-at ordering. | F12-TP3, F17-TP1, F18-TP1, F18-TP5 | Bundles -> Manage renders dozens of bundles. | The pagination controller requests page 1 or follow-up slices with the current filters. | The Firestore query applies supplier/status filters, sorts by updatedAt then title, and returns normalized bundle metadata plus paging info. |
+| SBD-F21-TP2 | Manage Bundles Pagination Shell | Embed the shared pagination controls below the Manage Bundles table and sync them with controller state. | SBD-F21-TP1, F18-TP2 | The Manage Bundles list contains more rows than the current page size. | Admins click Prev/Next, change per-page, or use keyboard navigation. | Controls reflect loading/disabled states, the grid refreshes with the requested slice, and the summary shows the visible range (e.g., "Bundles 41-60 of 210"). |
+| SBD-F21-TP3 | Bundle Actions Preserve Pagination Context | Keep pagination stable while publishing/unpublishing or editing bundles from the Manage view. | SBD-F21-TP1, F12-TP2, F18-TP5 | An admin is on a later page with filters applied. | They publish/unpublish a bundle or run inline edits that update Firestore. | Only the affected row/page refreshes, totals adjust if the row leaves the filter, and the view never jumps back to page 1 unless the list empties. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F21 topics.
+- Keep pagination controls aligned with the Manage table footer (sticky on narrow screens) so bundle status/edit buttons stay near their paging context.
+
+
+# Feature: Open Book Requests Pagination Integration (F22)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| SBD-F22-TP1 | Book Requests Data Source | Serve open book requests through the pagination controller with created-at ordering and quick filters. | F18-TP1, F18-TP5 | The Book Requests panel shows many open requests. | The controller requests the first or next page with optional status/priority filters. | The data source queries open/pending requests sorted by createdAt desc and returns normalized requester/contact/book data plus paging metadata. |
+| SBD-F22-TP2 | Book Requests Pagination Shell | Drop the shared pagination controls beneath the requests list and keep them accessible. | SBD-F22-TP1, F18-TP2, F18-TP4 | More open requests exist than the default page size. | An admin pages through via buttons, keyboard, or per-page changes. | Controls disable while loading, the list and summary ("Requests 61-70 of 322 open") update, and URL/hash state tracks the page for reload safety. |
+| SBD-F22-TP3 | Book Request Actions Maintain Paging | Ensure resolving/snoozing/assigning requests updates the paged list without jumps. | SBD-F22-TP1 | An admin triages open requests while viewing a paginated slice. | They mark a request fulfilled, snoozed, or reassigned. | The row disappears or updates in place, the next row from the following page backfills when available, totals refresh, and the view only resets when the queue empties. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F22 topics.
+- Keep focus management and summary copy request-specific so queue triage remains accessible even when pagination swaps content rapidly.
+
+
 # Feature: Backlog (BACKLOG)
 
 | ID | Title | Goal | Dependencies | Given | When | Then |

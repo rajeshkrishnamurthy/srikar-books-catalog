@@ -1,0 +1,76 @@
+{
+  "topicId": "SBD-F20-TP2",
+  "featureId": "F20",
+  "title": "Sold Books Pagination Shell & Summary",
+  "area": "Admin / Sold Books",
+  "goal": "Mount the shared pagination shell inside the Sold panel and keep controls/summary text aligned with controller state.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F20-TP2-001",
+      "title": "SoldShellRendersSharedControls",
+      "given": "The Sold Books panel is visible and the pagination controller exposes its UI state.",
+      "when": "initInventory wires the Sold pagination shell to that controller.",
+      "then": "It instantiates a Sold-specific controller, renders Prev/Next controls with Material aria labels, and surfaces the controller summary as 'Items X–Y of Z - Sold' inside aria-live polite text."
+    },
+    {
+      "id": "SBD-F20-TP2-002",
+      "title": "SoldBusyStateDisablesControls",
+      "given": "An admin pages through Sold rows so the controller reports isBusy while fetching a new slice.",
+      "when": "The Sold pagination shell syncs to the busy state.",
+      "then": "The shell sets aria-busy, disables Prev/Next (including keyboard activation), ignores clicks until the controller returns idle, and then re-enables the buttons once items render."
+    },
+    {
+      "id": "SBD-F20-TP2-003",
+      "title": "SoldSummaryAnnouncesRange",
+      "given": "The controller emits an updated slice with new offsets, page counts, and totals.",
+      "when": "onStateChange fires for the Sold shell.",
+      "then": "The summary text recomputes to 'Items {start}\u2013{end} of {total} - Sold', stays aria-live=polite for screen readers, and reflects the latest controller offsets so admins know which rows are visible."
+    },
+    {
+      "id": "SBD-F20-TP2-004",
+      "title": "SoldPageSizeChangeSetsController",
+      "given": "The Sold panel exposes the shared 'Rows per page' select just like Available.",
+      "when": "An admin picks a new size or enters an invalid value.",
+      "then": "Valid selections call controller.setPageSize with the numeric value and reload the page, while invalid entries reset the select to the previous size without firing duplicate loads."
+    },
+    {
+      "id": "SBD-F20-TP2-005",
+      "title": "SoldHashSyncReflectsController",
+      "given": "The pagination controller invokes syncToLocation for Sold.",
+      "when": "The app provides the controller with a hash-update function.",
+      "then": "The function writes '#manage-books/sold?page=..&pageSize=..&offset=..' (plus filters) so the browser back button and shared links restore the same Sold slice."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminInventoryHarness.js",
+    "/tests/fixtures/paginationControllerStub.js",
+    "/tests/fixtures/availableSoldControllerFactory.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F20-TP2-001_SoldShellRendersSharedControls.spec.js",
+    "/tests/spec/admin/SBD-F20-TP2-002_SoldPaginationBusyState.spec.js",
+    "/tests/spec/admin/SBD-F20-TP2-003_SoldSummaryAnnouncesRange.spec.js",
+    "/tests/spec/admin/SBD-F20-TP2-004_SoldPageSizeChange.spec.js",
+    "/tests/unit/inventory/SBD-F20-TP2-005_SoldPaginationSyncsLocation.test.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F20-TP2_red.txt",
+    "green": "codex_output/reports/SBD-F20-TP2_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/inventory.js"
+  ],
+  "changeNotes": [
+    "Header search now derives its announced count from both Available and Sold matches so the aria status mirrors what the filtered lists show.",
+    "Sold pagination markup gained the muted summary text and md-input rows-per-page select to keep its shell visually aligned with the Available panel.",
+    "Introduced initInventoryPaginationSection to centralize controller wiring, giving Available and Sold the same setup, reload, and location-sync paths."
+  ],
+  "validation": {
+    "status": "RED",
+    "command": "npm test -- --watchAll=false",
+    "report": "codex_output/reports/SBD-F20-TP2_red.txt"
+  }
+}

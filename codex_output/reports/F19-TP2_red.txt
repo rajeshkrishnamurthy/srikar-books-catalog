@@ -1,0 +1,100 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false --runTestsByPath tests/spec/admin/F19-TP2-001_AvailablePaginationShellRenders.spec.js tests/spec/admin/F19-TP2-002_DisableControlsWhileBusy.spec.js tests/spec/admin/F19-TP2-003_PrevNextAriaAndActions.spec.js
+
+(node:29647) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F19-TP2-002_DisableControlsWhileBusy.spec.js
+  SPEC F19-TP2-002: Busy pagination shell disables controls and blocks duplicate clicks
+    ✕ when controller reports isBusy, both buttons stay disabled and ignore clicks (56 ms)
+
+  ● SPEC F19-TP2-002: Busy pagination shell disables controls and blocks duplicate clicks › when controller reports isBusy, both buttons stay disabled and ignore clicks
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      21 |       '[data-available-pagination]'
+      22 |     );
+    > 23 |     expect(pagination).not.toBeNull();
+         |                            ^
+      24 |     expect(pagination.getAttribute('aria-busy')).toBe('true');
+      25 |
+      26 |     const { getByRole } = within(pagination);
+
+      at Object.<anonymous> (tests/spec/admin/F19-TP2-002_DisableControlsWhileBusy.spec.js:23:28)
+
+(node:29645) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F19-TP2-003_PrevNextAriaAndActions.spec.js
+  SPEC F19-TP2-003: Prev/Next wire to controller and expose aria hooks
+    ✕ buttons point to availList, use aria-live summary, and trigger goPrev once enabled (54 ms)
+
+  ● SPEC F19-TP2-003: Prev/Next wire to controller and expose aria hooks › buttons point to availList, use aria-live summary, and trigger goPrev once enabled
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      27 |       '[data-available-pagination]'
+      28 |     );
+    > 29 |     expect(pagination).not.toBeNull();
+         |                            ^
+      30 |
+      31 |     const summary = pagination.querySelector('#availablePaginationSummary');
+      32 |     expect(summary).not.toBeNull();
+
+      at Object.<anonymous> (tests/spec/admin/F19-TP2-003_PrevNextAriaAndActions.spec.js:29:28)
+
+(node:29646) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/F19-TP2-001_AvailablePaginationShellRenders.spec.js
+  SPEC F19-TP2-001: Available pagination shell renders summary text and updates after Next
+    ✕ summary/controls mirror controller state and refresh after goNext runs (56 ms)
+
+  ● SPEC F19-TP2-001: Available pagination shell renders summary text and updates after Next › summary/controls mirror controller state and refresh after goNext runs
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      27 |       '[data-available-pagination]'
+      28 |     );
+    > 29 |     expect(pagination).not.toBeNull();
+         |                            ^
+      30 |
+      31 |     const summary = pagination.querySelector('#availablePaginationSummary');
+      32 |     expect(summary).not.toBeNull();
+
+      at Object.<anonymous> (tests/spec/admin/F19-TP2-001_AvailablePaginationShellRenders.spec.js:29:28)
+
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                   
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------
+All files                  |    0.87 |     0.35 |    0.72 |    0.91 |                                                                                     
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79                                                                               
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                                                                                
+ availablePagination.js    |       0 |        0 |       0 |       0 | 5-188                                                                               
+ bundleList.js             |       0 |        0 |       0 |       0 | 2-510                                                                               
+ bundleStatus.js           |       0 |        0 |       0 |       0 | 7-110                                                                               
+ bundles.js                |       0 |        0 |       0 |       0 | 3-494                                                                               
+ currency.js               |       0 |        0 |       0 |       0 | 6-31                                                                                
+ customerLookup.js         |       0 |        0 |       0 |       0 | 3-392                                                                               
+ customers.js              |       0 |        0 |       0 |       0 | 3-520                                                                               
+ editor.js                 |       0 |        0 |       0 |       0 | 27-411                                                                              
+ inventory.js              |   14.02 |     5.97 |   13.15 |   15.04 | 32,37-48,54-169,178,199,204-223,230-394,409,412,417-419,428-430,461-462,467,472-522 
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483                                                                              
+ main.js                   |       0 |        0 |       0 |       0 | 39-1924                                                                             
+ requests.js               |       0 |        0 |       0 |       0 | 6-73                                                                                
+ salesEntryLauncher.js     |       0 |        0 |       0 |       0 | 2-68                                                                                
+ salesHeader.js            |       0 |        0 |       0 |       0 | 3-505                                                                               
+ salesLineItems.js         |       0 |        0 |       0 |       0 | 3-914                                                                               
+ salesPersist.js           |       0 |        0 |       0 |       0 | 1-170                                                                               
+ salesTitleAutocomplete.js |       0 |        0 |       0 |       0 | 9-225                                                                               
+ suppliers.js              |       0 |        0 |       0 |       0 | 13-319                                                                              
+---------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------
+Test Suites: 3 failed, 3 total
+Tests:       3 failed, 3 total
+Snapshots:   0 total
+Time:        1.679 s
+Ran all test suites within paths "tests/spec/admin/F19-TP2-001_AvailablePaginationShellRenders.spec.js", "tests/spec/admin/F19-TP2-002_DisableControlsWhileBusy.spec.js", "tests/spec/admin/F19-TP2-003_PrevNextAriaAndActions.spec.js".

@@ -1,0 +1,75 @@
+{
+  "topicId": "F19-TP3",
+  "featureId": "F19",
+  "title": "Available Books Pagination State Sync",
+  "area": "Admin / Manage Books",
+  "goal": "Persist pagination + filter state for the Available list across reloads and navigation so admins always land on the same slice they left.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "RED",
+  "specs": [
+    {
+      "id": "F19-TP3-001",
+      "title": "RestorePaginationFromLocation",
+      "given": "An admin deep links directly to #manage-books/available with query params representing a saved slice.",
+      "when": "initInventory runs for the Available panel.",
+      "then": "The pagination controller\u2019s syncFromLocation helper receives the raw query string along with the current total count so it can restore the same page, offset, page size, and filters."
+    },
+    {
+      "id": "F19-TP3-002",
+      "title": "SyncLocationOnControllerUpdates",
+      "given": "The Available list is showing more than one page worth of books.",
+      "when": "The pagination controller reports a new UI state or a user activates Prev/Next.",
+      "then": "initInventory registers a syncToLocation callback that re-writes window.location.hash with the latest page, pageSize, offset, and search/filter params under #manage-books/available."
+    },
+    {
+      "id": "F19-TP3-003",
+      "title": "SearchResetsPageAndUpdatesLocation",
+      "given": "An admin is paged deep into the Available list and types a new search term in the header input.",
+      "when": "The search value changes to a long-enough term.",
+      "then": "The controller setFilters call resets paging to page 1, updates the hash to ?page=1 with the search term, and the debounced search UI reflects the filtered state."
+    },
+    {
+      "id": "F19-TP3-004",
+      "title": "PaginationButtonsLoadNextPrev",
+      "given": "The Available list has at least one extra page of results.",
+      "when": "The admin clicks Next and then Previous.",
+      "then": "The list re-renders rows for each slice, the summary text updates (e.g., \"Items 21\u201340 of 45\"), Prev/Next disabled states toggle correctly, and the hash shows the new page + offset after each click."
+    },
+    {
+      "id": "F19-TP3-005",
+      "title": "DeepLinkLoadsRequestedPage",
+      "given": "window.location.hash already includes #manage-books/available?page=2&pageSize=10 before the dashboard loads.",
+      "when": "initInventory initializes and Firestore sends the Available snapshot.",
+      "then": "The restored pagination state shows Items 11\u201320 of the dataset, renders Book 11 at the top, and keeps the hash on page=2 instead of defaulting back to page 1."
+    }
+  ],
+  "fixtures": [
+    "tests/fixtures/adminInventoryHarness.js",
+    "tests/fixtures/paginationControllerStub.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F19-TP3-001_RestorePaginationFromLocation.spec.js",
+    "/tests/spec/admin/F19-TP3-002_SyncLocationOnControllerUpdates.spec.js",
+    "/tests/spec/admin/F19-TP3-003_SearchResetsPageAndUpdatesLocation.spec.js",
+    "/tests/spec/admin/F19-TP3-004_PaginationButtonsLoadNextPrev.spec.js",
+    "/tests/spec/admin/F19-TP3-005_DeepLinkLoadsRequestedPage.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F19-TP3_red.txt",
+    "green": "codex_output/reports/F19-TP3_green.txt"
+  },
+  "changedFiles": [
+    "codex_output/specs/F19-TP3.json",
+    "tests/spec/admin/F19-TP3-005_DeepLinkLoadsRequestedPage.spec.js",
+    "codex_output/reports/F19-TP3_red.txt"
+  ],
+  "changeNotes": [
+    "Defined five observable behaviors for Available pagination state (restore, sync, search reset, Prev/Next, and deep links).",
+    "Added deep-link Jest coverage while keeping existing restore/sync specs under a single RED report."
+  ],
+  "validation": {
+    "status": "RED",
+    "command": "npm test -- --watchAll=false",
+    "report": "codex_output/reports/F19-TP3_red.txt"
+  }
+}

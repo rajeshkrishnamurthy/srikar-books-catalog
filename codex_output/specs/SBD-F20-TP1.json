@@ -1,0 +1,64 @@
+{
+  "topicId": "SBD-F20-TP1",
+  "featureId": "F20",
+  "title": "Sold Books Data Source & Cursor Wiring",
+  "area": "Admin / Sold Books",
+  "goal": "Expose the sold-book history through the shared pagination controller using sale-date ordering and sale-specific fields.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F20-TP1-001",
+      "title": "SoldQueryUsesSaleDateOrdering",
+      "given": "Manage Books > Sold has more rows than a single page and the pagination controller asks for the first slice.",
+      "when": "The sold-books data source composes the Firestore query for page 1.",
+      "then": "It targets the sold history collection, filters to sold records, orders by soldOn (sale date) descending, clamps the limit to pageSize + 1, and primes hasNext detection for the controller."
+    },
+    {
+      "id": "SBD-F20-TP1-002",
+      "title": "SoldCursorPagingHonorsDirection",
+      "given": "An admin uses Prev/Next on Sold so the controller supplies cursors plus direction metadata.",
+      "when": "The data source builds forward and backward requests.",
+      "then": "Forward slices call startAfter with the previous end cursor, backward slices call endBefore + limitToLast, offsets stay in sync, and hasNext/hasPrev reflect the new slice boundaries."
+    },
+    {
+      "id": "SBD-F20-TP1-003",
+      "title": "SoldRecordsExposeSaleFields",
+      "given": "Firestore returns sold entries that contain book title, sale price, customer info, soldOn, and totals data.",
+      "when": "The data source normalizes the page payload.",
+      "then": "Each item exposes those sale-specific fields along with its document id, the controller receives start/end cursors, totalItems from countSold, and pageMeta.count equals the rendered rows so the summary text is accurate."
+    },
+    {
+      "id": "SBD-F20-TP1-004",
+      "title": "FinalPagesReportAccurateMeta",
+      "given": "The controller lands on the last Sold page which contains fewer records than the requested page size.",
+      "when": "The data source resolves that slice.",
+      "then": "It reports hasNext=false, keeps hasPrev true (when offset > 0), returns the proper offset/currentOffset for the summary, and never pads the items array so the UI can reflect short final pages gracefully."
+    }
+  ],
+  "fixtures": [],
+  "tests": [
+    "/tests/unit/inventory/SBD-F20-TP1_soldBooksDataSource.test.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F20-TP1_red.txt",
+    "green": "codex_output/reports/SBD-F20-TP1_green.txt"
+  },
+  "changedFiles": [
+    "codex_output/specs/SBD-F20-TP1.json",
+    "tests/unit/inventory/SBD-F20-TP1_soldBooksDataSource.test.js",
+    "codex_output/reports/SBD-F20-TP1_red.txt",
+    "codex_output/reports/SBD-F20-TP1_green.txt"
+  ],
+  "changeNotes": [
+    "Defined four Sold pagination specs covering the base sold query, cursor-aware paging, sale-field normalization, and final-page metadata handling.",
+    "Added a Jest unit suite for createSoldBooksDataSource so Firestore queries, cursor math, and normalized payloads are enforced.",
+    "Captured the initial RED placeholder report entry for SBD-F20-TP1.",
+    "codex-dev: Ran npm test -- --watchAll=false --bail=0; all suites including SOLD data source unit tests already pass so no production changes were required."
+  ],
+  "validation": {
+    "status": "RED",
+    "command": "npm test -- --watchAll=false",
+    "report": "codex_output/reports/SBD-F20-TP1_red.txt"
+  }
+}

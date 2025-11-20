@@ -1,0 +1,29 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false --runTestsByPath tests/unit/pagination/F18-TP1_paginationContract.test.js
+
+---------------------------|---------|----------|---------|---------|-------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+---------------------------|---------|----------|---------|---------|-------------------
+All files                  |       0 |        0 |       0 |       0 |                   
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79             
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25              
+ availablePagination.js    |       0 |        0 |       0 |       0 | 5-343             
+ bundleList.js             |       0 |        0 |       0 |       0 | 2-510             
+ bundleStatus.js           |       0 |        0 |       0 |       0 | 7-110             
+ bundles.js                |       0 |        0 |       0 |       0 | 3-494             
+ currency.js               |       0 |        0 |       0 |       0 | 6-31              
+ customerLookup.js         |       0 |        0 |       0 |       0 | 3-392             
+ customers.js              |       0 |        0 |       0 |       0 | 3-520             
+ editor.js                 |       0 |        0 |       0 |       0 | 27-411            
+ inventory.js              |       0 |        0 |       0 |       0 | 31-1248           
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483            
+ main.js                   |       0 |        0 |       0 |       0 | 39-1924           
+ requests.js               |       0 |        0 |       0 |       0 | 6-73              
+ salesEntryLauncher.js     |       0 |        0 |       0 |       0 | 2-68              
+ salesHeader.js            |       0 |        0 |       0 |       0 | 3-505             
+ salesLineItems.js         |       0 |        0 |       0 |       0 | 3-914             
+ salesPersist.js           |       0 |        0 |       0 |       0 | 1-170             
+ salesTitleAutocomplete.js |       0 |        0 |       0 |       0 | 9-225             
+ suppliers.js              |       0 |        0 |       0 |       0 | 13-319            
+---------------------------|---------|----------|---------|---------|-------------------

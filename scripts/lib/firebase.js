@@ -23,8 +23,10 @@ import {
   onSnapshot,
   serverTimestamp,
   limit,
+  limitToLast,
   startAfter,
   endBefore,
+  getCountFromServer,
   Timestamp,
 } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
 
@@ -82,8 +84,10 @@ export {
   onSnapshot,
   serverTimestamp,
   limit,
+  limitToLast,
   startAfter,
   endBefore,
+  getCountFromServer,
   Timestamp,
   // Auth
   onAuthStateChanged,

@@ -1,0 +1,12 @@
+# Code Review — Topic SBD-F20-TP2
+
+## Findings
+
+1. **Search announcements ignore Sold matches (bug)**  
+   The shared header search now filters both Available and Sold lists, yet `applyHeaderSearch` only measures matches in `availableDocs` (`scripts/admin/inventory.js:726-757`). The announcer then calls `announceFilteredResults(trimmedTerm, matchesCount)` which feeds the same Available-only count to the SR-only status element (`scripts/admin/inventory.js:760-765`). If an admin searches for a title that only exists in Sold, the UI correctly filters the Sold list, but screen readers (and the visible status text) still announce “Filtered 0 results,” contradicting what’s on screen and the spec note about “header filters, aria messaging, and both controllers agree on the active term.” Please derive the count from Sold as well (or combined totals) before calling `announceFilteredResults`, so the messaging reflects whichever list actually has matches.
+
+2. **Sold pagination markup diverges from the Available shell (visual/accessibility regression)**  
+   The Sold summary paragraph lacks the muted typography class and the “Rows per page” select is missing the shared `md-input` class and data attributes that the Available shell uses (`admin.html:697-714`). The result is a darker summary text and a shorter, unstyled select box that no longer matches the Material input affordance the rest of the page uses. Because the tests assert parity with the Available UI, keep the structure identical: add `class="muted"` (and/or reuse the shared `pagination-shell__summary` markup) on the summary `<p>` and apply the `md-input pagination-size-select` classes on the `<select>` so both panels remain visually consistent and inherit the same focus states.
+
+3. **Pagination wiring is duplicated for Available and Sold, increasing drift risk**  
+   The Sold controller setup from `soldPaginationController = buildPaginationController…` through `reloadSoldPagination` is nearly a copy of the Available block (`scripts/admin/inventory.js:505-626`). Every future tweak (debounce logic, refresh tokens, summary formatting rules, etc.) now has to be patched in two places and is already diverging (different summary formatter, shell API references). Consider extracting a `initInventoryPagination({ target, defaults })` helper that accepts the DOM nodes, state refs, and summary formatter so that Available and Sold share the same code path. That will make it harder for behavior bugs to crop up in one panel while the other stays fixed.
