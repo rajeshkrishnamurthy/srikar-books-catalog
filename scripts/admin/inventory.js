@@ -26,6 +26,7 @@ import { stripHtmlAndSquash } from '../helpers/text.js';
 import { bookMatchesQuery } from '../helpers/bookSearch.js';
 import { createPaginationController } from '../helpers/data.js';
 import { readCurrencyField } from './currency.js';
+import { mount as mountInlineBundlePanelShell } from '../../src/ui/patterns/inline-bundle-panel-shell/index.js';
 
 // ---- small utils ----
 const onlyDigitsX = (v = '') => (v || '').toString().replace(/[^\dxX]/g, '');
@@ -88,6 +89,19 @@ function rowHTML(id, b, sold = false) {
   const featureBtn = b.featured
     ? `<button data-action="unfeature" class="btn btn-secondary">Unfeature</button>`
     : `<button data-action="feature" class="btn">Feature</button>`;
+  const addToBundleBtn = sold
+    ? ''
+    : `<button
+        type="button"
+        class="btn btn-secondary"
+        data-action="addToBundle"
+        data-test="bookAddToBundle"
+        aria-controls="inlineBundleComposer"
+        aria-expanded="false"
+        aria-pressed="false"
+      >
+        Add to bundle
+      </button>`;
 
   return `
 <article class="row" data-id="${id}">
@@ -104,6 +118,7 @@ function rowHTML(id, b, sold = false) {
     )}</div>
   </div>
   <div class="row-actions">
+    ${addToBundleBtn}
     ${featureBtn}
     <button data-action="edit" class="btn btn-secondary">Edit</button>
     ${
@@ -116,12 +131,31 @@ function rowHTML(id, b, sold = false) {
 </article>`;
 }
 
-function wireRowButtons(container, docsMap, onEdit) {
+function wireRowButtons(container, docsMap, onEdit, options = {}) {
+  const { onAddToBundle } = options;
   container.querySelectorAll('button[data-action]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const row = btn.closest('.row');
-      const id = row.dataset.id;
+      const id = row?.dataset?.id;
       const action = btn.dataset.action;
+      if (!row || !id || !action) return;
+      if (action === 'addToBundle') {
+        const primary = docsMap.get(id) || {};
+        const fallbackTitle =
+          row.querySelector('strong')?.textContent?.trim() || '';
+        const normalizedBook =
+          primary && typeof primary === 'object'
+            ? { ...primary }
+            : { id, title: fallbackTitle };
+        if (!normalizedBook.id) {
+          normalizedBook.id = id;
+        }
+        if (!normalizedBook.title && fallbackTitle) {
+          normalizedBook.title = fallbackTitle;
+        }
+        onAddToBundle?.(normalizedBook, btn);
+        return;
+      }
       const refDoc = doc(db, 'books', id);
 
       if (action === 'edit') {
@@ -206,6 +240,31 @@ export function initInventory({
 }) {
   let supplierEntries = [];
   let supplierIds = new Set();
+  const inlineBundleComposerApi = mountInlineBundlePanelShell(
+    document.getElementById('inlineBundleComposer'),
+    {
+      params: {
+        container: document.getElementById('inlineBundleComposer'),
+        panelHeading: document.getElementById('inlineBundleHeading'),
+        triggerSelector: "[data-test='bookAddToBundle']",
+        bookList: document.getElementById('inlineBundleSelectedBooks'),
+        bundleNameInput: document.getElementById('inlineBundleName'),
+        bundlePriceInput: document.getElementById('inlineBundlePrice'),
+        recommendedPrice: document.getElementById('inlineBundleRecommended'),
+        totalPrice: document.getElementById('inlineBundleTotal'),
+        saveButton: document.getElementById('inlineBundleSave'),
+        resetButton: document.getElementById('inlineBundleReset'),
+        emptyState: document.getElementById('inlineBundleEmptyState'),
+        closeButton: document.getElementById('inlineBundleClose'),
+      },
+      uiTexts: {
+        panelTitle: 'Bundle in progress',
+        emptyState: 'Add a book to start a bundle',
+        saveLabel: 'Save bundle',
+        resetLabel: 'Clear bundle',
+      },
+    }
+  );
 
   function syncSuppliers(list = []) {
     supplierEntries = (Array.isArray(list) ? list : [])
@@ -654,7 +713,10 @@ export function initInventory({
       availList.innerHTML = availableDisplay
         .map((d) => rowHTML(d.id, d, false))
         .join('');
-      wireRowButtons(availList, map, onEdit);
+      wireRowButtons(availList, map, onEdit, {
+        onAddToBundle: (book, triggerBtn) =>
+          inlineBundleComposerApi.addBook(book, triggerBtn),
+      });
     } else {
       availList.innerHTML = `<p class="muted">${
         isSearching ? 'No matches in Available.' : 'No available books.'
@@ -1002,6 +1064,28 @@ export function initInventory({
       const sourceDocs =
         typeof getDocs === 'function' ? getDocs() : availableDocs;
       const filteredDocs = filterAvailableDocs(sourceDocs, desiredTerm);
+<<<<<<< Updated upstream
+      const clampStartIndex = (value = 0) => {
+        const numericValue =
+          Number.isFinite(value) && value >= 0 ? Math.floor(value) : 0;
+        const maxStart = Math.max(0, filteredDocs.length - pageSize);
+        if (!filteredDocs.length) {
+          return 0;
+        }
+        return Math.min(numericValue, maxStart);
+      };
+      const rawStart =
+=======
+<<<<<<< Updated upstream
+      const startIndex =
+>>>>>>> Stashed changes
+        direction === 'backward'
+          ? Math.max(0, currentOffset - pageSize)
+          : safeOffset;
+      const startIndex = clampStartIndex(rawStart);
+      const pageItems = filteredDocs.slice(startIndex, startIndex + pageSize);
+=======
+      const hasDocs = Array.isArray(filteredDocs) && filteredDocs.length > 0;
       const clampStartIndex = (value = 0) => {
         const numericValue =
           Number.isFinite(value) && value >= 0 ? Math.floor(value) : 0;
@@ -1015,19 +1099,24 @@ export function initInventory({
         direction === 'backward'
           ? Math.max(0, currentOffset - pageSize)
           : safeOffset;
-      const startIndex = clampStartIndex(rawStart);
-      const pageItems = filteredDocs.slice(startIndex, startIndex + pageSize);
+      const clampedStart = clampStartIndex(rawStart);
+      const startIndex = hasDocs ? clampedStart : safeOffset;
+      const pageItems = hasDocs
+        ? filteredDocs.slice(startIndex, startIndex + pageSize)
+        : [];
+>>>>>>> Stashed changes
       onPage &&
         onPage(pageItems, {
           totalItems: filteredDocs.length,
           startIndex,
         });
-      const hasNext = startIndex + pageItems.length < filteredDocs.length;
-      const hasPrev = startIndex > 0;
-      const nextOffset = Math.min(
-        filteredDocs.length,
-        startIndex + pageItems.length
-      );
+      const hasNext = hasDocs
+        ? startIndex + pageItems.length < filteredDocs.length
+        : false;
+      const hasPrev = hasDocs ? startIndex > 0 : false;
+      const nextOffset = hasDocs
+        ? Math.min(filteredDocs.length, startIndex + pageItems.length)
+        : safeOffset;
       return {
         items: pageItems,
         pageMeta: {

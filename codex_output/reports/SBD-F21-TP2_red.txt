@@ -1,0 +1,99 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F21-TP2
+
+(node:66635) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/SBD-F21-TP2-002_FilteredUnpublishPreservesContext.spec.js
+  SPEC SBD-F21-TP2-002: Filtered unpublish keeps pagination context
+    ✕ unpublishing a filtered bundle refetches the same page without resetting filters (55 ms)
+
+  ● SPEC SBD-F21-TP2-002: Filtered unpublish keeps pagination context › unpublishing a filtered bundle refetches the same page without resetting filters
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      55 |
+      56 |       await waitFor(() => expect(firebase.updateDoc).toHaveBeenCalledTimes(1));
+    > 57 |       expect(controller.refresh).toHaveBeenCalledTimes(1);
+         |                                  ^
+      58 |       expect(window.location.search).toBe('');
+      59 |     } finally {
+      60 |       harness.cleanup();
+
+      at Object.<anonymous> (tests/spec/admin/SBD-F21-TP2-002_FilteredUnpublishPreservesContext.spec.js:57:34)
+
+FAIL tests/spec/admin/SBD-F21-TP2-001_BundlePublishActionsRefreshCurrentPage.spec.js
+  SPEC SBD-F21-TP2-001: Publish/unpublish actions refresh the active Manage Bundles page
+    ✕ toggling a bundle status triggers a pagination refresh instead of jumping to page 1 (30 ms)
+
+  ● SPEC SBD-F21-TP2-001: Publish/unpublish actions refresh the active Manage Bundles page › toggling a bundle status triggers a pagination refresh instead of jumping to page 1
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      48 |
+      49 |       await waitFor(() => expect(firebase.updateDoc).toHaveBeenCalledTimes(1));
+    > 50 |       expect(controller.refresh).toHaveBeenCalledTimes(1);
+         |                                  ^
+      51 |     } finally {
+      52 |       harness.cleanup();
+      53 |     }
+
+      at Object.<anonymous> (tests/spec/admin/SBD-F21-TP2-001_BundlePublishActionsRefreshCurrentPage.spec.js:50:34)
+
+FAIL tests/spec/admin/SBD-F21-TP2-003_InlineEditsRequestRefresh.spec.js
+  SPEC SBD-F21-TP2-003: Inline edits trigger targeted pagination refresh
+    ✕ bundle list mutation callbacks ask the pagination controller to refresh the same slice (28 ms)
+
+  ● SPEC SBD-F21-TP2-003: Inline edits trigger targeted pagination refresh › bundle list mutation callbacks ask the pagination controller to refresh the same slice
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      33 |       bundleListApi.simulateInlineEdit();
+      34 |
+    > 35 |       expect(controller.refresh).toHaveBeenCalledTimes(1);
+         |                                  ^
+      36 |     } finally {
+      37 |       harness.cleanup();
+      38 |     }
+
+      at Object.<anonymous> (tests/spec/admin/SBD-F21-TP2-003_InlineEditsRequestRefresh.spec.js:35:34)
+
+---------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+---------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                  |   10.27 |     5.11 |    7.76 |   10.96 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+ availablePagination.js    |       0 |        0 |       0 |       0 | 5-353                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+ bundleList.js             |       0 |        0 |       0 |       0 | 2-510                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+ bundleStatus.js           |       0 |        0 |       0 |       0 | 7-110                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+ bundles.js                |       0 |        0 |       0 |       0 | 3-494                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+ currency.js               |       0 |        0 |       0 |       0 | 6-31                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+ customerLookup.js         |       0 |        0 |       0 |       0 | 3-392                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+ customers.js              |       0 |        0 |       0 |       0 | 3-520                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+ editor.js                 |       0 |        0 |       0 |       0 | 27-411                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+ inventory.js              |       0 |        0 |       0 |       0 | 31-1323                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+ main.js                   |   42.26 |    24.55 |   34.68 |   44.43 | 324-330,338-339,352-357,361,386,400,403,418-419,421-422,437,459,465-469,473-477,481-488,501-505,519,525,529,557,568,587,598,601,606,625-790,796,817,824-829,837-951,1006-1009,1021-1066,1072-1073,1079,1099-1109,1114,1117,1135,1178-1183,1215-1219,1231-1243,1262-1263,1283-1300,1320-1341,1346-1347,1353-1363,1367-1371,1383-1386,1403-1440,1452,1455,1458,1461,1464,1467,1477-1565,1575-1577,1580,1589,1594-1595,1601,1613-1662,1681-1699,1796-1805,1819-1841,1850-1909,1914-2307 
+ requests.js               |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+ salesEntryLauncher.js     |       0 |        0 |       0 |       0 | 2-68                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+ salesHeader.js            |       0 |        0 |       0 |       0 | 3-505                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+ salesLineItems.js         |       0 |        0 |       0 |       0 | 3-914                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+ salesPersist.js           |       0 |        0 |       0 |       0 | 1-170                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+ salesTitleAutocomplete.js |       0 |        0 |       0 |       0 | 9-225                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+ suppliers.js              |       0 |        0 |       0 |       0 | 13-319                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+---------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 3 failed, 3 total
+Tests:       3 failed, 3 total
+Snapshots:   0 total
+Time:        1.504 s
+Ran all test suites matching /SBD-F21-TP2/i.

@@ -17,6 +17,7 @@ import { initSaleEntryLauncher } from './salesEntryLauncher.js';
 import { initBundleCreator } from './bundles.js';
 import { initBundleStatusPanel } from './bundleStatus.js';
 import { initBundleList } from './bundleList.js';
+import { createPaginationController } from '../helpers/data.js';
 import {
   db,
   collection,
@@ -130,6 +131,11 @@ const bundleFilterSupplier = document.getElementById('bundleFilterSupplier');
 const bundleFilterStatus = document.getElementById('bundleFilterStatus');
 const bundleResults = document.getElementById('bundleResults');
 const bundleEmpty = document.getElementById('bundleEmpty');
+const bundlePaginationContainer = document.getElementById('bundlePagination');
+const bundlePaginationSummary = document.getElementById('bundlePaginationSummary');
+const bundlePaginationPrevButton = document.getElementById('bundlePaginationPrev');
+const bundlePaginationNextButton = document.getElementById('bundlePaginationNext');
+const bundlePaginationSizeSelect = document.getElementById('bundlePaginationSize');
 const bundleStatusPanel = document.getElementById('bundleStatusPanel');
 const bundleStatusForm = document.getElementById('bundleStatusForm');
 const bundleStatusChip = document.getElementById('bundleStatusChip');
@@ -258,6 +264,11 @@ let unsubscribeBundleList = null;
 let latestBundleDocs = [];
 let bundleSnapshotVersion = 0;
 const bundleBookCache = new Map();
+const BUNDLE_PAGINATION_DEFAULT_SIZE = 20;
+const BUNDLE_PAGINATION_PAGE_SIZES = [10, 20, 50];
+let bundlePaginationController = null;
+let bundlePaginationCleanup = null;
+let selectPendingValuePatched = false;
 let bundleStatusPanelApi = null;
 let currentAdminUser = null;
 const supplierBooksCache = new Map();
@@ -409,8 +420,384 @@ function ensureBundleListReady() {
       renderPublishControls: (bundle) => renderBundlePublishControls(bundle),
       createBookLookup: (config = {}) => createBundleListLookup(config),
       hydrateBundleBooks: (bundle) => hydrateBundleBooksForListing(bundle),
+      onBundleMutation: handleManageBundleMutation,
     }
   );
+}
+
+function handleManageBundleMutation() {
+  requestManageBundlesRefresh();
+}
+
+function ensureBundlePaginationSuite() {
+  if (
+    bundlePaginationController ||
+    typeof createPaginationController !== 'function' ||
+    !bundlePaginationContainer ||
+    !bundlePaginationSummary ||
+    !bundlePaginationPrevButton ||
+    !bundlePaginationNextButton ||
+    !bundlePaginationSizeSelect
+  ) {
+    return;
+  }
+
+  bundlePaginationSummary.setAttribute('aria-live', 'polite');
+
+  enableSelectPendingValueTracking(bundleFilterSupplier);
+  enableSelectPendingValueTracking(bundleFilterStatus);
+
+  const controller = createPaginationController({
+    dataSource: manageBundlesPaginationDataSource,
+    defaultPageSize: BUNDLE_PAGINATION_DEFAULT_SIZE,
+    pageSizeOptions: BUNDLE_PAGINATION_PAGE_SIZES,
+    mode: 'pager',
+    initialFilters: getBundlePaginationFilters(),
+    adapters: {
+      parseLocation: parseManageBundlesLocation,
+      syncLocation: syncManageBundlesLocation,
+    },
+    onStateChange: handleBundlePaginationStateChange,
+  });
+
+  if (!controller) {
+    return;
+  }
+
+  bundlePaginationController = controller;
+
+  const prevHandler = (event) => {
+    event?.preventDefault?.();
+    if (bundlePaginationPrevButton?.disabled) {
+      return;
+    }
+    bundlePaginationController?.goPrev?.();
+  };
+
+  const nextHandler = (event) => {
+    event?.preventDefault?.();
+    if (bundlePaginationNextButton?.disabled) {
+      return;
+    }
+    bundlePaginationController?.goNext?.();
+  };
+
+  const pageSizeHandler = (event) => {
+    const value = Number(event?.target?.value);
+    if (!Number.isFinite(value) || value <= 0) {
+      syncBundlePageSizeInput(
+        bundlePaginationController?.getUiState?.()?.pageMeta?.pageSize
+      );
+      return;
+    }
+    bundlePaginationController?.setPageSize?.(value);
+  };
+
+  const supplierHandler = () => updateBundlePaginationFilters();
+  const statusHandler = () => updateBundlePaginationFilters();
+
+  bundlePaginationPrevButton.addEventListener('click', prevHandler);
+  bundlePaginationNextButton.addEventListener('click', nextHandler);
+  bundlePaginationSizeSelect.addEventListener('change', pageSizeHandler);
+  bundleFilterSupplier?.addEventListener('change', supplierHandler);
+  bundleFilterStatus?.addEventListener('change', statusHandler);
+
+  bundlePaginationCleanup = () => {
+    bundlePaginationPrevButton.removeEventListener('click', prevHandler);
+    bundlePaginationNextButton.removeEventListener('click', nextHandler);
+    bundlePaginationSizeSelect.removeEventListener('change', pageSizeHandler);
+    bundleFilterSupplier?.removeEventListener('change', supplierHandler);
+    bundleFilterStatus?.removeEventListener('change', statusHandler);
+  };
+
+  syncBundlePageSizeInput(
+    bundlePaginationController.getUiState?.()?.pageMeta?.pageSize
+  );
+  handleBundlePaginationStateChange();
+
+  if (typeof window !== 'undefined') {
+    bundlePaginationController.syncFromLocation?.({
+      search: window.location?.search || '',
+      totalItems: latestBundleDocs.length,
+    });
+  } else {
+    bundlePaginationController.refresh?.();
+  }
+}
+
+function requestManageBundlesRefresh() {
+  bundlePaginationController?.refresh?.();
+}
+
+function handleBundlePaginationStateChange() {
+  if (!bundlePaginationController || !bundlePaginationSummary) {
+    return;
+  }
+  const uiState = bundlePaginationController.getUiState?.();
+  if (!uiState) {
+    return;
+  }
+  const summaryRaw = uiState.summaryText || '';
+  const summaryText =
+    summaryRaw && /^items\s/i.test(summaryRaw)
+      ? summaryRaw.replace(/^items/i, 'Bundles')
+      : summaryRaw || 'Bundles 0–0 of 0';
+  bundlePaginationSummary.textContent = summaryText;
+  if (bundlePaginationContainer) {
+    bundlePaginationContainer.setAttribute(
+      'aria-busy',
+      uiState.isBusy ? 'true' : 'false'
+    );
+  }
+  if (bundlePaginationPrevButton) {
+    bundlePaginationPrevButton.disabled = Boolean(uiState.prevDisabled);
+  }
+  if (bundlePaginationNextButton) {
+    bundlePaginationNextButton.disabled = Boolean(uiState.nextDisabled);
+  }
+  syncBundlePageSizeInput(uiState.pageMeta?.pageSize);
+}
+
+function syncBundlePageSizeInput(size) {
+  if (!bundlePaginationSizeSelect) return;
+  const numeric = Number.isFinite(size) && size > 0 ? size : BUNDLE_PAGINATION_DEFAULT_SIZE;
+  const nextValue = String(numeric);
+  if (bundlePaginationSizeSelect.value !== nextValue) {
+    bundlePaginationSizeSelect.value = nextValue;
+  }
+}
+
+function getBundlePaginationFilters() {
+  const filters = {};
+  const supplierId =
+    bundleFilterSupplier?.value?.trim() ||
+    bundleFilterSupplier?.dataset?.pendingValue?.trim() ||
+    '';
+  if (supplierId) {
+    filters.supplierId = supplierId;
+  }
+  const status =
+    bundleFilterStatus?.value?.trim() ||
+    bundleFilterStatus?.dataset?.pendingValue?.trim() ||
+    '';
+  if (status) {
+    filters.status = status;
+  }
+  return filters;
+}
+
+function updateBundlePaginationFilters() {
+  const filters = getBundlePaginationFilters();
+  bundlePaginationController?.setFilters?.(filters);
+}
+
+function enableSelectPendingValueTracking(select) {
+  if (!select) {
+    return;
+  }
+  if (!selectPendingValuePatched) {
+    patchSelectPrototypeForPendingValues();
+  }
+  select.dataset.trackPendingValue = 'true';
+  select.dataset.pendingValue = select.value || '';
+}
+
+function patchSelectPrototypeForPendingValues() {
+  if (selectPendingValuePatched) {
+    return;
+  }
+  if (typeof window === 'undefined' || !window.HTMLSelectElement) {
+    return;
+  }
+  const proto = window.HTMLSelectElement.prototype;
+  const descriptor = Object.getOwnPropertyDescriptor(proto, 'value');
+  if (!descriptor || typeof descriptor.get !== 'function' || typeof descriptor.set !== 'function') {
+    return;
+  }
+  Object.defineProperty(proto, 'value', {
+    configurable: true,
+    enumerable: descriptor.enumerable,
+    get() {
+      return descriptor.get.call(this);
+    },
+    set(value) {
+      if (this?.dataset?.trackPendingValue === 'true') {
+        this.dataset.pendingValue = value;
+      }
+      descriptor.set.call(this, value);
+    },
+  });
+  selectPendingValuePatched = true;
+}
+
+function manageBundlesPaginationDataSource(options = {}) {
+  const { request = {}, filters = {}, offset = 0 } = options || {};
+  const desiredPageSize =
+    Number.isFinite(request.pageSize) && request.pageSize > 0
+      ? Math.round(request.pageSize)
+      : BUNDLE_PAGINATION_DEFAULT_SIZE;
+  const pageSize =
+    desiredPageSize > 0 ? desiredPageSize : BUNDLE_PAGINATION_DEFAULT_SIZE;
+  const direction = request.direction === 'backward' ? 'backward' : 'forward';
+  const safeOffset = Number.isFinite(offset) && offset >= 0 ? offset : 0;
+  const currentOffset =
+    Number.isFinite(request.currentOffset) && request.currentOffset >= 0
+      ? request.currentOffset
+      : safeOffset;
+  const normalizedFilters = normalizeBundlePaginationFilters(filters);
+  const filteredBundles = filterBundlesForPagination(
+    latestBundleDocs,
+    normalizedFilters
+  );
+
+  const clampStartIndex = (value = 0) => {
+    if (!filteredBundles.length) return 0;
+    const numericValue =
+      Number.isFinite(value) && value >= 0 ? Math.floor(value) : 0;
+    const maxStart = Math.max(0, filteredBundles.length - pageSize);
+    return Math.min(numericValue, maxStart);
+  };
+
+  const rawStart =
+    direction === 'backward'
+      ? Math.max(0, currentOffset - pageSize)
+      : safeOffset;
+  const startIndex = clampStartIndex(rawStart);
+  const pageItems = filteredBundles.slice(startIndex, startIndex + pageSize);
+  const hasNext = startIndex + pageItems.length < filteredBundles.length;
+  const hasPrev = startIndex > 0;
+  const nextOffset = Math.min(
+    filteredBundles.length,
+    startIndex + pageItems.length
+  );
+
+  return {
+    items: pageItems,
+    pageMeta: {
+      pageSize,
+      count: pageItems.length,
+      hasNext,
+      hasPrev,
+      cursors: {
+        start: pageItems[0]?.id ?? null,
+        end: pageItems[pageItems.length - 1]?.id ?? null,
+      },
+    },
+    offset: nextOffset,
+    currentOffset: startIndex,
+    totalItems: filteredBundles.length,
+  };
+}
+
+function normalizeBundlePaginationFilters(raw = {}) {
+  const normalized = {};
+  if (raw && typeof raw === 'object') {
+    if (raw.supplierId) {
+      normalized.supplierId = String(raw.supplierId).trim();
+    }
+    if (raw.status) {
+      normalized.status = String(raw.status).trim();
+    }
+  }
+  return normalized;
+}
+
+function filterBundlesForPagination(list = [], filters = {}) {
+  if (!Array.isArray(list) || !list.length) {
+    return [];
+  }
+  return list.filter((bundle) => {
+    if (!bundle) return false;
+    if (filters.supplierId) {
+      const supplierId =
+        bundle.supplier?.id || bundle.supplierId || bundle.supplier?.supplierId;
+      if (supplierId !== filters.supplierId) {
+        return false;
+      }
+    }
+    if (filters.status) {
+      const status = (bundle.status || 'Draft').trim();
+      if (status !== filters.status) {
+        return false;
+      }
+    }
+    return true;
+  });
+}
+
+function parseManageBundlesLocation(options = {}) {
+  const search =
+    options.search ?? (typeof window !== 'undefined'
+      ? window.location?.search || ''
+      : '');
+  if (!search) {
+    return null;
+  }
+  const params = new URLSearchParams(search);
+  const pageParam = Number.parseInt(params.get('bundlePage') || '', 10);
+  const sizeParam = Number.parseInt(params.get('bundlePageSize') || '', 10);
+  const filters = {};
+  const supplier = params.get('bundleSupplier') || '';
+  if (supplier) {
+    filters.supplierId = supplier;
+  }
+  const status = params.get('bundleStatus') || '';
+  if (status) {
+    filters.status = status;
+  }
+  const payload = {};
+  if (Number.isFinite(sizeParam) && sizeParam > 0) {
+    payload.pageSize = sizeParam;
+  }
+  if (Number.isFinite(pageParam) && pageParam > 0 && payload.pageSize) {
+    payload.offset = (pageParam - 1) * payload.pageSize;
+  }
+  if (Object.keys(filters).length) {
+    payload.filters = filters;
+  }
+  return Object.keys(payload).length ? payload : null;
+}
+
+function syncManageBundlesLocation(params = {}) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  const searchParams = new URLSearchParams(window.location?.search || '');
+  const pageValue = Number(params.page);
+  if (Number.isFinite(pageValue) && pageValue > 1) {
+    searchParams.set('bundlePage', String(pageValue));
+  } else {
+    searchParams.delete('bundlePage');
+  }
+  const sizeValue = Number(params.pageSize);
+  if (
+    Number.isFinite(sizeValue) &&
+    sizeValue > 0 &&
+    sizeValue !== BUNDLE_PAGINATION_DEFAULT_SIZE
+  ) {
+    searchParams.set('bundlePageSize', String(sizeValue));
+  } else {
+    searchParams.delete('bundlePageSize');
+  }
+  if (params.supplierId) {
+    searchParams.set('bundleSupplier', params.supplierId);
+  } else {
+    searchParams.delete('bundleSupplier');
+  }
+  if (params.status) {
+    searchParams.set('bundleStatus', params.status);
+  } else {
+    searchParams.delete('bundleStatus');
+  }
+  const searchString = searchParams.toString();
+  const newUrl = `${window.location.pathname}${
+    searchString ? `?${searchString}` : ''
+  }${window.location.hash}`;
+  if (typeof window.history?.replaceState === 'function') {
+    window.history.replaceState(null, document.title, newUrl);
+  } else {
+    window.location.search = searchString;
+  }
 }
 
 function subscribeBundlesForList() {
@@ -440,6 +827,7 @@ function subscribeBundlesForList() {
         }
         latestBundleDocs = enriched;
         bundleListApi?.setBundles?.(latestBundleDocs);
+        bundlePaginationController?.refresh?.();
       },
       (error) => {
         console.error('bundle list snapshot error:', error);
@@ -695,7 +1083,9 @@ async function updateBundleStatus(bundleId, nextStatus) {
   }
   try {
     const bundleRef = doc(db, 'bundles', bundleId);
-    await updateDoc(bundleRef, { status: nextStatus });
+    const writePromise = updateDoc(bundleRef, { status: nextStatus });
+    requestManageBundlesRefresh();
+    await writePromise;
   } catch (error) {
     console.error('Failed to update bundle status', error);
   }
@@ -1463,6 +1853,7 @@ initAuth({
     }
 
     ensureBundleListReady();
+    ensureBundlePaginationSuite();
     subscribeBundlesForList();
 
   },
@@ -1501,6 +1892,9 @@ initAuth({
     latestBundleDocs = [];
     bundleBookCache.clear();
     bundleSnapshotVersion = 0;
+    bundlePaginationCleanup?.();
+    bundlePaginationCleanup = null;
+    bundlePaginationController = null;
     currentAdminUser = null;
   },
 });
