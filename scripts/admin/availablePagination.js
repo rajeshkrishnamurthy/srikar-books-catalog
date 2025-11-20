@@ -147,10 +147,15 @@ export function createAvailableBooksDataSource(overrides = {}) {
       deps.orderBy('createdAt', 'desc'),
     ];
 
-    if (direction === 'forward' && request.cursor) {
-      queryConstraints.push(deps.startAfter(request.cursor));
-    } else if (direction === 'backward' && request.cursor) {
-      queryConstraints.push(deps.endBefore(request.cursor));
+    const forwardCursor =
+      request.cursorAfter ?? request.cursor ?? null;
+    const backwardCursor =
+      request.cursorBefore ?? request.cursor ?? null;
+
+    if (direction === 'forward' && forwardCursor) {
+      queryConstraints.push(deps.startAfter(forwardCursor));
+    } else if (direction === 'backward' && backwardCursor) {
+      queryConstraints.push(deps.endBefore(backwardCursor));
     }
 
     if (direction === 'forward') {
@@ -180,6 +185,151 @@ export function createAvailableBooksDataSource(overrides = {}) {
 
     const items = pageDocs.map((doc) => {
       const data = typeof doc?.data === 'function' ? doc.data() : doc?.data || {};
+      return {
+        id: doc?.id ?? null,
+        ...data,
+      };
+    });
+
+    const { pageOffset, currentStart } = deriveOffset({
+      direction,
+      safeOffset,
+      currentOffset,
+      pageSize,
+      itemCount: items.length,
+    });
+
+    const totalItems = Number.isFinite(totalItemsRaw)
+      ? totalItemsRaw
+      : currentStart + items.length;
+    const hasPrev = currentStart > 0;
+    const hasNext = totalItems > currentStart + items.length;
+
+  return {
+    items,
+    pageMeta: {
+      pageSize,
+      count: items.length,
+        hasNext,
+        hasPrev,
+        cursors: {
+          start: pageDocs[0] || null,
+          end: pageDocs[pageDocs.length - 1] || null,
+        },
+      },
+      offset: pageOffset,
+      currentOffset: currentStart,
+      totalItems,
+    };
+  };
+}
+
+async function computeSoldCount(deps) {
+  const baseRef = deps.collection(deps.db, 'sales');
+  const salesQuery = deps.query(
+    baseRef,
+    deps.where('status', '==', 'sold')
+  );
+  try {
+    if (typeof deps.getCountFromServer === 'function') {
+      const snap = await deps.getCountFromServer(salesQuery);
+      if (snap && typeof snap.data === 'function') {
+        const payload = snap.data();
+        if (payload && typeof payload.count === 'number') {
+          return payload.count;
+        }
+      }
+      if (snap && typeof snap.count === 'number') {
+        return snap.count;
+      }
+    }
+  } catch {
+    // If counting fails, fall back to client-side logic below.
+  }
+  const snap = await deps.getDocs(salesQuery);
+  if (snap && typeof snap.size === 'number') {
+    return snap.size;
+  }
+  if (snap && Array.isArray(snap.docs)) {
+    return snap.docs.length;
+  }
+  if (Array.isArray(snap)) {
+    return snap.length;
+  }
+  return 0;
+}
+
+export function createSoldBooksDataSource(overrides = {}) {
+  const deps = {
+    db: firebaseDeps.db,
+    collection: firebaseDeps.collection,
+    query: firebaseDeps.query,
+    where: firebaseDeps.where,
+    orderBy: firebaseDeps.orderBy,
+    limit: firebaseDeps.limit,
+    limitToLast: firebaseDeps.limitToLast,
+    startAfter: firebaseDeps.startAfter,
+    endBefore: firebaseDeps.endBefore,
+    getDocs: firebaseDeps.getDocs,
+    getCountFromServer: firebaseDeps.getCountFromServer,
+    ...overrides,
+  };
+
+  if (typeof deps.countSold !== 'function') {
+    deps.countSold = () => computeSoldCount(deps);
+  }
+
+  return async function soldBooksDataSource(options = {}) {
+    const { request = {}, offset = 0 } = options || {};
+    const direction = request.direction === 'backward' ? 'backward' : 'forward';
+    const pageSize = clampPageSize(request.pageSize);
+    const safeOffset = Number.isFinite(offset) && offset >= 0 ? offset : 0;
+    const currentOffset =
+      Number.isFinite(request.currentOffset) && request.currentOffset >= 0
+        ? request.currentOffset
+        : safeOffset;
+    const limitSize = pageSize + 1;
+
+    const baseRef = deps.collection(deps.db, 'sales');
+    const queryConstraints = [
+      deps.where('status', '==', 'sold'),
+      deps.orderBy('soldOn', 'desc'),
+    ];
+
+    const forwardCursor =
+      request.cursorAfter ?? request.cursor ?? null;
+    const backwardCursor =
+      request.cursorBefore ?? request.cursor ?? null;
+
+    if (direction === 'forward' && forwardCursor) {
+      queryConstraints.push(deps.startAfter(forwardCursor));
+    } else if (direction === 'backward' && backwardCursor) {
+      queryConstraints.push(deps.endBefore(backwardCursor));
+    }
+
+    if (direction === 'forward') {
+      queryConstraints.push(deps.limit(limitSize));
+    } else {
+      queryConstraints.push(deps.limitToLast(limitSize));
+    }
+
+    const soldQuery = deps.query(baseRef, ...queryConstraints);
+    const [snapshot, totalItemsRaw] = await Promise.all([
+      deps.getDocs(soldQuery),
+      deps.countSold({}),
+    ]);
+    const docs = extractDocs(snapshot);
+    const hasExtra = docs.length > pageSize;
+
+    let pageDocs = docs.slice();
+    if (hasExtra) {
+      pageDocs =
+        direction === 'forward' ? pageDocs.slice(0, pageSize) : pageDocs.slice(1);
+    }
+
+    const items = pageDocs.map((doc) => {
+      const data =
+        typeof doc?.data === 'function' ? doc.data() : doc?.data || {};
       return {
         id: doc?.id ?? null,
         ...data,

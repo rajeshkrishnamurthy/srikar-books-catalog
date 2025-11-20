@@ -31,8 +31,10 @@ export function buildPaginationControllerStub(stateSequence = []) {
     }),
     loadMore: jest.fn(),
     setFilters: jest.fn(),
+    setPageSize: jest.fn(),
     syncFromLocation: jest.fn(),
     syncToLocation: jest.fn(),
+    goToPage: jest.fn(),
   };
 
   controller.__setUiState = (nextState) => {

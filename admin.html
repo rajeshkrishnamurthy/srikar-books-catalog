@@ -689,6 +689,68 @@
               <p class="muted inventory-card__hint">
                 Recently sold entries stay here until reconciled with bookkeeping.
               </p>
+              <div
+                class="inventory-pagination pagination-shell"
+                data-sold-pagination
+                aria-busy="false"
+              >
+                <div class="inventory-pagination__summary pagination-shell__summary">
+                  <p
+                    id="soldPaginationSummary"
+                    class="muted"
+                    aria-live="polite"
+                    data-pagination-summary
+                  >
+                    Items 0–0 of 0 - Sold
+                  </p>
+                </div>
+                <div class="inventory-pagination__actions inventory-pagination__controls pagination-shell__actions">
+                  <div class="pagination-size pagination-shell__size">
+                    <span class="pagination-size__label">Rows per page</span>
+                    <label for="soldPageSize" class="sr-only">Items per page</label>
+                    <select
+                      id="soldPageSize"
+                      aria-label="Items per page"
+                      class="md-input pagination-size-select"
+                    >
+                      <option value="10">10</option>
+                      <option value="20" selected>20</option>
+                      <option value="50">50</option>
+                    </select>
+                  </div>
+                  <div class="pagination-stepper pagination-shell__stepper">
+                    <button
+                      type="button"
+                      id="soldPaginationPrev"
+                      class="btn btn-secondary pagination-shell__prev"
+                      data-pagination="prev"
+                      aria-controls="soldList"
+                      aria-label="Previous page"
+                    >
+                      <span aria-hidden="true">‹</span>
+                      <span class="pagination-control__label">Prev</span>
+                    </button>
+                    <div
+                      class="inventory-pagination__pages pagination-shell__pages"
+                      data-pagination-pages
+                      role="group"
+                      aria-label="Page selection"
+                      hidden
+                    ></div>
+                    <button
+                      type="button"
+                      id="soldPaginationNext"
+                      class="btn pagination-shell__next"
+                      data-pagination="next"
+                      aria-controls="soldList"
+                      aria-label="Next page"
+                    >
+                      <span class="pagination-control__label">Next</span>
+                      <span aria-hidden="true">›</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
               <div id="soldList" class="admin-list inventory-list"></div>
             </div>
           </div>

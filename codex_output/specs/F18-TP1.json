@@ -3,32 +3,48 @@
   "featureId": "F18",
   "title": "Pagination Contract and Data Model",
   "area": "Cross-Cutting / Pagination",
-  "goal": "Define a reusable pagination contract (inputs, outputs, metadata) that list views can adopt without knowing Firestore details.",
+  "goal": "Define the shared pagination contract so every list view can request and render slices consistently across cursors, offsets, and filters.",
   "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
   "status": "GREEN",
   "specs": [
     {
       "id": "F18-TP1-001",
-      "title": "NormalizeDefaults",
-      "given": "A view requests a page of results without specifying page size or direction explicitly.",
-      "when": "createPaginationRequest is called with missing size and direction plus a default configuration.",
-      "then": "It returns a request object that uses the default page size, assumes a forward direction, and exposes a null starting cursor in a consistent shape.",
+      "title": "ClampAndNormalizeForwardRequests",
+      "given": "A list view asks the pagination contract for a first page without specifying pageSize or direction but passes cursor metadata and defaults.",
+      "when": "createPaginationRequest runs with missing size/direction and defaults that define min/max bounds.",
+      "then": "It clamps pageSize into the allowed range, assumes direction 'forward', and returns a request object with cursorAfter populated from the provided start cursor while cursorBefore stays null.",
       "test": "/tests/unit/pagination/F18-TP1_paginationContract.test.js"
     },
     {
       "id": "F18-TP1-002",
-      "title": "ClampPageSizeIntoSafeRange",
-      "given": "A caller passes an extremely small or large pageSize value into the pagination contract.",
-      "when": "createPaginationRequest is invoked with values outside the configured min/max bounds.",
-      "then": "The resulting request clamps pageSize into the allowed range so every consumer sees predictable, safe sizes regardless of input.",
+      "title": "BackwardRequestsUseCursorBefore",
+      "given": "The controller requests a previous slice so the contract receives direction 'backward' with a cursorBefore value.",
+      "when": "createPaginationRequest builds that payload.",
+      "then": "It outputs direction 'backward', fills cursorBefore with the supplied end cursor, clears cursorAfter, and preserves the clamped pageSize so adapters can call Firestore with endBefore/limitToLast.",
       "test": "/tests/unit/pagination/F18-TP1_paginationContract.test.js"
     },
     {
       "id": "F18-TP1-003",
-      "title": "BuildNormalizedPageStateMetadata",
-      "given": "A Firestore-backed query (or equivalent) returns a slice of items plus information about whether more results exist in either direction.",
-      "when": "buildPaginationState is called with items, pageSize, hasNext/hasPrev flags, and cursors.",
-      "then": "It returns a normalized page state object that separates plain items from a meta block containing pageSize, item count, hasNext/hasPrev, and cursors.start/end keys.",
+      "title": "BuildPaginationStateNormalizesMeta",
+      "given": "A Firestore page result contains items plus hasNext/hasPrev flags and cursor values.",
+      "when": "buildPaginationState wraps that payload for consumers.",
+      "then": "It returns an object with a pageMeta block containing count, pageSize, hasNext, hasPrev, and null-safe nextCursor/prevCursor entries instead of leaking backend-specific cursor structures.",
+      "test": "/tests/unit/pagination/F18-TP1_paginationContract.test.js"
+    },
+    {
+      "id": "F18-TP1-004",
+      "title": "ShellStateAnnouncesBoundaries",
+      "given": "The contract is asked to describe either the very first page, the last page, or an empty dataset.",
+      "when": "buildPaginationShellState generates summary text and disabled flags.",
+      "then": "It produces deterministic summary strings such as 'Items 0–0 of 0' for empty data, disables Prev at the first slice, disables Next on the last slice, and never emits negative indices.",
+      "test": "/tests/unit/pagination/F18-TP1_paginationContract.test.js"
+    },
+    {
+      "id": "F18-TP1-005",
+      "title": "LocationParamsSerializeFilters",
+      "given": "The page metadata and active filters need to be encoded for a deep link.",
+      "when": "buildPaginationLocationParams derives URL/search params from that state.",
+      "then": "It returns a stable object containing a 1-based page, the active pageSize, offset, and every truthy filter so callers can sync pagination via hash/query params across sessions.",
       "test": "/tests/unit/pagination/F18-TP1_paginationContract.test.js"
     }
   ],
@@ -41,15 +57,15 @@
     "green": "codex_output/reports/F18-TP1_green.txt"
   },
   "changedFiles": [
-    "scripts/helpers/data.js",
-    "tests/unit/pagination/F18-TP1_paginationContract.test.js",
-    "codex_output/reports/F18-TP1_red.txt",
-    "codex_output/reports/F18-TP1_green.txt",
-    "codex_output/specs/F18-TP1.json"
+    "scripts/helpers/data.js"
   ],
   "changeNotes": [
-    "Introduced createPaginationRequest in scripts/helpers/data.js to normalize input into a shared pagination contract, applying defaults for page size and direction and exposing a cursor/cursorType shape.",
-    "Added buildPaginationState helper to wrap raw items alongside a meta block containing pageSize, item count, hasNext/hasPrev flags, and start/end cursors suitable for UI consumption.",
-    "Clamped unsafe page sizes into configured min/max bounds so callers cannot accidentally request pathological page sizes while keeping default-only callers behavior intact."
-  ]
+    "createPaginationRequest now honors the cursorAfter/cursorBefore contract, clamps undefined sizes to the provided default rather than the min, and keeps backward requests isolated to cursorBefore.",
+    "buildPaginationState emits a pageMeta block with nextCursor/prevCursor plus a non-enumerable legacy meta alias so existing callers keep working."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false",
+    "report": "codex_output/reports/F18-TP1_green.txt"
+  }
 }

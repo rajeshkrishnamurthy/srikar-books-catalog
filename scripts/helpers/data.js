@@ -24,6 +24,8 @@ export function createPaginationRequest(options = {}) {
   const {
     pageSize,
     direction,
+    cursorAfter,
+    cursorBefore,
     cursors = {},
     defaults = {},
   } = options;
@@ -43,7 +45,7 @@ export function createPaginationRequest(options = {}) {
       : defaultSize;
 
   const rawSize =
-    Number.isFinite(pageSize) && pageSize > 0 ? pageSize : min;
+    Number.isFinite(pageSize) && pageSize > 0 ? pageSize : defaultSize;
   const clampedSize = Math.min(max, Math.max(min, rawSize));
 
   const safeDirection =
@@ -51,21 +53,24 @@ export function createPaginationRequest(options = {}) {
       ? direction
       : 'forward';
 
-  let cursorType = 'start';
-  let cursor = null;
-  if (safeDirection === 'forward') {
-    cursorType = 'start';
-    cursor = cursors.start ?? null;
-  } else {
-    cursorType = 'end';
-    cursor = cursors.end ?? null;
-  }
+  const resolvedCursorAfter =
+    cursorAfter !== undefined
+      ? cursorAfter
+      : safeDirection === 'forward'
+      ? cursors.start ?? null
+      : null;
+  const resolvedCursorBefore =
+    cursorBefore !== undefined
+      ? cursorBefore
+      : safeDirection === 'backward'
+      ? cursors.end ?? null
+      : null;
 
   return {
     pageSize: clampedSize,
     direction: safeDirection,
-    cursor,
-    cursorType,
+    cursorAfter: resolvedCursorAfter ?? null,
+    cursorBefore: resolvedCursorBefore ?? null,
   };
 }
 
@@ -76,25 +81,45 @@ export function buildPaginationState(options = {}) {
     hasNext = false,
     hasPrev = false,
     cursors = {},
+    nextCursor,
+    prevCursor,
   } = options;
 
   const normalizedItems = Array.isArray(items) ? items : [];
   const size =
-    Number.isFinite(pageSize) && pageSize > 0 ? pageSize : normalizedItems.length;
+    Number.isFinite(pageSize) && pageSize > 0
+      ? pageSize
+      : normalizedItems.length;
 
-  return {
-    items: normalizedItems,
-    meta: {
-      pageSize: size,
-      count: normalizedItems.length,
-      hasNext: Boolean(hasNext),
-      hasPrev: Boolean(hasPrev),
-      cursors: {
-        start: cursors.start ?? null,
-        end: cursors.end ?? null,
-      },
-    },
+  const pageMeta = {
+    pageSize: size,
+    count: normalizedItems.length,
+    hasNext: Boolean(hasNext),
+    hasPrev: Boolean(hasPrev),
+    nextCursor:
+      nextCursor !== undefined
+        ? nextCursor
+        : cursors.end ?? null,
+    prevCursor:
+      prevCursor !== undefined
+        ? prevCursor
+        : cursors.start ?? null,
   };
+
+  const state = {
+    items: normalizedItems,
+    pageMeta,
+  };
+
+  Object.defineProperty(state, 'meta', {
+    enumerable: false,
+    configurable: true,
+    get() {
+      return pageMeta;
+    },
+  });
+
+  return state;
 }
 
 export function buildPaginationShellState(options = {}) {
@@ -276,7 +301,36 @@ export function createPaginationController(config = {}) {
     initialFilters = {},
     mode = 'pager',
     onStateChange,
+    adapters = {},
+    pageSizeOptions,
   } = config;
+
+  const normalizedPageSizeOptions = Array.isArray(pageSizeOptions)
+    ? Array.from(
+        new Set(
+          pageSizeOptions
+            .map((value) => Math.round(Number(value)))
+            .filter((value) => Number.isFinite(value) && value > 0)
+        )
+      ).sort((a, b) => a - b)
+    : null;
+
+  const defaultSize =
+    normalizedPageSizeOptions?.includes(defaultPageSize)
+      ? defaultPageSize
+      : normalizedPageSizeOptions?.[0] ?? defaultPageSize;
+
+  const normalizePageSize = (value) => {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric) || numeric <= 0) return null;
+    const rounded = Math.max(1, Math.round(numeric));
+    if (!normalizedPageSizeOptions?.length) {
+      return rounded;
+    }
+    return normalizedPageSizeOptions.includes(rounded)
+      ? rounded
+      : defaultSize;
+  };
 
   const state = {
     mode,
@@ -284,14 +338,32 @@ export function createPaginationController(config = {}) {
     offset: 0,
     currentOffset: 0,
     totalItems: 0,
+    items: [],
     pageMeta: {
-      pageSize: defaultPageSize,
+      pageSize: normalizePageSize(defaultSize) ?? defaultSize,
       count: 0,
       hasNext: false,
       hasPrev: false,
-      cursors: { start: null, end: null },
+      nextCursor: null,
+      prevCursor: null,
     },
     isLoading: false,
+    loadMoreLabel: config.loadMoreLabel,
+  };
+
+  const locationAdapters = {
+    parseLocation: adapters?.parseLocation,
+    syncLocation: adapters?.syncLocation,
+  };
+
+  const emitLocationSnapshot = () => {
+    if (typeof locationAdapters.syncLocation !== 'function') return;
+    const params = buildPaginationLocationParams({
+      pageMeta: state.pageMeta,
+      offset: state.currentOffset,
+      filters: state.filters,
+    });
+    locationAdapters.syncLocation(params);
   };
 
   const notifyStateChange = () => {
@@ -300,24 +372,52 @@ export function createPaginationController(config = {}) {
         mode: state.mode,
         filters: { ...state.filters },
         offset: state.offset,
+        currentOffset: state.currentOffset,
         totalItems: state.totalItems,
+        items: Array.isArray(state.items) ? state.items.slice() : [],
         pageMeta: { ...state.pageMeta },
         isLoading: state.isLoading,
       });
     }
+    emitLocationSnapshot();
   };
 
-  const applyResult = (result) => {
+  let lastRequestId = 0;
+
+  const normalizeResultPageMeta = (resultMeta = {}) => {
+    const nextCursor =
+      resultMeta.nextCursor !== undefined
+        ? resultMeta.nextCursor
+        : resultMeta.cursors?.end ?? state.pageMeta.nextCursor ?? null;
+    const prevCursor =
+      resultMeta.prevCursor !== undefined
+        ? resultMeta.prevCursor
+        : resultMeta.cursors?.start ?? state.pageMeta.prevCursor ?? null;
+    return {
+      ...state.pageMeta,
+      ...resultMeta,
+      nextCursor: nextCursor ?? null,
+      prevCursor: prevCursor ?? null,
+    };
+  };
+
+  const applyResult = (result, requestId) => {
+    if (requestId !== lastRequestId) {
+      return;
+    }
     if (!result) {
       state.isLoading = false;
       notifyStateChange();
       return;
     }
+    if (result.mode) {
+      state.mode = result.mode;
+    }
+    if (result.loadMoreLabel !== undefined) {
+      state.loadMoreLabel = result.loadMoreLabel;
+    }
     if (result.pageMeta) {
-      state.pageMeta = {
-        ...state.pageMeta,
-        ...result.pageMeta,
-      };
+      state.pageMeta = normalizeResultPageMeta(result.pageMeta);
     }
     if (Number.isFinite(result.totalItems)) {
       state.totalItems = result.totalItems;
@@ -328,19 +428,41 @@ export function createPaginationController(config = {}) {
     if (Number.isFinite(result.currentOffset)) {
       state.currentOffset = result.currentOffset;
     }
+    state.items = Array.isArray(result.items) ? result.items.slice() : [];
+    state.isLoading = false;
+    notifyStateChange();
+  };
+
+  const handleRequestError = (requestId) => {
+    if (requestId !== lastRequestId) {
+      return;
+    }
     state.isLoading = false;
     notifyStateChange();
   };
 
   const runDataSource = (direction = 'forward') => {
     if (typeof dataSource !== 'function') return;
+    lastRequestId += 1;
+    const requestId = lastRequestId;
     state.isLoading = true;
     notifyStateChange();
+    const minPageSize = normalizedPageSizeOptions?.[0] ?? 1;
+    const maxPageSize =
+      (normalizedPageSizeOptions?.[
+        normalizedPageSizeOptions.length - 1
+      ] ??
+        state.pageMeta.pageSize) || defaultSize;
     const request = createPaginationRequest({
       pageSize: state.pageMeta.pageSize,
       direction,
-      cursors: state.pageMeta.cursors || {},
-      defaults: { pageSize: defaultPageSize, minPageSize: 1, maxPageSize: state.pageMeta.pageSize || defaultPageSize },
+      cursorAfter: state.pageMeta.nextCursor,
+      cursorBefore: state.pageMeta.prevCursor,
+      defaults: {
+        pageSize: state.pageMeta.pageSize || defaultSize,
+        minPageSize,
+        maxPageSize,
+      },
     });
     request.currentOffset = state.currentOffset;
     const response = dataSource({
@@ -349,16 +471,33 @@ export function createPaginationController(config = {}) {
       offset: state.offset,
     });
     if (response && typeof response.then === 'function') {
-      response.then(applyResult).catch(() => {
-        state.isLoading = false;
-        notifyStateChange();
+      response.then((payload) => applyResult(payload, requestId)).catch(() => {
+        handleRequestError(requestId);
       });
     } else {
-      applyResult(response);
+      applyResult(response, requestId);
     }
   };
 
   notifyStateChange();
+
+  const resetCursors = () => {
+    state.pageMeta.nextCursor = null;
+    state.pageMeta.prevCursor = null;
+  };
+
+  const safeTotalItems = () => {
+    if (Number.isFinite(state.totalItems) && state.totalItems >= 0) {
+      return state.totalItems;
+    }
+    if (
+      Number.isFinite(state.pageMeta?.count) &&
+      state.pageMeta.count >= 0
+    ) {
+      return state.pageMeta.count;
+    }
+    return 0;
+  };
 
   return {
     getUiState() {
@@ -369,15 +508,11 @@ export function createPaginationController(config = {}) {
         isLoading: state.isLoading,
       });
       const pageMetaSize =
-        Number.isFinite(state.pageMeta?.pageSize) && state.pageMeta.pageSize > 0
+        Number.isFinite(state.pageMeta?.pageSize) &&
+        state.pageMeta.pageSize > 0
           ? state.pageMeta.pageSize
-          : defaultPageSize;
-      const normalizedTotal =
-        Number.isFinite(state.totalItems) && state.totalItems >= 0
-          ? state.totalItems
-          : Number.isFinite(state.pageMeta?.count) && state.pageMeta.count >= 0
-          ? state.pageMeta.count
-          : 0;
+          : defaultSize;
+      const normalizedTotal = safeTotalItems();
       const currentOffset =
         Number.isFinite(state.currentOffset) && state.currentOffset >= 0
           ? state.currentOffset
@@ -392,11 +527,14 @@ export function createPaginationController(config = {}) {
       );
       return {
         ...shell,
+        mode: state.mode,
+        loadMoreLabel: state.loadMoreLabel,
         pageMeta: { ...state.pageMeta },
         totalItems: normalizedTotal,
         currentOffset,
         totalPages,
         currentPage,
+        items: Array.isArray(state.items) ? state.items.slice() : [],
       };
     },
     goNext() {
@@ -414,20 +552,46 @@ export function createPaginationController(config = {}) {
       state.filters = { ...state.filters, ...partial };
       state.offset = 0;
       state.currentOffset = 0;
+      resetCursors();
       runDataSource('forward');
     },
-    syncFromLocation({ search = '', totalItems = state.totalItems } = {}) {
-      const parsed = parsePaginationFromLocation({
-        search,
-        totalItems,
-        defaultPageSize,
-      });
-      state.pageMeta.pageSize = parsed.pageSize;
-      state.offset = parsed.offset;
-      state.currentOffset = parsed.offset;
-      state.filters = { ...state.filters, ...parsed.filters };
-      state.totalItems = totalItems;
-      runDataSource('forward');
+    syncFromLocation(options = {}) {
+      const { search = '', totalItems = state.totalItems } = options || {};
+      let parsed =
+        typeof locationAdapters.parseLocation === 'function'
+          ? locationAdapters.parseLocation(options)
+          : null;
+      if (!parsed) {
+        parsed = parsePaginationFromLocation({
+          search,
+          totalItems,
+          defaultPageSize: state.pageMeta.pageSize || defaultSize,
+        });
+        parsed.totalItems = totalItems;
+      }
+      const parsedSize =
+        normalizePageSize(parsed.pageSize) ?? state.pageMeta.pageSize;
+      state.pageMeta.pageSize = parsedSize;
+      state.offset =
+        Number.isFinite(parsed.offset) && parsed.offset >= 0
+          ? parsed.offset
+          : 0;
+      state.currentOffset = state.offset;
+      if (parsed.filters && typeof parsed.filters === 'object') {
+        state.filters = { ...state.filters, ...parsed.filters };
+      }
+      if (Number.isFinite(parsed.totalItems)) {
+        state.totalItems = parsed.totalItems;
+      } else {
+        state.totalItems = totalItems;
+      }
+      state.pageMeta.nextCursor =
+        parsed.cursorAfter !== undefined ? parsed.cursorAfter : null;
+      state.pageMeta.prevCursor =
+        parsed.cursorBefore !== undefined ? parsed.cursorBefore : null;
+      const runDirection =
+        parsed.direction === 'backward' ? 'backward' : 'forward';
+      runDataSource(runDirection);
     },
     syncToLocation(updateFn) {
       if (typeof updateFn !== 'function') return;
@@ -446,16 +610,12 @@ export function createPaginationController(config = {}) {
       const numeric = Number(pageNumber);
       if (!Number.isFinite(numeric)) return;
       const pageSize =
-        Number.isFinite(state.pageMeta?.pageSize) && state.pageMeta.pageSize > 0
+        Number.isFinite(state.pageMeta?.pageSize) &&
+        state.pageMeta.pageSize > 0
           ? state.pageMeta.pageSize
-          : defaultPageSize;
+          : defaultSize;
       if (!pageSize || pageSize <= 0) return;
-      const total =
-        Number.isFinite(state.totalItems) && state.totalItems >= 0
-          ? state.totalItems
-          : Number.isFinite(state.pageMeta?.count) && state.pageMeta.count >= 0
-          ? state.pageMeta.count
-          : 0;
+      const total = safeTotalItems();
       const maxPage =
         total > 0 ? Math.max(1, Math.ceil(total / pageSize)) : Math.max(1, 1);
       const safePage = Math.min(
@@ -465,18 +625,21 @@ export function createPaginationController(config = {}) {
       const targetOffset = (safePage - 1) * pageSize;
       state.offset = targetOffset;
       state.currentOffset = targetOffset;
-      state.pageMeta.cursors = { start: null, end: null };
+      resetCursors();
       runDataSource('forward');
     },
     setPageSize(newSize) {
-      const numeric = Number(newSize);
-      if (!Number.isFinite(numeric) || numeric <= 0) return;
-      const clamped = Math.max(1, Math.round(numeric));
-      if (state.pageMeta.pageSize === clamped) return;
-      state.pageMeta.pageSize = clamped;
+      const normalized = normalizePageSize(newSize);
+      const requestedNumeric = Math.round(Number(newSize));
+      const isSupported =
+        !normalizedPageSizeOptions?.length ||
+        normalizedPageSizeOptions.includes(requestedNumeric);
+      if (!normalized) return;
+      if (state.pageMeta.pageSize === normalized && isSupported) return;
+      state.pageMeta.pageSize = normalized;
       state.offset = 0;
       state.currentOffset = 0;
-      state.pageMeta.cursors = { start: null, end: null };
+      resetCursors();
       runDataSource('forward');
     },
   };

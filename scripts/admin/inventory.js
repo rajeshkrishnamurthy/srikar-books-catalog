@@ -51,6 +51,7 @@ function formatSupplierLabel(supplier = {}) {
 
 const RUPEE_FORMATTER = new Intl.NumberFormat('en-IN');
 const AVAILABLE_PAGE_SIZE = 20;
+const SOLD_PAGE_SIZE = 20;
 
 function formatPurchasePriceText(value) {
   if (value === undefined || value === null || value === '') {
@@ -186,6 +187,7 @@ export function initInventory({
   addMsg,
   availList,
   soldList,
+  soldPanel = document.getElementById('soldBooksPanel'),
   availableSearchInput = document.getElementById('availableSearchInput'),
   searchStatus = document.getElementById('availableSearchStatus'),
   paginationContainer = document.querySelector('[data-available-pagination]'),
@@ -193,6 +195,11 @@ export function initInventory({
   paginationPrevButton = document.getElementById('availablePaginationPrev'),
   paginationNextButton = document.getElementById('availablePaginationNext'),
   pageSizeSelect = document.getElementById('availablePageSize'),
+  soldPaginationContainer = document.querySelector('[data-sold-pagination]'),
+  soldPaginationSummary = document.getElementById('soldPaginationSummary'),
+  soldPaginationPrevButton = document.getElementById('soldPaginationPrev'),
+  soldPaginationNextButton = document.getElementById('soldPaginationNext'),
+  soldPageSizeSelect = document.getElementById('soldPageSize'),
   supplierSelect,
   onEdit, // optional
   createPaginationController: createPaginationControllerOverride,
@@ -413,8 +420,14 @@ export function initInventory({
   let availablePageDocs = [];
   let availableFilteredCount = 0;
   let soldDocs = [];
+  let soldPageDocs = [];
+  let soldFilteredCount = 0;
   let lastAnnouncedTerm = '';
   let paginationShellApi = {
+    sync() {},
+    cleanup() {},
+  };
+  let soldPaginationShellApi = {
     sync() {},
     cleanup() {},
   };
@@ -425,6 +438,26 @@ export function initInventory({
       : createPaginationController;
 
   let paginationController;
+  let soldPaginationController;
+  const shouldSyncSoldHash = () => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location?.hash || '';
+      if (hash.startsWith('#manage-books/sold')) {
+        return true;
+      }
+      if (hash.startsWith('#manage-books/')) {
+        return false;
+      }
+    }
+    if (!soldPanel) return true;
+    if (soldPanel.hidden === true) {
+      return false;
+    }
+    if (typeof soldPanel.open === 'boolean') {
+      return soldPanel.open;
+    }
+    return true;
+  };
 
   const syncPageSizeSelect = (size) => {
     if (!pageSizeSelect) return;
@@ -433,83 +466,185 @@ export function initInventory({
       pageSizeSelect.value = value;
     }
   };
-
-  const handlePaginationStateChange = () => {
-    paginationShellApi.sync?.();
-    const uiState = paginationController?.getUiState?.();
-    if (uiState?.pageMeta?.pageSize) {
-      syncPageSizeSelect(uiState.pageMeta.pageSize);
+  const syncSoldPageSizeSelect = (size) => {
+    if (!soldPageSizeSelect) return;
+    const value = String(size ?? SOLD_PAGE_SIZE);
+    if (soldPageSizeSelect.value !== value) {
+      soldPageSizeSelect.value = value;
     }
-    paginationController?.syncToLocation?.((params = {}) => {
-      updateAvailableLocationHash(params);
-    });
   };
 
-  paginationController = buildPaginationController?.({
-    dataSource: createLocalAvailablePaginationDataSource({
-      getDocs: () => availableDocs.slice(),
-      getSearchTerm: () => (searchActive ? currentFilter : ''),
-      onPage: (pageItems = [], meta = {}) => {
-        availablePageDocs = Array.isArray(pageItems) ? pageItems : [];
-        availableFilteredCount = Number.isFinite(meta.totalItems)
-          ? meta.totalItems
-          : availableFilteredCount;
-        renderLists();
-        paginationShellApi.sync?.();
-      },
-    }),
-    defaultPageSize: AVAILABLE_PAGE_SIZE,
-    initialFilters: { searchTerm: '' },
-    onStateChange: handlePaginationStateChange,
-  });
+  function initInventoryPaginationSection({
+    getDocs,
+    onPage,
+    defaultPageSize,
+    pageSizeSelect: selectEl,
+    syncPageSizeSelect: syncSelect,
+    shellNodes,
+    summaryFormatter,
+    shouldSyncHash = () => true,
+    updateLocationHash,
+  }) {
+    let controller;
+    let shellApi = {
+      sync() {},
+      cleanup() {},
+    };
 
-  const handlePageSizeChange = (event) => {
-    const value = Number(event?.target?.value);
-    if (!paginationController?.setPageSize) return;
-    if (!Number.isFinite(value) || value <= 0) {
-      syncPageSizeSelect(paginationController?.getUiState?.().pageMeta?.pageSize);
-      return;
-    }
-    paginationController.setPageSize(value);
-  };
-
-  pageSizeSelect?.addEventListener('change', handlePageSizeChange);
-
-  paginationShellApi = initAvailablePaginationShell({
-    container: paginationContainer,
-    summaryEl: paginationSummary,
-    prevButton: paginationPrevButton,
-    nextButton: paginationNextButton,
-    controller: paginationController,
-  });
-
-  const restoredFromLocation = restorePaginationFromLocation();
-  handlePaginationStateChange();
-  function reloadAvailablePagination({ reset = false } = {}) {
-    if (!paginationController?.setFilters) {
-      renderLists();
-      return;
-    }
-    if (reset) {
-      paginationController.setFilters({
-        searchTerm: searchActive ? currentFilter : '',
-        search: searchActive ? currentFilterInput : '',
-        refreshToken: Date.now(),
+    const handleStateChange = () => {
+      shellApi.sync?.();
+      const uiState = controller?.getUiState?.();
+      if (uiState?.pageMeta?.pageSize) {
+        syncSelect?.(uiState.pageMeta.pageSize);
+      }
+      if (!shouldSyncHash()) {
+        return;
+      }
+      controller?.syncToLocation?.((params = {}) => {
+        if (!shouldSyncHash()) {
+          return;
+        }
+        updateLocationHash?.(params);
       });
-    } else {
-      paginationController.refresh?.();
-    }
+    };
+
+    controller = buildPaginationController?.({
+      dataSource: createLocalAvailablePaginationDataSource({
+        getDocs,
+        getSearchTerm: () => (searchActive ? currentFilter : ''),
+        onPage: (pageItems = [], meta = {}) => {
+          onPage(Array.isArray(pageItems) ? pageItems : [], meta);
+          shellApi.sync?.();
+        },
+      }),
+      defaultPageSize,
+      initialFilters: { searchTerm: '' },
+      onStateChange: handleStateChange,
+    });
+
+    const handlePageSizeChange = (event) => {
+      const value = Number(event?.target?.value);
+      if (!controller?.setPageSize) return;
+      if (!Number.isFinite(value) || value <= 0) {
+        const fallbackPageSize = controller?.getUiState?.().pageMeta?.pageSize;
+        syncSelect?.(fallbackPageSize);
+        return;
+      }
+      controller.setPageSize(value);
+    };
+
+    selectEl?.addEventListener('change', handlePageSizeChange);
+
+    shellApi = initPaginationShell({
+      container: shellNodes?.container,
+      summaryEl: shellNodes?.summaryEl,
+      prevButton: shellNodes?.prevButton,
+      nextButton: shellNodes?.nextButton,
+      controller,
+      summaryFormatter,
+    });
+
+    const reload = ({ reset = false } = {}) => {
+      if (!controller?.setFilters) {
+        renderLists();
+        return;
+      }
+      if (reset) {
+        controller.setFilters({
+          searchTerm: searchActive ? currentFilter : '',
+          search: searchActive ? currentFilterInput : '',
+          refreshToken: Date.now(),
+        });
+      } else {
+        controller.refresh?.();
+      }
+    };
+
+    return {
+      controller,
+      shellApi,
+      reload,
+      syncState: handleStateChange,
+      handlePageSizeChange,
+    };
   }
 
+  const availablePagination = initInventoryPaginationSection({
+    getDocs: () => availableDocs.slice(),
+    onPage: (pageItems = [], meta = {}) => {
+      availablePageDocs = pageItems;
+      availableFilteredCount = Number.isFinite(meta.totalItems)
+        ? meta.totalItems
+        : availableFilteredCount;
+      renderLists();
+    },
+    defaultPageSize: AVAILABLE_PAGE_SIZE,
+    pageSizeSelect,
+    syncPageSizeSelect,
+    shellNodes: {
+      container: paginationContainer,
+      summaryEl: paginationSummary,
+      prevButton: paginationPrevButton,
+      nextButton: paginationNextButton,
+    },
+    summaryFormatter: (text) => `${text} available books`,
+    updateLocationHash: updateAvailableLocationHash,
+  });
+
+  paginationController = availablePagination.controller;
+  paginationShellApi = availablePagination.shellApi;
+  const reloadAvailablePagination = availablePagination.reload;
+  const handlePageSizeChange = availablePagination.handlePageSizeChange;
+  const syncAvailablePaginationState = availablePagination.syncState;
+
+  const restoredFromLocation = restorePaginationFromLocation();
+  syncAvailablePaginationState();
   if (!restoredFromLocation) {
     reloadAvailablePagination({ reset: true });
+  }
+
+  const soldPagination = initInventoryPaginationSection({
+    getDocs: () => soldDocs.slice(),
+    onPage: (pageItems = [], meta = {}) => {
+      soldPageDocs = pageItems;
+      soldFilteredCount = Number.isFinite(meta.totalItems)
+        ? meta.totalItems
+        : soldFilteredCount;
+      renderLists();
+    },
+    defaultPageSize: SOLD_PAGE_SIZE,
+    pageSizeSelect: soldPageSizeSelect,
+    syncPageSizeSelect: syncSoldPageSizeSelect,
+    shellNodes: {
+      container: soldPaginationContainer,
+      summaryEl: soldPaginationSummary,
+      prevButton: soldPaginationPrevButton,
+      nextButton: soldPaginationNextButton,
+    },
+    summaryFormatter: (text) => `${text} - Sold`,
+    shouldSyncHash: () => shouldSyncSoldHash(),
+    updateLocationHash: updateSoldLocationHash,
+  });
+
+  soldPaginationController = soldPagination.controller;
+  soldPaginationShellApi = soldPagination.shellApi;
+  const reloadSoldPagination = soldPagination.reload;
+  const handleSoldPageSizeChange = soldPagination.handlePageSizeChange;
+  const syncSoldPaginationState = soldPagination.syncState;
+
+  const restoredSoldFromLocation = restoreSoldPaginationFromLocation();
+  syncSoldPaginationState();
+  if (!restoredSoldFromLocation) {
+    reloadSoldPagination({ reset: true });
   }
 
   function renderLists() {
     const isSearching = searchActive;
     const availableDisplay =
       availablePageDocs.length > 0 ? availablePageDocs : availableDocs;
-    const soldDisplay = isSearching
+    const soldDisplay = soldPageDocs.length > 0
+      ? soldPageDocs
+      : isSearching
       ? soldDocs.filter((d) => matches(d, currentFilter))
       : soldDocs;
 
@@ -561,7 +696,10 @@ export function initInventory({
   });
   const unsubscribeSold = onSnapshot(qSold, (snap) => {
     soldDocs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    renderLists();
+    if (!searchActive) {
+      soldFilteredCount = soldDocs.length;
+    }
+    reloadSoldPagination({ reset: false });
   });
 
   // expose to main.js
@@ -591,7 +729,9 @@ export function initInventory({
         handleAvailableSearchInput
       );
       paginationShellApi.cleanup?.();
+      soldPaginationShellApi.cleanup?.();
       pageSizeSelect?.removeEventListener('change', handlePageSizeChange);
+      soldPageSizeSelect?.removeEventListener('change', handleSoldPageSizeChange);
     },
   };
 
@@ -607,7 +747,9 @@ export function initInventory({
       currentFilterInput = '';
       searchActive = false;
       availableFilteredCount = availableDocs.length;
+      soldFilteredCount = soldDocs.length;
       reloadAvailablePagination({ reset: true });
+      reloadSoldPagination({ reset: true });
       renderLists();
       if (announce) {
         clearSearchStatus();
@@ -618,18 +760,24 @@ export function initInventory({
     currentFilter = normalizedTerm;
     currentFilterInput = trimmedTerm;
     searchActive = true;
-    const matchesCount = filterAvailableDocs(availableDocs, normalizedTerm).length;
-    availableFilteredCount = matchesCount;
+    const availableMatches = filterAvailableDocs(availableDocs, normalizedTerm);
+    const soldMatches = filterAvailableDocs(soldDocs, normalizedTerm);
+    availableFilteredCount = availableMatches.length;
+    soldFilteredCount = soldMatches.length;
+    const totalMatches = availableMatches.length + soldMatches.length;
     reloadAvailablePagination({ reset: true });
+    reloadSoldPagination({ reset: true });
     renderLists();
     if (announce) {
-      announceFilteredResults(trimmedTerm, matchesCount);
+      announceFilteredResults(trimmedTerm, totalMatches);
     }
   }
 
   function announceFilteredResults(term, count) {
     if (!searchStatus) return;
-    const safeCount = Number.isFinite(count) ? count : availableFilteredCount;
+    const safeCount = Number.isFinite(count)
+      ? count
+      : availableFilteredCount + soldFilteredCount;
     searchStatus.textContent = `Filtered ${safeCount} results for '${term}'`;
     lastAnnouncedTerm = term;
   }
@@ -641,24 +789,34 @@ export function initInventory({
     lastAnnouncedTerm = '';
   }
 
+  function createSearchParamsFromHash(search = '') {
+    const raw = typeof search === 'string' ? search : '';
+    const scopedSearch = raw.startsWith('?') ? raw.slice(1) : raw;
+    return new URLSearchParams(scopedSearch);
+  }
+
+  function syncSearchStateFromParams(params) {
+    if (!params) return;
+    const rawTerm = params.get('search') || '';
+    if (!rawTerm) {
+      return;
+    }
+    currentFilterInput = rawTerm;
+    currentFilter = rawTerm.trim().toLowerCase();
+    searchActive = hasSufficientSearchChars(rawTerm);
+    if (availableSearchInput) {
+      availableSearchInput.value = rawTerm;
+    }
+  }
+
   function restorePaginationFromLocation() {
     if (typeof window === 'undefined' || !paginationController) return false;
     const search = extractAvailableHashQuery(window.location.hash || '');
     if (!search) {
       return false;
     }
-    const params = new URLSearchParams(
-      search.startsWith('?') ? search.slice(1) : search
-    );
-    const rawTerm = params.get('search') || '';
-    if (rawTerm) {
-      currentFilterInput = rawTerm;
-      currentFilter = rawTerm.trim().toLowerCase();
-      searchActive = hasSufficientSearchChars(rawTerm);
-      if (availableSearchInput) {
-        availableSearchInput.value = rawTerm;
-      }
-    }
+    const params = createSearchParamsFromHash(search);
+    syncSearchStateFromParams(params);
     const parsedPageSize = Number(params.get('pageSize'));
     if (Number.isFinite(parsedPageSize) && parsedPageSize > 0) {
       syncPageSizeSelect(parsedPageSize);
@@ -707,11 +865,103 @@ export function initInventory({
     searchParams.set('offset', safeOffset);
     const filters = params.filters || {};
     const searchTermParam =
+      params.search ??
+      params.searchTerm ??
       filters.search ??
       filters.searchTerm ??
       (searchActive ? currentFilterInput : '');
     if (searchTermParam) {
       searchParams.set('search', searchTermParam);
+    }
+    const queryString = searchParams.toString();
+    return queryString ? `?${queryString}` : '';
+  }
+
+  function restoreSoldPaginationFromLocation() {
+    if (typeof window === 'undefined' || !soldPaginationController) return false;
+    const search = extractSoldHashQuery(window.location.hash || '');
+    if (!search) {
+      return false;
+    }
+    const params = createSearchParamsFromHash(search);
+    syncSearchStateFromParams(params);
+    const parsedPageSize = Number(params.get('pageSize'));
+    if (Number.isFinite(parsedPageSize) && parsedPageSize > 0) {
+      syncSoldPageSizeSelect(parsedPageSize);
+    }
+    soldPaginationController.syncFromLocation?.({
+      search,
+      totalItems: soldFilteredCount,
+    });
+    return true;
+  }
+
+  function extractSoldHashQuery(hash = '') {
+    if (typeof hash !== 'string') return '';
+    const base = '#manage-books/sold';
+    if (!hash.startsWith(base)) return '';
+    const idx = hash.indexOf('?');
+    return idx >= 0 ? hash.slice(idx) : '';
+  }
+
+  function updateSoldLocationHash(params = {}) {
+    if (typeof window === 'undefined') return;
+    const query = buildSoldHashQuery(params);
+    const base = '#manage-books/sold';
+    const nextHash = query ? `${base}${query}` : base;
+    if (window.location.hash !== nextHash) {
+      window.location.hash = nextHash;
+    }
+  }
+
+  function buildSoldHashQuery(params = {}) {
+    const searchParams = new URLSearchParams();
+    const safePageSize =
+      Number.isFinite(params.pageSize) && params.pageSize > 0
+        ? params.pageSize
+        : SOLD_PAGE_SIZE;
+    const safeOffset =
+      Number.isFinite(params.offset) && params.offset >= 0
+        ? params.offset
+        : 0;
+    const safePage =
+      Number.isFinite(params.page) && params.page > 0
+        ? params.page
+        : Math.floor(safeOffset / safePageSize) + 1;
+    searchParams.set('page', safePage);
+    searchParams.set('pageSize', safePageSize);
+    searchParams.set('offset', safeOffset);
+    const filters = params.filters || {};
+    const searchTermParam =
+      params.search ??
+      params.searchTerm ??
+      filters.search ??
+      filters.searchTerm ??
+      (searchActive ? currentFilterInput : '');
+    if (searchTermParam) {
+      searchParams.set('search', searchTermParam);
+    }
+    const customerParam =
+      params.customer ??
+      params.customerId ??
+      params.customerName ??
+      filters.customer ??
+      filters.customerId ??
+      filters.customerName;
+    if (customerParam) {
+      const resolvedKey =
+        params.customer !== undefined
+          ? 'customer'
+          : params.customerId !== undefined
+          ? 'customerId'
+          : params.customerName !== undefined
+          ? 'customerName'
+          : filters.customer !== undefined
+          ? 'customer'
+          : filters.customerId !== undefined
+          ? 'customerId'
+          : 'customerName';
+      searchParams.set(resolvedKey, String(customerParam));
     }
     const queryString = searchParams.toString();
     return queryString ? `?${queryString}` : '';
@@ -752,10 +1002,20 @@ export function initInventory({
       const sourceDocs =
         typeof getDocs === 'function' ? getDocs() : availableDocs;
       const filteredDocs = filterAvailableDocs(sourceDocs, desiredTerm);
-      const startIndex =
+      const clampStartIndex = (value = 0) => {
+        const numericValue =
+          Number.isFinite(value) && value >= 0 ? Math.floor(value) : 0;
+        const maxStart = Math.max(0, filteredDocs.length - pageSize);
+        if (!filteredDocs.length) {
+          return 0;
+        }
+        return Math.min(numericValue, maxStart);
+      };
+      const rawStart =
         direction === 'backward'
           ? Math.max(0, currentOffset - pageSize)
           : safeOffset;
+      const startIndex = clampStartIndex(rawStart);
       const pageItems = filteredDocs.slice(startIndex, startIndex + pageSize);
       onPage &&
         onPage(pageItems, {
@@ -787,15 +1047,18 @@ export function initInventory({
     };
   }
 
-  function initAvailablePaginationShell({
+  function initPaginationShell({
     container,
     summaryEl,
     prevButton,
     nextButton,
     controller,
+    summaryFormatter,
   }) {
     const summary =
-      summaryEl || container?.querySelector('#availablePaginationSummary');
+      summaryEl ||
+      container?.querySelector('#availablePaginationSummary') ||
+      container?.querySelector('[data-pagination-summary]');
     const prev =
       prevButton || container?.querySelector('[data-pagination="prev"]');
     const next =
@@ -809,6 +1072,11 @@ export function initInventory({
         cleanup() {},
       };
     }
+
+    const formatSummary =
+      typeof summaryFormatter === 'function'
+        ? summaryFormatter
+        : (text) => text;
 
     let pages = container.querySelector('[data-pagination-pages]');
     if (!pages) {
@@ -830,6 +1098,20 @@ export function initInventory({
       }
       pages.setAttribute('role', 'group');
       pages.setAttribute('aria-label', 'Page selection');
+    }
+
+    let loadMoreButton = container.querySelector('[data-pagination="load-more"]');
+    if (!loadMoreButton) {
+      loadMoreButton = doc.createElement('button');
+      loadMoreButton.type = 'button';
+      loadMoreButton.setAttribute('data-pagination', 'load-more');
+      loadMoreButton.className = 'pagination-shell__load-more';
+      loadMoreButton.hidden = true;
+      const actionsHost =
+        next.closest?.('.inventory-pagination__actions') ||
+        next.parentElement ||
+        container;
+      actionsHost.appendChild(loadMoreButton);
     }
 
     const derivePageSize = (state = {}) => {
@@ -951,7 +1233,7 @@ export function initInventory({
       if (!controller?.getUiState) return;
       const state = controller.getUiState() || {};
       const summaryText = state.summaryText || 'Items 0–0 of 0';
-      summary.textContent = `${summaryText} available books`;
+      summary.textContent = formatSummary(summaryText);
       summary.setAttribute(
         'aria-live',
         summary.getAttribute('aria-live') || 'polite',
@@ -964,7 +1246,29 @@ export function initInventory({
       next.disabled = Boolean(disableNext);
       prev.setAttribute('aria-disabled', String(Boolean(disablePrev)));
       next.setAttribute('aria-disabled', String(Boolean(disableNext)));
-      renderNumericButtons(state);
+      const isLoadMoreMode = state.mode === 'loadMore';
+      if (loadMoreButton) {
+        if (isLoadMoreMode) {
+          loadMoreButton.hidden = false;
+          const label =
+            state.loadMoreLabel ||
+            'Load more';
+          loadMoreButton.textContent = label;
+          const disableLoadMore = state.isBusy || state.nextDisabled;
+          loadMoreButton.disabled = Boolean(disableLoadMore);
+          loadMoreButton.setAttribute('aria-label', label);
+        } else {
+          loadMoreButton.hidden = true;
+        }
+      }
+      if (isLoadMoreMode) {
+        if (pages) {
+          pages.replaceChildren();
+          pages.hidden = true;
+        }
+      } else {
+        renderNumericButtons(state);
+      }
     };
 
     const handlePrev = () => {
@@ -992,9 +1296,17 @@ export function initInventory({
       updateUi();
     };
 
+    const handleLoadMore = () => {
+      if (loadMoreButton?.disabled) return;
+      if (typeof controller?.loadMore !== 'function') return;
+      controller.loadMore();
+      updateUi();
+    };
+
     prev.addEventListener('click', handlePrev);
     next.addEventListener('click', handleNext);
     pages?.addEventListener('click', handlePageButtonClick);
+    loadMoreButton?.addEventListener('click', handleLoadMore);
     updateUi();
 
     return {
@@ -1003,6 +1315,7 @@ export function initInventory({
         prev.removeEventListener('click', handlePrev);
         next.removeEventListener('click', handleNext);
         pages?.removeEventListener('click', handlePageButtonClick);
+        loadMoreButton?.removeEventListener('click', handleLoadMore);
       },
     };
   }

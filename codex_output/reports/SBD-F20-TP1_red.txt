@@ -1,0 +1,25 @@
+npm test -- --watchAll=false
+
+FAIL tests/unit/inventory/SBD-F20-TP1_soldBooksDataSource.test.js
+  UNIT SBD-F20-TP1: sold books pagination data source
+    ✕ SBD-F20-TP1-001_SoldQueryUsesSaleDateOrdering
+    ✕ SBD-F20-TP1-002_SoldCursorPagingHonorsDirection
+    ✕ SBD-F20-TP1-003_SoldRecordsExposeSaleFields
+    ✕ SBD-F20-TP1-004_FinalPagesReportAccurateMeta
+
+  ● UNIT SBD-F20-TP1: sold books pagination data source › SBD-F20-TP1-001_SoldQueryUsesSaleDateOrdering
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "function"
+    Received: "undefined"
+
+      46 |     expect(typeof createSoldBooksDataSource).toBe('function');
+         |                                              ^
+      47 |     if (typeof createSoldBooksDataSource !== 'function') {
+      48 |       return;
+      49 |     }
+
+      at Object.<anonymous> (tests/unit/inventory/SBD-F20-TP1_soldBooksDataSource.test.js:46:46)
+
+(Additional stack traces omitted – remaining specs fail for the same reason: createSoldBooksDataSource is not yet exported.)
