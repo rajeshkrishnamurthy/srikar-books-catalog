@@ -1064,27 +1064,6 @@ export function initInventory({
       const sourceDocs =
         typeof getDocs === 'function' ? getDocs() : availableDocs;
       const filteredDocs = filterAvailableDocs(sourceDocs, desiredTerm);
-<<<<<<< Updated upstream
-      const clampStartIndex = (value = 0) => {
-        const numericValue =
-          Number.isFinite(value) && value >= 0 ? Math.floor(value) : 0;
-        const maxStart = Math.max(0, filteredDocs.length - pageSize);
-        if (!filteredDocs.length) {
-          return 0;
-        }
-        return Math.min(numericValue, maxStart);
-      };
-      const rawStart =
-=======
-<<<<<<< Updated upstream
-      const startIndex =
->>>>>>> Stashed changes
-        direction === 'backward'
-          ? Math.max(0, currentOffset - pageSize)
-          : safeOffset;
-      const startIndex = clampStartIndex(rawStart);
-      const pageItems = filteredDocs.slice(startIndex, startIndex + pageSize);
-=======
       const hasDocs = Array.isArray(filteredDocs) && filteredDocs.length > 0;
       const clampStartIndex = (value = 0) => {
         const numericValue =
@@ -1104,7 +1083,6 @@ export function initInventory({
       const pageItems = hasDocs
         ? filteredDocs.slice(startIndex, startIndex + pageSize)
         : [];
->>>>>>> Stashed changes
       onPage &&
         onPage(pageItems, {
           totalItems: filteredDocs.length,
