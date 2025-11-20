@@ -1,0 +1,5 @@
+GREEN verification for SBD-F24-TP1
+Commands:
+- npm test -- --watchAll=false --bail=0 tests/unit/inventory/SBD-F24-TP1-004_IsolatedStatePerControllerInstance.test.js tests/unit/inventory/SBD-F24-TP2-004_RecommendationInvalidatedOnResume.test.js tests/unit/inventory/SBD-F24-TP3-004_StringPriceCoercesDuringSave.test.js
+- npm test -- --watchAll=false --bail=0 (full suite)
+Result: PASS

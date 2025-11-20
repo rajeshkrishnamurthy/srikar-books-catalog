@@ -27,6 +27,13 @@
       "given": "A recommendation request is in flight and a selection is removed or the adapter rejects.",
       "when": "The adapter rejects the promise and the selection count drops below recommendationThreshold.",
       "then": "recommendedPriceMinor clears to null, totalSalePriceMinor is not recomputed, and fetchPriceRecommendation is not re-fired while under-threshold."
+    },
+    {
+      "id": "SBD-F24-TP2-004",
+      "title": "RecommendationInvalidatedWhenResumingBundle",
+      "given": "A recommendation request is pending for the current selection set in the inline composer.",
+      "when": "setExistingBundle loads another bundle whose selections fall below the recommendation threshold.",
+      "then": "Any pending recommendation timer is cleared or requestId invalidated so fetchPriceRecommendation does not fire for the stale selection, and recommendation state remains cleared until a qualified selection is made again."
     }
   ],
   "fixtures": [
@@ -35,13 +42,15 @@
   "tests": [
     "/tests/unit/inventory/SBD-F24-TP2-001_RecommendationThresholdGating.test.js",
     "/tests/unit/inventory/SBD-F24-TP2-002_RecommendationStateEmitsSignals.test.js",
-    "/tests/unit/inventory/SBD-F24-TP2-003_RecommendationFallbackWhenBelowThreshold.test.js"
+    "/tests/unit/inventory/SBD-F24-TP2-003_RecommendationFallbackWhenBelowThreshold.test.js",
+    "/tests/unit/inventory/SBD-F24-TP2-004_RecommendationInvalidatedOnResume.test.js"
   ],
   "changedFiles": [
     "src/ui/patterns/inline-bundle-composer-controller/index.js"
   ],
-  "changeNotes": "Added debounced recommendation requests gated by threshold, streaming adapter results into state/onStateChange and clearing on rejection or under-threshold.",
+  "changeNotes": "Added debounced recommendation requests gated by threshold, streaming adapter results into state/onStateChange, clearing on rejection or under-threshold, and canceling stale requests when resuming another bundle.",
   "reports": {
-    "red": "codex_output/reports/SBD-F24-TP2_red.txt"
+    "red": "codex_output/reports/SBD-F24-TP2_red.txt",
+    "green": "codex_output/reports/SBD-F24-TP2_green.txt"
   }
 }

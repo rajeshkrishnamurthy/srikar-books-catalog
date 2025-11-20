@@ -27,6 +27,13 @@
       "given": "A bundle draft exists with selected books and pricing.",
       "when": "reset() is invoked from the inline composer.",
       "then": "Selections clear, bundleName and pricing fields reset, recommendedPriceMinor is null, totalSalePriceMinor returns to zero, and persistDraft/onStateChange run to keep session state consistent."
+    },
+    {
+      "id": "SBD-F24-TP1-004",
+      "title": "FreshControllerStatePerInstance",
+      "given": "An inline bundle composer controller instance already selected books via the factory.",
+      "when": "A second controller instance is created in the same session using the same factory import.",
+      "then": "The new controller begins with empty selections, null pricing, and empty validationErrors instead of inheriting the previous instance's mutated defaults."
     }
   ],
   "fixtures": [
@@ -35,13 +42,15 @@
   "tests": [
     "/tests/unit/inventory/SBD-F24-TP1-001_InlineBundleContextLifecycle.test.js",
     "/tests/unit/inventory/SBD-F24-TP1-002_ResumeInlineBundleDraft.test.js",
-    "/tests/unit/inventory/SBD-F24-TP1-003_ResetInlineBundleContext.test.js"
+    "/tests/unit/inventory/SBD-F24-TP1-003_ResetInlineBundleContext.test.js",
+    "/tests/unit/inventory/SBD-F24-TP1-004_IsolatedStatePerControllerInstance.test.js"
   ],
   "changedFiles": [
     "src/ui/patterns/inline-bundle-composer-controller/index.js"
   ],
-  "changeNotes": "Inline bundle controller now creates bundle context, resumes drafts, clears/reset state, and emits state snapshots to adapters.",
+  "changeNotes": "Inline bundle controller now creates bundle context, resumes drafts, clears/reset state, emits state snapshots to adapters, and isolates default state across controller instances with a fresh default state per factory call.",
   "reports": {
-    "red": "codex_output/reports/SBD-F24-TP1_red.txt"
+    "red": "codex_output/reports/SBD-F24-TP1_red.txt",
+    "green": "codex_output/reports/SBD-F24-TP1_green.txt"
   }
 }

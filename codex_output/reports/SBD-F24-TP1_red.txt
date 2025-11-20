@@ -1,98 +1,23 @@
-> test
-> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F24
+> npm test -- --watchAll=false SBD-F24
 
-FAIL tests/unit/inventory/SBD-F24-TP3-001_SaveBlockedUntilValid.test.js
-  SPEC SBD-F24-TP3-001: Save stays disabled until name and price validate
-    ✕ saveBundle refuses empty name or price and returns validationErrors by field (11 ms)
+FAIL tests/unit/inventory/SBD-F24-TP1-004_IsolatedStatePerControllerInstance.test.js
+  SPEC SBD-F24-TP1-004: Default inline bundle state is isolated per controller instance
+    ✕ reusing the factory after a prior selection starts with a clean default state (6 ms)
 
-  ● SPEC SBD-F24-TP3-001: Save stays disabled until name and price validate › saveBundle refuses empty name or price and returns validationErrors by field
+  ● SPEC SBD-F24-TP1-004: Default inline bundle state is isolated per controller instance › reusing the factory after a prior selection starts with a clean default state
 
-    expect(received).toBeUndefined()
+    expect(received).toEqual(expected) // deep equality
 
-    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer-controller/index.js' from 'tests/fixtures/inlineBundleControllerHarness.js']
+    - Expected  - 1
+    + Received  + 7
 
-FAIL tests/unit/inventory/SBD-F24-TP1-002_ResumeInlineBundleDraft.test.js
-  SPEC SBD-F24-TP1-002: Resume inline bundle draft when reopening composer
-    ✕ setExistingBundle loads books/name/price and updates resumeBundleId (6 ms)
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "book-1",
+    +     "salePriceMinor": 1200,
+    +     "title": "First pick",
+    +   },
+    + ]
 
-  ● SPEC SBD-F24-TP1-002: Resume inline bundle draft when reopening composer › setExistingBundle loads books/name/price and updates resumeBundleId
-
-    expect(received).toBeUndefined()
-
-    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer-controller/index.js' from 'tests/fixtures/inlineBundleControllerHarness.js']
-
-FAIL tests/unit/inventory/SBD-F24-TP2-002_RecommendationStateEmitsSignals.test.js
-  SPEC SBD-F24-TP2-002: Recommendation results update controller state and shell listeners
-    ✕ controller streams recommendedPriceMinor and totalSalePriceMinor after adapter resolves (5 ms)
-
-  ● SPEC SBD-F24-TP2-002: Recommendation results update controller state and shell listeners › controller streams recommendedPriceMinor and totalSalePriceMinor after adapter resolves
-
-    expect(received).toBeUndefined()
-
-    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer-controller/index.js' from 'tests/fixtures/inlineBundleControllerHarness.js']
-
-FAIL tests/unit/inventory/SBD-F24-TP1-003_ResetInlineBundleContext.test.js
-  SPEC SBD-F24-TP1-003: Reset clears inline bundle context but preserves session config
-    ✕ reset() empties selections, clears pricing, and writes draft state (3 ms)
-
-  ● SPEC SBD-F24-TP1-003: Reset clears inline bundle context but preserves session config › reset() empties selections, clears pricing, and writes draft state
-
-    expect(received).toBeUndefined()
-
-    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer-controller/index.js' from 'tests/fixtures/inlineBundleControllerHarness.js']
-
-FAIL tests/unit/inventory/SBD-F24-TP3-002_ValidationClearsOnValidFields.test.js
-  SPEC SBD-F24-TP3-002: Valid fields clear errors and emit clean payload
-    ✕ trimmed bundleName and positive price allow saveBundle and clear validationErrors (7 ms)
-
-  ● SPEC SBD-F24-TP3-002: Valid fields clear errors and emit clean payload › trimmed bundleName and positive price allow saveBundle and clear validationErrors
-
-    expect(received).toBeUndefined()
-
-    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer-controller/index.js' from 'tests/fixtures/inlineBundleControllerHarness.js']
-
-FAIL tests/unit/inventory/SBD-F24-TP2-003_RecommendationFallbackWhenBelowThreshold.test.js
-  SPEC SBD-F24-TP2-003: Recommendation clears when below threshold or adapter rejects
-    ✕ adapter rejection or drop below threshold clears recommendedPriceMinor without spamming adapter (12 ms)
-
-  ● SPEC SBD-F24-TP2-003: Recommendation clears when below threshold or adapter rejects › adapter rejection or drop below threshold clears recommendedPriceMinor without spamming adapter
-
-    expect(received).toBeUndefined()
-
-    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer-controller/index.js' from 'tests/fixtures/inlineBundleControllerHarness.js']
-
-FAIL tests/unit/inventory/SBD-F24-TP3-003_IdempotentSaveWhileBusy.test.js
-  SPEC SBD-F24-TP3-003: Duplicate save requests are ignored while isSaving is true
-    ✕ saveBundle is idempotent during in-flight calls and resets isSaving after resolve (6 ms)
-
-  ● SPEC SBD-F24-TP3-003: Duplicate save requests are ignored while isSaving is true › saveBundle is idempotent during in-flight calls and resets isSaving after resolve
-
-    expect(received).toBeUndefined()
-
-    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer-controller/index.js' from 'tests/fixtures/inlineBundleControllerHarness.js']
-
-FAIL tests/unit/inventory/SBD-F24-TP2-001_RecommendationThresholdGating.test.js
-  SPEC SBD-F24-TP2-001: Price recommendations gated by selection threshold
-    ✕ fetchPriceRecommendation fires only after reaching recommendationThreshold (2 ms)
-
-  ● SPEC SBD-F24-TP2-001: Price recommendations gated by selection threshold › fetchPriceRecommendation fires only after reaching recommendationThreshold
-
-    expect(received).toBeUndefined()
-
-    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer-controller/index.js' from 'tests/fixtures/inlineBundleControllerHarness.js']
-
-FAIL tests/unit/inventory/SBD-F24-TP1-001_InlineBundleContextLifecycle.test.js
-  SPEC SBD-F24-TP1-001: First selection spawns inline bundle context
-    ✕ addBook initializes bundle state, keeps ids unique, and emits state change (1 ms)
-
-  ● SPEC SBD-F24-TP1-001: First selection spawns inline bundle context › addBook initializes bundle state, keeps ids unique, and emits state change
-
-    expect(received).toBeUndefined()
-
-    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer-controller/index.js' from 'tests/fixtures/inlineBundleControllerHarness.js']
-
-Test Suites: 9 failed, 9 total
-Tests:       9 failed, 9 total
-Snapshots:   0 total
-Time:        2.218 s
-Ran all test suites matching /SBD-F24/i.
+      at Object.<anonymous> (tests/unit/inventory/SBD-F24-TP1-004_IsolatedStatePerControllerInstance.test.js:34:31)

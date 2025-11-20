@@ -27,6 +27,13 @@
       "given": "A saveBundle call is in flight.",
       "when": "saveBundle is invoked again before the prior promise resolves.",
       "then": "Only one adapters.saveBundle call occurs and isSaving flips back to false after the first promise resolves."
+    },
+    {
+      "id": "SBD-F24-TP3-004",
+      "title": "StringPricesCoerceForValidation",
+      "given": "An editor enters a numeric string into the bundle price input alongside a valid name and selection.",
+      "when": "updateFields receives bundlePriceMinor as a string and saveBundle is triggered.",
+      "then": "The controller coerces the price to a number, passes validation, calls adapters.saveBundle once, and keeps validationErrors empty."
     }
   ],
   "fixtures": [
@@ -35,13 +42,15 @@
   "tests": [
     "/tests/unit/inventory/SBD-F24-TP3-001_SaveBlockedUntilValid.test.js",
     "/tests/unit/inventory/SBD-F24-TP3-002_ValidationClearsOnValidFields.test.js",
-    "/tests/unit/inventory/SBD-F24-TP3-003_IdempotentSaveWhileBusy.test.js"
+    "/tests/unit/inventory/SBD-F24-TP3-003_IdempotentSaveWhileBusy.test.js",
+    "/tests/unit/inventory/SBD-F24-TP3-004_StringPriceCoercesDuringSave.test.js"
   ],
   "changedFiles": [
     "src/ui/patterns/inline-bundle-composer-controller/index.js"
   ],
-  "changeNotes": "Save flow trims bundle name, requires positive price, exposes validationErrors, and keeps saveBundle idempotent while pending.",
+  "changeNotes": "Save flow trims bundle name, requires positive price, exposes validationErrors, keeps saveBundle idempotent while pending, and coerces numeric string prices before validation.",
   "reports": {
-    "red": "codex_output/reports/SBD-F24-TP3_red.txt"
+    "red": "codex_output/reports/SBD-F24-TP3_red.txt",
+    "green": "codex_output/reports/SBD-F24-TP3_green.txt"
   }
 }

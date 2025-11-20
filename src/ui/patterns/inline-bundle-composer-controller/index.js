@@ -2,19 +2,6 @@ const DEFAULT_OPTIONS = {
   debounceMs: 25,
 };
 
-const DEFAULT_STATE = {
-  bundleId: null,
-  resumeBundleId: null,
-  books: [],
-  bundleName: '',
-  bundlePriceMinor: null,
-  recommendedPriceMinor: null,
-  totalSalePriceMinor: 0,
-  validationErrors: {},
-  isSaving: false,
-  lastInteraction: null,
-};
-
 function generateBundleId() {
   return `inline-bundle-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -34,10 +21,37 @@ function cloneState(state) {
   };
 }
 
+function createDefaultState() {
+  return {
+    bundleId: null,
+    resumeBundleId: null,
+    books: [],
+    bundleName: '',
+    bundlePriceMinor: null,
+    recommendedPriceMinor: null,
+    totalSalePriceMinor: 0,
+    validationErrors: {},
+    isSaving: false,
+    lastInteraction: null,
+  };
+}
+
+function coerceBundlePrice(value) {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    const numeric = Number(trimmed);
+    return Number.isNaN(numeric) ? null : numeric;
+  }
+  if (value === null || value === undefined) return null;
+  return value;
+}
+
 export function createInlineBundleComposerController(config = {}) {
   const { params = {}, adapters = {}, uiTexts = {}, options = {} } = config;
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
-  const state = { ...DEFAULT_STATE };
+  const state = createDefaultState();
 
   let recommendationTimer = null;
   let recommendationRequestId = 0;
@@ -147,6 +161,14 @@ export function createInlineBundleComposerController(config = {}) {
   };
 
   const setExistingBundle = async (bundleId) => {
+    if (recommendationTimer) {
+      clearTimeout(recommendationTimer);
+      recommendationTimer = null;
+    }
+    recommendationRequestId += 1;
+    state.recommendedPriceMinor = null;
+    state.totalSalePriceMinor = 0;
+
     if (typeof adapters.loadBundle !== 'function' || !bundleId) return;
     const restored = await adapters.loadBundle(bundleId);
     if (!restored) return;
@@ -184,7 +206,7 @@ export function createInlineBundleComposerController(config = {}) {
       state.bundleName = typeof fields.bundleName === 'string' ? fields.bundleName : '';
     }
     if (Object.prototype.hasOwnProperty.call(fields, 'bundlePriceMinor')) {
-      state.bundlePriceMinor = fields.bundlePriceMinor;
+      state.bundlePriceMinor = coerceBundlePrice(fields.bundlePriceMinor);
     }
     emitState({ persistDraft: true });
   };
