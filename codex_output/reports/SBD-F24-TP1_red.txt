@@ -1,0 +1,23 @@
+> npm test -- --watchAll=false SBD-F24
+
+FAIL tests/unit/inventory/SBD-F24-TP1-004_IsolatedStatePerControllerInstance.test.js
+  SPEC SBD-F24-TP1-004: Default inline bundle state is isolated per controller instance
+    ✕ reusing the factory after a prior selection starts with a clean default state (6 ms)
+
+  ● SPEC SBD-F24-TP1-004: Default inline bundle state is isolated per controller instance › reusing the factory after a prior selection starts with a clean default state
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 7
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "book-1",
+    +     "salePriceMinor": 1200,
+    +     "title": "First pick",
+    +   },
+    + ]
+
+      at Object.<anonymous> (tests/unit/inventory/SBD-F24-TP1-004_IsolatedStatePerControllerInstance.test.js:34:31)

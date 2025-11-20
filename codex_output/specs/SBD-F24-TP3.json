@@ -1,0 +1,56 @@
+{
+  "topicId": "SBD-F24-TP3",
+  "featureId": "F24",
+  "title": "Inline Bundle Validation Gate",
+  "area": "Admin / Available Books",
+  "goal": "Keep the Save button disabled until bundle name and price validate, mirroring the Bundle->Add rules.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F24-TP3-001",
+      "title": "SaveBlockedUntilValid",
+      "given": "An inline bundle context exists with at least one selected book.",
+      "when": "bundleName is blank/whitespace or bundlePriceMinor is missing.",
+      "then": "saveBundle does not call adapters.saveBundle, validationErrors surface per field, and isSaving remains false."
+    },
+    {
+      "id": "SBD-F24-TP3-002",
+      "title": "ValidationClearsOnValidFields",
+      "given": "Selected books and valid bundleName + bundlePriceMinor are present.",
+      "when": "saveBundle runs with a trimmed bundleName and positive bundlePriceMinor.",
+      "then": "adapters.saveBundle receives the clean payload (bundleId, bundleName, bundlePriceMinor, bookIds) and validationErrors clear."
+    },
+    {
+      "id": "SBD-F24-TP3-003",
+      "title": "IdempotentSaveWhileBusy",
+      "given": "A saveBundle call is in flight.",
+      "when": "saveBundle is invoked again before the prior promise resolves.",
+      "then": "Only one adapters.saveBundle call occurs and isSaving flips back to false after the first promise resolves."
+    },
+    {
+      "id": "SBD-F24-TP3-004",
+      "title": "StringPricesCoerceForValidation",
+      "given": "An editor enters a numeric string into the bundle price input alongside a valid name and selection.",
+      "when": "updateFields receives bundlePriceMinor as a string and saveBundle is triggered.",
+      "then": "The controller coerces the price to a number, passes validation, calls adapters.saveBundle once, and keeps validationErrors empty."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/inlineBundleControllerHarness.js"
+  ],
+  "tests": [
+    "/tests/unit/inventory/SBD-F24-TP3-001_SaveBlockedUntilValid.test.js",
+    "/tests/unit/inventory/SBD-F24-TP3-002_ValidationClearsOnValidFields.test.js",
+    "/tests/unit/inventory/SBD-F24-TP3-003_IdempotentSaveWhileBusy.test.js",
+    "/tests/unit/inventory/SBD-F24-TP3-004_StringPriceCoercesDuringSave.test.js"
+  ],
+  "changedFiles": [
+    "src/ui/patterns/inline-bundle-composer-controller/index.js"
+  ],
+  "changeNotes": "Save flow trims bundle name, requires positive price, exposes validationErrors, keeps saveBundle idempotent while pending, and coerces numeric string prices before validation.",
+  "reports": {
+    "red": "codex_output/reports/SBD-F24-TP3_red.txt",
+    "green": "codex_output/reports/SBD-F24-TP3_green.txt"
+  }
+}

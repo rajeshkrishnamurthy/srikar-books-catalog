@@ -208,11 +208,6 @@ Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F19 topics.
 - Pagination params must compose cleanly with `#manage-books/available` so other Manage tabs continue to work as-is.
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
 # Feature: Sold Books Pagination Integration (F20)
 
 | ID | Title | Goal | Dependencies | Given | When | Then |
@@ -230,21 +225,13 @@ Notes:
 
 | ID | Title | Goal | Dependencies | Given | When | Then |
 |----|-------|------|--------------|-------|------|------|
-<<<<<<< Updated upstream
-| SBD-F21-TP1 | Manage Bundles Data Source Integration | Provide a pagination-aware data source for Manage Bundles that respects supplier/status filters and updated-at ordering. | F12-TP3, F17-TP1, F18-TP1, F18-TP5 | Bundles -> Manage renders dozens of bundles. | The pagination controller requests page 1 or follow-up slices with the current filters. | The Firestore query applies supplier/status filters, sorts by updatedAt then title, and returns normalized bundle metadata plus paging info. |
-| SBD-F21-TP2 | Manage Bundles Pagination Shell | Embed the shared pagination controls below the Manage Bundles table and sync them with controller state. | SBD-F21-TP1, F18-TP2 | The Manage Bundles list contains more rows than the current page size. | Admins click Prev/Next, change per-page, or use keyboard navigation. | Controls reflect loading/disabled states, the grid refreshes with the requested slice, and the summary shows the visible range (e.g., "Bundles 41-60 of 210"). |
-| SBD-F21-TP3 | Bundle Actions Preserve Pagination Context | Keep pagination stable while publishing/unpublishing or editing bundles from the Manage view. | SBD-F21-TP1, F12-TP2, F18-TP5 | An admin is on a later page with filters applied. | They publish/unpublish a bundle or run inline edits that update Firestore. | Only the affected row/page refreshes, totals adjust if the row leaves the filter, and the view never jumps back to page 1 unless the list empties. |
-=======
 | SBD-F21-TP1 | Manage Bundles Pagination Suite Adoption | Mount the pagination suite so the shared data source and controls drive the Manage Bundles grid. | F12-TP3, F17-TP1, F18-TP1, F18-TP2, F18-TP5 | Bundles -> Manage lists dozens of bundles and exposes supplier/status filters. | The pagination suite mounts and requests the first/next slice with active filters. | Normalized rows and paging metadata flow through the suite, Prev/Next/per-page UI renders, and URL/hash state reflects the current filters/page without custom wiring. |
 | SBD-F21-TP2 | Bundle Actions Preserve Pagination Context | Keep pagination stable while publishing/unpublishing or editing bundles from the Manage view. | SBD-F21-TP1, F12-TP2, F18-TP5 | An admin is on a later page with filters applied. | They publish/unpublish a bundle or run inline edits that update Firestore. | Only the affected row/page refreshes, totals adjust if the row leaves the filter, and the view never jumps back to page 1 unless the list empties. |
->>>>>>> Stashed changes
 
 Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F21 topics.
 - Keep pagination controls aligned with the Manage table footer (sticky on narrow screens) so bundle status/edit buttons stay near their paging context.
 
-<<<<<<< Updated upstream
-=======
 **Pattern reuse (`PAGINATION_SUITE`)**
 
 ```json
@@ -279,27 +266,18 @@ Notes:
 }
 ```
 
->>>>>>> Stashed changes
 
 # Feature: Open Book Requests Pagination Integration (F22)
 
 | ID | Title | Goal | Dependencies | Given | When | Then |
 |----|-------|------|--------------|-------|------|------|
-<<<<<<< Updated upstream
-| SBD-F22-TP1 | Book Requests Data Source | Serve open book requests through the pagination controller with created-at ordering and quick filters. | F18-TP1, F18-TP5 | The Book Requests panel shows many open requests. | The controller requests the first or next page with optional status/priority filters. | The data source queries open/pending requests sorted by createdAt desc and returns normalized requester/contact/book data plus paging metadata. |
-| SBD-F22-TP2 | Book Requests Pagination Shell | Drop the shared pagination controls beneath the requests list and keep them accessible. | SBD-F22-TP1, F18-TP2, F18-TP4 | More open requests exist than the default page size. | An admin pages through via buttons, keyboard, or per-page changes. | Controls disable while loading, the list and summary ("Requests 61-70 of 322 open") update, and URL/hash state tracks the page for reload safety. |
-| SBD-F22-TP3 | Book Request Actions Maintain Paging | Ensure resolving/snoozing/assigning requests updates the paged list without jumps. | SBD-F22-TP1 | An admin triages open requests while viewing a paginated slice. | They mark a request fulfilled, snoozed, or reassigned. | The row disappears or updates in place, the next row from the following page backfills when available, totals refresh, and the view only resets when the queue empties. |
-=======
 | SBD-F22-TP1 | Book Requests Pagination Suite Adoption | Adopt the pagination suite for the open requests queue so fetches, filters, and controls share one config. | F18-TP1, F18-TP2, F18-TP4, F18-TP5 | The Book Requests panel contains more open requests than the default page size and exposes status/priority filters. | The pagination suite mounts and the controller asks for the first or next slice with active filters. | Only open/pending requests are fetched in createdAt desc order, the requests-specific summary/controls render, and URL/hash state captures filter + page params for reload safety. |
 | SBD-F22-TP2 | Book Request Actions Maintain Paging | Ensure resolving/snoozing/assigning requests updates the paged list without jumps. | SBD-F22-TP1 | An admin triages open requests while viewing a paginated slice. | They mark a request fulfilled, snoozed, or reassigned. | The row disappears or updates in place, the next row from the following page backfills when available, totals refresh, and the view only resets when the queue empties. |
->>>>>>> Stashed changes
 
 Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F22 topics.
 - Keep focus management and summary copy request-specific so queue triage remains accessible even when pagination swaps content rapidly.
 
-<<<<<<< Updated upstream
-=======
 **Pattern reuse (`PAGINATION_SUITE`)**
 
 ```json
@@ -475,9 +453,6 @@ Notes:
   }
 }
 ```
-
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 
 # Feature: Backlog (BACKLOG)
 

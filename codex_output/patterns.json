@@ -2,15 +2,9 @@
   "patterns": [
     {
       "patternId": "PAGINATION_CONTRACT",
-<<<<<<< Updated upstream
-      "tier": "CONTRACT",
-      "version": "1.0.0",
-      "purpose": "Normalize pagination math (page size clamps, cursor vs offset handling, summary copy) so every list view shares one Firestore-agnostic request/response format.",
-=======
       "type": "contract",
       "version": "1.0.0",
       "purpose": "Normalize pagination math (page-size clamps, cursor/offset handling, summary copy) so every list view shares a datastore-agnostic request/response format.",
->>>>>>> Stashed changes
       "requiredParams": [
         "defaultPageSize"
       ],
@@ -22,70 +16,17 @@
       ],
       "adapters": {},
       "uiTexts": {
-<<<<<<< Updated upstream
-        "summaryTemplate": "Items {first}\u2013{last} of {total}"
-      ],
-      "a11yNotes": [
-        "Outputs summaryText that downstream shells must announce via aria-live=polite so cursor math stays invisible to assistive tech.",
-        "Surface prev/next disabled states derived from metadata so shells consistently wire aria-disabled."
-      ],
-      "requestShape": {
-        "pageSize": "number // desired size before clamping",
-        "direction": "'forward'|'backward' // defaults to forward",
-        "cursorAfter?": "string|null // used when direction=forward",
-        "cursorBefore?": "string|null // used when direction=backward",
-        "offset?": "number // starting index for summary math",
-        "filters?": "Record<string,string|number>// echoed by location helpers",
-        "defaults?": "{ pageSize?: number, minPageSize?: number, maxPageSize?: number }"
-      ],
-      "resultShape": {
-        "pageMeta": {
-          "count": "number // items.length",
-          "pageSize": "number",
-          "hasNext": "boolean",
-          "hasPrev": "boolean",
-          "nextCursor?": "string|null",
-          "prevCursor?": "string|null"
-        },
-        "summaryText": "string // e.g., Items 21\u201340 of 132",
-        "prevDisabled": "boolean",
-        "nextDisabled": "boolean",
-        "totalItems?": "number",
-        "currentOffset": "number",
-        "filters": "Record<string,string>",
-        "locationParams": "{ page: number, pageSize: number, offset: number, ...filters }"
-      ],
-      "publicAPI": [
-        "createPaginationRequest(options)",
-        "buildPaginationState(options)",
-        "buildPaginationShellState(options)",
-        "buildCatalogPaginationUi(options)",
-        "buildPaginationLocationParams(options)",
-        "parsePaginationFromLocation(options)"
-      ],
-=======
         "summaryTemplate": "Items {first}-{last} of {total}"
       },
       "a11yNotes": [
         "Outputs summaryText that downstream shells announce via aria-live=polite so cursor math stays invisible to assistive tech.",
         "Surface prev/next disabled states derived from metadata so shells consistently wire aria-disabled."
       ],
->>>>>>> Stashed changes
       "testBehaviors": [
         "Clamps requested pageSize between min/max/default values.",
         "Switches cursor usage automatically when direction changes.",
         "Normalizes hasNext/hasPrev booleans and null-safe cursors.",
         "Produces deterministic summaryText/disabled states for offsets at boundaries (first page, last page, empty).",
-<<<<<<< Updated upstream
-        "Serializes filters + pagination params into stable locationParams."
-      ]
-    },
-    {
-      "patternId": "PAGINATION_CONTROLLER",
-      "tier": "CONTROLLER",
-      "version": "1.0.0",
-      "purpose": "State machine that talks to a dataSource, keeps cursors/offsets/filters/URL state in sync, and exposes a tiny API for shells (pager or load-more).",
-=======
         "Serializes filters plus pagination params into stable locationParams."
       ],
       "docs": {
@@ -115,7 +56,6 @@
       "type": "controller",
       "version": "1.0.0",
       "purpose": "Promise-aware state machine that talks to a dataSource, keeps cursors/offsets/filters/URL state in sync, and exposes a small API for shells (pager or load-more).",
->>>>>>> Stashed changes
       "requiredParams": [
         "defaultPageSize"
       ],
@@ -132,57 +72,6 @@
         "parseLocation": "() => ({ pageSize?, direction?, cursorAfter?, cursorBefore?, offset?, filters? })",
         "syncLocation": "(params) => void",
         "onStateChange": "(state) => void"
-<<<<<<< Updated upstream
-      ],
-      "uiTexts": {
-        "summaryTemplate": "Items {first}\u2013{last} of {total}",
-        "loadMoreLabel": "Load more ({nextFirst}\u2013{nextLast} of {total})"
-      ],
-      "a11yNotes": [
-        "Expose `state.isLoading` so shells can toggle aria-busy and aria-disabled without their own timers.",
-        "Ensure `state.currentPage`, `state.totalPages`, and `state.summaryText` are available for announcing context when page changes."
-      ],
-      "requestShape": {
-        "pageSize": "number",
-        "direction": "'forward'|'backward'|'absolute'",
-        "cursorAfter?": "string|null",
-        "cursorBefore?": "string|null",
-        "offset?": "number",
-        "filters?": "Record<string,string>"
-      ],
-      "resultShape": {
-        "items": "any[]",
-        "pageMeta": {
-          "hasNext": "boolean",
-          "hasPrev": "boolean",
-          "nextCursor?": "string|null",
-          "prevCursor?": "string|null",
-          "pageSize": "number",
-          "count": "number"
-        },
-        "totalItems?": "number",
-        "currentOffset?": "number",
-        "summaryText": "string",
-        "prevDisabled": "boolean",
-        "nextDisabled": "boolean",
-        "isLoading": "boolean",
-        "currentPage": "number",
-        "totalPages": "number",
-        "mode": "'pager'|'loadMore'"
-      ],
-      "publicAPI": [
-        "getUiState()",
-        "goNext()",
-        "goPrev()",
-        "goToPage(page)",
-        "loadMore()",
-        "setFilters(partialFilters)",
-        "setPageSize(size)",
-        "refresh()",
-        "syncFromLocation({ search, totalItems })",
-        "syncToLocation(updateFn)",
-        "destroy()"
-=======
       },
       "uiTexts": {
         "summaryTemplate": "Items {first}-{last} of {total}",
@@ -191,7 +80,6 @@
       "a11yNotes": [
         "Expose state.isLoading so shells can toggle aria-busy and aria-disabled without their own timers.",
         "Ensure state.currentPage, state.totalPages, and state.summaryText are available for announcing context when page changes."
->>>>>>> Stashed changes
       ],
       "testBehaviors": [
         "Reads parseLocation() output before the first fetch to restore page/pageSize/filters.",
@@ -199,13 +87,6 @@
         "Drops stale cursors if offsets exceed totals and re-requests page 1.",
         "Ensures only the latest dataSource response mutates state (last-write-wins).",
         "Toggles isLoading/summary/disabled states in sync with goNext/goPrev/loadMore/setPageSize/setFilters."
-<<<<<<< Updated upstream
-      ]
-    },
-    {
-      "patternId": "PAGINATION_SHELL",
-      "tier": "SHELL",
-=======
       ],
       "docs": {
         "requestShape": {
@@ -235,7 +116,6 @@
     {
       "patternId": "PAGINATION_SHELL",
       "type": "shell",
->>>>>>> Stashed changes
       "version": "1.0.0",
       "purpose": "Declarative DOM wrapper (summary, Prev/Next, numeric pager, optional page-size select or load-more button) that consumes the pagination controller and standardizes markup/ARIA.",
       "requiredParams": [
@@ -252,63 +132,28 @@
         "formatSummary"
       ],
       "adapters": {
-<<<<<<< Updated upstream
-        "controller": "Return value from PAGINATION_CONTROLLER.mount()",
-        "formatSummary": "(summaryText, state) => string",
-        "announce": "(text) => void // optional hook for custom SR messaging"
-      ],
-=======
         "controller": "Return value from PAGINATION_CONTROLLER.create()",
         "formatSummary": "(summaryText, state) => string",
         "announce": "(text) => void"
       },
->>>>>>> Stashed changes
       "uiTexts": {
         "prevLabel": "Previous page",
         "nextLabel": "Next page",
         "pageSizeLabel": "Rows per page",
         "loadMoreLabel": "Load more"
-<<<<<<< Updated upstream
-      ],
-      "a11yNotes": [
-        "summaryEl must be aria-live=polite; shell toggles container aria-busy when controller reports isLoading.",
-=======
       },
       "a11yNotes": [
         "summaryEl must be aria-live=polite and the shell toggles container aria-busy when controller reports isLoading.",
->>>>>>> Stashed changes
         "Prev/Next buttons expose aria-disabled mirroring the disabled property.",
         "Numeric pager buttons set aria-current=\"page\" and include aria-label=\"Go to page N\"; ellipses are aria-hidden.",
         "Load-more button includes the upcoming range in its label for context."
       ],
-<<<<<<< Updated upstream
-      "requestShape": {
-        "state": "controller.getUiState() payload used to sync DOM",
-        "event": "'init'|'sync'|'teardown'",
-        "elements": "{ container, summaryEl, prevButton, nextButton, pagesContainer?, pageSizeSelect? }"
-      ],
-      "resultShape": {
-        "domUpdates": "Applies textContent/attributes/classes to supplied elements; no return value",
-        "eventListeners": "{ prev:onClick, next:onClick, pageButton:onClick, pageSize:onChange, loadMore:onClick }",
-        "teardown": "Removes listeners and aria attributes on destroy"
-      ],
-      "publicAPI": [
-        "mount(config)",
-        "sync()",
-        "cleanup()"
-      ],
-      "testBehaviors": [
-        "Disables Prev/Next buttons (and aria-disabled) whenever state.prevDisabled/state.nextDisabled or state.isBusy are true.",
-=======
       "testBehaviors": [
         "Disables Prev/Next buttons (and aria-disabled) whenever state.prevDisabled/state.nextDisabled or state.isLoading are true.",
->>>>>>> Stashed changes
         "Numeric pager renders compressed ranges with ellipses and highlights current page.",
         "Changing the page-size select calls controller.setPageSize and re-syncs summary text.",
         "Load-more button calls controller.loadMore and updates summary copy once results arrive.",
         "Announces summary text updates via aria-live and keeps focus on activated buttons."
-<<<<<<< Updated upstream
-=======
       ],
       "docs": {
         "requestShape": {
@@ -604,7 +449,6 @@
       "composes": [
         "INLINE_BUNDLE_PANEL_SHELL",
         "INLINE_BUNDLE_COMPOSER_CONTROLLER"
->>>>>>> Stashed changes
       ]
     }
   ]
