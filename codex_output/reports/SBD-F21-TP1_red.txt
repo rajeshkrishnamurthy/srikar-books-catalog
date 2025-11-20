@@ -1,0 +1,99 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F21-TP1
+
+(node:25777) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/SBD-F21-TP1-002_ManageBundlesPaginationShell.spec.js
+  SPEC SBD-F21-TP1-002: Manage Bundles pagination shell mirrors controller state
+    ✕ summary, busy indicator, and Prev/Next wiring sync with controller updates (54 ms)
+
+  ● SPEC SBD-F21-TP1-002: Manage Bundles pagination shell mirrors controller state › summary, busy indicator, and Prev/Next wiring sync with controller updates
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "true"
+    Received: "false"
+
+      39 |
+      40 |       controller.__config?.onStateChange?.();
+    > 41 |       expect(container?.getAttribute('aria-busy')).toBe('true');
+         |                                                    ^
+      42 |       expect(prevButton?.disabled).toBe(true);
+      43 |       expect(nextButton?.disabled).toBe(true);
+      44 |       expect(summary?.textContent).toBe('Bundles 1–20 of 180');
+
+      at Object.<anonymous> (tests/spec/admin/SBD-F21-TP1-002_ManageBundlesPaginationShell.spec.js:41:52)
+
+FAIL tests/spec/admin/SBD-F21-TP1-001_ManageBundlesPaginationConfig.spec.js
+  SPEC SBD-F21-TP1-001: Manage Bundles mounts shared pagination suite
+    ✕ opening Manage Bundles instantiates the pagination controller with bundle-specific config (29 ms)
+
+  ● SPEC SBD-F21-TP1-001: Manage Bundles mounts shared pagination suite › opening Manage Bundles instantiates the pagination controller with bundle-specific config
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      25 |       fireEvent.click(manageTab);
+      26 |
+    > 27 |       expect(createPaginationController).toHaveBeenCalledTimes(1);
+         |                                          ^
+      28 |
+      29 |       const config = controller.__config;
+      30 |       expect(config?.defaultPageSize).toBe(20);
+
+      at Object.<anonymous> (tests/spec/admin/SBD-F21-TP1-001_ManageBundlesPaginationConfig.spec.js:27:42)
+
+FAIL tests/spec/admin/SBD-F21-TP1-003_ManageBundlesFiltersTriggerController.spec.js
+  SPEC SBD-F21-TP1-003: Manage Bundles filters drive pagination requests
+    ✕ supplier/status filters and page-size selector push updates through the controller (30 ms)
+
+  ● SPEC SBD-F21-TP1-003: Manage Bundles filters drive pagination requests › supplier/status filters and page-size selector push updates through the controller
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "sup-42"
+    Received: undefined
+
+      34 |       fireEvent.change(supplierSelect);
+      35 |       const supplierFilters = controller.setFilters.mock.calls[0]?.[0] || {};
+    > 36 |       expect(supplierFilters.supplierId).toBe('sup-42');
+         |                                          ^
+      37 |
+      38 |       statusSelect.value = 'Published';
+      39 |       fireEvent.change(statusSelect);
+
+      at Object.<anonymous> (tests/spec/admin/SBD-F21-TP1-003_ManageBundlesFiltersTriggerController.spec.js:36:42)
+
+---------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                                                                                                                                              
+---------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                  |    8.14 |     3.66 |    5.99 |     8.7 |                                                                                                                                                                                                                                                                                                                                
+ auth.js                   |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                                                                                                                                                                                          
+ autoPrice.js              |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                                                                                                                                                                                           
+ availablePagination.js    |       0 |        0 |       0 |       0 | 5-353                                                                                                                                                                                                                                                                                                                          
+ bundleList.js             |       0 |        0 |       0 |       0 | 2-510                                                                                                                                                                                                                                                                                                                          
+ bundleStatus.js           |       0 |        0 |       0 |       0 | 7-110                                                                                                                                                                                                                                                                                                                          
+ bundles.js                |       0 |        0 |       0 |       0 | 3-494                                                                                                                                                                                                                                                                                                                          
+ currency.js               |       0 |        0 |       0 |       0 | 6-31                                                                                                                                                                                                                                                                                                                           
+ customerLookup.js         |       0 |        0 |       0 |       0 | 3-392                                                                                                                                                                                                                                                                                                                          
+ customers.js              |       0 |        0 |       0 |       0 | 3-520                                                                                                                                                                                                                                                                                                                          
+ editor.js                 |       0 |        0 |       0 |       0 | 27-411                                                                                                                                                                                                                                                                                                                         
+ inventory.js              |       0 |        0 |       0 |       0 | 31-1318                                                                                                                                                                                                                                                                                                                        
+ lookup.js                 |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                                                                                                                                                                                         
+ main.js                   |   38.27 |    21.91 |    29.8 |   40.49 | 313-319,327-328,341-346,350,375,389,392,407-411,418,439,445-450,458-700,720-730,735,738,756,799-804,836-840,852-864,883-884,904-921,941-962,967-968,974-984,988-992,1004-1007,1024-1061,1073,1076,1079,1082,1085,1088,1098-1186,1196-1198,1201,1210,1215-1216,1222,1234-1283,1302-1320,1417-1426,1440-1462,1470-1526,1531-1924 
+ requests.js               |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                                                                                                                                                                                           
+ salesEntryLauncher.js     |       0 |        0 |       0 |       0 | 2-68                                                                                                                                                                                                                                                                                                                           
+ salesHeader.js            |       0 |        0 |       0 |       0 | 3-505                                                                                                                                                                                                                                                                                                                          
+ salesLineItems.js         |       0 |        0 |       0 |       0 | 3-914                                                                                                                                                                                                                                                                                                                          
+ salesPersist.js           |       0 |        0 |       0 |       0 | 1-170                                                                                                                                                                                                                                                                                                                          
+ salesTitleAutocomplete.js |       0 |        0 |       0 |       0 | 9-225                                                                                                                                                                                                                                                                                                                          
+ suppliers.js              |       0 |        0 |       0 |       0 | 13-319                                                                                                                                                                                                                                                                                                                         
+---------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 3 failed, 3 total
+Tests:       3 failed, 3 total
+Snapshots:   0 total
+Time:        2.267 s
+Ran all test suites matching /SBD-F21-TP1/i.

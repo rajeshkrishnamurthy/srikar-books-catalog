@@ -1,0 +1,75 @@
+{
+  "topicId": "SBD-F23-TP3",
+  "featureId": "F23",
+  "title": "Selected Books List and Reset",
+  "area": "Admin / Available Books",
+  "goal": "List selected books inside the inline composer with remove buttons plus a Clear bundle confirmation that collapses the drawer once all books are removed.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F23-TP3-001",
+      "title": "SelectedChipsExposeRemoveButtons",
+      "given": "Two or more books are added to the inline bundle composer via Add to bundle triggers.",
+      "when": "The composer renders #inlineBundleSelectedBooks.",
+      "then": "Each chip includes a `[data-test='inlineBundleRemove']` button whose accessible name says “Remove {Title} from bundle” so keyboard users can remove a specific book."
+    },
+    {
+      "id": "SBD-F23-TP3-002",
+      "title": "RemovingFinalChipRestoresEmptyState",
+      "given": "At least one chip is present and the composer is not pinned.",
+      "when": "The admin activates the remove button on the last remaining chip.",
+      "then": "That chip disappears, the empty-state paragraph becomes visible, `#inlineBundleComposer` hides itself, and focus plus aria-expanded return to the originating `[data-test='bookAddToBundle']` trigger."
+    },
+    {
+      "id": "SBD-F23-TP3-003",
+      "title": "ClearBundlePromptsForMultipleSelections",
+      "given": "Two or more chips are listed in #inlineBundleSelectedBooks.",
+      "when": "The admin clicks #inlineBundleReset (Clear bundle).",
+      "then": "A confirmation dialog describing the Clear bundle action and the item count appears, and canceling the dialog leaves every chip and drawer state untouched."
+    },
+    {
+      "id": "SBD-F23-TP3-004",
+      "title": "ConfirmedClearBundleCollapsesDrawer",
+      "given": "The inline composer has at least one selected book.",
+      "when": "The admin confirms the Clear bundle prompt.",
+      "then": "All chips are removed, the empty-state copy returns, the drawer collapses (when unpinned), and focus returns to the most recent `[data-test='bookAddToBundle']` trigger with aria-expanded reset."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminInventoryHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F23-TP3-001_SelectedBookChipsExposeRemoveButtons.spec.js",
+    "/tests/spec/admin/SBD-F23-TP3-002_RemoveButtonClearsChipAndRestoresEmptyState.spec.js",
+    "/tests/spec/admin/SBD-F23-TP3-003_ClearBundlePromptsOnMultipleSelection.spec.js",
+    "/tests/spec/admin/SBD-F23-TP3-004_ClearBundleConfirmedClosesDrawer.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F23-TP3_red.txt",
+    "green": "codex_output/reports/SBD-F23-TP3_green.txt"
+  },
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false SBD-F23-TP3",
+    "report": "codex_output/reports/SBD-F23-TP3_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "All SBD-F23-TP3 specs now pass after wiring chip remove buttons, Clear bundle confirmation, and focus/empty-state handling."
+    }
+  },
+  "changedFiles": [
+    "codex_output/specs/SBD-F23-TP3.json",
+    "codex_output/reports/SBD-F23-TP3_red.txt",
+    "codex_output/reports/SBD-F23-TP3_green.txt",
+    "src/ui/patterns/inline-bundle-panel-shell/index.js",
+    "tests/spec/admin/SBD-F23-TP3-001_SelectedBookChipsExposeRemoveButtons.spec.js",
+    "tests/spec/admin/SBD-F23-TP3-002_RemoveButtonClearsChipAndRestoresEmptyState.spec.js",
+    "tests/spec/admin/SBD-F23-TP3-003_ClearBundlePromptsOnMultipleSelection.spec.js",
+    "tests/spec/admin/SBD-F23-TP3-004_ClearBundleConfirmedClosesDrawer.spec.js"
+  ],
+  "changeNotes": [
+    "Authored four RED-phase Jest specs for SBD-F23-TP3 covering inline bundle chip remove buttons, focus/empty-state restoration when the final chip is removed, and the Clear bundle confirmation plus teardown behaviors.",
+    "Implemented the inline bundle panel shell behaviors so chips expose `[data-test='inlineBundleRemove']` buttons with accessible labels, removing the last chip collapses the drawer/returns focus, and Clear bundle prompts when multiple selections exist before clearing state."
+  ]
+}

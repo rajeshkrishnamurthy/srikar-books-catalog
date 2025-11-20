@@ -1,0 +1,60 @@
+{
+  "topicId": "SBD-F21-TP1",
+  "featureId": "F21",
+  "title": "Manage Bundles Pagination Suite Adoption",
+  "area": "Admin / Bundles",
+  "goal": "Mount the pagination suite in Manage Bundles so the shared data source and controls power the grid with zero duplicated logic.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F21-TP1-001",
+      "title": "ManageBundlesPaginationConfig",
+      "given": "An admin signs in, opens Bundles \u2192 Manage, and the pagination anchors (#bundlePagination, summary, Prev/Next buttons, and page-size select) are present.",
+      "when": "initMain wires the Manage Bundles panel to the shared pagination suite.",
+      "then": "It calls the pagination controller once with defaultPageSize 20, pageSizeOptions [10, 20, 50], pager mode, and dataSource/parseLocation/syncLocation adapters so Manage Bundles reuses the shared stack."
+    },
+    {
+      "id": "SBD-F21-TP1-002",
+      "title": "ManageBundlesPaginationShellSync",
+      "given": "The pagination controller emits busy/idle UI state updates for Manage Bundles.",
+      "when": "onStateChange runs for the Manage Bundles shell.",
+      "then": "#bundlePagination toggles aria-busy, the summary reflects \"Bundles {first}\u2013{last} of {total}\", and Prev/Next buttons mirror disabled states and invoke controller.goNext/goPrev when enabled."
+    },
+    {
+      "id": "SBD-F21-TP1-003",
+      "title": "ManageBundlesFiltersDriveController",
+      "given": "Supplier/status filters and the rows-per-page select are visible on the Manage Bundles tab.",
+      "when": "An admin changes those controls.",
+      "then": "controller.setFilters receives supplierId/status from the selects and controller.setPageSize receives the numeric value so the pagination suite resets to page 1 with the new params."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js",
+    "/tests/fixtures/paginationControllerStub.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F21-TP1-001_ManageBundlesPaginationConfig.spec.js",
+    "/tests/spec/admin/SBD-F21-TP1-002_ManageBundlesPaginationShell.spec.js",
+    "/tests/spec/admin/SBD-F21-TP1-003_ManageBundlesFiltersTriggerController.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F21-TP1_red.txt",
+    "green": "codex_output/reports/SBD-F21-TP1_green.txt"
+  },
+  "changedFiles": [
+    "scripts/admin/main.js",
+    "codex_output/specs/SBD-F21-TP1.json",
+    "codex_output/reports/SBD-F21-TP1_green.txt"
+  ],
+  "changeNotes": [
+    "Mounted the shared pagination controller/shell on Bundles \u2192 Manage, including selectors, adapter plumbing, and DOM sync so summary + Prev/Next mirror controller state.",
+    "Wired supplier/status filters and the page-size select directly to the controller plus tracked pending select values so tests can feed arbitrary supplier IDs.",
+    "Captured the GREEN run of `npm test -- --watchAll=false SBD-F21-TP1` to codex_output/reports/SBD-F21-TP1_green.txt."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false SBD-F21-TP1",
+    "report": "codex_output/reports/SBD-F21-TP1_green.txt"
+  }
+}
