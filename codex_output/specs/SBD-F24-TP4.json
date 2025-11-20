@@ -1,0 +1,78 @@
+{
+  "topicId": "SBD-F24-TP4",
+  "featureId": "F24",
+  "title": "Inline Bundle Pricing and MRP Summary",
+  "area": "Admin / Available Books",
+  "goal": "Auto-update recommended bundle price after two selections and surface total MRP in the inline composer drawer.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F24-TP4-001",
+      "title": "AutoRecommendationOnSecondSelection",
+      "given": "The inline bundle composer drawer is open with INR currency and pricing summary elements visible.",
+      "when": "A first book is added and then a second book is added to the selection (meeting the default threshold).",
+      "then": "fetchPriceRecommendation fires once automatically with both selected bookIds and currency without requiring an extra click."
+    },
+    {
+      "id": "SBD-F24-TP4-002",
+      "title": "FormatterUpdatesPricingText",
+      "given": "At least two books are selected and the recommendation adapter returns recommendedPriceMinor and totalSalePriceMinor.",
+      "when": "The recommendation promise resolves.",
+      "then": "The Recommended price and Total sale price fields swap placeholder copy for formatPrice outputs that reflect the returned minor-unit values."
+    },
+    {
+      "id": "SBD-F24-TP4-003",
+      "title": "TotalMrpSummedAndAnnounced",
+      "given": "Selected books include mrpMinor metadata and the composer pricing summary is visible.",
+      "when": "Recommendation results are processed after selection changes.",
+      "then": "The composer renders a Total MRP value derived from the mrpMinor sum (or adapter payload), formats it with formatPrice, and calls announce with a message that includes the updated total."
+    },
+    {
+      "id": "SBD-F24-TP4-004",
+      "title": "MissingMrpFallsBackToPlaceholder",
+      "given": "A selection is present but one or more books do not have mrpMinor data.",
+      "when": "The pricing summary updates after the recommendation call.",
+      "then": "The Total MRP block shows placeholder/fallback copy (without currency digits) and the announce adapter communicates that MRP is unavailable for aria-live feedback."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/inlineBundleComposerHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F24-TP4-001_AutoRecommendationFiresOnSecondSelection.spec.js",
+    "/tests/spec/admin/SBD-F24-TP4-002_FormattedPricingTextUpdates.spec.js",
+    "/tests/spec/admin/SBD-F24-TP4-003_TotalMrpSummedAndAnnounced.spec.js",
+    "/tests/spec/admin/SBD-F24-TP4-004_TotalMrpFallbackWhenMissing.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F24-TP4_red.txt",
+    "green": "codex_output/reports/SBD-F24-TP4_green.txt"
+  },
+  "changedFiles": [
+    "jest.config.js",
+    "src/ui/patterns/inline-bundle-composer/index.js",
+    "src/ui/patterns/inline-bundle-composer-controller/index.js",
+    "src/ui/patterns/inline-bundle-panel-shell/index.js",
+    "scripts/admin/inventory.js",
+    "admin.html",
+    "codex_output/src/ui/patterns/inline-bundle-composer/index.js",
+    "codex_output/tests/setup-require.js",
+    "codex_output/tests/fixtures/package.json",
+    "codex_output/tests/fixtures/inlineBundleComposerHarness.js",
+    "tests/fixtures/adminInventoryHarness.js",
+    "codex_output/specs/SBD-F24-TP4.json",
+    "codex_output/reports/SBD-F24-TP4_red.txt",
+    "codex_output/reports/SBD-F24-TP4_green.txt"
+  ],
+  "changeNotes": [
+    "Auto-trigger price recommendation once two books are selected, render formatted recommended/total prices, and surface Total MRP with aria-live announcements.",
+    "Fallback placeholder copy is shown when MRP data is missing, and a Jest harness plus require shim ensure admin specs run under ESM.",
+    "Admin inventory wiring now pipes Add to bundle selections into the composer controller so pricing fields update automatically."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false SBD-F24-TP4",
+    "report": "codex_output/reports/SBD-F24-TP4_green.txt"
+  }
+}

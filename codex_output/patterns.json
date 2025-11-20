@@ -3,7 +3,7 @@
     {
       "patternId": "PAGINATION_CONTRACT",
       "type": "contract",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "purpose": "Normalize pagination math (page-size clamps, cursor/offset handling, summary copy) so every list view shares a datastore-agnostic request/response format.",
       "requiredParams": [
         "defaultPageSize"
@@ -54,7 +54,7 @@
     {
       "patternId": "PAGINATION_CONTROLLER",
       "type": "controller",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "purpose": "Promise-aware state machine that talks to a dataSource, keeps cursors/offsets/filters/URL state in sync, and exposes a small API for shells (pager or load-more).",
       "requiredParams": [
         "defaultPageSize"
@@ -259,7 +259,8 @@
         "emptyState",
         "bookRowSelector",
         "pinButton",
-        "viewBundleLink"
+        "viewBundleLink",
+        "totalMrp"
       ],
       "adapters": {
         "controller": "BundleComposerController instance with subscribe(listener) => unsubscribe and dispatch(action, payload).",
@@ -273,6 +274,7 @@
         "bundlePriceLabel": "Bundle price",
         "recommendedPriceLabel": "Recommended price",
         "totalPriceLabel": "Total sale price",
+        "totalMrpLabel": "Total MRP",
         "saveLabel": "Save bundle",
         "resetLabel": "Clear bundle"
       },
@@ -280,6 +282,7 @@
         "Use role='region' with aria-label or aria-labelledby=panelHeading so screen readers announce the drawer when it opens.",
         "Focus must move to panelHeading when the drawer opens and return to the triggering book card when it closes.",
         "Recommended and total price blocks should mirror controller output via aria-live=polite so price changes are heard without extra timers.",
+        "Expose a total MRP block with aria-live when rendered so assistive tech hears the updated sum.",
         "Ensure remove buttons expose the book title in their accessible name and Clear bundle announces count of items being removed.",
         "Mark invalid inputs with aria-invalid and tie helper text via aria-describedby as soon as validation errors arrive."
       ],
@@ -288,13 +291,14 @@
         "Panel stays visible/pinned when multiple selections exist and collapses only when stateController reports zero selections.",
         "Book chips render in selection order with remove buttons that call controller.dispatch('removeBook', bookId).",
         "Save/Reset buttons reflect disabled/aria-busy state from controller state without desync.",
-        "Recommended price placeholder swaps to formatted output using formatPrice() once controller emits values."
+        "Recommended price placeholder swaps to formatted output using formatPrice() once controller emits values.",
+        "Total MRP output renders alongside total price with placeholder copy when missing and updates when selections change."
       ],
       "docs": {
         "requestShape": {
-          "params": "{ container: Element, panelHeading: Element, triggerSelector: string, bookList: Element, bundleNameInput: HTMLInputElement, bundlePriceInput: HTMLInputElement, recommendedPrice: Element, totalPrice: Element }",
+          "params": "{ container: Element, panelHeading: Element, triggerSelector: string, bookList: Element, bundleNameInput: HTMLInputElement, bundlePriceInput: HTMLInputElement, recommendedPrice: Element, totalPrice: Element, totalMrp?: Element }",
           "adapters": "{ controller, formatPrice, announce }",
-          "uiTexts": "{ panelTitle?, emptyState?, bundleNameLabel?, bundlePriceLabel?, recommendedPriceLabel?, totalPriceLabel?, saveLabel?, resetLabel? }"
+          "uiTexts": "{ panelTitle?, emptyState?, bundleNameLabel?, bundlePriceLabel?, recommendedPriceLabel?, totalPriceLabel?, totalMrpLabel?, saveLabel?, resetLabel? }"
         },
         "stateShape": {
           "isOpen": "boolean",
@@ -302,10 +306,57 @@
           "activeBookIds": "string[]",
           "fieldStatus": "{ bundleName: { value: string, error?: string }, bundlePrice: { value: string, error?: string } }",
           "recommendedPriceText": "string",
-          "totalPriceText": "string"
+          "totalPriceText": "string",
+          "totalMrpText": "string"
         },
         "mountApi": "mountInlineBundlePanel(container, { params, adapters, uiTexts, options }) => { addBook(book, triggerButton), reset(), destroy() }",
         "modulePath": "src/ui/patterns/inline-bundle-panel-shell/index.js"
+      }
+    },
+    {
+      "patternId": "BUNDLE_PRICE_RECOMMENDATION",
+      "type": "contract",
+      "version": "1.0.0",
+      "purpose": "Provide a reusable recommendation contract to compute bundle recommended price, total sale price, and total MRP once enough books are selected.",
+      "requiredParams": [
+        "currency",
+        "recommendationThreshold"
+      ],
+      "optionalParams": [
+        "debounceMs",
+        "maxBooks"
+      ],
+      "adapters": {
+        "fetchPriceRecommendation": "({ bookIds: string[], currency: string }) => Promise<{ recommendedPriceMinor: number|null, totalSalePriceMinor: number|null, totalMrpMinor?: number|null }>"
+      },
+      "uiTexts": {
+        "pendingCopy": "Add another book to see a recommended price",
+        "placeholder": "\u2014"
+      },
+      "a11yNotes": [
+        "Meant for aria-live surfaces; provide placeholder copy when recommendation data is missing.",
+        "Expose numeric fields; shells handle formatting and announcement so assistive tech hears value changes."
+      ],
+      "testBehaviors": [
+        "fetchPriceRecommendation only fires when selection count >= recommendationThreshold and requests debounce to avoid spam.",
+        "Adapter failures return null recommendation/totalSale values and keep placeholders intact.",
+        "totalMrpMinor is derived from supplied book metadata when present and clamps to 0/placeholder when missing.",
+        "Returned payload includes a status and lastUpdated timestamp so shells can show pending or stale states."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ currency: string, recommendationThreshold: number, debounceMs?: number, maxBooks?: number }",
+          "adapters": "{ fetchPriceRecommendation: ({ bookIds, currency }) => Promise<{ recommendedPriceMinor?: number|null, totalSalePriceMinor?: number|null, totalMrpMinor?: number|null }> }",
+          "options": "{ clock?: () => number }"
+        },
+        "stateShape": {
+          "recommendedPriceMinor": "number|null",
+          "totalSalePriceMinor": "number|null",
+          "totalMrpMinor": "number|null",
+          "status": "pending | ready | error",
+          "lastUpdated": "number (timestamp)"
+        },
+        "mountApi": "computeBundlePriceRecommendation({ bookIds, currency, options }) => Promise<{ recommendedPriceMinor, totalSalePriceMinor, totalMrpMinor, status, lastUpdated }>"
       }
     },
     {
@@ -347,6 +398,7 @@
       "testBehaviors": [
         "First addBook() call spawns an empty context with a generated bundleId and stores the triggering book without duplicates.",
         "Recommended/total price calculations only fire when selection count >= recommendationThreshold and collapse back to placeholders when below threshold.",
+        "totalMrpMinor is derived from selected book metadata when present and returns 0 (or null) when data is missing.",
         "Validation errors block saveBundle() and clear immediately after the field becomes valid.",
         "Reset returns controller state to the initial empty draft while preserving persistSessionKey metadata when provided.",
         "saveBundle() is idempotent; duplicate invocations while isSaving stays true are ignored."
@@ -364,6 +416,7 @@
           "bundlePriceMinor": "number|null",
           "recommendedPriceMinor": "number|null",
           "totalSalePriceMinor": "number",
+          "totalMrpMinor": "number|null",
           "validationErrors": "Record<string,string>",
           "isSaving": "boolean",
           "resumeBundleId": "string|null",
@@ -398,7 +451,9 @@
         "viewBundleLink",
         "emptyState",
         "persistSessionKey",
-        "maxBooks"
+        "maxBooks",
+        "totalMrp",
+        "recommendationThreshold"
       ],
       "adapters": {
         "fetchPriceRecommendation": "({ bookIds: string[], currency: string }) => Promise<{ recommendedPriceMinor: number, totalSalePriceMinor: number }>",
@@ -418,7 +473,8 @@
         "saveLabel": "Save bundle",
         "updateLabel": "Update bundle",
         "clearBundleLabel": "Clear bundle",
-        "viewBundleLabel": "View bundle"
+        "viewBundleLabel": "View bundle",
+        "totalMrpLabel": "Total MRP"
       },
       "a11yNotes": [
         "Aggregate must apply aria-live to pricing summaries and toast messages while keeping focus inside the composer during saves.",
@@ -429,15 +485,16 @@
       "testBehaviors": [
         "First Add to bundle trigger mounts the aggregate exactly once and wires controller->shell state without race conditions.",
         "Existing bundle selection hydrates controller state and refreshes shell chips without losing unsaved book selections.",
+        "Recommendation adapter auto-fires once selection count meets the threshold (default 2) and streams formatted recommended/total prices plus total MRP to the shell.",
         "saveBundle() promise resolution shows toastSuccess, passes bundleId to viewBundleLink, and clears state only when the user confirms.",
         "Error paths call toastError, keep the panel open, and leave controller state untouched for retries.",
         "linkBooks() calls happen after saveBundle() resolves to ensure Firestore writes stay ordered."
       ],
       "docs": {
         "requestShape": {
-          "params": "{ container, panelHeading, triggerSelector, bookList, bundleNameInput, bundlePriceInput, recommendedPrice, totalPrice, saveButton, currency, existingBundleSelect?, resetButton? }",
+          "params": "{ container, panelHeading, triggerSelector, bookList, bundleNameInput, bundlePriceInput, recommendedPrice, totalPrice, saveButton, currency, existingBundleSelect?, resetButton?, totalMrp?, recommendationThreshold?, persistSessionKey?, maxBooks? }",
           "adapters": "{ fetchPriceRecommendation, loadBundle, listExistingBundles?, saveBundle, linkBooks, formatPrice, toastSuccess, toastError, announce }",
-          "uiTexts": "{ panelTitle?, emptyState?, existingBundleLabel?, saveLabel?, updateLabel?, clearBundleLabel?, viewBundleLabel? }"
+          "uiTexts": "{ panelTitle?, emptyState?, existingBundleLabel?, saveLabel?, updateLabel?, clearBundleLabel?, viewBundleLabel?, totalMrpLabel? }"
         },
         "stateShape": {
           "controllerState": "InlineBundleComposerControllerState",
@@ -448,7 +505,8 @@
       },
       "composes": [
         "INLINE_BUNDLE_PANEL_SHELL",
-        "INLINE_BUNDLE_COMPOSER_CONTROLLER"
+        "INLINE_BUNDLE_COMPOSER_CONTROLLER",
+        "BUNDLE_PRICE_RECOMMENDATION"
       ]
     }
   ]

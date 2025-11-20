@@ -56,18 +56,31 @@ Note: Examples in this document are non-normative. The Pattern schema and tier m
 ## INLINE_BUNDLE_PANEL_SHELL (type: shell, v1.1.0)
 - **Purpose.** Render the inline bundle composer drawer beside listing views with consistent triggers, chips, and bundle form controls.
 - **Required params.** `container`, `panelHeading`, `triggerSelector`, `bookList`, `bundleNameInput`, `bundlePriceInput`, `recommendedPrice`, `totalPrice`, `saveButton`, `resetButton`.
-- **Optional params.** `overlay`, `closeButton`, `existingBundleSelect`, `emptyState`, `bookRowSelector`, `pinButton`, `viewBundleLink`.
+- **Optional params.** `overlay`, `closeButton`, `existingBundleSelect`, `emptyState`, `bookRowSelector`, `pinButton`, `viewBundleLink`, `totalMrp`.
 - **Adapters.** `controller` (subscribe/dispatch API), `formatPrice(valueInMinorUnits, currency)`, `announce(message, politeness)`.
-- **UI texts.** Panel title, empty state copy, bundle name/price labels, recommended/total labels, save and clear labels.
+- **UI texts.** Panel title, empty state copy, bundle name/price labels, recommended/total price labels, total MRP label, save and clear labels.
 - **Docs.**
-  - Request shape: `{ params, adapters, uiTexts }` where params provide DOM refs/selectors for triggers and form fields.
-  - State shape: `{ isOpen, pinned, activeBookIds, fieldStatus, recommendedPriceText, totalPriceText }`.
+  - Request shape: `{ params, adapters, uiTexts }` where params provide DOM refs/selectors for triggers and form fields (including optional totalMrp).
+  - State shape: `{ isOpen, pinned, activeBookIds, fieldStatus, recommendedPriceText, totalPriceText, totalMrpText }`.
   - Mount API: `mountInlineBundlePanel(container, { params, adapters, uiTexts, options }) => { addBook(book, triggerButton), reset(), destroy() }`.
   - Module path: `src/ui/patterns/inline-bundle-panel-shell/index.js`.
-- **Accessibility.** Drawer uses `role="region"` plus `aria-labelledby` for the heading, moves focus to the heading when opened, mirrors controller validation via `aria-invalid`, and pipes recommended/total price updates through `aria-live`.
-- **Test behaviors.** Opening from any trigger updates focus + `aria-expanded`, chips render in selection order with remove buttons calling `controller.dispatch('removeBook', bookId)`, Save/Reset track disabled and `aria-busy` state, recommended price placeholder swaps to formatted copy via `formatPrice`, and the drawer collapses automatically when zero selections remain (unless pinned).
+- **Accessibility.** Drawer uses `role="region"` plus `aria-labelledby` for the heading, moves focus to the heading when opened, mirrors controller validation via `aria-invalid`, and pipes recommended/total/total-MRP updates through `aria-live`.
+- **Test behaviors.** Opening from any trigger updates focus + `aria-expanded`, chips render in selection order with remove buttons calling `controller.dispatch('removeBook', bookId)`, Save/Reset track disabled and `aria-busy` state, recommended price placeholder swaps to formatted copy via `formatPrice`, total MRP renders with placeholder copy when missing, and the drawer collapses automatically when zero selections remain (unless pinned).
 
-## INLINE_BUNDLE_COMPOSER_CONTROLLER (type: controller, v1.0.0)
+## BUNDLE_PRICE_RECOMMENDATION (type: contract, v1.0.0)
+- **Purpose.** Reusable contract to compute recommended bundle price, total sale price, and total MRP once enough books are selected.
+- **Required params.** `currency`, `recommendationThreshold`.
+- **Optional params.** `debounceMs`, `maxBooks`.
+- **Adapters.** `fetchPriceRecommendation({ bookIds, currency }) => Promise<{ recommendedPriceMinor: number|null, totalSalePriceMinor: number|null, totalMrpMinor?: number|null }>`.
+- **UI texts.** Pending copy and placeholder symbols for fallback/aria-live stability.
+- **Docs.**
+  - Request shape: `{ params, adapters, options }` where params cover currency and thresholds and adapters provide the recommendation fetcher.
+  - State shape: `{ recommendedPriceMinor, totalSalePriceMinor, totalMrpMinor, status, lastUpdated }`.
+  - Mount API: `computeBundlePriceRecommendation({ bookIds, currency, options }) => Promise<{ recommendedPriceMinor, totalSalePriceMinor, totalMrpMinor, status, lastUpdated }>>`.
+- **Accessibility.** Emits numeric fields intended for aria-live regions; placeholders keep screen readers from announcing undefined values.
+- **Test behaviors.** Fires only when selection count meets the threshold with debounced requests, surfaces nulls on adapter failure, derives total MRP when book metadata is present while clamping missing data to placeholders, and returns timestamps to support stale-state handling.
+
+## INLINE_BUNDLE_COMPOSER_CONTROLLER (type: controller, v1.1.0)
 - **Purpose.** Maintain bundle context, compute pricing, enforce validation, and orchestrate persistence for inline bundle creation.
 - **Required params.** `currency`, `pricePrecision`, `recommendationThreshold`.
 - **Optional params.** `bundleId`, `maxBooks`, `persistSessionKey`, `defaultBundleNamePrefix`, `clock`, `analytics`.
@@ -75,21 +88,21 @@ Note: Examples in this document are non-normative. The Pattern schema and tier m
 - **UI texts.** Default bundle name prefix, price placeholder, copy for recommended-price pending state, duplicate-book error.
 - **Docs.**
   - Request shape: `{ params, adapters, options }` covering currency/precision, debounce timers, and analytics hooks.
-  - State shape: `{ bundleId, books, bundleName, bundlePriceMinor, recommendedPriceMinor, totalSalePriceMinor, validationErrors, isSaving, resumeBundleId, lastInteraction }`.
+  - State shape: `{ bundleId, books, bundleName, bundlePriceMinor, recommendedPriceMinor, totalSalePriceMinor, totalMrpMinor, validationErrors, isSaving, resumeBundleId, lastInteraction }`.
   - Mount API: `createInlineBundleComposerController({ params, adapters, uiTexts, options }) => { addBook(book), removeBook(bookId), updateFields(partial), setExistingBundle(bundleId), reset(), saveBundle(), getState(), subscribe(listener), destroy() }`.
 - **Accessibility.** Emits `lastAnnouncedMessage` so shells can route it to `aria-live`, tracks a `focusRestoreTarget` after destructive actions, and exposes `validationErrors` keyed per field to keep `aria-describedby` mappings deterministic.
-- **Test behaviors.** First `addBook()` spawns a new context and ignores duplicates, pricing calls only fire once selection count meets the threshold, validation gates `saveBundle()`, resets preserve draft metadata when requested, and concurrent `saveBundle()` calls coalesce while `isSaving` is true.
+- **Test behaviors.** First `addBook()` spawns a new context and ignores duplicates, pricing calls only fire once selection count meets the threshold, controller derives total MRP from selected book metadata when present, validation gates `saveBundle()`, resets preserve draft metadata when requested, and concurrent `saveBundle()` calls coalesce while `isSaving` is true.
 
-## INLINE_BUNDLE_COMPOSER (type: aggregate, v1.0.0)
+## INLINE_BUNDLE_COMPOSER (type: aggregate, v1.1.0)
 - **Purpose.** Ship a complete inline bundle composer (shell + controller) so list views mount one factory to add books, preview pricing, and save bundles without leaving the page.
 - **Required params.** `container`, `panelHeading`, `triggerSelector`, `bookList`, `bundleNameInput`, `bundlePriceInput`, `recommendedPrice`, `totalPrice`, `saveButton`, `currency`.
-- **Optional params.** `existingBundleSelect`, `resetButton`, `overlay`, `closeButton`, `pinButton`, `viewBundleLink`, `emptyState`, `persistSessionKey`, `maxBooks`.
+- **Optional params.** `existingBundleSelect`, `resetButton`, `overlay`, `closeButton`, `pinButton`, `viewBundleLink`, `emptyState`, `persistSessionKey`, `maxBooks`, `totalMrp`, `recommendationThreshold`.
 - **Adapters.** `fetchPriceRecommendation`, `loadBundle`, `listExistingBundles`, `saveBundle`, `linkBooks`, `formatPrice`, `toastSuccess`, `toastError`, `announce`.
-- **UI texts.** Panel title, empty state, existing-bundle label, save/update labels, clear bundle label, optional View bundle CTA label.
+- **UI texts.** Panel title, empty state, existing-bundle label, save/update labels, clear bundle label, total MRP label, optional View bundle CTA label.
 - **Docs.**
-  - Request shape: `{ params, adapters, uiTexts }` where params include DOM anchors and controller tuning knobs.
+  - Request shape: `{ params, adapters, uiTexts }` where params include DOM anchors and controller tuning knobs (including optional totalMrp and recommendationThreshold).
   - State shape: `{ controllerState, shellState, teardown }`.
   - Mount API: `mountInlineBundleComposer({ params, adapters, uiTexts, options }) => { controller, shell, destroy() }`.
 - **Accessibility.** Keeps price summaries and toasts `aria-live`, links triggers to the drawer via `aria-controls`, traps focus while saving, and routes error summaries to focus before returning it to the Save button.
-- **Test behaviors.** First trigger mounts the aggregate once, existing-bundle selection hydrates controller state and shell chips, `saveBundle()` calls `linkBooks()` only after success, error paths keep context intact while surfacing `toastError`, and success paths emit `toastSuccess` plus view-bundle link updates before optionally clearing state.
-- **Composes.** `INLINE_BUNDLE_PANEL_SHELL`, `INLINE_BUNDLE_COMPOSER_CONTROLLER`.
+- **Test behaviors.** First trigger mounts the aggregate once, existing-bundle selection hydrates controller state and shell chips, recommendation calls auto-fire once the selection threshold is met and stream formatted recommended/total prices plus total MRP to the shell, `saveBundle()` calls `linkBooks()` only after success, error paths keep context intact while surfacing `toastError`, and success paths emit `toastSuccess` plus view-bundle link updates before optionally clearing state.
+- **Composes.** `INLINE_BUNDLE_PANEL_SHELL`, `INLINE_BUNDLE_COMPOSER_CONTROLLER`, `BUNDLE_PRICE_RECOMMENDATION`.

@@ -1,6 +1,10 @@
 const DEFAULT_OPTIONS = {
-  debounceMs: 25,
+  debounceMs: 0,
 };
+
+const DEFAULT_RECOMMENDATION_THRESHOLD = 2;
+
+const isNumeric = (value) => typeof value === 'number' && !Number.isNaN(value);
 
 function generateBundleId() {
   return `inline-bundle-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -30,6 +34,7 @@ function createDefaultState() {
     bundlePriceMinor: null,
     recommendedPriceMinor: null,
     totalSalePriceMinor: 0,
+    totalMrpMinor: null,
     validationErrors: {},
     isSaving: false,
     lastInteraction: null,
@@ -46,6 +51,30 @@ function coerceBundlePrice(value) {
   }
   if (value === null || value === undefined) return null;
   return value;
+}
+
+function coerceMrpMinor(value) {
+  if (isNumeric(value)) return value;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    const numeric = Number(trimmed);
+    return Number.isNaN(numeric) ? null : numeric;
+  }
+  return null;
+}
+
+function computeTotalMrp(books = []) {
+  if (!Array.isArray(books) || books.length === 0) return null;
+  let total = 0;
+  for (const book of books) {
+    const mrp = coerceMrpMinor(book?.mrpMinor);
+    if (!isNumeric(mrp)) {
+      return null;
+    }
+    total += mrp;
+  }
+  return total;
 }
 
 export function createInlineBundleComposerController(config = {}) {
@@ -82,19 +111,71 @@ export function createInlineBundleComposerController(config = {}) {
     return state.bundleId;
   };
 
+  const getRecommendationThreshold = () => {
+    const thresholdInput =
+      params.recommendationThreshold === undefined || params.recommendationThreshold === null
+        ? DEFAULT_RECOMMENDATION_THRESHOLD
+        : params.recommendationThreshold;
+    const numericThreshold = Number(thresholdInput);
+    if (!Number.isFinite(numericThreshold)) return DEFAULT_RECOMMENDATION_THRESHOLD;
+    return numericThreshold;
+  };
+
+  const syncTotalMrpFromSelection = () => {
+    state.totalMrpMinor = computeTotalMrp(state.books);
+  };
+
+  const deriveTotalMrp = (result = {}) => {
+    const adapterMrp = coerceMrpMinor(result.totalMrpMinor);
+    if (isNumeric(adapterMrp)) {
+      return adapterMrp;
+    }
+    return computeTotalMrp(state.books);
+  };
+
   const shouldRequestRecommendation = () => {
-    const threshold = Number(params.recommendationThreshold) || 0;
+    const threshold = getRecommendationThreshold() || 0;
     return Array.isArray(state.books) && state.books.length >= threshold && threshold > 0;
   };
 
   const clearRecommendation = () => {
     recommendationRequestId += 1;
     state.recommendedPriceMinor = null;
+    state.totalSalePriceMinor = 0;
+    syncTotalMrpFromSelection();
+  };
+
+  const runRecommendation = async (requestId) => {
+    const payload = {
+      bookIds: state.books.map((book) => book.id),
+      currency: params.currency,
+    };
+
+    try {
+      if (typeof adapters.fetchPriceRecommendation === 'function') {
+        const result = await adapters.fetchPriceRecommendation(payload);
+        if (requestId !== recommendationRequestId) return;
+        state.recommendedPriceMinor = result?.recommendedPriceMinor ?? null;
+        if (Object.prototype.hasOwnProperty.call(result || {}, 'totalSalePriceMinor')) {
+          state.totalSalePriceMinor = result.totalSalePriceMinor;
+        }
+        state.totalMrpMinor = deriveTotalMrp(result);
+      } else {
+        state.recommendedPriceMinor = null;
+        state.totalMrpMinor = computeTotalMrp(state.books);
+      }
+    } catch {
+      if (requestId !== recommendationRequestId) return;
+      state.recommendedPriceMinor = null;
+      state.totalMrpMinor = computeTotalMrp(state.books);
+    }
+    emitState();
   };
 
   const scheduleRecommendation = () => {
     if (recommendationTimer) {
       clearTimeout(recommendationTimer);
+      recommendationTimer = null;
     }
 
     if (!shouldRequestRecommendation()) {
@@ -104,30 +185,14 @@ export function createInlineBundleComposerController(config = {}) {
     }
 
     const requestId = ++recommendationRequestId;
-    recommendationTimer = setTimeout(async () => {
-      recommendationTimer = null;
-      const payload = {
-        bookIds: state.books.map((book) => book.id),
-        currency: params.currency,
-      };
-
-      try {
-        if (typeof adapters.fetchPriceRecommendation === 'function') {
-          const result = await adapters.fetchPriceRecommendation(payload);
-          if (requestId !== recommendationRequestId) return;
-          state.recommendedPriceMinor = result?.recommendedPriceMinor ?? null;
-          if (Object.prototype.hasOwnProperty.call(result || {}, 'totalSalePriceMinor')) {
-            state.totalSalePriceMinor = result.totalSalePriceMinor;
-          }
-        } else {
-          state.recommendedPriceMinor = null;
-        }
-      } catch {
-        if (requestId !== recommendationRequestId) return;
-        state.recommendedPriceMinor = null;
-      }
-      emitState();
-    }, mergedOptions.debounceMs);
+    if (mergedOptions.debounceMs > 0) {
+      recommendationTimer = setTimeout(() => {
+        recommendationTimer = null;
+        runRecommendation(requestId);
+      }, mergedOptions.debounceMs);
+    } else {
+      runRecommendation(requestId);
+    }
   };
 
   const addBook = (book = {}) => {
@@ -142,9 +207,11 @@ export function createInlineBundleComposerController(config = {}) {
         id: bookId,
         title,
         salePriceMinor: book.salePriceMinor,
+        mrpMinor: coerceMrpMinor(book.mrpMinor),
       });
     }
 
+    syncTotalMrpFromSelection();
     emitState({ persistDraft: true });
     scheduleRecommendation();
   };
@@ -156,6 +223,7 @@ export function createInlineBundleComposerController(config = {}) {
     state.books = state.books.filter((entry) => entry.id !== normalized);
     if (state.books.length === priorLength) return;
 
+    syncTotalMrpFromSelection();
     emitState({ persistDraft: true });
     scheduleRecommendation();
   };
@@ -181,6 +249,7 @@ export function createInlineBundleComposerController(config = {}) {
       ? restored.bookIds.map((id) => ({ id: normalizeBookId(id) || '', title: '' })).filter((b) => b.id)
       : [];
 
+    syncTotalMrpFromSelection();
     emitState({ persistDraft: true });
   };
 
@@ -195,6 +264,7 @@ export function createInlineBundleComposerController(config = {}) {
     state.bundlePriceMinor = null;
     state.recommendedPriceMinor = null;
     state.totalSalePriceMinor = 0;
+    state.totalMrpMinor = null;
     state.validationErrors = {};
     state.isSaving = false;
 

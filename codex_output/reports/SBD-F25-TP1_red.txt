@@ -1,0 +1,105 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F25-TP1
+
+(node:97268) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/SBD-F25-TP1-001_SaveInlineBundleTriggersAdapters.spec.js
+  SPEC SBD-F25-TP1-001: Save inline bundle triggers adapters and busy state
+    ✕ Clicking Save with valid fields calls saveBundle once and marks the composer busy while the promise resolves (19 ms)
+
+  ● SPEC SBD-F25-TP1-001: Save inline bundle triggers adapters and busy state › Clicking Save with valid fields calls saveBundle once and marks the composer busy while the promise resolves
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer/index.js' from 'tests/fixtures/inlineBundleComposerHarness.js']
+
+      20 |     const saveButton = document.getElementById('inlineBundleSave');
+      21 |
+    > 22 |     expect(importError).toBeUndefined();
+         |                         ^
+      23 |     expect(mountError).toBeUndefined();
+      24 |     expect(api?.controller).toBeTruthy();
+      25 |     expect(typeof api?.controller?.addBook).toBe('function');
+
+      at Object.<anonymous> (tests/spec/admin/SBD-F25-TP1-001_SaveInlineBundleTriggersAdapters.spec.js:22:25)
+
+(node:97269) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/SBD-F25-TP1-003_SaveIgnoresRepeatClicks.spec.js
+  SPEC SBD-F25-TP1-003: Save ignores repeated taps while busy
+    ✕ A second Save click during an in-flight request does not trigger duplicate adapter calls (18 ms)
+
+  ● SPEC SBD-F25-TP1-003: Save ignores repeated taps while busy › A second Save click during an in-flight request does not trigger duplicate adapter calls
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer/index.js' from 'tests/fixtures/inlineBundleComposerHarness.js']
+
+      19 |     const saveButton = document.getElementById('inlineBundleSave');
+      20 |
+    > 21 |     expect(importError).toBeUndefined();
+         |                         ^
+      22 |     expect(mountError).toBeUndefined();
+      23 |     expect(api?.controller).toBeTruthy();
+      24 |     expect(typeof api?.controller?.addBook).toBe('function');
+
+      at Object.<anonymous> (tests/spec/admin/SBD-F25-TP1-003_SaveIgnoresRepeatClicks.spec.js:21:25)
+
+(node:97267) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/SBD-F25-TP1-002_LinkBooksAfterSave.spec.js
+  SPEC SBD-F25-TP1-002: Save success links books and surfaces toast
+    ✕ Save resolves then calls linkBooks with returned id, keeps chips, and toasts with the bundle name (20 ms)
+
+  ● SPEC SBD-F25-TP1-002: Save success links books and surfaces toast › Save resolves then calls linkBooks with returned id, keeps chips, and toasts with the bundle name
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer/index.js' from 'tests/fixtures/inlineBundleComposerHarness.js']
+
+      17 |     const chipList = document.getElementById('inlineBundleSelectedBooks');
+      18 |
+    > 19 |     expect(importError).toBeUndefined();
+         |                         ^
+      20 |     expect(mountError).toBeUndefined();
+      21 |     expect(api?.controller).toBeTruthy();
+      22 |     expect(typeof api?.controller?.addBook).toBe('function');
+
+      at Object.<anonymous> (tests/spec/admin/SBD-F25-TP1-002_LinkBooksAfterSave.spec.js:19:25)
+
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+File                                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+All files                                          |       0 |        0 |       0 |       0 |                   
+ scripts/admin                                     |       0 |        0 |       0 |       0 |                   
+  auth.js                                          |       0 |        0 |       0 |       0 | 24-79             
+  autoPrice.js                                     |       0 |        0 |       0 |       0 | 2-25              
+  availablePagination.js                           |       0 |        0 |       0 |       0 | 5-353             
+  bundleList.js                                    |       0 |        0 |       0 |       0 | 2-510             
+  bundleStatus.js                                  |       0 |        0 |       0 |       0 | 7-110             
+  bundles.js                                       |       0 |        0 |       0 |       0 | 3-494             
+  currency.js                                      |       0 |        0 |       0 |       0 | 6-31              
+  customerLookup.js                                |       0 |        0 |       0 |       0 | 3-392             
+  customers.js                                     |       0 |        0 |       0 |       0 | 3-520             
+  editor.js                                        |       0 |        0 |       0 |       0 | 27-411            
+  inventory.js                                     |       0 |        0 |       0 |       0 | 32-1385           
+  lookup.js                                        |       0 |        0 |       0 |       0 | 11-483            
+  main.js                                          |       0 |        0 |       0 |       0 | 40-2318           
+  requests.js                                      |       0 |        0 |       0 |       0 | 6-73              
+  salesEntryLauncher.js                            |       0 |        0 |       0 |       0 | 2-68              
+  salesHeader.js                                   |       0 |        0 |       0 |       0 | 3-505             
+  salesLineItems.js                                |       0 |        0 |       0 |       0 | 3-914             
+  salesPersist.js                                  |       0 |        0 |       0 |       0 | 1-170             
+  salesTitleAutocomplete.js                        |       0 |        0 |       0 |       0 | 9-225             
+  suppliers.js                                     |       0 |        0 |       0 |       0 | 13-319            
+ src/ui/patterns/inline-bundle-composer-controller |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 1-284             
+ src/ui/patterns/inline-bundle-panel-shell         |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 1-294             
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 3 failed, 3 total
+Tests:       3 failed, 3 total
+Snapshots:   0 total
+Time:        1.88 s
+Ran all test suites matching /SBD-F25-TP1/i.

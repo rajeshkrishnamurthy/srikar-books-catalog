@@ -10,6 +10,7 @@ export default {
   moduleNameMapper: {
     "^\\.\\./lib/firebase\\.js$": "<rootDir>/tests/fixtures/firebaseProxy.js"
   },
+  setupFilesAfterEnv: ["<rootDir>/codex_output/tests/setup-require.js"],
 
   // ✅ Coverage configuration: limit to TDD-managed paths
   collectCoverage: true,

@@ -1,0 +1,61 @@
+{
+  "topicId": "SBD-F25-TP2",
+  "featureId": "F25",
+  "title": "Continue Existing Bundle Inline",
+  "area": "Admin / Available Books",
+  "goal": "Allow admins to continue adding books to an existing bundle selected from the composer dropdown.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "RED",
+  "specs": [
+    {
+      "id": "SBD-F25-TP2-001",
+      "title": "ExistingBundleListPopulatesSelect",
+      "given": "The inline composer mounts with access to listExistingBundles.",
+      "when": "Existing bundles are fetched for the dropdown.",
+      "then": "The select renders each bundle option (id + name/bookCount) and Save relabels to Update bundle after a choice is made."
+    },
+    {
+      "id": "SBD-F25-TP2-002",
+      "title": "LoadExistingBundleMergesContext",
+      "given": "The composer already contains unsaved selected books.",
+      "when": "An admin chooses an existing bundle from the select.",
+      "then": "loadBundle hydrates bundleName/price/bookIds and merges them with current selections without duplicating book ids."
+    },
+    {
+      "id": "SBD-F25-TP2-003",
+      "title": "UpdateSaveUsesExistingId",
+      "given": "An existing bundle is selected for continuation.",
+      "when": "Save bundle is triggered.",
+      "then": "saveBundle payload carries the existing bundleId and merged bookIds and the button copy reflects Update bundle."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/inlineBundleComposerHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F25-TP2-001_ListExistingBundlesPopulatesSelect.spec.js",
+    "/tests/spec/admin/SBD-F25-TP2-002_LoadExistingBundleMergesContext.spec.js",
+    "/tests/spec/admin/SBD-F25-TP2-003_UpdateBundleSavesUsingExistingId.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F25-TP2_red.txt",
+    "green": "codex_output/reports/SBD-F25-TP2_green.txt"
+  },
+  "changedFiles": [
+    "tests/fixtures/inlineBundleComposerHarness.js",
+    "tests/spec/admin/SBD-F25-TP2-001_ListExistingBundlesPopulatesSelect.spec.js",
+    "tests/spec/admin/SBD-F25-TP2-002_LoadExistingBundleMergesContext.spec.js",
+    "tests/spec/admin/SBD-F25-TP2-003_UpdateBundleSavesUsingExistingId.spec.js",
+    "codex_output/specs/SBD-F25-TP2.json",
+    "codex_output/reports/SBD-F25-TP2_red.txt"
+  ],
+  "changeNotes": [
+    "Captured continuation specs for inline bundles: populate the existing-bundle select, merge server data into current chips, and persist updates with the selected bundle id.",
+    "Added RED Jest specs exercising the composer harness to assert select population, merge logic, and Update payload handling."
+  ],
+  "validation": {
+    "status": "RED",
+    "command": "npm test -- --watchAll=false SBD-F25-TP2",
+    "report": "codex_output/reports/SBD-F25-TP2_red.txt"
+  }
+}

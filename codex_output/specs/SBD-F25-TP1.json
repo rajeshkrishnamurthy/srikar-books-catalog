@@ -1,0 +1,61 @@
+{
+  "topicId": "SBD-F25-TP1",
+  "featureId": "F25",
+  "title": "Save Inline Bundle From Available Books",
+  "area": "Admin / Available Books",
+  "goal": "Persist a newly created inline bundle with its selected books and metadata using the existing bundle APIs.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "RED",
+  "specs": [
+    {
+      "id": "SBD-F25-TP1-001",
+      "title": "InlineBundleSaveTriggersAdapters",
+      "given": "The inline composer has a valid name, price, and at least one selected book.",
+      "when": "The admin clicks Save bundle.",
+      "then": "The composer applies aria-busy/disabled while pending and calls saveBundle once with trimmed fields and the current bookIds."
+    },
+    {
+      "id": "SBD-F25-TP1-002",
+      "title": "LinkBooksAfterSave",
+      "given": "Adapters for saveBundle, linkBooks, and toastSuccess are wired to the inline composer.",
+      "when": "saveBundle resolves with a new bundleId.",
+      "then": "linkBooks fires once after save with the returned bundleId and bookIds, toastSuccess includes the bundle name/id, and the selection remains visible for navigation."
+    },
+    {
+      "id": "SBD-F25-TP1-003",
+      "title": "SaveIgnoresRepeatedTaps",
+      "given": "A saveBundle request is already in flight from the inline composer.",
+      "when": "Save bundle is clicked again before the promise resolves.",
+      "then": "No duplicate adapter calls occur and linkBooks runs only after the original save resolves using the issued bundleId."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/inlineBundleComposerHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F25-TP1-001_SaveInlineBundleTriggersAdapters.spec.js",
+    "/tests/spec/admin/SBD-F25-TP1-002_LinkBooksAfterSave.spec.js",
+    "/tests/spec/admin/SBD-F25-TP1-003_SaveIgnoresRepeatClicks.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F25-TP1_red.txt",
+    "green": "codex_output/reports/SBD-F25-TP1_green.txt"
+  },
+  "changedFiles": [
+    "tests/fixtures/inlineBundleComposerHarness.js",
+    "tests/spec/admin/SBD-F25-TP1-001_SaveInlineBundleTriggersAdapters.spec.js",
+    "tests/spec/admin/SBD-F25-TP1-002_LinkBooksAfterSave.spec.js",
+    "tests/spec/admin/SBD-F25-TP1-003_SaveIgnoresRepeatClicks.spec.js",
+    "codex_output/specs/SBD-F25-TP1.json",
+    "codex_output/reports/SBD-F25-TP1_red.txt"
+  ],
+  "changeNotes": [
+    "Defined three save-path specs for the inline bundle composer covering busy state, adapter chaining, and idempotent save clicks.",
+    "Added RED Jest specs that mount the composer aggregate harness and assert saveBundle/linkBooks/toastSuccess behavior with the new bundle id."
+  ],
+  "validation": {
+    "status": "RED",
+    "command": "npm test -- --watchAll=false SBD-F25-TP1",
+    "report": "codex_output/reports/SBD-F25-TP1_red.txt"
+  }
+}

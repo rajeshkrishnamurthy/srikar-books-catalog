@@ -189,6 +189,10 @@ function buildDom(onScrollIntoView, domSource) {
               <dt>Total sale price</dt>
               <dd id="inlineBundleTotal">—</dd>
             </div>
+            <div>
+              <dt>Total MRP</dt>
+              <dd id="inlineBundleMrp">—</dd>
+            </div>
           </dl>
         </div>
         <p id="inlineBundleHelper" class="inline-bundle-composer__helper">

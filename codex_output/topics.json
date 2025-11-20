@@ -1414,6 +1414,50 @@
               "recommendedPendingCopy": "Add one more book to see a recommended price"
             }
           }
+        },
+        {
+          "id": "SBD-F24-TP4",
+          "title": "Inline Bundle Pricing and MRP Summary",
+          "area": "Admin / Available Books",
+          "goal": "Auto-update recommended bundle price after two selections and surface total MRP inside the inline drawer.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F24-TP2",
+            "SBD-F23-TP3"
+          ],
+          "given": "The inline composer drawer is open with pricing summary fields visible.",
+          "when": "A second book is added or selections change and the price recommendation adapter resolves.",
+          "then": "The aggregate triggers the recommendation call without extra clicks, refreshes recommended and total sale price text via the formatter, and displays a total MRP sum for the selected books with aria-live feedback and fallback copy when data is missing.",
+          "notes": "Recommendation threshold defaults to 2; debounce requests while books are added/removed rapidly. Total MRP should derive from book metadata (MRP/list price) when present and render a placeholder when not.",
+          "reuse": {
+            "patternId": "INLINE_BUNDLE_COMPOSER",
+            "params": {
+              "container": "#inlineBundleComposer",
+              "panelHeading": "#inlineBundleHeading",
+              "triggerSelector": "[data-test='bookAddToBundle']",
+              "bookList": "#inlineBundleSelectedBooks",
+              "bundleNameInput": "#inlineBundleName",
+              "bundlePriceInput": "#inlineBundlePrice",
+              "recommendedPrice": "#inlineBundleRecommended",
+              "totalPrice": "#inlineBundleTotal",
+              "totalMrp": "#inlineBundleMrp",
+              "saveButton": "#inlineBundleSave",
+              "resetButton": "#inlineBundleReset",
+              "existingBundleSelect": "#inlineBundleExistingSelect",
+              "currency": "INR"
+            },
+            "adapters": {
+              "fetchPriceRecommendation": "fetchBundlePriceRecommendation",
+              "formatPrice": "formatCurrency",
+              "announce": "announceInlineBundleChange"
+            },
+            "uiTexts": {
+              "panelTitle": "Bundle in progress",
+              "recommendedPriceLabel": "Recommended price",
+              "totalPriceLabel": "Total sale price",
+              "totalMrpLabel": "Total MRP"
+            }
+          }
         }
       ]
     },
