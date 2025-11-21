@@ -1,0 +1,8 @@
+{"type":"meta","topicId":"TP2","title":"Edit Stored Purchase Price"}
+{"type":"given","text":"A book exists in inventory with or without a purchase price set."}
+{"type":"when","text":"An admin invokes the edit action and updates the purchase price field."}
+{"type":"then","text":"The new value passes validation and updates the Firestore document, reflecting immediately in the UI."}
+{"type":"ui-anchor","selector":"#editForm"}
+{"type":"ui-anchor","selector":"#editPurchasePriceInput"}
+{"type":"js-handler","event":"submit","selector":"#editForm","handler":"handleEditSubmit"}
+{"type":"adapter-call","function":"updateBook","args":["bookId","patch"]}

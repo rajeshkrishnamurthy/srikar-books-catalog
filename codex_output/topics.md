@@ -455,6 +455,16 @@ Notes:
 }
 ```
 
+# Feature: Bundle Composition Pattern (F26)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| SBD-F26-TP1 | Shared Bundle Composition Contract | Standardize add-to-bundle flows on one persisted document and pricing pattern. | F12-TP1, SBD-F24-TP2 | Bundle → Create and Available → Add to bundle both expose book selection with price fields. | A second book is added or selections change before save. | The shared controller applies the bundle composition contract: computes recommended price at a 25% discount once 2+ books are present, fills totals/recommended fields with recommendationComputedAt, and both routes persist the same bundle document shape. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom.
+- Recommended price must never render before two selections and must reuse the shared discount formula (25% off combined sale price) across both routes.
+
 # Feature: Backlog (BACKLOG)
 
 | ID | Title | Goal | Dependencies | Given | When | Then |

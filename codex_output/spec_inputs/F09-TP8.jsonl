@@ -1,0 +1,7 @@
+{"type":"meta","topicId":"F09-TP8","title":"Selling Price Input Guardrails"}
+{"type":"given","text":"An admin is entering a selling price for a sale line."}
+{"type":"when","text":"They type characters or attempt to submit a non-numeric/negative value."}
+{"type":"then","text":"Only digits (plus one optional decimal) are accepted, invalid keystrokes are ignored, and inline validation explains the price must be positive before the line saves."}
+{"type":"ui-anchor","selector":"#saleLinePrice"}
+{"type":"js-handler","event":"input","selector":"#saleLinePrice","handler":"enforceNumericPrice"}
+{"type":"adapter-call","function":"validateSellingPrice","args":["value"]}

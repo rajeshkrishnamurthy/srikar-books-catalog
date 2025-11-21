@@ -1,0 +1,12 @@
+{"type":"meta","topicId":"F16-TP3","title":"Available Tab Behavior"}
+{"type":"given","text":"The Manage sub nav is visible and Available already holds search/filter state."}
+{"type":"when","text":"The user selects Available or loads /admin#manage-books/available."}
+{"type":"then","text":"Available remains visible while Add/Sold hide, the hash stays `#manage-books/available`, and its inputs keep prior values even after switching tabs."}
+{"type":"ui-anchor","selector":"#manageSubNav"}
+{"type":"ui-anchor","selector":"#addBookPanel"}
+{"type":"ui-anchor","selector":"#availablePanel"}
+{"type":"ui-anchor","selector":"#soldPanel"}
+{"type":"js-handler","event":"click","selector":"#manageSubNav button","handler":"handleManageSubNav"}
+{"type":"js-handler","event":"click","selector":"#manageSubNav [data-target=\"available\"]","handler":"showAvailableTab"}
+{"type":"adapter-call","function":"syncManageHash","args":["targetTab"]}
+{"type":"adapter-call","function":"persistAvailableState","args":[]}

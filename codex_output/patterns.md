@@ -106,3 +106,34 @@ Note: Examples in this document are non-normative. The Pattern schema and tier m
 - **Accessibility.** Keeps price summaries and toasts `aria-live`, links triggers to the drawer via `aria-controls`, traps focus while saving, and routes error summaries to focus before returning it to the Save button.
 - **Test behaviors.** First trigger mounts the aggregate once, existing-bundle selection hydrates controller state and shell chips, recommendation calls auto-fire once the selection threshold is met and stream formatted recommended/total prices plus total MRP to the shell, `saveBundle()` calls `linkBooks()` only after success, error paths keep context intact while surfacing `toastError`, and success paths emit `toastSuccess` plus view-bundle link updates before optionally clearing state.
 - **Composes.** `INLINE_BUNDLE_PANEL_SHELL`, `INLINE_BUNDLE_COMPOSER_CONTROLLER`, `BUNDLE_PRICE_RECOMMENDATION`.
+
+# Pattern Registry — Bundle Composition Core
+
+## BUNDLE_COMPOSITION_CONTRACT (type: contract, v1.0.0)
+- **Purpose.** Define the canonical bundle document (books array, pricing fields, metadata) and shared pricing rules so both Bundle → Create and Available → Add to bundle flows persist identical payloads.
+- **Required params.** `currency`, `recommendationThreshold`, `recommendationDiscountPct`.
+- **Optional params.** `pricePrecision`, `maxBooks`, `defaultStatus`, `clock`.
+- **Adapters.** _None_ (pure contract; pricing computation may delegate to `BUNDLE_PRICE_RECOMMENDATION`).
+- **Docs.**
+  - Input shape: `buildBundleDocument({ bundleName, supplierId, supplierName, bookSelections, bundlePriceMinor?, createdBy, createdAt?, status? })` where `bookSelections` is an ordered array of `{ bookId, salePriceMinor, mrpMinor?, title?, supplierId? }`.
+  - Output shape: `{ bundleId?, bundleName, status: 'Draft'|'Published', supplier: { id, name }, books: [{ bookId, salePriceMinor, mrpMinor?, title?, supplierId?, position }], totals: { totalSalePriceMinor, totalMrpMinor }, pricing: { recommendedPriceMinor, recommendationBasis, recommendationThreshold, bundlePriceMinor }, createdBy, createdAt, updatedAt, recommendationComputedAt }`.
+  - Pricing rule: once `bookSelections.length >= recommendationThreshold`, `recommendedPriceMinor = round(sum(salePriceMinor) * (1 - recommendationDiscountPct/100), pricePrecision)`; below threshold the contract returns `null` for recommendedPriceMinor while still emitting `totals`.
+- **Accessibility.** Normalizes pricing totals so shells can surface aria-live updates without recomputing or diverging copy per flow.
+- **Test behaviors.** Maintains selection order in persisted `books`, clamps negative/null prices to zero before totals, applies the shared discount formula consistently across flows, sets `recommendedPriceMinor` only after the threshold is met, and regenerates `recommendationComputedAt` whenever qualifying selections change.
+- **Composes.** `BUNDLE_PRICE_RECOMMENDATION`.
+- **Primary adopters.** Bundle → Create payload builder and Available → Add to bundle inline composer.
+
+## BUNDLE_COMPOSITION_CONTROLLER (type: controller, v1.0.0)
+- **Purpose.** Manage cross-route bundle composition state, call the shared pricing contract after the second book, and emit a persist-ready bundle document for both bundle creation and inline add flows.
+- **Required params.** `currency`, `recommendationThreshold`, `recommendationDiscountPct`, `pricePrecision`.
+- **Optional params.** `maxBooks`, `persistSessionKey`, `defaultStatus`, `clock`, `analytics`.
+- **Adapters.** `loadBundle(bundleId)`, `saveBundle(bundleDocument)`, `computeRecommendation({ bookSelections, currency, recommendationDiscountPct }) => Promise<{ recommendedPriceMinor, totalSalePriceMinor, totalMrpMinor, recommendationComputedAt }>`, `onStateChange(state)`.
+- **UI texts.** Optional `pricingPendingCopy`, `pricingAnnounceTemplate`, `discountCopy`.
+- **Docs.**
+  - State shape: `{ books, bundleName, bundlePriceMinor, totals, pricing, status, lastInteraction, isSaving }` where `pricing.recommendedPriceMinor` is populated only when selection count meets `recommendationThreshold`.
+  - Mount API: `createBundleCompositionController({ params, adapters, uiTexts, options }) => { addBook(book), removeBook(bookId), setBundlePrice(minorUnits), setBundleName(name), getBundleDocument(), saveBundle(), reset(), subscribe(listener), destroy() }`.
+  - Pricing hook: every add/remove that brings the selection to ≥2 triggers `computeRecommendation`, debounced by params, and merges results into `pricing` while emitting `onStateChange`.
+- **Accessibility.** Surfaces `pricingPendingCopy` and `pricingAnnounceTemplate` so shells can pipe recommended price updates to aria-live without duplicating logic per route.
+- **Test behaviors.** Rejects duplicate bookIds, fires a single recommendation request when the second book is added (and on subsequent selection changes), keeps `bundleDocument` aligned with the contract on save, blocks save while `isSaving` or below threshold, and restores persisted context when `persistSessionKey` is provided.
+- **Composes.** `BUNDLE_COMPOSITION_CONTRACT`, `BUNDLE_PRICE_RECOMMENDATION`.
+- **Primary adopters.** Shared controller behind Bundle → Create and Available → Add to bundle.

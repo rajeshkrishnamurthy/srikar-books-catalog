@@ -1,0 +1,10 @@
+{"type":"meta","topicId":"F18-TP2","title":"Admin List Pagination Shell"}
+{"type":"given","text":"An admin list view has more items than the default page size."}
+{"type":"when","text":"The admin uses pagination controls (Next/Previous or page size changes)."}
+{"type":"then","text":"The control strip updates pagination via the shared contract, reflects loading/disabled states, and shows a consistent summary like “Items 21–40 of 132.”"}
+{"type":"ui-anchor","selector":"#paginationSummary"}
+{"type":"ui-anchor","selector":"#paginationPrev"}
+{"type":"ui-anchor","selector":"#paginationNext"}
+{"type":"js-handler","event":"click","selector":"#paginationPrev","handler":"goPrevPage"}
+{"type":"js-handler","event":"click","selector":"#paginationNext","handler":"goNextPage"}
+{"type":"pattern","patternId":"PAGINATION_SHELL","requiredParams":["container","summaryEl","prevButton","nextButton"],"adapters":{"controller":"createPaginationController()"},"testBehaviors":[]}

@@ -1,0 +1,12 @@
+{"type":"meta","topicId":"F09-TP4","title":"Customer Selection Feedback"}
+{"type":"given","text":"An admin is using the customer lookup list."}
+{"type":"when","text":"They click Select on a customer and the ID saves."}
+{"type":"then","text":"The row gains a filled background, the button becomes a “Selected” checkmark chip, and #saleHeaderCustomerSummary swaps to the customer’s name/WhatsApp/city with a “Change customer” text button."}
+{"type":"ui-anchor","selector":"#saleCustomerLookupSearch"}
+{"type":"ui-anchor","selector":"#saleCustomerLookupList"}
+{"type":"ui-anchor","selector":"#saleHeaderCustomerSummary"}
+{"type":"js-handler","event":"input","selector":"#saleCustomerLookupSearch","handler":"handleCustomerLookupInput"}
+{"type":"js-handler","event":"click","selector":"#saleCustomerLookupList [data-action=\"selectCustomer\"]","handler":"selectSaleCustomer"}
+{"type":"adapter-call","function":"searchCustomers","args":["query"]}
+{"type":"adapter-call","function":"emitCustomerSelection","args":["customerId"]}
+{"type":"adapter-call","function":"persistSelectedCustomer","args":["customerId"]}

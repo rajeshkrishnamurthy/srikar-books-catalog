@@ -1,0 +1,8 @@
+{"type":"meta","topicId":"F12-TP2","title":"Publish or Unpublish Bundles"}
+{"type":"given","text":"A Draft or Published bundle is loaded in the status panel."}
+{"type":"when","text":"Admin clicks Publish/Unpublish and may try editing title or price fields."}
+{"type":"then","text":"Only the status toggles in Firestore and UI; immutable fields snap back with warnings so title/books/price never change after creation."}
+{"type":"ui-anchor","selector":"#bundleManagePanel"}
+{"type":"js-handler","event":"click","selector":"#bundleManagePanel [data-action=\"bundlePublish\"]","handler":"publishBundle"}
+{"type":"js-handler","event":"click","selector":"#bundleManagePanel [data-action=\"bundleUnpublish\"]","handler":"unpublishBundle"}
+{"type":"adapter-call","function":"updateBundleStatus","args":["bundleId","status"]}

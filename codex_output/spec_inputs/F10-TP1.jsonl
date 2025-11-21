@@ -1,0 +1,10 @@
+{"type":"meta","topicId":"F10-TP1","title":"Header Search Filters Available Panel"}
+{"type":"given","text":"An authenticated admin is on admin.html and sees the Available summary row containing the Search by title or author field."}
+{"type":"when","text":"They type at least two characters into the header search or edit the query."}
+{"type":"then","text":"The Available accordion keeps its current open/closed state, filters in place, and announces the filtered results via aria-live messaging tied to the panel."}
+{"type":"ui-anchor","selector":"#availableSearchInput"}
+{"type":"ui-anchor","selector":"#availableSearchStatus"}
+{"type":"ui-anchor","selector":"#availableAccordion"}
+{"type":"ui-anchor","selector":"#availableSearchLabel"}
+{"type":"js-handler","event":"input","selector":"#availableSearchInput","handler":"handleAvailableSearch"}
+{"type":"adapter-call","function":"filterAvailableBooks","args":["query"]}

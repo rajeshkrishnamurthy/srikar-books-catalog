@@ -1,0 +1,14 @@
+{"type":"meta","topicId":"F13-TP1","title":"Require Book Price, MRP, and Purchase Price"}
+{"type":"given","text":"An admin fills the Add Book form."}
+{"type":"when","text":"They attempt to submit without one or more price fields."}
+{"type":"then","text":"Inline validation blocks submission until all three values are present and valid; persisted books always carry the trio."}
+{"type":"ui-anchor","selector":"#addForm"}
+{"type":"ui-anchor","selector":"#priceInput"}
+{"type":"ui-anchor","selector":"#mrpInput"}
+{"type":"ui-anchor","selector":"#purchasePriceInput"}
+{"type":"ui-anchor","selector":"#supplierSelect"}
+{"type":"js-handler","event":"submit","selector":"#addForm","handler":"handleSubmit"}
+{"type":"js-handler","event":"change","selector":"#supplierSelect","handler":"handleSupplierSelect"}
+{"type":"adapter-call","function":"addBook","args":["formData"]}
+{"type":"adapter-call","function":"validateSupplierSelection","args":["supplierId"]}
+{"type":"adapter-call","function":"validatePriceFields","args":["price","mrp","purchasePrice"]}

@@ -360,6 +360,112 @@
       }
     },
     {
+      "patternId": "BUNDLE_COMPOSITION_CONTRACT",
+      "type": "contract",
+      "version": "1.0.0",
+      "purpose": "Define the canonical bundle document shape and pricing rules so Bundle -> Create and Available -> Add to bundle persist identical payloads.",
+      "requiredParams": [
+        "currency",
+        "recommendationThreshold",
+        "recommendationDiscountPct"
+      ],
+      "optionalParams": [
+        "pricePrecision",
+        "maxBooks",
+        "defaultStatus",
+        "clock"
+      ],
+      "adapters": {},
+      "uiTexts": {},
+      "a11yNotes": [
+        "Normalized totals support aria-live updates without per-flow math.",
+        "Recommended price gating prevents announcing values before the threshold is hit."
+      ],
+      "testBehaviors": [
+        "recommendedPriceMinor uses the shared discount formula once selection count >= recommendationThreshold and returns null below threshold.",
+        "Totals clamp negative or missing sale/mrp values to zero while preserving the order of bookSelections in persisted books.",
+        "recommendationComputedAt updates only when qualifying selections change and stays stable otherwise.",
+        "Output schema stays identical across bundle creation and inline add entry points, including pricing.recommendationBasis metadata."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ currency: string, recommendationThreshold: number, recommendationDiscountPct: number, pricePrecision?: number, maxBooks?: number, defaultStatus?: string }",
+          "bookSelections": "{ bookId: string, salePriceMinor: number, mrpMinor?: number, title?: string, supplierId?: string }[]",
+          "metadata": "{ bundleName: string, supplierId: string, supplierName?: string, bundlePriceMinor?: number|null, createdBy?: string, createdAt?: number, status?: 'Draft'|'Published' }"
+        },
+        "stateShape": {
+          "bundleDocument": "{ bundleId?: string, bundleName: string, status: 'Draft'|'Published', supplier: { id: string, name?: string }, books: { bookId: string, salePriceMinor: number, mrpMinor?: number|null, title?: string, supplierId?: string, position: number }[], totals: { totalSalePriceMinor: number, totalMrpMinor: number|null }, pricing: { recommendedPriceMinor: number|null, recommendationBasis: string, recommendationThreshold: number, bundlePriceMinor: number|null }, recommendationComputedAt?: number, createdBy?: string, createdAt?: number, updatedAt?: number }"
+        },
+        "mountApi": "buildBundleDocument({ params, bookSelections, metadata }) => bundleDocument"
+      },
+      "composes": [
+        "BUNDLE_PRICE_RECOMMENDATION"
+      ]
+    },
+    {
+      "patternId": "BUNDLE_COMPOSITION_CONTROLLER",
+      "type": "controller",
+      "version": "1.0.0",
+      "purpose": "Manage bundle composition state across Bundle -> Create and Available -> Add to bundle while applying the shared contract and pricing rules.",
+      "requiredParams": [
+        "currency",
+        "recommendationThreshold",
+        "recommendationDiscountPct",
+        "pricePrecision"
+      ],
+      "optionalParams": [
+        "maxBooks",
+        "persistSessionKey",
+        "defaultStatus",
+        "clock",
+        "analytics"
+      ],
+      "adapters": {
+        "loadBundle": "(bundleId: string) => Promise<BundleDocument>",
+        "saveBundle": "(bundleDocument: BundleDocument) => Promise<{ bundleId: string }>",
+        "computeRecommendation": "({ bookSelections: BookSelection[], currency: string, recommendationDiscountPct: number }) => Promise<{ recommendedPriceMinor: number|null, totalSalePriceMinor: number, totalMrpMinor: number|null, recommendationComputedAt?: number }>",
+        "onStateChange": "(state: BundleCompositionState) => void"
+      },
+      "uiTexts": {
+        "pricingPendingCopy": "Add another book to see recommended price",
+        "pricingAnnounceTemplate": "Recommended price updated to {price}",
+        "discountCopy": "Recommended price is 25% off combined sale price"
+      },
+      "a11yNotes": [
+        "Expose pricingPendingCopy so shells gate announcements until the threshold is satisfied.",
+        "Emit pricingAnnounceTemplate tokens so screen reader output is consistent across both routes."
+      ],
+      "testBehaviors": [
+        "Fires computeRecommendation once when the second book is added and again when qualifying selections change, debouncing rapid toggles.",
+        "Prevents duplicate bookIds and enforces maxBooks where provided while emitting validation errors instead of mutating state.",
+        "getBundleDocument() and saveBundle() return contract-shaped payloads including totals and pricing from the shared contract.",
+        "Blocks save while isSaving is true or selection count is below recommendationThreshold, unlocking immediately after valid pricing arrives.",
+        "Restores persisted drafts via persistSessionKey and mirrors updates through onStateChange."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ currency: string, recommendationThreshold: number, recommendationDiscountPct: number, pricePrecision: number, maxBooks?: number, persistSessionKey?: string, defaultStatus?: string }",
+          "adapters": "{ loadBundle?, saveBundle, computeRecommendation, onStateChange? }",
+          "options": "{ debounceMs?: number, analytics?: { track(event: string, payload: any) => void }, clock?: () => number }"
+        },
+        "stateShape": {
+          "books": "{ bookId: string, title?: string, salePriceMinor: number, mrpMinor?: number|null }[]",
+          "bundleName": "string",
+          "bundlePriceMinor": "number|null",
+          "totals": "{ totalSalePriceMinor: number, totalMrpMinor: number|null }",
+          "pricing": "{ recommendedPriceMinor: number|null, recommendationBasis: string, recommendationThreshold: number, recommendationComputedAt?: number }",
+          "status": "'Draft'|'Published'",
+          "lastInteraction": "number",
+          "isSaving": "boolean"
+        },
+        "mountApi": "createBundleCompositionController({ params, adapters, uiTexts, options }) => { addBook, removeBook, setBundleName, setBundlePrice, getBundleDocument, saveBundle, reset, subscribe, destroy }"
+      },
+      "composes": [
+        "BUNDLE_COMPOSITION_CONTRACT",
+        "BUNDLE_PRICE_RECOMMENDATION"
+      ]
+    },
+    {
       "patternId": "INLINE_BUNDLE_COMPOSER_CONTROLLER",
       "type": "controller",
       "version": "1.0.0",

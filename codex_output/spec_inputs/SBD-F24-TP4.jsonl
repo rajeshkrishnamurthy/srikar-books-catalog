@@ -1,0 +1,31 @@
+{"type":"meta","topicId":"SBD-F24-TP4","title":"Inline Bundle Pricing and MRP Summary"}
+{"type":"given","text":"The inline composer drawer is open with pricing summary fields visible."}
+{"type":"when","text":"A second book is added or selections change and the recommendation adapter resolves."}
+{"type":"then","text":"Recommended and total price text refresh automatically via the formatter, and a total MRP sum for selected books appears with aria-live feedback and placeholder copy when data is missing."}
+{"type":"reuse","patternId":"INLINE_BUNDLE_PANEL_SHELL"}
+{"type":"reuse","patternId":"INLINE_BUNDLE_COMPOSER_CONTROLLER"}
+{"type":"ui-anchor","selector":"#inlineBundleComposer"}
+{"type":"ui-anchor","selector":"#inlineBundleHeading"}
+{"type":"ui-anchor","selector":"[data-test=\"bookAddToBundle\"]"}
+{"type":"ui-anchor","selector":"#inlineBundleSelectedBooks"}
+{"type":"ui-anchor","selector":"#inlineBundleName"}
+{"type":"ui-anchor","selector":"#inlineBundlePrice"}
+{"type":"ui-anchor","selector":"#inlineBundleRecommended"}
+{"type":"ui-anchor","selector":"#inlineBundleTotal"}
+{"type":"ui-anchor","selector":"#inlineBundleSave"}
+{"type":"ui-anchor","selector":"#inlineBundleReset"}
+{"type":"ui-anchor","selector":"#inlineBundleMrp"}
+{"type":"js-handler","event":"click","selector":"[data-test=\"bookAddToBundle\"]","handler":"openInlineBundleComposer"}
+{"type":"js-handler","event":"click","selector":"#inlineBundleReset","handler":"resetInlineBundle"}
+{"type":"js-handler","event":"click","selector":"#inlineBundleSave","handler":"saveInlineBundleDraft"}
+{"type":"js-handler","event":"input","selector":"#inlineBundleName","handler":"updateInlineBundleFields"}
+{"type":"js-handler","event":"input","selector":"#inlineBundlePrice","handler":"updateInlineBundleFields"}
+{"type":"adapter-call","function":"createInlineBundleComposerController","args":[]}
+{"type":"adapter-call","function":"formatCurrency","args":["value","currency"]}
+{"type":"adapter-call","function":"announceInlineBundleChange","args":["message"]}
+{"type":"adapter-call","function":"fetchBundlePriceRecommendation","args":["bookIds","currency"]}
+{"type":"adapter-call","function":"loadBundleDraftFromSession","args":[]}
+{"type":"adapter-call","function":"persistNewBundle","args":["bundleData"]}
+{"type":"adapter-call","function":"syncInlineBundlePanelState","args":["state"]}
+{"type":"pattern","patternId":"INLINE_BUNDLE_PANEL_SHELL","requiredParams":["container","panelHeading","triggerSelector","bookList","bundleNameInput","bundlePriceInput","recommendedPrice","totalPrice","saveButton","resetButton"],"adapters":{"controller":"createInlineBundleComposerController","formatPrice":"formatCurrency","announce":"announceInlineBundleChange"},"testBehaviors":[]}
+{"type":"pattern","patternId":"INLINE_BUNDLE_COMPOSER_CONTROLLER","requiredParams":["currency","pricePrecision","recommendationThreshold"],"adapters":{"fetchPriceRecommendation":"fetchBundlePriceRecommendation","loadBundle":"loadBundleDraftFromSession","saveBundle":"persistNewBundle","onStateChange":"syncInlineBundlePanelState"},"testBehaviors":[]}

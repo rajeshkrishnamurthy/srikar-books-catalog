@@ -1,0 +1,12 @@
+{"type":"meta","topicId":"F06-TP2","title":"Compute Revenue Shares"}
+{"type":"given","text":"The book already stores a cost price and the sale price was captured."}
+{"type":"when","text":"The admin confirms the sale."}
+{"type":"then","text":"The system stores Srikar's share as (sale-cost)/2 and supplier share as cost + (sale-cost)/2 with rounding applied."}
+{"type":"ui-anchor","selector":"button[data-action=\"sold\"]"}
+{"type":"ui-anchor","selector":"#salePriceInput"}
+{"type":"ui-anchor","selector":"#saleStatusForm"}
+{"type":"ui-anchor","selector":"#saleSharePreview"}
+{"type":"js-handler","event":"click","selector":"button[data-action=\"sold\"]","handler":"openSaleStatusDialog"}
+{"type":"js-handler","event":"submit","selector":"#saleStatusForm","handler":"saveSaleStatus"}
+{"type":"adapter-call","function":"markBookSold","args":["bookId","salePrice"]}
+{"type":"adapter-call","function":"calculateRevenueShare","args":["salePrice","costPrice"]}

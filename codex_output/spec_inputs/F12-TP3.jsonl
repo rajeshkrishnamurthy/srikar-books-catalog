@@ -1,0 +1,28 @@
+{"type":"meta","topicId":"F12-TP3","title":"List Bundles + Search by Book"}
+{"type":"given","text":"Existing bundles are available and the admin opens the Existing Bundles panel."}
+{"type":"when","text":"Admin types into the bundle search autocomplete, selects a book suggestion (optionally narrows by supplier/status), or clears the selection."}
+{"type":"then","text":"The list shows only bundles containing the selected book ID (combined with any supplier/status filter), displays title/supplier/price/book-count/status with publish controls, and shows an empty state when no matches remain; clearing the selection restores the full list."}
+{"type":"reuse","patternId":"PAGINATION_SUITE"}
+{"type":"ui-anchor","selector":"#bundleSearchInput"}
+{"type":"ui-anchor","selector":"#bundleFilterSupplier"}
+{"type":"ui-anchor","selector":"#bundleFilterStatus"}
+{"type":"ui-anchor","selector":"#bundlePagination"}
+{"type":"ui-anchor","selector":"#bundlePaginationPrev"}
+{"type":"ui-anchor","selector":"#bundlePaginationNext"}
+{"type":"ui-anchor","selector":"#bundlePaginationSummary"}
+{"type":"ui-anchor","selector":"#bundlePaginationPages"}
+{"type":"ui-anchor","selector":"#bundlePaginationSize"}
+{"type":"js-handler","event":"input","selector":"#bundleSearchInput","handler":"handleBundleSearch"}
+{"type":"js-handler","event":"change","selector":"#bundleFilterSupplier","handler":"handleBundleFilter"}
+{"type":"js-handler","event":"change","selector":"#bundleFilterStatus","handler":"handleBundleFilter"}
+{"type":"js-handler","event":"click","selector":"#bundlePaginationPrev","handler":"goPrevBundlePage"}
+{"type":"js-handler","event":"click","selector":"#bundlePaginationNext","handler":"goNextBundlePage"}
+{"type":"js-handler","event":"change","selector":"#bundlePaginationSize","handler":"changeBundlePageSize"}
+{"type":"adapter-call","function":"fetchBundleList","args":["filters"]}
+{"type":"adapter-call","function":"fetchManageBundlesPage","args":["pageRequest"]}
+{"type":"adapter-call","function":"readManageBundlesPagingFromLocation","args":[]}
+{"type":"adapter-call","function":"writeManageBundlesPagingToLocation","args":["page","pageSize"]}
+{"type":"adapter-call","function":"renderManageBundlesRows","args":["state"]}
+{"type":"adapter-call","function":"formatBundlePaginationSummary","args":["summaryText"]}
+{"type":"adapter-call","function":"announceBundlePaginationRange","args":["text"]}
+{"type":"pattern","patternId":"PAGINATION_SUITE","requiredParams":["container","summaryEl","prevButton","nextButton","defaultPageSize"],"adapters":{"dataSource":"fetchManageBundlesPage","parseLocation":"readManageBundlesPagingFromLocation","syncLocation":"writeManageBundlesPagingToLocation","onStateChange":"renderManageBundlesRows","announce":"announceBundlePaginationRange","formatSummary":"formatBundlePaginationSummary"},"testBehaviors":[]}

@@ -1,0 +1,21 @@
+{"type":"meta","topicId":"F08-TP3","title":"Persist Sale and Align UI Copy"}
+{"type":"given","text":"All validations pass."}
+{"type":"when","text":"The admin submits the sale."}
+{"type":"then","text":"The sale document with header/lines is stored and every prior \"Mark as Sold\" button label is updated to \"Out of stock\" without changing inventory automatically."}
+{"type":"ui-anchor","selector":"#saleHeaderForm"}
+{"type":"ui-anchor","selector":"#saleHeaderSaleDate"}
+{"type":"ui-anchor","selector":"#saleHeaderContinue"}
+{"type":"ui-anchor","selector":"#saleLineDraftForm"}
+{"type":"ui-anchor","selector":"#saleLineBookTitle"}
+{"type":"ui-anchor","selector":"#saleLinePrice"}
+{"type":"ui-anchor","selector":"#saleLineAddBtn"}
+{"type":"ui-anchor","selector":"#salePersistBtn"}
+{"type":"ui-anchor","selector":"#saleLineTotals"}
+{"type":"js-handler","event":"submit","selector":"#saleHeaderForm","handler":"handleSaleHeaderSubmit"}
+{"type":"js-handler","event":"input","selector":"#saleLineBookTitle","handler":"handleSaleTitleInput"}
+{"type":"js-handler","event":"submit","selector":"#saleLineDraftForm","handler":"addSaleLineItem"}
+{"type":"js-handler","event":"click","selector":"#salePersistBtn","handler":"persistSale"}
+{"type":"adapter-call","function":"startSaleDraft","args":["customerId","saleDate"]}
+{"type":"adapter-call","function":"fetchTitleSuggestions","args":["query"]}
+{"type":"adapter-call","function":"addSaleLineItem","args":["bookId","sellingPrice"]}
+{"type":"adapter-call","function":"saveSale","args":["saleHeader","lineItems"]}

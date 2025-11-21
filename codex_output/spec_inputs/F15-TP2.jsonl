@@ -1,0 +1,10 @@
+{"type":"meta","topicId":"F15-TP2","title":"Customer Master Entry (Mouse-First)"}
+{"type":"given","text":"The Customers nav button appears in the admin menu."}
+{"type":"when","text":"An admin clicks it."}
+{"type":"then","text":"The customer panel expands, the Customers tile shows aria-current while Manage clears it, and existing form data remains untouched."}
+{"type":"ui-anchor","selector":"#adminNav"}
+{"type":"ui-anchor","selector":"#navTab-customers"}
+{"type":"js-handler","event":"init","selector":"#adminNav","handler":"renderAdminNav"}
+{"type":"js-handler","event":"click","selector":"#navTab-customers","handler":"handleAdminNav"}
+{"type":"adapter-call","function":"handleAdminNav","args":["targetSection"]}
+{"type":"adapter-call","function":"openCustomersPanel","args":[]}

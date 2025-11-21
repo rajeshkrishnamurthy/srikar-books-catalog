@@ -1,0 +1,8 @@
+{"type":"meta","topicId":"F11-TP1","title":"Expose Remove Controls Per Line"}
+{"type":"given","text":"The Record sale table already lists at least one book line and the sale header is ready."}
+{"type":"when","text":"An admin focuses, hovers, or activates the delete control for a specific line."}
+{"type":"then","text":"Each row keeps a visible trash icon + text button with an aria-label naming the book, consistent hit targets on desktop/mobile, and a confirm pattern (inline dialog or two-step button) before removal runs."}
+{"type":"ui-anchor","selector":"#saleLineItemsBody"}
+{"type":"ui-anchor","selector":"#saleLineRemovalStatus"}
+{"type":"js-handler","event":"click","selector":"#saleLineItemsBody [data-action=\"removeSaleLine\"]","handler":"confirmRemoveSaleLine"}
+{"type":"adapter-call","function":"removeSaleLineItem","args":["lineId"]}

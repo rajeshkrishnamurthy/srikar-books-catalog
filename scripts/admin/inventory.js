@@ -342,9 +342,18 @@ export function initInventory({
         ? state.recommendedPriceMinor
         : Math.round(totalListMinor * 0.75);
 
+    const books = (state.books || []).map((book, index) => ({
+      id: book.id,
+      title: book.title,
+      price: Math.round((Number(book.salePriceMinor) || 0) / 100),
+      supplierId: book.supplierId || '',
+      position: index + 1,
+    }));
+
     const bundleDoc = {
       title: bundleName,
       bookIds,
+      books,
       totalListPriceRupees: Math.round(totalListMinor / 100),
       recommendedPriceRupees: Math.round(recommendedMinor / 100),
       bundlePriceRupees: Math.round(bundlePriceMinor / 100),
@@ -389,6 +398,7 @@ export function initInventory({
       title: book.title,
       salePriceMinor: toMinor(book.salePriceMinor ?? book.price),
       mrpMinor: toMinor(book.mrpMinor ?? book.mrp),
+      supplierId: book.supplierId,
     });
   };
 

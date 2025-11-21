@@ -1,0 +1,13 @@
+{"type":"meta","topicId":"F18-TP4","title":"Pagination State and Deep Linking"}
+{"type":"given","text":"A list view uses the shared pagination contract and the user has navigated across pages/filters."}
+{"type":"when","text":"They refresh, share a link, or use browser back/forward to return to the list."}
+{"type":"then","text":"The view restores the same (or nearest safe) page based on URL/hash, keeps controls in sync, and never shows a different page than implied by the URL."}
+{"type":"ui-anchor","selector":"#paginationController"}
+{"type":"ui-anchor","selector":"window"}
+{"type":"ui-anchor","selector":"#paginationStateAnnouncer"}
+{"type":"js-handler","event":"init","selector":"#paginationController","handler":"createPaginationController"}
+{"type":"js-handler","event":"hashchange","selector":"window","handler":"handleAdminNav"}
+{"type":"adapter-call","function":"dataSource","args":["request"]}
+{"type":"adapter-call","function":"normalizeSectionAlias","args":["hash"]}
+{"type":"adapter-call","function":"syncPaginationToLocation","args":["params"]}
+{"type":"pattern","patternId":"PAGINATION_CONTROLLER","requiredParams":["defaultPageSize"],"adapters":{"dataSource":"({ request }) => Promise"},"testBehaviors":[]}

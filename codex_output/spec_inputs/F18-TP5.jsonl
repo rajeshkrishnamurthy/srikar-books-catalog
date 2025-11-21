@@ -1,0 +1,8 @@
+{"type":"meta","topicId":"F18-TP5","title":"Pagination Controller Abstraction"}
+{"type":"given","text":"An admin or public list wants pagination without re-implementing helpers and URL wiring."}
+{"type":"when","text":"The view instantiates the controller with a dataSource, defaults, and location sync settings."}
+{"type":"then","text":"The controller owns pagination state, exposes goNext/goPrev/loadMore/setFilters + UI state callbacks, and keeps the list and URL/back/forward behavior aligned."}
+{"type":"ui-anchor","selector":"#paginationController"}
+{"type":"js-handler","event":"init","selector":"#paginationController","handler":"createPaginationController"}
+{"type":"adapter-call","function":"dataSource","args":["request"]}
+{"type":"pattern","patternId":"PAGINATION_CONTROLLER","requiredParams":["defaultPageSize"],"adapters":{"dataSource":"({ request }) => Promise"},"testBehaviors":[]}
