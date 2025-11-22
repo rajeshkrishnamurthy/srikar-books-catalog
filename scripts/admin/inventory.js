@@ -195,6 +195,22 @@ function emitAddSuccessToast({ title = '', bookId, pinToast = false } = {}) {
   }
 }
 
+function emitInlineBundleSaveToast({ bundleName, bundleId } = {}) {
+  const dispatcher = getToastDispatcher();
+  if (!dispatcher) return;
+  const name = (bundleName || '').trim() || 'Bundle';
+  const payload = {
+    id: bundleId ? `inline-bundle-${bundleId}` : undefined,
+    variant: 'success',
+    message: `${name} saved`,
+  };
+  try {
+    dispatcher(payload);
+  } catch (error) {
+    console.error('showToast error:', error);
+  }
+}
+
 // ---- row rendering ----
 function rowHTML(id, b, sold = false) {
   const img = (b.images && b.images[0]) || './assets/placeholder.webp';
@@ -620,7 +636,22 @@ export function initInventory({
 
   const handleInlineBundleSave = (event) => {
     event?.preventDefault?.();
-    inlineBundleController?.saveBundle?.().catch((error) => console.error('inline bundle save failed', error));
+    try {
+      const runPromise = inlineBundleController?.saveBundle?.();
+      if (runPromise && typeof runPromise.then === 'function') {
+        runPromise
+          .then((result) => {
+            const state = inlineBundleController?.getState?.() || {};
+            emitInlineBundleSaveToast({
+              bundleName: state.bundleName,
+              bundleId: result?.bundleId || state.bundleId,
+            });
+          })
+          .catch((error) => console.error('inline bundle save failed', error));
+      }
+    } catch (error) {
+      console.error('inline bundle save failed', error);
+    }
   };
 
   inlineBundleNameInput?.addEventListener('input', handleInlineBundleName);
