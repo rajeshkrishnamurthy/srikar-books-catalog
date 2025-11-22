@@ -137,3 +137,15 @@ Note: Examples in this document are non-normative. The Pattern schema and tier m
 - **Test behaviors.** Rejects duplicate bookIds, fires a single recommendation request when the second book is added (and on subsequent selection changes), keeps `bundleDocument` aligned with the contract on save, blocks save while `isSaving` or below threshold, and restores persisted context when `persistSessionKey` is provided.
 - **Composes.** `BUNDLE_COMPOSITION_CONTRACT`, `BUNDLE_PRICE_RECOMMENDATION`.
 - **Primary adopters.** Shared controller behind Bundle → Create and Available → Add to bundle.
+
+# Pattern Registry — Toast Notifications
+
+## TOAST_NOTIFICATIONS (type: aggregate, v1.0.0)
+- **Purpose.** Deliver an accessible toast stack/queue for status updates with variants and optional actions from a single shared mount.
+- **Required params.** `container`, `liveRegion`, `template`.
+- **Optional params.** `defaultDurationMs`, `maxVisible`, `position`, `preventDuplicates`, `dismissible`.
+- **Adapters.** `announce(message, politeness?)`, `onShow(toastPayload)`, `onDismiss(toastPayload)`.
+- **UI texts.** Dismiss label and optional variant prefixes (success/error/info/warning).
+- **Docs.** Request shape: `mountToastNotifications({ params, adapters, uiTexts, options }) => { showToast(payload), dismissToast(id), clear(), destroy() }`; payload shape: `{ id, message, variant, durationMs?, actionLabel?, actionHandler?, pin?, actionHold? }`; state shape: `{ queue, visible, timeouts, defaultDurationMs, maxVisible }`.
+- **Accessibility.** Uses a dedicated `aria-live` region separate from the visible stack, sets politeness by variant (success/info polite; error/warning assertive), and keeps close/action buttons keyboard-focusable without stealing focus from the invoking control.
+- **Test behaviors.** Auto-dismiss success/info toasts after `defaultDurationMs` unless pinned, enforce `maxVisible` by trimming the oldest toast when capacity is exceeded, calling `dismissToast` or the dismiss control removes the toast and fires `onDismiss` once, and action handlers fire once and may hold the toast open when `actionHold` is true.

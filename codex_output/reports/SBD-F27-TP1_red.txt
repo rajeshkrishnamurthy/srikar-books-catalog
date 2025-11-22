@@ -1,0 +1,109 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F27-TP1
+
+(node:96459) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL codex_output/tests/spec/admin/SBD-F27-TP1-001_AdminPageExposesToastAnchors.spec.js
+  SPEC SBD-F27-TP1-001: Admin page exposes toast anchors
+    ✕ admin.html contains toast stack, live region, and template with polite announcements (48 ms)
+
+  ● SPEC SBD-F27-TP1-001: Admin page exposes toast anchors › admin.html contains toast stack, live region, and template with polite announcements
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      18 |     const template = document.getElementById('toastTemplate');
+      19 |
+    > 20 |     expect(stack).not.toBeNull();
+         |                       ^
+      21 |     expect(liveRegion).not.toBeNull();
+      22 |     expect(liveRegion?.getAttribute('aria-live')).toBe('polite');
+      23 |     expect(template).not.toBeNull();
+
+      at Object.<anonymous> (codex_output/tests/spec/admin/SBD-F27-TP1-001_AdminPageExposesToastAnchors.spec.js:20:23)
+
+(node:96460) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:96458) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL codex_output/tests/spec/admin/SBD-F27-TP1-003_SuccessToastAutoDismisses.spec.js
+  SPEC SBD-F27-TP1-003: Success toast auto-dismisses
+    ✕ Success toast schedules auto-dismiss when not pinned and clears from the stack (95 ms)
+
+  ● SPEC SBD-F27-TP1-003: Success toast auto-dismisses › Success toast schedules auto-dismiss when not pinned and clears from the stack
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      12 |
+      13 |     const stack = harness.toastStack;
+    > 14 |     expect(stack.children.length).toBeGreaterThan(0);
+         |                                   ^
+      15 |
+      16 |     const firstToast = stack.firstElementChild;
+      17 |     const firstId = firstToast?.dataset?.toastId;
+
+      at Object.<anonymous> (codex_output/tests/spec/admin/SBD-F27-TP1-003_SuccessToastAutoDismisses.spec.js:14:35)
+
+FAIL codex_output/tests/spec/admin/SBD-F27-TP1-002_AddBookSuccessShowsToast.spec.js
+  SPEC SBD-F27-TP1-002: Add Book success shows toast
+    ✕ Successful add uses toast pattern to show a polite success message with the title (95 ms)
+
+  ● SPEC SBD-F27-TP1-002: Add Book success shows toast › Successful add uses toast pattern to show a polite success message with the title
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      14 |
+      15 |     expect(stack).toBeTruthy();
+    > 16 |     expect(stack.children.length).toBeGreaterThan(0);
+         |                                   ^
+      17 |
+      18 |     const toast = stack.firstElementChild;
+      19 |     const toastText = (toast?.textContent || '').toLowerCase();
+
+      at Object.<anonymous> (codex_output/tests/spec/admin/SBD-F27-TP1-002_AddBookSuccessShowsToast.spec.js:16:35)
+
+---------------------------------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                                                                                                                                                                                                                             
+---------------------------------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                                          |    6.21 |     4.37 |    5.58 |    6.52 |                                                                                                                                                                                                                                                                                                                                                                                                               
+ scripts/admin                                     |    5.94 |     4.53 |    5.38 |    6.24 |                                                                                                                                                                                                                                                                                                                                                                                                               
+  auth.js                                          |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                                                                                                                                                                                                                                                                         
+  autoPrice.js                                     |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                                                                                                                                                                                                                                                                          
+  availablePagination.js                           |       0 |        0 |       0 |       0 | 5-353                                                                                                                                                                                                                                                                                                                                                                                                         
+  bundleList.js                                    |       0 |        0 |       0 |       0 | 2-510                                                                                                                                                                                                                                                                                                                                                                                                         
+  bundleStatus.js                                  |       0 |        0 |       0 |       0 | 7-110                                                                                                                                                                                                                                                                                                                                                                                                         
+  bundles.js                                       |       0 |        0 |       0 |       0 | 3-494                                                                                                                                                                                                                                                                                                                                                                                                         
+  currency.js                                      |   83.33 |    52.94 |     100 |   83.33 | 9,14                                                                                                                                                                                                                                                                                                                                                                                                          
+  customerLookup.js                                |       0 |        0 |       0 |       0 | 3-392                                                                                                                                                                                                                                                                                                                                                                                                         
+  customers.js                                     |       0 |        0 |       0 |       0 | 3-520                                                                                                                                                                                                                                                                                                                                                                                                         
+  editor.js                                        |       0 |        0 |       0 |       0 | 27-411                                                                                                                                                                                                                                                                                                                                                                                                        
+  inventory.js                                     |   36.08 |    23.46 |   34.45 |      38 | 59-213,222,257-258,270,275,279-280,290,293-296,303-315,323-365,369-376,396,406,410-412,416-417,452-453,463,485,522-525,529-531,534-536,539-541,545-547,550-552,555-557,561-563,566-569,573-576,580-581,585-588,638-642,657-658,695,701-708,713-715,720-722,754,763,775-782,798-799,839,873,897,902-908,918-922,959-960,965,970,976-1060,1070-1080,1087-1088,1126,1138-1148,1155-1219,1226-1228,1265,1334-1575 
+  lookup.js                                        |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                                                                                                                                                                                                                                                                        
+  main.js                                          |       0 |        0 |       0 |       0 | 40-2318                                                                                                                                                                                                                                                                                                                                                                                                       
+  requests.js                                      |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                                                                                                                                                                                                                                                                          
+  salesEntryLauncher.js                            |       0 |        0 |       0 |       0 | 2-68                                                                                                                                                                                                                                                                                                                                                                                                          
+  salesHeader.js                                   |       0 |        0 |       0 |       0 | 3-505                                                                                                                                                                                                                                                                                                                                                                                                         
+  salesLineItems.js                                |       0 |        0 |       0 |       0 | 3-914                                                                                                                                                                                                                                                                                                                                                                                                         
+  salesPersist.js                                  |       0 |        0 |       0 |       0 | 1-170                                                                                                                                                                                                                                                                                                                                                                                                         
+  salesTitleAutocomplete.js                        |       0 |        0 |       0 |       0 | 9-225                                                                                                                                                                                                                                                                                                                                                                                                         
+  suppliers.js                                     |       0 |        0 |       0 |       0 | 13-319                                                                                                                                                                                                                                                                                                                                                                                                        
+ src/ui/patterns/inline-bundle-composer            |       0 |        0 |       0 |       0 |                                                                                                                                                                                                                                                                                                                                                                                                               
+  index.js                                         |       0 |        0 |       0 |       0 | 3-354                                                                                                                                                                                                                                                                                                                                                                                                         
+ src/ui/patterns/inline-bundle-composer-controller |   13.85 |     2.75 |   10.52 |   14.83 |                                                                                                                                                                                                                                                                                                                                                                                                               
+  index.js                                         |   13.85 |     2.75 |   10.52 |   14.83 | 10-17,23,45-77,90,94-102,108-111,116-121,125,129-133,137-138,142-145,149-172,176-194,199-216,220-228,232-253,257-271,275-281,285-299,303-341,345-351                                                                                                                                                                                                                                                          
+ src/ui/patterns/inline-bundle-panel-shell         |   11.05 |     7.05 |    9.37 |   11.29 |                                                                                                                                                                                                                                                                                                                                                                                                               
+  index.js                                         |   11.05 |     7.05 |    9.37 |   11.29 | 20-23,31-107,130-304                                                                                                                                                                                                                                                                                                                                                                                          
+---------------------------------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 3 failed, 3 total
+Tests:       3 failed, 3 total
+Snapshots:   0 total
+Time:        1.95 s, estimated 6 s
+Ran all test suites matching /SBD-F27-TP1/i.

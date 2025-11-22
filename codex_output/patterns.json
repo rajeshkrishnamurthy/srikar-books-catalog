@@ -614,6 +614,71 @@
         "INLINE_BUNDLE_COMPOSER_CONTROLLER",
         "BUNDLE_PRICE_RECOMMENDATION"
       ]
+    },
+    {
+      "patternId": "TOAST_NOTIFICATIONS",
+      "type": "aggregate",
+      "version": "1.0.0",
+      "purpose": "Deliver an accessible toast stack/queue for status updates with variants, optional actions, and queue management from a single shared mount.",
+      "requiredParams": [
+        "container",
+        "liveRegion",
+        "template"
+      ],
+      "optionalParams": [
+        "defaultDurationMs",
+        "maxVisible",
+        "position",
+        "preventDuplicates",
+        "dismissible"
+      ],
+      "adapters": {
+        "announce": "(message: string, politeness?: 'polite'|'assertive') => void",
+        "onShow": "(toast: ToastPayload) => void",
+        "onDismiss": "(toast: ToastPayload) => void"
+      },
+      "uiTexts": {
+        "dismissLabel": "Dismiss",
+        "actionLabel": "View",
+        "successPrefix": "Success",
+        "errorPrefix": "Error"
+      },
+      "a11yNotes": [
+        "Uses a dedicated aria-live region (liveRegion) separate from the visible stack so screen readers announce new toasts without stealing focus.",
+        "Maps variant to politeness: success/info use polite while error/warning use assertive.",
+        "Close and action buttons stay keyboard-focusable with aria-labels that include the variant and message."
+      ],
+      "testBehaviors": [
+        "showToast(payload) pushes to the queue and auto-dismisses after defaultDurationMs unless payload.pin is true.",
+        "Enforces maxVisible by dismissing the oldest visible toast when capacity is exceeded.",
+        "dismissToast(id) or clicking the dismiss control removes the toast and fires onDismiss once while leaving focus on the invoking element.",
+        "Action handlers fire exactly once; when payload.actionHold is true the toast stays visible until the handler resolves."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ container: HTMLElement|string, liveRegion: HTMLElement|string, template: HTMLTemplateElement|HTMLElement, defaultDurationMs?: number, maxVisible?: number, position?: 'top-right'|'top-left'|'bottom', preventDuplicates?: boolean, dismissible?: boolean }",
+          "adapters": "{ announce?, onShow?, onDismiss? }",
+          "uiTexts": "{ dismissLabel?: string, actionLabel?: string, successPrefix?: string, errorPrefix?: string, infoPrefix?: string, warningPrefix?: string }"
+        },
+        "stateShape": {
+          "queue": "ToastPayload[]",
+          "visible": "ToastPayload[]",
+          "timeouts": "Record<string, number>",
+          "defaultDurationMs": "number",
+          "maxVisible": "number"
+        },
+        "mountApi": "mountToastNotifications({ params, adapters, uiTexts, options }) => { showToast(payload), dismissToast(id), clear(), destroy() }",
+        "toastPayload": {
+          "id": "string",
+          "message": "string",
+          "variant": "'success'|'error'|'info'|'warning'",
+          "durationMs?": "number",
+          "actionLabel?": "string",
+          "actionHandler?": "() => void|Promise<void>",
+          "pin?": "boolean",
+          "actionHold?": "boolean"
+        }
+      }
     }
   ]
 }

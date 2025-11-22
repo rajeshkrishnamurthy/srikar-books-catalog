@@ -1,0 +1,32 @@
+{"type":"meta","topicId":"SBD-F28-TP1","title":"Cross-Workflow Success Toasts"}
+{"type":"given","text":"An admin has the Edit Book dialog open with toast anchors available."}
+{"type":"when","text":"They submit #editForm and the book update (including optional cover uploads) succeeds."}
+{"type":"then","text":"A success toast (using #toastTemplate) appears in #toastStack, politely announced via #toastLiveRegion, mentions the edited book title, and does not steal focus from the dialog."}
+{"type":"given","text":"An admin completes the Bundle Create form with a locked supplier and valid price."}
+{"type":"when","text":"They submit #bundleForm and the bundle is created successfully."}
+{"type":"then","text":"A success toast is shown for the new bundle title in #toastStack, announced politely, and the bundle form focus stays in place."}
+{"type":"given","text":"An admin fills the Supplier form with valid name and location."}
+{"type":"when","text":"They submit #supplierForm and the supplier add/update succeeds."}
+{"type":"then","text":"A success toast reports the supplier name via the shared toast pattern and leaves focus on the supplier form controls."}
+{"type":"given","text":"An admin fills the Customer form with required fields (name, address, location, WhatsApp)."}
+{"type":"when","text":"They submit #customerForm and the customer record saves successfully."}
+{"type":"then","text":"A success toast announces the customer name in #toastStack/#toastLiveRegion while keeping focus on the form."}
+{"type":"given","text":"The sale header and line items are valid in the Record sale flow."}
+{"type":"when","text":"They click #salePersistBtn and the sale persists successfully with one or more line items."}
+{"type":"then","text":"A success toast summarizes the saved sale (with line count) via the shared toast pattern, politely announced, without pulling focus away from the sale controls."}
+{"type":"ui-anchor","selector":"#toastStack"}
+{"type":"ui-anchor","selector":"#toastLiveRegion"}
+{"type":"ui-anchor","selector":"#toastTemplate"}
+{"type":"ui-anchor","selector":"#editForm"}
+{"type":"ui-anchor","selector":"#bundleForm"}
+{"type":"ui-anchor","selector":"#supplierForm"}
+{"type":"ui-anchor","selector":"#customerForm"}
+{"type":"ui-anchor","selector":"#salePersistBtn"}
+{"type":"js-handler","event":"submit","selector":"#editForm","handler":"save"}
+{"type":"js-handler","event":"submit","selector":"#bundleForm","handler":"onSubmit"}
+{"type":"js-handler","event":"submit","selector":"#supplierForm","handler":"handleSubmit"}
+{"type":"js-handler","event":"submit","selector":"#customerForm","handler":"handleSubmit"}
+{"type":"js-handler","event":"click","selector":"#salePersistBtn","handler":"persistSale"}
+{"type":"adapter-call","function":"showToast","args":["toastPayload"]}
+{"type":"reuse","patternId":"TOAST_NOTIFICATIONS"}
+{"type":"pattern","patternId":"TOAST_NOTIFICATIONS","requiredParams":["container","liveRegion","template"],"adapters":{"announce":"announceToast","onShow":"onToastShow","onDismiss":"onToastDismiss"},"testBehaviors":["Success toasts use aria-live=polite via liveRegion","Auto-dismiss success/info toasts after defaultDurationMs unless toastPayload.pin is true","Trim oldest toast when maxVisible is exceeded before adding a new one"]}
