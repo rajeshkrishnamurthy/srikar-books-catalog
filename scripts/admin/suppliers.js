@@ -1,3 +1,13 @@
+function dispatchToast(message) {
+  const fn = globalThis.showToast;
+  if (typeof fn !== 'function') return;
+  try {
+    fn({ message, variant: 'success' });
+  } catch (error) {
+    console.error('showToast error:', error);
+  }
+}
+
 export function initSupplierMaster(
   {
     form,
@@ -161,6 +171,7 @@ export function initSupplierMaster(
           updatedAt: stampFn ? stampFn() : undefined,
         });
         setMessage('Supplier updated.');
+        dispatchToast(`Supplier saved: ${name}`);
       } else {
         const payload = buildSupplierPayload({
           name,
@@ -170,6 +181,7 @@ export function initSupplierMaster(
         });
         await addDoc(suppliersRef, payload);
         setMessage('Supplier added.');
+        dispatchToast(`Supplier saved: ${name}`);
       }
       resetFormFields();
       nameInput?.focus();

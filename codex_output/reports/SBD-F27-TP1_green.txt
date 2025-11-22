@@ -1,0 +1,4 @@
+GREEN verification for SBD-F27-TP1
+Commands:
+- npm test -- --watchAll=false SBD-F27-TP1
+Result: PASS

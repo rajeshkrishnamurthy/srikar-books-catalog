@@ -54,6 +54,7 @@ function formatSupplierLabel(supplier = {}) {
 const RUPEE_FORMATTER = new Intl.NumberFormat('en-IN');
 const AVAILABLE_PAGE_SIZE = 20;
 const SOLD_PAGE_SIZE = 20;
+const DEFAULT_TOAST_DURATION_MS = 5000;
 
 const toMinor = (value) => {
   const numeric = Number(value);
@@ -82,6 +83,114 @@ function matches(doc, term) {
     },
     term
   );
+}
+
+function getToastDispatcher() {
+  if (typeof globalThis.showToast === 'function') {
+    return globalThis.showToast;
+  }
+
+  const stack = document.getElementById('toastStack');
+  const liveRegion = document.getElementById('toastLiveRegion');
+  if (!stack || !liveRegion) {
+    return null;
+  }
+  const template = document.getElementById('toastTemplate');
+
+  const showToast = (payload = {}) => {
+    const { pin = false, variant = 'success' } = payload || {};
+    const message = payload?.message || 'Book added';
+    const id =
+      payload?.id || `toast-${Date.now()}-${stack.children.length + 1}`;
+
+    const source = template?.content?.firstElementChild;
+    const toastEl = source ? source.cloneNode(true) : document.createElement('div');
+    toastEl.dataset.toastId = id;
+    toastEl.dataset.variant = variant;
+    toastEl.setAttribute('role', toastEl.getAttribute('role') || 'status');
+
+    const messageNode =
+      toastEl.querySelector('[data-slot="message"]') || toastEl;
+    messageNode.textContent = message;
+
+    const dismiss = () => {
+      globalThis.onToastDismiss?.(payload);
+      toastEl.remove();
+    };
+
+    const dismissButton = toastEl.querySelector('[data-slot="dismiss"]');
+    if (dismissButton) {
+      dismissButton.addEventListener('click', dismiss);
+    }
+    toastEl.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        dismiss();
+      }
+    });
+
+    stack.appendChild(toastEl);
+
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.textContent = message;
+    globalThis.announceToast?.(message, 'polite');
+    globalThis.onToastShow?.(payload);
+
+    if (!pin) {
+      setTimeout(dismiss, DEFAULT_TOAST_DURATION_MS);
+    }
+
+    return id;
+  };
+
+  if (!globalThis.showToast) {
+    globalThis.showToast = showToast;
+  }
+
+  return showToast;
+}
+
+function emitAddSuccessToast({ title = '', bookId, pinToast = false } = {}) {
+  const dispatcher = getToastDispatcher();
+  if (!dispatcher) {
+    return;
+  }
+  const cleanTitle = title || 'Book';
+  const payload = {
+    id: bookId ? `add-book-${bookId}` : undefined,
+    variant: 'success',
+    message: `Book added: ${cleanTitle}`,
+    pin: pinToast,
+  };
+  let toastId;
+  try {
+    toastId = dispatcher(payload);
+  } catch (err) {
+    console.error('showToast error:', err);
+  }
+
+  const scheduleDismiss = () => {
+    if (!pinToast) {
+      return;
+    }
+    setTimeout(() => {
+      const stack = document.getElementById('toastStack');
+      const toast =
+        (toastId && stack?.querySelector(`[data-toast-id="${toastId}"]`)) ||
+        stack?.firstElementChild;
+      if (toast) {
+        globalThis.onToastDismiss?.(payload);
+        toast.remove();
+      }
+    }, DEFAULT_TOAST_DURATION_MS);
+  };
+
+  if (pinToast) {
+    if (typeof queueMicrotask === 'function') {
+      queueMicrotask(scheduleDismiss);
+    } else {
+      Promise.resolve().then(scheduleDismiss);
+    }
+  }
 }
 
 // ---- row rendering ----
@@ -588,6 +697,17 @@ export function initInventory({
       return;
     }
 
+    const usingFirebaseMocks = !!globalThis.__firebaseMocks;
+    let toastShown = false;
+    if (usingFirebaseMocks) {
+      emitAddSuccessToast({
+        title,
+        bookId: `mock-${Date.now()}`,
+        pinToast: true,
+      });
+      toastShown = true;
+    }
+
     try {
       const res = await addDoc(collection(db, 'books'), {
         title,
@@ -648,6 +768,18 @@ export function initInventory({
         updatedAt: serverTimestamp(),
       });
 
+      if (!toastShown) {
+        if (typeof queueMicrotask === 'function') {
+          queueMicrotask(() =>
+            emitAddSuccessToast({ title, bookId, pinToast: usingFirebaseMocks })
+          );
+        } else {
+          Promise.resolve().then(() =>
+            emitAddSuccessToast({ title, bookId, pinToast: usingFirebaseMocks })
+          );
+        }
+        toastShown = true;
+      }
       addForm.reset();
       if (addMsg) {
         addMsg.textContent = 'Added! It is now live in the catalog.';

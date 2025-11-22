@@ -1,0 +1,162 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F28-TP1
+
+(node:27320) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS codex_output/tests/spec/admin/SBD-F28-TP1-001_AdminToastAnchorsAcrossWorkflows.spec.js
+  SPEC SBD-F28-TP1-001: Toast anchors exist for all admin workflows
+    ✓ admin.html exposes the shared toast anchors plus edit/bundle/supplier/customer/sale controls (99 ms)
+
+(node:27319) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27318) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27317) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL codex_output/tests/spec/admin/SBD-F28-TP1-005_CustomerSaveSuccessShowsToast.spec.js
+  SPEC SBD-F28-TP1-005: Customer save success shows toast
+    ✕ saving a customer record raises a polite toast with the customer name and keeps focus on the form (74 ms)
+
+  ● SPEC SBD-F28-TP1-005: Customer save success shows toast › saving a customer record raises a polite toast with the customer name and keeps focus on the form
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      16 |     await harness.submit();
+      17 |
+    > 18 |     expect(toast.showToast).toHaveBeenCalled();
+         |                             ^
+      19 |     const payload = toast.showToast.mock.calls.at(-1)?.[0] || {};
+      20 |     const message = (payload.message || '').toLowerCase();
+      21 |     expect(message).toContain('toast customer');
+
+      at Object.<anonymous> (codex_output/tests/spec/admin/SBD-F28-TP1-005_CustomerSaveSuccessShowsToast.spec.js:18:29)
+
+(node:27316) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL codex_output/tests/spec/admin/SBD-F28-TP1-002_EditSaveSuccessShowsToast.spec.js
+  SPEC SBD-F28-TP1-002: Edit save success shows toast
+    ✕ successful edit submit renders a polite toast with the book title and keeps dialog focus (84 ms)
+
+  ● SPEC SBD-F28-TP1-002: Edit save success shows toast › successful edit submit renders a polite toast with the book title and keeps dialog focus
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      18 |     await harness.submit();
+      19 |
+    > 20 |     expect(toast.showToast).toHaveBeenCalled();
+         |                             ^
+      21 |     const payload = toast.showToast.mock.calls.at(-1)?.[0] || {};
+      22 |     const message = (payload.message || '').toLowerCase();
+      23 |     expect(message).toContain('edited toast book');
+
+      at Object.<anonymous> (codex_output/tests/spec/admin/SBD-F28-TP1-002_EditSaveSuccessShowsToast.spec.js:20:29)
+
+(node:27315) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL codex_output/tests/spec/admin/SBD-F28-TP1-006_SalePersistSuccessShowsToast.spec.js
+  SPEC SBD-F28-TP1-006: Sale persist success shows toast
+    ✕ persisting a sale shows a polite toast summarizing saved line items without shifting focus (141 ms)
+
+  ● SPEC SBD-F28-TP1-006: Sale persist success shows toast › persisting a sale shows a polite toast summarizing saved line items without shifting focus
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      60 |     });
+      61 |
+    > 62 |     expect(toast.showToast).toHaveBeenCalled();
+         |                             ^
+      63 |     const payload = toast.showToast.mock.calls.at(-1)?.[0] || {};
+      64 |     const message = (payload.message || '').toLowerCase();
+      65 |     expect(message).toContain('saved');
+
+      at Object.<anonymous> (codex_output/tests/spec/admin/SBD-F28-TP1-006_SalePersistSuccessShowsToast.spec.js:62:29)
+
+FAIL codex_output/tests/spec/admin/SBD-F28-TP1-004_SupplierSaveSuccessShowsToast.spec.js
+  SPEC SBD-F28-TP1-004: Supplier save success shows toast
+    ✕ adding or updating a supplier fires a success toast with the supplier name and preserves form focus (63 ms)
+
+  ● SPEC SBD-F28-TP1-004: Supplier save success shows toast › adding or updating a supplier fires a success toast with the supplier name and preserves form focus
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      14 |     await harness.submit();
+      15 |
+    > 16 |     expect(toast.showToast).toHaveBeenCalled();
+         |                             ^
+      17 |     const payload = toast.showToast.mock.calls.at(-1)?.[0] || {};
+      18 |     const message = (payload.message || '').toLowerCase();
+      19 |     expect(message).toContain('toast supplier');
+
+      at Object.<anonymous> (codex_output/tests/spec/admin/SBD-F28-TP1-004_SupplierSaveSuccessShowsToast.spec.js:16:29)
+
+FAIL codex_output/tests/spec/admin/SBD-F28-TP1-003_BundleCreateSuccessShowsToast.spec.js
+  SPEC SBD-F28-TP1-003: Bundle create success shows toast
+    ✕ creating a bundle emits a toast with the bundle title and leaves focus on the form (138 ms)
+
+  ● SPEC SBD-F28-TP1-003: Bundle create success shows toast › creating a bundle emits a toast with the bundle title and leaves focus on the form
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      33 |     await harness.submit();
+      34 |
+    > 35 |     expect(toast.showToast).toHaveBeenCalled();
+         |                             ^
+      36 |     const payload = toast.showToast.mock.calls.at(-1)?.[0] || {};
+      37 |     const message = (payload.message || '').toLowerCase();
+      38 |     expect(message).toContain('bundle toast title');
+
+      at Object.<anonymous> (codex_output/tests/spec/admin/SBD-F28-TP1-003_BundleCreateSuccessShowsToast.spec.js:35:29)
+
+---------------------------------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                                                                                                    
+---------------------------------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                                          |   15.89 |       11 |   17.01 |   16.76 |                                                                                                                                                                                                                                                                                      
+ scripts/admin                                     |   17.84 |    12.28 |   19.08 |   18.79 |                                                                                                                                                                                                                                                                                      
+  auth.js                                          |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                                                                                                                                                
+  autoPrice.js                                     |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                                                                                                                                                 
+  availablePagination.js                           |       0 |        0 |       0 |       0 | 5-353                                                                                                                                                                                                                                                                                
+  bundleList.js                                    |       0 |        0 |       0 |       0 | 2-510                                                                                                                                                                                                                                                                                
+  bundleStatus.js                                  |       0 |        0 |       0 |       0 | 7-110                                                                                                                                                                                                                                                                                
+  bundles.js                                       |   74.21 |    57.14 |   69.23 |   79.46 | 28-29,34,65-70,97,117,124-125,165-166,170-171,174,177-178,181-182,191-197,244,265,287,291,294,303-305,308-309,312-314,356-357,403-404,429-436,453,482-485                                                                                                                            
+  currency.js                                      |   33.33 |    11.76 |      50 |   33.33 | 12-31                                                                                                                                                                                                                                                                                
+  customerLookup.js                                |       0 |        0 |       0 |       0 | 3-392                                                                                                                                                                                                                                                                                
+  customers.js                                     |   43.56 |    27.35 |   52.63 |   46.72 | 8-9,26-27,40-41,49-52,61-62,74-82,133,149-170,187,210-211,215-216,221-222,227-228,238-250,267-268,277-281,288-329,346,356-357,365-370,380,393,402-403,411-415,428-491,499-502,518                                                                                                    
+  editor.js                                        |   64.15 |    54.05 |   69.23 |   65.58 | 46-47,53,63-65,93,122-151,155,185,189,192,199,206-220,274-275,279-283,339,353-371,378-395                                                                                                                                                                                            
+  inventory.js                                     |       0 |        0 |       0 |       0 | 33-1707                                                                                                                                                                                                                                                                              
+  lookup.js                                        |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                                                                                                                                               
+  main.js                                          |       0 |        0 |       0 |       0 | 40-2318                                                                                                                                                                                                                                                                              
+  requests.js                                      |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                                                                                                                                                 
+  salesEntryLauncher.js                            |       0 |        0 |       0 |       0 | 2-68                                                                                                                                                                                                                                                                                 
+  salesHeader.js                                   |       0 |        0 |       0 |       0 | 3-505                                                                                                                                                                                                                                                                                
+  salesLineItems.js                                |    58.5 |    44.92 |   61.11 |    61.9 | 27-30,42-44,74,83-90,111-112,118-120,135-145,154-157,164-167,175,185,189,205,211-228,239-241,253-254,268,272,276,279,309-315,340,366-373,398-460,470,476,486-493,511-513,516-517,551-564,610-611,625-627,638-647,686-700,748,774-781,790,798,824,828,836-846,857,864-876,904-906,914 
+  salesPersist.js                                  |   65.85 |    43.52 |   54.54 |   70.12 | 12-18,23-24,40,47-48,52-53,77,84-85,117,152-155,163,168                                                                                                                                                                                                                              
+  salesTitleAutocomplete.js                        |       0 |        0 |       0 |       0 | 9-225                                                                                                                                                                                                                                                                                
+  suppliers.js                                     |   40.09 |    23.77 |   44.44 |   44.32 | 15,69-71,80-105,116-117,131-133,136-138,141-143,149-151,155-163,177-178,190-191,196-197,201-211,221-274,287-302                                                                                                                                                                      
+ src/ui/patterns/inline-bundle-composer            |       0 |        0 |       0 |       0 |                                                                                                                                                                                                                                                                                      
+  index.js                                         |       0 |        0 |       0 |       0 | 3-354                                                                                                                                                                                                                                                                                
+ src/ui/patterns/inline-bundle-composer-controller |       0 |        0 |       0 |       0 |                                                                                                                                                                                                                                                                                      
+  index.js                                         |       0 |        0 |       0 |       0 | 1-354                                                                                                                                                                                                                                                                                
+ src/ui/patterns/inline-bundle-panel-shell         |       0 |        0 |       0 |       0 |                                                                                                                                                                                                                                                                                      
+  index.js                                         |       0 |        0 |       0 |       0 | 1-304                                                                                                                                                                                                                                                                                
+---------------------------------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 5 failed, 1 passed, 6 total
+Tests:       5 failed, 1 passed, 6 total
+Snapshots:   0 total
+Time:        2.125 s
+Ran all test suites matching /SBD-F28-TP1/i.
