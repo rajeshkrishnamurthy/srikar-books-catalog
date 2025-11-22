@@ -1,0 +1,67 @@
+{
+  "topicId": "F19-TP4",
+  "featureId": "F19",
+  "title": "Available Page Size Selector",
+  "area": "Admin / Manage Books",
+  "goal": "Let admins pick 10/20/50 items per page for the Available list while keeping pagination state, summaries, and hashes in sync.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F19-TP4-001",
+      "title": "PageSizeSelectorRenders",
+      "given": "Manage Books \u2192 Available renders with pagination enabled.",
+      "when": "The page size control initializes.",
+      "then": "A selector with 10/20/50 options appears, defaults to 20 with an \"Items per page\" label, and the list renders 20 rows."
+    },
+    {
+      "id": "F19-TP4-002",
+      "title": "PageSizeChangeReloadsAndResetsPage",
+      "given": "The Available list is on page 3 with a 20-row page size.",
+      "when": "An admin switches the selector to 50 per page.",
+      "then": "The controller reloads page 1 with 50 rows, summary text updates to items 1\u201350, Prev/Next reflect the new slice, and the hash shows page=1&pageSize=50&offset=0."
+    },
+    {
+      "id": "F19-TP4-003",
+      "title": "PageSizePersistsAcrossReload",
+      "given": "A new page size was chosen earlier.",
+      "when": "The admin reloads/returns to Manage Books.",
+      "then": "The selector restores the saved size (e.g., 50), the summary text aligns to that size on first render, and paging uses the persisted pageSize value."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminInventoryHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F19-TP4-001_PageSizeSelectorRenders.spec.js",
+    "/tests/spec/admin/F19-TP4-002_PageSizeChangeReloadsAndResetsPage.spec.js",
+    "/tests/spec/admin/F19-TP4-003_PageSizePersistsAcrossReload.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F19-TP4_red.txt",
+    "green": "codex_output/reports/F19-TP4_green.txt"
+  },
+  "changedFiles": [
+    "tests/spec/admin/F19-TP4-001_PageSizeSelectorRenders.spec.js",
+    "tests/spec/admin/F19-TP4-002_PageSizeChangeReloadsAndResetsPage.spec.js",
+    "tests/spec/admin/F19-TP4-003_PageSizePersistsAcrossReload.spec.js",
+    "codex_output/spec_inputs/F19-TP4.jsonl",
+    "codex_output/specs/F19-TP4.json",
+    "codex_output/reports/F19-TP4_red.txt",
+    "codex_output/reports/F19-TP4_green.txt"
+  ],
+  "changeNotes": [
+    "Captured three specs for the Available page-size selector covering default render, hash-aware reloads on size change, and persistence across reloads.",
+    "Authored Jest specs against the admin inventory harness to assert row counts, summary text, and hash updates when toggling between 10/20/50.",
+    "Recorded GREEN validation after wiring the selector into the shared pagination controller state."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false F19-TP4",
+    "report": "codex_output/reports/F19-TP4_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Available page-size selector renders with 20 by default, reloads page 1 when changed, and persists the chosen size across reloads."
+    }
+  }
+}

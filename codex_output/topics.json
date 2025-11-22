@@ -1617,6 +1617,40 @@
       ]
     },
     {
+      "featureId": "F29",
+      "featureTitle": "Floating Bundle Drawer Trigger",
+      "description": "Replace bundle/cart drawer triggers with a reusable floating icon + badge that opens drawers with animation and stays visible without scrolling.",
+      "topics": [
+        {
+          "id": "SBD-F29-TP1",
+          "title": "Floating Drawer Trigger Pattern",
+          "area": "Pattern Library / UI Shell",
+          "goal": "Define a reusable floating trigger with badge and animation hook for bundle/cart drawers.",
+          "environment": "HTML + Vanilla JavaScript + Jest + jsdom",
+          "dependencies": [],
+          "given": "A view wants a Material-style floating trigger for an in-progress bundle or cart count.",
+          "when": "The count rises above zero and the host mounts the trigger pattern.",
+          "then": "A fixed bottom-right icon appears with a capped two-digit badge, hides when zero, and clicking it invokes the host drawer open handler with an animation hook available.",
+          "notes": "Pattern must expose stable selectors/params for trigger, badge, and open handler; follow Material positioning and keep styling/animation details overridable by codex-ux."
+        },
+        {
+          "id": "SBD-F29-TP2",
+          "title": "Books Available Floating Bundle Trigger",
+          "area": "Admin / Manage Books - Available",
+          "goal": "Apply the floating trigger to Manage Books → Available so the bundle drawer can be opened from anywhere.",
+          "environment": "HTML + Vanilla JavaScript + Jest + jsdom",
+          "dependencies": [
+            "SBD-F23-TP1",
+            "SBD-F24-TP1"
+          ],
+          "given": "An admin is on Manage Books → Available with the inline bundle composer/drawer available.",
+          "when": "They add one or more books to a bundle so the bundle count is above zero.",
+          "then": "The floating trigger shows the bundle count capped at two digits, stays visible without scrolling, hides when empty, and clicking it opens the existing bundle drawer with the specified animation.",
+          "notes": "Reuses the floating trigger pattern; count must mirror inline composer state and not require scrolling or panel toggles to access."
+        }
+      ]
+    },
+    {
       "featureId": "BACKLOG",
       "featureTitle": "Backlog",
       "description": "Future accessibility work that remains after the mouse-first Admin entry-point changes.",

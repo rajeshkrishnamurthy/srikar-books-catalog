@@ -679,90 +679,113 @@
                 </div>
               </div>
               <div id="availList" class="admin-list inventory-list"></div>
-              <section
-                id="inlineBundleComposer"
-                class="inline-bundle-composer"
-                role="region"
-                aria-labelledby="inlineBundleHeading"
-                hidden
-              >
-                <header class="inline-bundle-composer__header">
-                  <h3 id="inlineBundleHeading" tabindex="-1">Bundle in progress</h3>
-                  <button
-                    id="inlineBundleClose"
-                    type="button"
-                    class="inline-bundle-composer__close"
-                    aria-label="Close bundle composer"
-                  >
-                    ×
-                  </button>
-                </header>
-                <p id="inlineBundleEmptyState" class="inline-bundle-composer__empty">
-                  Add a book to start a bundle
-                </p>
-                <div
-                  id="inlineBundleSelectedBooks"
-                  class="inline-bundle-composer__list"
-                  role="list"
+              <div class="bundle-fab-shell">
+                <section
+                  id="inlineBundleComposer"
+                  class="inline-bundle-composer"
+                  role="dialog"
+                  aria-modal="false"
+                  aria-labelledby="inlineBundleHeading"
                   hidden
-                ></div>
-                <div class="inline-bundle-composer__form">
-                  <div class="inline-bundle-field">
-                    <label for="inlineBundleName">Bundle name <span aria-hidden="true">*</span></label>
-                    <input
-                      id="inlineBundleName"
-                      type="text"
-                      class="md-input"
-                      required
-                      aria-required="true"
-                      aria-describedby="inlineBundleHelper"
-                    />
-                  </div>
-                  <div class="inline-bundle-field">
-                    <label for="inlineBundlePrice">Bundle price <span aria-hidden="true">*</span></label>
-                    <input
-                      id="inlineBundlePrice"
-                      type="number"
-                      class="md-input"
-                      required
-                      aria-required="true"
-                      aria-describedby="inlineBundleHelper"
-                    />
-                  </div>
-                  <label for="inlineBundleExistingSelect" class="sr-only">
-                    Continue existing bundle
-                  </label>
-                  <select
-                    id="inlineBundleExistingSelect"
-                    class="md-input"
+                >
+                  <header class="inline-bundle-composer__header">
+                    <h3 id="inlineBundleHeading" tabindex="-1">Bundle in progress</h3>
+                    <button
+                      id="inlineBundleClose"
+                      type="button"
+                      class="inline-bundle-composer__close"
+                      aria-label="Close bundle composer"
+                    >
+                      ×
+                    </button>
+                  </header>
+                  <p id="inlineBundleEmptyState" class="inline-bundle-composer__empty">
+                    Add a book to start a bundle
+                  </p>
+                  <div
+                    id="inlineBundleSelectedBooks"
+                    class="inline-bundle-composer__list"
+                    role="list"
                     hidden
-                    aria-label="Continue existing bundle"
-                  ></select>
-                </div>
-                <dl class="inline-bundle-composer__totals">
-                  <div>
-                    <dt>Recommended price</dt>
-                    <dd id="inlineBundleRecommended" aria-live="polite">—</dd>
+                  ></div>
+                  <div class="inline-bundle-composer__form">
+                    <div class="inline-bundle-field">
+                      <label for="inlineBundleName">Bundle name <span aria-hidden="true">*</span></label>
+                      <input
+                        id="inlineBundleName"
+                        type="text"
+                        class="md-input"
+                        required
+                        aria-required="true"
+                        aria-describedby="inlineBundleHelper"
+                      />
+                    </div>
+                    <div class="inline-bundle-field">
+                      <label for="inlineBundlePrice">Bundle price <span aria-hidden="true">*</span></label>
+                      <input
+                        id="inlineBundlePrice"
+                        type="number"
+                        class="md-input"
+                        required
+                        aria-required="true"
+                        aria-describedby="inlineBundleHelper"
+                      />
+                    </div>
+                    <label for="inlineBundleExistingSelect" class="sr-only">
+                      Continue existing bundle
+                    </label>
+                    <select
+                      id="inlineBundleExistingSelect"
+                      class="md-input"
+                      hidden
+                      aria-label="Continue existing bundle"
+                    ></select>
                   </div>
-                  <div>
-                    <dt>Total sale price</dt>
-                    <dd id="inlineBundleTotal" aria-live="polite">—</dd>
+                  <dl class="inline-bundle-composer__totals">
+                    <div>
+                      <dt>Recommended price</dt>
+                      <dd id="inlineBundleRecommended" aria-live="polite">—</dd>
+                    </div>
+                    <div>
+                      <dt>Total sale price</dt>
+                      <dd id="inlineBundleTotal" aria-live="polite">—</dd>
+                    </div>
+                    <div>
+                      <dt>Total MRP</dt>
+                      <dd id="inlineBundleMrp" aria-live="polite">—</dd>
+                    </div>
+                  </dl>
+                  <p id="inlineBundleHelper" class="inline-bundle-composer__helper" aria-hidden="true"></p>
+                  <div class="inline-bundle-composer__actions">
+                    <button id="inlineBundleReset" type="button" class="btn btn-secondary">
+                      Clear bundle
+                    </button>
+                    <button id="inlineBundleSave" type="button" class="btn" disabled>
+                      Save bundle
+                    </button>
                   </div>
-                  <div>
-                    <dt>Total MRP</dt>
-                    <dd id="inlineBundleMrp" aria-live="polite">—</dd>
-                  </div>
-                </dl>
-                <p id="inlineBundleHelper" class="inline-bundle-composer__helper" aria-hidden="true"></p>
-                <div class="inline-bundle-composer__actions">
-                  <button id="inlineBundleReset" type="button" class="btn btn-secondary">
-                    Clear bundle
-                  </button>
-                  <button id="inlineBundleSave" type="button" class="btn" disabled>
-                    Save bundle
-                  </button>
-                </div>
-              </section>
+                </section>
+                <div class="bundle-fab__scrim" aria-hidden="true"></div>
+                <button
+                  id="bundleFloatingTrigger"
+                  type="button"
+                  class="btn bundle-floating-trigger"
+                  aria-controls="inlineBundleComposer"
+                  aria-label="Open bundle composer"
+                  aria-haspopup="dialog"
+                  hidden
+                >
+                  <span class="bundle-floating-trigger__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path
+                        fill="currentColor"
+                        d="M6 6.5c0-.83.67-1.5 1.5-1.5h9a1.5 1.5 0 0 1 0 3h-9A1.5 1.5 0 0 1 6 6.5Zm-1 5c0-.83.67-1.5 1.5-1.5h9a1.5 1.5 0 0 1 0 3h-9A1.5 1.5 0 0 1 5 11.5Zm2 5c0-.83.67-1.5 1.5-1.5h9a1.5 1.5 0 0 1 0 3h-9A1.5 1.5 0 0 1 7 16.5Z"
+                      />
+                    </svg>
+                  </span>
+                  <span id="bundleFloatingBadge" class="bundle-floating-trigger__badge"></span>
+                </button>
+              </div>
           </div>
         </div>
       </details>

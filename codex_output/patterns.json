@@ -679,6 +679,59 @@
           "actionHold?": "boolean"
         }
       }
+    },
+    {
+      "patternId": "FLOATING_DRAWER_TRIGGER",
+      "type": "shell",
+      "version": "1.0.0",
+      "purpose": "Reusable floating trigger with badge to open bundle/cart drawers via a host-supplied handler and animation hook, staying visible without scrolling.",
+      "requiredParams": [
+        "container",
+        "trigger",
+        "badge",
+        "maxCount"
+      ],
+      "optionalParams": [
+        "iconSlot",
+        "position",
+        "offset",
+        "zIndex",
+        "animationClass",
+        "safeAreaPadding",
+        "ariaLabel"
+      ],
+      "adapters": {
+        "getCount": "() => number",
+        "openDrawer": "() => void",
+        "applyAnimation": "(state) => void"
+      },
+      "uiTexts": {
+        "ariaLabel": "Open bundle drawer"
+      },
+      "a11yNotes": [
+        "Trigger should expose an aria-label and stay keyboard focusable even when fixed-positioned.",
+        "Badge updates should be announced when counts change; hide trigger entirely at count 0 to avoid announcing zero.",
+        "Animation hook must not block focus; clicking trigger should not steal focus from the drawer heading once opened."
+      ],
+      "testBehaviors": [
+        "Trigger hides when count is zero and shows when count is greater than zero.",
+        "Badge text caps to two digits (e.g., 99+) while preserving the numeric count for logic.",
+        "Clicking the trigger calls openDrawer and toggles the animation hook/class on the drawer container.",
+        "Trigger remains fixed in the viewport (bottom-right with safe-area padding) so it is reachable without scrolling."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ container: HTMLElement|string, trigger: HTMLElement|string, badge: HTMLElement|string, maxCount: number, position?: 'bottom-right'|'bottom-left', offset?: { x: number, y: number }, animationClass?: string, ariaLabel?: string }",
+          "adapters": "{ getCount: () => number, openDrawer: () => void, applyAnimation?: (state: { isOpening: boolean }) => void }"
+        },
+        "stateShape": {
+          "count": "number",
+          "isVisible": "boolean",
+          "badgeText": "string",
+          "position": "{ x: number, y: number }"
+        },
+        "mountApi": "mountFloatingDrawerTrigger({ params, adapters, options }) => { syncCount(count), destroy() }"
+      }
     }
   ]
 }

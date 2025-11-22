@@ -481,6 +481,18 @@ Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom.
 - Use the shared `TOAST_NOTIFICATIONS` pattern (anchors: #toastStack, #toastLiveRegion, #toastTemplate) and keep success copy concise (e.g., “Book added”).
 
+# Feature: Floating Bundle Drawer Trigger (F29)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| SBD-F29-TP1 | Floating Drawer Trigger Pattern | Define a reusable floating trigger with badge and animation hook for bundle/cart drawers. | — | A view wants a Material-style floating trigger for an in-progress bundle/cart count. | The count rises above zero and the host mounts the trigger. | A fixed bottom-right icon appears with a capped two-digit badge, hides at zero, and clicking it invokes the host drawer open handler with the animation hook available. |
+| SBD-F29-TP2 | Books Available Floating Bundle Trigger | Apply the floating trigger to Manage Books → Available so the bundle drawer can be opened from anywhere. | SBD-F23-TP1, SBD-F24-TP1 | An admin is on Manage Books → Available with inline bundle composer/drawer ready. | They add one or more books to a bundle. | The floating trigger shows the bundle count (capped at two digits), stays visible without scrolling, hides when empty, and clicking it opens the existing bundle drawer with the specified animation. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Jest + jsdom for all F29 topics.
+- Follow Material positioning (bottom-right with safe-area awareness) and keep styling/animation details delegable to codex-ux; this spec focuses on wiring and visibility logic.
+- Pattern is reusable for future cart flows; selectors and count behavior must remain stable contracts.
+
 # Feature: Backlog (BACKLOG)
 
 | ID | Title | Goal | Dependencies | Given | When | Then |

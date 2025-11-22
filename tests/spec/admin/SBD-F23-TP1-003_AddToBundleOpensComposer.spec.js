@@ -2,8 +2,8 @@ import { describe, expect, test } from '@jest/globals';
 import { fireEvent, waitFor } from '@testing-library/dom';
 import { createAdminInventoryHarness } from '../../fixtures/adminInventoryHarness.js';
 
-describe('SPEC SBD-F23-TP1-003: Add to bundle trigger opens inline composer', () => {
-  test('first selection opens the drawer, focuses its heading, and seeds the selected book chip', async () => {
+describe('SPEC SBD-F23-TP1-003: Add to bundle trigger seeds inline composer state', () => {
+  test('first selection stores the chip, keeps the drawer hidden, and flags the trigger as active', async () => {
     const harness = await createAdminInventoryHarness();
     harness.emitAvailableDocs([
       {
@@ -32,9 +32,8 @@ describe('SPEC SBD-F23-TP1-003: Add to bundle trigger opens inline composer', ()
     fireEvent.click(trigger);
 
     await waitFor(() => {
-      expect(composer?.hasAttribute('hidden')).toBe(false);
+      expect(composer?.hasAttribute('hidden')).toBe(true);
       expect(trigger?.getAttribute('aria-pressed')).toBe('true');
-      expect(document.activeElement).toBe(heading);
       expect(selectionList?.textContent || '').toContain('Drawer Expectations');
       expect(emptyState?.hasAttribute('hidden')).toBe(true);
     });

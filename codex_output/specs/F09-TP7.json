@@ -4,7 +4,7 @@
   "area": "Admin / Sales Entry",
   "goal": "Automatically reset the customer search field and collapse results after a customer is selected.",
   "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-  "status": "RED",
+  "status": "GREEN",
   "specs": [
     {
       "id": "F09-TP7-001",
@@ -23,14 +23,19 @@
     "green": "codex_output/reports/F09-TP7_green.txt"
   },
   "validation": {
-    "command": "npm test -- --watchAll=false --runTestsByPath tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js",
-    "status": "RED",
-    "report": "codex_output/reports/F09-TP7_red.txt"
+    "command": "npm test -- --watchAll=false F09-TP7",
+    "status": "GREEN",
+    "report": "codex_output/reports/F09-TP7_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Lookup selection now clears the search input/results while keeping the chosen customer locked in the summary pill."
+    }
   },
   "changedFiles": [
     "tests/spec/admin/F09-TP7-001_LookupClearsAfterSelection.spec.js",
     "tests/spec/admin/F09-TP7-002_SaleHeaderFocusShifts.spec.js",
-    "codex_output/specs/F09-TP7.json"
+    "codex_output/specs/F09-TP7.json",
+    "codex_output/reports/F09-TP7_green.txt"
   ],
   "changeNotes": [
     "Added a RED test to enforce clearing the customer lookup input/list after a selection, and formally skipped the older focus-shift spec per updated requirements."
