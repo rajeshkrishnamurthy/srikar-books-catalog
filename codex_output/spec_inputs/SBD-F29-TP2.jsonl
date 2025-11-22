@@ -1,0 +1,13 @@
+{"type":"meta","topicId":"SBD-F29-TP2","title":"Books Available Floating Bundle Trigger"}
+{"type":"given","text":"Manage Books → Available is loaded with the inline bundle composer/drawer ready and the floating trigger selectors #bundleFloatingTrigger and #bundleFloatingBadge registered."}
+{"type":"when","text":"The bundle selection count is greater than zero after adding books (or resuming a session)."}
+{"type":"then","text":"A fixed bottom-right trigger is visible with the bundle count capped to two digits, requiring no scrolling to access."}
+{"type":"when","text":"The bundle selection count returns to zero."}
+{"type":"then","text":"The floating trigger hides completely so the empty state shows no badge or icon."}
+{"type":"when","text":"The admin clicks #bundleFloatingTrigger."}
+{"type":"then","text":"openInlineBundleDrawer fires to open the existing bundle drawer with its animation class applied to #inlineBundleComposer."}
+{"type":"ui-anchor","selector":"#bundleFloatingTrigger"}
+{"type":"ui-anchor","selector":"#bundleFloatingBadge"}
+{"type":"js-handler","event":"click","selector":"#bundleFloatingTrigger","handler":"openInlineBundleDrawer"}
+{"type":"ui-anchor","selector":"#inlineBundleComposer"}
+{"type":"reuse","patternId":"FLOATING_DRAWER_TRIGGER"}

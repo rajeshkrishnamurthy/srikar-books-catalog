@@ -1,0 +1,139 @@
+(node:14064) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL codex_output/tests/spec/patterns/SBD-F29-TP1-005_FloatingTriggerClickOpensDrawer.spec.js
+  SPEC SBD-F29-TP1-005: Floating trigger click opens drawer with animation hook
+    ✕ clicking the trigger calls openDrawer, applyAnimation, and toggles animation class (3 ms)
+
+  ● SPEC SBD-F29-TP1-005: Floating trigger click opens drawer with animation hook › clicking the trigger calls openDrawer, applyAnimation, and toggles animation class
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '../../src/ui/patterns/floating-drawer-trigger/index.js' from 'codex_output/tests/fixtures/floatingDrawerTriggerHarness.js']
+
+      14 |     const { trigger, adapters, importError, mountError } = harness;
+      15 |
+    > 16 |     expect(importError).toBeUndefined();
+         |                         ^
+      17 |     expect(mountError).toBeUndefined();
+      18 |     expect(isVisible(trigger)).toBe(true);
+      19 |
+
+      at Object.<anonymous> (codex_output/tests/spec/patterns/SBD-F29-TP1-005_FloatingTriggerClickOpensDrawer.spec.js:16:25)
+
+FAIL codex_output/tests/spec/patterns/SBD-F29-TP1-003_FloatingTriggerHidesWhenZero.spec.js
+  SPEC SBD-F29-TP1-003: Floating trigger hides when count returns to zero
+    ✕ syncCount(0) hides the trigger and clears badge text (2 ms)
+
+  ● SPEC SBD-F29-TP1-003: Floating trigger hides when count returns to zero › syncCount(0) hides the trigger and clears badge text
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '../../src/ui/patterns/floating-drawer-trigger/index.js' from 'codex_output/tests/fixtures/floatingDrawerTriggerHarness.js']
+
+      11 |     const { trigger, badge, api, importError, mountError } = harness;
+      12 |
+    > 13 |     expect(importError).toBeUndefined();
+         |                         ^
+      14 |     expect(mountError).toBeUndefined();
+      15 |
+      16 |     await api?.syncCount?.(0);
+
+      at Object.<anonymous> (codex_output/tests/spec/patterns/SBD-F29-TP1-003_FloatingTriggerHidesWhenZero.spec.js:13:25)
+
+FAIL codex_output/tests/spec/patterns/SBD-F29-TP1-004_FloatingDrawerBadgeCaps.spec.js
+  SPEC SBD-F29-TP1-004: Floating drawer badge caps to two digits
+    ✕ counts above the max render as 99+ while staying visible (2 ms)
+
+  ● SPEC SBD-F29-TP1-004: Floating drawer badge caps to two digits › counts above the max render as 99+ while staying visible
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '../../src/ui/patterns/floating-drawer-trigger/index.js' from 'codex_output/tests/fixtures/floatingDrawerTriggerHarness.js']
+
+       9 |     const { trigger, badge, importError, mountError, adapters } = harness;
+      10 |
+    > 11 |     expect(importError).toBeUndefined();
+         |                         ^
+      12 |     expect(mountError).toBeUndefined();
+      13 |     expect(adapters.getCount).toHaveBeenCalled();
+      14 |
+
+      at Object.<anonymous> (codex_output/tests/spec/patterns/SBD-F29-TP1-004_FloatingDrawerBadgeCaps.spec.js:11:25)
+
+FAIL codex_output/tests/spec/patterns/SBD-F29-TP1-002_FloatingTriggerShowsWhenCountPositive.spec.js
+  SPEC SBD-F29-TP1-002: Floating trigger shows when count is positive
+    ✕ count above zero keeps trigger fixed bottom-right with icon and badge text (2 ms)
+
+  ● SPEC SBD-F29-TP1-002: Floating trigger shows when count is positive › count above zero keeps trigger fixed bottom-right with icon and badge text
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '../../src/ui/patterns/floating-drawer-trigger/index.js' from 'codex_output/tests/fixtures/floatingDrawerTriggerHarness.js']
+
+      14 |     const { trigger, badge, icon, importError, mountError } = harness;
+      15 |
+    > 16 |     expect(importError).toBeUndefined();
+         |                         ^
+      17 |     expect(mountError).toBeUndefined();
+      18 |
+      19 |     expect(isVisible(trigger)).toBe(true);
+
+      at Object.<anonymous> (codex_output/tests/spec/patterns/SBD-F29-TP1-002_FloatingTriggerShowsWhenCountPositive.spec.js:16:25)
+
+FAIL codex_output/tests/spec/patterns/SBD-F29-TP1-001_FloatingDrawerTriggerAnchors.spec.js
+  SPEC SBD-F29-TP1-001: Floating drawer trigger anchors
+    ✕ mount exposes trigger and badge anchors with aria label and sync API (1 ms)
+
+  ● SPEC SBD-F29-TP1-001: Floating drawer trigger anchors › mount exposes trigger and badge anchors with aria label and sync API
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '../../src/ui/patterns/floating-drawer-trigger/index.js' from 'codex_output/tests/fixtures/floatingDrawerTriggerHarness.js']
+
+      10 |     const { importError, mountError, trigger, badge, adapters, api } = harness;
+      11 |
+    > 12 |     expect(importError).toBeUndefined();
+         |                         ^
+      13 |     expect(mountError).toBeUndefined();
+      14 |
+      15 |     expect(trigger).not.toBeNull();
+
+      at Object.<anonymous> (codex_output/tests/spec/patterns/SBD-F29-TP1-001_FloatingDrawerTriggerAnchors.spec.js:12:25)
+
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+File                                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+All files                                          |       0 |        0 |       0 |       0 |                   
+ scripts/admin                                     |       0 |        0 |       0 |       0 |                   
+  auth.js                                          |       0 |        0 |       0 |       0 | 24-79             
+  autoPrice.js                                     |       0 |        0 |       0 |       0 | 2-25              
+  availablePagination.js                           |       0 |        0 |       0 |       0 | 5-353             
+  bundleList.js                                    |       0 |        0 |       0 |       0 | 2-510             
+  bundleStatus.js                                  |       0 |        0 |       0 |       0 | 7-110             
+  bundles.js                                       |       0 |        0 |       0 |       0 | 3-505             
+  currency.js                                      |       0 |        0 |       0 |       0 | 6-31              
+  customerLookup.js                                |       0 |        0 |       0 |       0 | 3-392             
+  customers.js                                     |       0 |        0 |       0 |       0 | 3-532             
+  editor.js                                        |       0 |        0 |       0 |       0 | 27-423            
+  inventory.js                                     |       0 |        0 |       0 |       0 | 33-1707           
+  lookup.js                                        |       0 |        0 |       0 |       0 | 11-483            
+  main.js                                          |       0 |        0 |       0 |       0 | 39-2386           
+  requests.js                                      |       0 |        0 |       0 |       0 | 6-73              
+  salesEntryLauncher.js                            |       0 |        0 |       0 |       0 | 2-68              
+  salesHeader.js                                   |       0 |        0 |       0 |       0 | 3-505             
+  salesLineItems.js                                |       0 |        0 |       0 |       0 | 3-914             
+  salesPersist.js                                  |       0 |        0 |       0 |       0 | 1-183             
+  salesTitleAutocomplete.js                        |       0 |        0 |       0 |       0 | 9-225             
+  suppliers.js                                     |       0 |        0 |       0 |       0 | 2-331             
+ src/ui/patterns/inline-bundle-composer            |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 3-354             
+ src/ui/patterns/inline-bundle-composer-controller |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 1-354             
+ src/ui/patterns/inline-bundle-panel-shell         |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 1-304             
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 5 failed, 5 total
+Tests:       5 failed, 5 total
+Snapshots:   0 total
+Time:        1.512 s
+Ran all test suites matching /SBD-F29-TP1/i.
