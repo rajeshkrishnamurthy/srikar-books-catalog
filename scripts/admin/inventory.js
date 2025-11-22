@@ -384,6 +384,7 @@ export function initInventory({
 
   let floatingTriggerApi;
   let floatingTriggerPromise;
+  let inlineBundleClosedByUser = false;
 
   const syncFloatingTriggerCount = (count) => {
     const safeCount = Number.isFinite(count) ? count : 0;
@@ -409,6 +410,7 @@ export function initInventory({
   };
 
   const handleOpenInlineBundleDrawer = () => {
+    inlineBundleClosedByUser = false;
     showInlineBundleComposer();
     applyInlineBundleAnimation({ isOpening: true });
     focusInlineBundleHeading();
@@ -457,7 +459,8 @@ export function initInventory({
       if (!hasBooks) {
         inlineBundleContainer.hidden = true;
         inlineBundleContainer.classList.remove(INLINE_BUNDLE_ANIMATION_CLASS);
-      } else {
+        inlineBundleClosedByUser = false;
+      } else if (!inlineBundleClosedByUser && inlineBundleContainer.hidden) {
         inlineBundleContainer.hidden = false;
         inlineBundleContainer.removeAttribute('hidden');
       }
@@ -625,6 +628,7 @@ export function initInventory({
   inlineBundlePriceInput?.addEventListener('input', handleInlineBundlePrice);
   inlineBundleSaveButton?.addEventListener('click', handleInlineBundleSave);
   inlineBundleCloseButton?.addEventListener('click', () => {
+    inlineBundleClosedByUser = true;
     inlineBundleContainer?.classList.remove(INLINE_BUNDLE_ANIMATION_CLASS);
   });
 

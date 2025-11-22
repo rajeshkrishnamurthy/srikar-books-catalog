@@ -4,7 +4,7 @@
   "area": "Admin / Sales Entry",
   "goal": "Guarantee Persist sale only saves the currently visible lines and blocks submission when all lines were deleted.",
   "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-  "status": "RED",
+  "status": "GREEN",
   "specs": [
     {
       "id": "F11-TP3-001",
@@ -39,12 +39,12 @@
     "green": "codex_output/reports/F11-TP3_green.txt"
   },
   "validation": {
-    "status": "RED",
-    "command": "npm test -- --watchAll=false",
-    "report": "codex_output/reports/F11-TP3_red.txt",
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --runTestsByPath tests/spec/admin/F11-TP3-001_PersistSkipsRemovedLines.spec.js tests/spec/admin/F11-TP3-002_DisablePersistWhenEmpty.spec.js tests/spec/admin/F11-TP3-003_StatusAnnouncesSavedCount.spec.js",
+    "report": "codex_output/reports/F11-TP3_green.txt",
     "summary": {
-      "result": "failed",
-      "details": "Persist sale still includes removed lines in the payload, allows saving when no lines remain, and does not announce the saved count."
+      "result": "passed",
+      "details": "Persist sale now drops removed lines, keeps the button disabled when no lines remain, and announces the saved count via the status region."
     }
   },
   "changedFiles": [
