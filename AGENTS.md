@@ -1,379 +1,467 @@
-# AGENTS.md (Pipeline-Integrated Layout — HTML + Vanilla JavaScript Edition)
+# AGENTS.md 
+
+---
+
+# 0) Scope and Operating Assumptions
+
+* **Stack:** HTML, ES Modules, CSS.
+* **Tests:** Jest; strict RED → GREEN discipline.
+* **Selectors as Contracts:** `id` and `[data-test]` are stable public interfaces.
+* **Accessibility:** Semantic HTML, keyboard support, ARIA where necessary.
+* **Pattern Registry:** Central structured catalog of reusable UI/behavior modules.
+* **No humans in the workflow:** All role-to-role transitions are machine only.
+* **All inter-role handoffs use `.jsonl`.**
+* **All global human-facing artifacts use `.md`.**
+* **patterns.json** retained as the machine-friendly global registry.
+
+---
+
+# 1) Repository Conventions
+
+```
+/src/
+  ui/
+    patterns/               # Reusable UI/behavior modules (by patternId)
+  helpers/                  # Generic utilities (behavior‑preserving)
+
+/tests/
+  spec/                     # Behavior-level tests (Jest)
+  unit/                     # Unit tests (Jest)
+  fixtures/
+
+codex_output/
+  topics.md                 # Human-facing feature decomposition
+  patterns.md               # Human-facing Pattern Registry
+  patterns.json             # Machine-facing Pattern Registry (structured)
+
+  spec_inputs/              # From codex-spec → codex-tdd (.jsonl)
+    <TopicID>.jsonl
+
+  impl_inputs/              # From codex-tdd → codex-dev (.jsonl)
+    <TopicID>.jsonl
+
+  review/
+    <TopicID>_code_review.md
+    routing/<TopicID>.jsonl   # Machine-readable findings for routing
+
+  specs/
+    <TopicID>.json          # Expanded specs + status (RED/GREEN)
+
+  reports/
+    <TopicID>_red.txt
+    <TopicID>_green.txt
+    <TopicID>_ux_apply.txt
+    patterns/<patternId>_reuse_migration.md
+```
+
+**Identifier Rules**
+
+* **PROJECT_ID** = repository folder name.
+* **Topic IDs:** `<PROJECT_ID>-<FeatureID>-<TopicID>`
+* **Spec IDs:** derived from behavior titles.
+* **Pattern IDs:** uppercase snake/kebab (e.g., `PAGINATION`).
+
+---
+
+# 2) Pipeline Overview
+
+```
+codex-spec
+   ↓ (spec_inputs/*.jsonl)
+codex-tdd
+   ↓ (impl_inputs/*.jsonl)
+codex-dev
+   ↓
+(optional codex-refactor / codex-reuse)
+   ↓
+codex-code-review
+```
+
+**Auxiliary flows:**
+
+* `codex-fix` — restore GREEN
+* `codex-refactor` — behavior-preserving improvements
+* `codex-reuse` — pattern extraction + migration
+* `codex-ux-prompt` / `codex-ux-apply`
+
+**Routing Tags** (emitted by codex-code-review → `.jsonl`):
+
+* `[bug-risk]` → codex-tdd → codex-fix
+* `[dev-nit]` → codex-dev
+* `[refactor]` → codex-refactor
+* `[reuse]` → codex-reuse
+* `[ux-only]` → codex-ux-apply
+
+---
+
+# 3) Role Contracts
 
 ## codex-spec
 
 **Goal**
-Define high-level **features** and decompose each into 2–5 independently shippable **topics**, each with a clear goal, dependencies, and concise Given/When/Then summaries.
+Define features as shippable topics and author Pattern Registry entries. Produce:
 
-**Context**
-codex-spec operates before implementation. It transforms feature descriptions into structured topic data files consumed by codex-tdd and downstream agents.
+1. **Global human artifacts:** topics.md, patterns.md
+2. **Global machine registry:** patterns.json
+3. **Per-topic minimal packets:** spec_inputs/*.jsonl
+4. **Wiring invariants** for codex-tdd to generate wiring tests.
 
-**Tasks**
+---
 
-1. Accept multiple features at once — each feature is identified by a unique `featureId` (e.g. `F01`, `F02`, etc.).
-2. For each feature, generate 2–5 topic entries.
-3. Prefix each topic ID with the feature ID to ensure global uniqueness (`F01-TP1`, `F01-TP2`, etc.).
-4. Record concise Given/When/Then summaries for each topic.
-5. Avoid framework-specific details.
-6. Write all features and topics into a single JSON file (`codex_output/topics.json`) and an optional human-readable Markdown file (`codex_output/topics.md`).
+### Inputs
 
-**Role Exclusions — codex-spec must NOT:**
+Product/feature intent.
 
-* Write or modify any files outside `codex_output/topics.json` and `codex_output/topics.md`.
-* Modify or create test files.
-* Modify or create production code.
-* Update spec/green/review artifacts for any topic.
+---
 
-**Deliverables**
-✔ `codex_output/topics.json`
-✔ `codex_output/topics.md`
-✔ Also display topics inline in Codex output
-✔ Zero other artifacts modified
+### Outputs
+
+* `topics.md` (human)
+* `patterns.md` (human)
+* `patterns.json` (machine global registry)
+* `spec_inputs/<TopicID>.jsonl` (machine packet)
+
+---
+
+### Pattern Tier Model (normative)
+
+* **contract** — pure logic
+* **controller** — state + lifecycle
+* **shell** — DOM renderer/selectors
+* **aggregate** — composed patterns
+
+---
+
+### Tasks
+
+1. Derive PROJECT_ID and Topic IDs
+2. Decompose features → topics
+3. Extend Pattern Registry
+4. Author reuse macros
+5. Verify DoR (params, adapters, API, accessibility)
+6. **Emit `.jsonl` Spec Input Packets**
+7. **Emit Wiring Invariants** (new)
+
+---
+
+### `.jsonl` Spec Input Packet Format
+
+Each record is a flat JSON object:
+
+```
+{"type":"meta","topicId":"...","title":"..."}
+{"type":"given","text":"..."}
+{"type":"when","text":"..."}
+{"type":"then","text":"..."}
+{"type":"reuse","patternId":"..."}
+```
+
+#### UI Anchors (DOM elements that must exist)
+
+```
+{"type":"ui-anchor","selector":"#nextBtn"}
+```
+
+#### JS Handlers (functions that must be wired to events)
+
+```
+{"type":"js-handler","event":"click","selector":"#nextBtn","handler":"goNextPage"}
+```
+
+#### Adapter Calls (required backend calls)
+
+```
+{"type":"adapter-call","function":"getPage","args":["page","size"]}
+```
+
+#### Pattern fragments
+
+```
+{"type":"pattern","patternId":"...","requiredParams":[...],"adapters":{...},"testBehaviors":[...]}
+```
+
+Rules:
+
+* Only referenced patterns included.
+* Wiring invariants MUST be included whenever UI interaction is implied.
+
+---
+
+### Rules
+
+* Only modify topics.md, patterns.md, patterns.json, spec_inputs/*.jsonl
+* No test or production code edits
+* Wiring invariants MUST be included for UI events
 
 ---
 
 ## codex-tdd
 
 **Goal**
-Expand a topic into concrete specs and generate compiling-but-failing **Jest tests (RED phase)**.
-
-**Context**
-codex-tdd reads from `codex_output/topics.json`, locates the chosen Topic ID, and outputs detailed spec metadata plus real test files.
-
-**Tasks**
-
-1. Load topic block from `codex_output/topics.json`.
-2. Create 3–7 specs per topic describing observable behavior.
-3. Generate test files:
-
-   * `/tests/spec/<area>/{SpecId}_{Title}.spec.js`
-   * `/tests/unit/<module>/{SpecId}_*.test.js`
-   * Optional integration specs under `/tests/spec/integration/`
-4. Create minimal fixtures under `/tests/fixtures`.
-5. Ensure tests fail **only by assertion**.
-6. Run RED validation with:
-
-   ```bash
-   npm test -- --watchAll=false
-   ```
-7. Write spec summary JSON for downstream agents.
-
-**Role Exclusions — codex-tdd must NOT:**
-
-* Modify production code (`src/` or top-level scripts).
-* Modify helper modules or utilities.
-* Modify `topics.json` except for reading.
-* Create or update GREEN or REVIEW artifacts.
-* Touch `codex_output/reports/<TopicID>_green.txt`, `code_review.md`, or any dev-phase files.
-
-**Deliverables**
-✔ Test files under `/tests/`
-✔ `codex_output/specs/<TopicID>.json` (status: RED)
-✔ RED validation report
-✔ No prod code modifications
+Expand a topic into concrete specs and RED tests.
+Ensure tests fully cover UI → JS → Adapter wiring.
+Emit `.jsonl` Implementation Packet for codex-dev.
 
 ---
 
-## codex-dev (HTML / Vanilla JavaScript Edition)
+### Inputs
+
+* `spec_inputs/<TopicID>.jsonl`
+* Optional: patterns.json for validation
+
+---
+
+### Outputs
+
+1. Tests under `/tests/spec/` and `/tests/unit/`
+2. RED spec JSON: `specs/<TopicID>.json`
+3. RED report: `reports/<TopicID>_red.txt`
+4. **Implementation Packet:** `impl_inputs/<TopicID>.jsonl`
+
+---
+
+### Mandatory Test Coverage
+
+codex-tdd MUST generate RED tests for all of the following (if applicable):
+
+#### ✔ UI existence tests
+
+```
+expect($("#nextBtn")).not.toBeNull();
+```
+
+#### ✔ UI → JS wiring tests
+
+```
+click("#nextBtn");
+expect(spy(goNextPage)).toHaveBeenCalled();
+```
+
+#### ✔ JS → Adapter wiring tests
+
+```
+goNextPage();
+expect(getPage).toHaveBeenCalledWith(expectedPage, expectedSize);
+```
+
+#### ✔ Adapter → DOM update tests
+
+```
+await renderPage();
+expect($("#pageNumber").textContent).toBe("2");
+```
+
+#### ✔ Pattern-level wiring tests
+
+Validate adapters/params from patterns.json.
+
+---
+
+### Implementation Packet Format (`.jsonl`)
+
+Each line is a flat JSON object:
+
+```
+{"type":"fail","test":"tests/spec/..."}
+{"type":"spec","id":"...","given":"...","when":"...","then":"..."}
+{"type":"ui-anchor","selector":"#nextBtn"}
+{"type":"js-handler","event":"click","selector":"#nextBtn","handler":"goNextPage"}
+{"type":"adapter-call","function":"getPage","args":["page","size"]}
+{"type":"reuse","patternId":"..."}
+{"type":"pattern","patternId":"...","requiredParams":["..."],"adapters":{"...":"..."}}
+```
+
+codex-dev uses this packet to implement full wiring.
+
+---
+
+### Tasks
+
+1. Parse Spec Input Packet
+2. Expand to 3–7 Given/When/Then specs
+3. Generate RED tests
+4. **Generate mandatory wiring tests**
+5. Emit RED spec + Implementation Packet
+6. Validate RED
+
+---
+
+### Rules
+
+* No production code edits
+* RED must represent full wiring failure
+* Missing wiring MUST trigger test failures
+* No weakening of pattern structural guarantees
+
+---
+
+## codex-dev
 
 **Goal**
-Automatically detect all failing **Jest** tests at the current repo state, make them pass with minimal production-code changes, then refactor safely while keeping everything **GREEN**.
+Turn RED → GREEN with minimal production code changes.
 
-**Context**
-codex-dev follows codex-tdd. It uses Jest results as live input; no manual file hand-off required.
+---
 
-**Generic Failure-Handling Prompt**
+### Inputs
 
-* Only newly added tests should fail.
-* Previously passing tests must remain green.
+* `impl_inputs/<TopicID>.jsonl`
+* Optional `[dev-nit]` findings
+* Jest failure output
 
-**Behavior**
+### Outputs
 
-1. Run `npm test -- --watchAll=false --bail=0`.
-2. Parse failing test names.
-3. Implement minimal changes to make those tests pass.
-4. Iterate until fully green.
-5. Mark `codex_output/specs/<TopicID>.json` `"status": "GREEN"`.
+* Production code changes
+* Updated `specs/<TopicID>.json` → GREEN
+* `reports/<TopicID>_green.txt`
+
+---
+
+### Behavior
+
+1. Load Implementation Packet
+2. Confirm RED
+3. Apply smallest code fix
+4. Apply `[dev-nit]` if trivial and safe
+5. Validate GREEN
+6. Update spec JSON
+
+---
+
+### Rules
+
+* Do not alter tests
+* No weakened assertions
+* No cross-screen consolidation (use codex-reuse)
+
+---
+
+## codex-fix
+
+**Goal**
+Restore GREEN after regressions.
+
+**Inputs**
+
+* Failing tests
+* Prior GREEN spec
+* Review routing `<TopicID>.jsonl` with `[bug-risk]`
+
+**Outputs**
+
+* Minimal fix
+* Updated spec JSON
+* GREEN report
 
 **Rules**
 
-1. Do not weaken assertions.
-2. Keep code pure; isolate DOM/Firestore side effects.
-3. Small commits:
-
-   * `feat(<SpecId>): minimal code to pass`
-   * `refactor(<SpecId>): tidy without change`
-4. No test-only branches.
-5. Maintain semantic HTML and accessibility.
-6. Perform refactoring immediately after GREEN.
-
-**Refactor Awareness and Duplication Control**
-(unchanged—already correct)
-
-**Role Exclusions — codex-dev must NOT:**
-
-* Create or modify test files (unit/spec/integration).
-* Modify any `codex_output/topics.json` or `topics.md`.
-* Modify any artifacts under `/tests/fixtures/` unless tests require additional builders (rare).
-* Produce code review artifacts (`*_code_review.md`).
-* Produce process-review artifacts (`*_process_review.md`).
-* Change any `specs/<TopicID>.json` fields except:
-
-  * `"status": "GREEN"`
-  * `changedFiles`
-  * `changeNotes`
-  * `helpers` (if refactor extracted helpers)
-
-**Deliverables**
-✔ Production code updates
-✔ `codex_output/specs/<TopicID>.json` updates (allowed fields only)
-✔ `codex_output/reports/<TopicID>_green.txt`
-✔ No test/spec/review artifacts modified
+* No feature expansion
+* No test edits
 
 ---
 
-## codex-process-review
+## codex-refactor
 
 **Goal**
-Final readiness check — confirm GREEN, coverage thresholds, and that **codex-code-review** declared **READY FOR MERGE**.
+Behavior-preserving improvements.
 
-**Context**
-Runs last, after codex-dev and codex-code-review.
+**Inputs**
 
-**Tasks**
+* GREEN state
+* Review routing `.jsonl` with `[refactor]`
+* diffs
 
-1. Confirm GREEN status.
-2. Parse GREEN test logs.
-3. Compute topic-scoped coverage.
-4. Verify coverage thresholds.
-5. Check for “READY FOR MERGE” in code-review output.
-6. Produce final verdict.
-7. Write summary artifacts.
+**Outputs**
 
-**Role Exclusions — codex-process-review must NOT:**
+* Improved code
+* Updated spec JSON
 
-* Modify production code.
-* Modify test files.
-* Modify any spec definitions except adding:
+**Rules**
 
-  * `finalVerdict` *(optional if you track it)*
-* Modify helper modules or utilities.
-* Modify topic list (`topics.json`, `topics.md`).
-* Modify code-review artifacts except reading them.
+* No behavioral changes
+* No test edits
 
-**Deliverables**
-✔ `codex_output/review/<TopicID>_process_review.md`
-✔ Update to `codex_output/review/summary.json`
-✔ No other file modifications
+---
+
+## codex-reuse
+
+**Goal**
+Extract shared behavior into versioned patterns.
+
+**Inputs**
+
+* patterns.json
+* Review routing `.jsonl` with `[reuse]`
+
+**Outputs**
+
+* Pattern module under /src/ui/patterns
+* Migration notes
+* Pattern version bump
+
+**Rules**
+
+* Suite must remain GREEN
+* No feature additions
+
+---
+
+## codex-ux-prompt
+
+**Goal**
+Translate UI/UX goals into deterministic instructions.
+
+**Outputs**
+Implementation instruction block (human-readable).
+
+**Rules**
+
+* Planning only
+
+---
+
+## codex-ux-apply
+
+**Goal**
+Apply safe UI-only changes.
+
+**Inputs**
+
+* Instruction block
+* Review routing `.jsonl` with `[ux-only]`
+
+**Outputs**
+
+* HTML/CSS diffs
+* UX apply report
+
+**Rules**
+
+* No JS behavior changes
 
 ---
 
 ## codex-code-review
 
 **Goal**
-Assess maintainability/readability of code for this topic. Suggest improvements without altering verified behavior.
+Assess correctness/maintainability and produce routing instructions.
 
-**Context**
-Runs after codex-process-review inputs are ready. Reviews changed code only.
+**Inputs**
 
-**Tasks**
-
-1. Inspect changedFiles + changeNotes.
-2. Review for naming, duplication, abstractions, wiring, HTML/DOM quality.
-3. Produce review verdict.
-
-**Role Exclusions — codex-code-review must NOT:**
-
-* Modify production code.
-* Modify test files.
-* Modify `codex_output/specs/<TopicID>.json`.
-* Modify `codex_output/topics.json` or `topics.md`.
-* Modify process-review artifacts.
-* Modify GREEN logs or coverage directories.
-
-**Deliverables**
-✔ `codex_output/review/<TopicID>_code_review.md`
-✔ Optional update to `summary.json` (read-only for everything else)
-✔ Absolutely no code or test modifications
+* diffs, changedFiles
+* patterns.json
+* specs/<TopicID>.json
 
 ---
-codex-ux
 
-Goal
-Evaluate and improve user experience (UX), UI clarity, visual hierarchy, layout, interaction patterns, and overall usability — without altering functional behavior or interfering with TDD workflows.
-codex-ux specializes in frontend ergonomics, microcopy, spacing, readability, consistency, and Human Interface Guidelines such as Apple HIG, Material Design, and general UX best practices.
+### Outputs
 
-Context
-codex-ux is invoked outside the TDD pipeline.
-Use it when the user wants to refine UI, improve layout, fix visual clunkiness, or get UX direction without affecting behavior-level tests.
-
-codex-ux works purely on presentation:
-
-DOM structure
-
-CSS classes
-
-Naming and labeling
-
-Interaction flow
-
-Visual hierarchy
-
-Clarity and accessibility
-
-Consistency of components
-
-It should never alter testable logic unless explicitly asked.
-
-Tasks
-
-Analyze UI structure
-Review provided HTML, CSS, JS (UI-only) to detect:
-
-Visual clutter
-
-Broken hierarchy
-
-Missing spacing
-
-Poor grouping
-
-Awkward microcopy
-
-Non-standard patterns
-
-Poor affordances
-
-Low accessibility
-
-Apply recognized UX patterns
-Ground recommendations in established HIG principles:
-
-Apple HIG
-
-Material Design
-
-Fluent
-
-NN/g UX heuristics
-
-A11y best practices
-
-Suggest lightweight improvements
-Only propose modifications that do not impact application logic.
-Examples:
-
-Replace unclear labels
-
-Improve spacing via CSS tweaks
-
-Reorder elements for visual hierarchy
-
-Add focus states or hover states
-
-Introduce consistent typography scales
-
-Add semantic HTML where missing
-
-Improve button grouping or sizing
-
-Strengthen visual contrast
-
-Suggest template-driven UI structures
-
-Optional microcopy refinement
-Improve inline text, labels, helper text, error messages:
-
-Clarity
-
-Tone
-
-Brevity
-
-Accessibility
-
-Provide before/after proposals
-Use diff-style or side-by-side rewrites of HTML/CSS when necessary.
-
-Ensure non-breaking changes
-All suggestions should maintain:
-
-Existing behavior
-
-Test assumptions
-
-DOM references used by Jest or integration harnesses
-
-Element IDs and data attributes
-
-Role Exclusions — codex-ux must NOT:
-
-❌ Modify Jest tests or any files under /tests/
-❌ Modify or generate specs (codex_output/specs/*)
-❌ Modify topics.json or topics.md
-❌ Modify any artifacts produced by codex-dev, codex-tdd, codex-code-review, or codex-process-review
-❌ Change event-handling logic, fetch calls, persistence logic, or JS code that influences behavior
-❌ Modify business logic, validators, or backend APIs
-❌ Change DOM element IDs, data attributes, or selectors used by tests
-❌ Generate GREEN/RED artifacts
-❌ Perform refactors intended for codex-dev
-
-codex-ux is a presentation-only role.
-
-Deliverables
-
-✔ UX analysis summary
-✔ Recommendations list with reasoning
-✔ Improved HTML/CSS 
-✔ Microcopy updates
-✔ Small component-level redesigns
-✔ A11y checklist (if requested)
-
-No test or logic files are ever modified.
-
-Example Usage (you can add this to your notes)
-
-“codex-ux, evaluate the layout of the supplier list panel.”
-
-“codex-ux, improve the clarity of this dialog’s buttons.”
-
-“codex-ux, rewrite microcopy for this form.”
-
-“codex-ux, propose CSS adjustments to improve spacing.”
-
-“codex-ux, make UI recommendations for this screenshot.”
-
----
-
-### 📁 Standard Directory Layout
+1. Human narrative: `review/<TopicID>_code_review.md`
+2. Machine routing: `review/routing/<TopicID>.jsonl`
+   Each line is one action:
 
 ```
-codex_output/
-  topics.json
-  specs/
-    TP1.json
-    TP2.json
-  reports/
-    TP1_red.txt
-    TP1_green.txt
-  review/
-    TP1_report.md
-    summary.json
-tests/
-  spec/
-  unit/
-  fixtures/
+{"type":"bug-risk","message":"..."}
+{"type":"refactor","message":"..."}
+
 ```
 
----
-
-### ⚙️ Pipeline Order
-
-1. `codex-spec` → writes `topics.json`.
-2. `codex-tdd` → reads `topics.json`, writes `specs/<TopicID>.json` + tests.
-3. `codex-dev` → auto-detects failing tests, updates `specs/<TopicID>.json` to GREEN.
-4. `codex-review` → reads specs + reports, writes `review/<TopicID>_report.md`.
-
----
-
-**End of AGENTS.md**

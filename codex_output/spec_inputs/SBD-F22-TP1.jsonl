@@ -1,0 +1,21 @@
+{"type":"meta","topicId":"SBD-F22-TP1","title":"Book Requests Pagination Suite Adoption"}
+{"type":"given","text":"The Book Requests panel contains more open requests than the default page size and exposes status/priority filters."}
+{"type":"when","text":"The pagination suite mounts and the controller asks for the first or next slice with active filters."}
+{"type":"then","text":"Only open/pending requests are fetched in createdAt desc order, the requests-specific summary/controls render, and URL/hash state captures filter + page params for reload safety."}
+{"type":"reuse","patternId":"PAGINATION_SUITE"}
+{"type":"ui-anchor","selector":"#requestPagination"}
+{"type":"ui-anchor","selector":"#requestPaginationPrev"}
+{"type":"ui-anchor","selector":"#requestPaginationNext"}
+{"type":"ui-anchor","selector":"#requestPaginationSummary"}
+{"type":"ui-anchor","selector":"#requestPaginationPages"}
+{"type":"ui-anchor","selector":"#requestPaginationSize"}
+{"type":"js-handler","event":"click","selector":"#requestPaginationPrev","handler":"goPrevRequestPage"}
+{"type":"js-handler","event":"click","selector":"#requestPaginationNext","handler":"goNextRequestPage"}
+{"type":"js-handler","event":"change","selector":"#requestPaginationSize","handler":"changeRequestPageSize"}
+{"type":"adapter-call","function":"fetchOpenBookRequestsPage","args":["pageRequest"]}
+{"type":"adapter-call","function":"readRequestPagingFromLocation","args":[]}
+{"type":"adapter-call","function":"writeRequestPagingToLocation","args":["page","pageSize"]}
+{"type":"adapter-call","function":"renderOpenRequestRows","args":["state"]}
+{"type":"adapter-call","function":"formatRequestPaginationSummary","args":["summaryText"]}
+{"type":"adapter-call","function":"announceRequestPaginationRange","args":["text"]}
+{"type":"pattern","patternId":"PAGINATION_SUITE","requiredParams":["container","summaryEl","prevButton","nextButton","defaultPageSize"],"adapters":{"dataSource":"fetchOpenBookRequestsPage","parseLocation":"readRequestPagingFromLocation","syncLocation":"writeRequestPagingToLocation","onStateChange":"renderOpenRequestRows","announce":"announceRequestPaginationRange","formatSummary":"formatRequestPaginationSummary"},"testBehaviors":[]}

@@ -1,0 +1,18 @@
+{"type":"meta","topicId":"F11-TP2","title":"Remove Line and Recalculate Draft State"}
+{"type":"given","text":"A sale draft contains one or more line items and the admin confirms a removal event."}
+{"type":"when","text":"The removal confirmation completes."}
+{"type":"then","text":"The line disappears, totals/amount text recompute, supplier/book summary clears when relevant, focus returns to the book input, and removing the last line resets the draft label while disabling Persist sale until another line is added."}
+{"type":"ui-anchor","selector":"#saleLineItemsBody"}
+{"type":"ui-anchor","selector":"#saleLineRemovalStatus"}
+{"type":"ui-anchor","selector":"#saleLineDraftForm"}
+{"type":"ui-anchor","selector":"#saleLineBookTitle"}
+{"type":"ui-anchor","selector":"#saleLinePrice"}
+{"type":"ui-anchor","selector":"#saleLineAddBtn"}
+{"type":"ui-anchor","selector":"#saleLineTotals"}
+{"type":"ui-anchor","selector":"#saleLineTotalsAmount"}
+{"type":"js-handler","event":"click","selector":"#saleLineItemsBody [data-action=\"removeSaleLine\"]","handler":"confirmRemoveSaleLine"}
+{"type":"js-handler","event":"input","selector":"#saleLineBookTitle","handler":"handleSaleTitleInput"}
+{"type":"js-handler","event":"submit","selector":"#saleLineDraftForm","handler":"addSaleLineItem"}
+{"type":"adapter-call","function":"removeSaleLineItem","args":["lineId"]}
+{"type":"adapter-call","function":"fetchTitleSuggestions","args":["query"]}
+{"type":"adapter-call","function":"addSaleLineItem","args":["bookId","sellingPrice"]}

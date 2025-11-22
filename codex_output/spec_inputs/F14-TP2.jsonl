@@ -1,0 +1,11 @@
+{"type":"meta","topicId":"F14-TP2","title":"Expandable Icon Menu Navigation"}
+{"type":"given","text":"A signed-in admin can see the icon-style menu."}
+{"type":"when","text":"They focus or click a tile."}
+{"type":"then","text":"The tile expands with description and CTA links, collapses peers, updates ARIA state, and selecting a CTA routes to that task page."}
+{"type":"ui-anchor","selector":"[data-nav]"}
+{"type":"ui-anchor","selector":"#adminNav"}
+{"type":"js-handler","event":"focus","selector":"[data-nav]","handler":"expandNavTile"}
+{"type":"js-handler","event":"click","selector":"[data-nav]","handler":"activateNavTile"}
+{"type":"js-handler","event":"init","selector":"#adminNav","handler":"renderAdminNav"}
+{"type":"adapter-call","function":"routeToTask","args":["navId"]}
+{"type":"adapter-call","function":"handleAdminNav","args":["targetSection"]}

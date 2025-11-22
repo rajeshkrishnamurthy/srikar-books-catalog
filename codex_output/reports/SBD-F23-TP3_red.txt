@@ -1,0 +1,1041 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F23-TP3
+
+(node:38208) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38205) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38206) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38207) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/SBD-F23-TP3-004_ClearBundleConfirmedClosesDrawer.spec.js
+  SPEC SBD-F23-TP3-004: Confirmed Clear bundle wipes selection and collapses the drawer
+    ✕ accepting the Clear bundle confirmation clears chips, restores empty copy, and returns focus to the last trigger (1133 ms)
+
+  ● SPEC SBD-F23-TP3-004: Confirmed Clear bundle wipes selection and collapses the drawer › accepting the Clear bundle confirmation clears chips, restores empty copy, and returns focus to the last trigger
+
+    waiting for chips
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [0m
+        [0m
+        [36m<details[39m
+          [33mid[39m=[32m"availableBooksPanel"[39m
+          [33mopen[39m=[32m""[39m
+        [36m>[39m
+          [0m
+          [0m
+          [36m<summary>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"available-summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<strong>[39m
+                [0mAvailable[0m
+              [36m</strong>[39m
+              [0m
+              [0m
+              [36m<label[39m
+                [33mclass[39m=[32m"sr-only"[39m
+                [33mfor[39m=[32m"availableSearchInput"[39m
+                [33mid[39m=[32m"availableSearchLabel"[39m
+              [36m>[39m
+                [0m
+                Search available books
+              [0m
+              [36m</label>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33maria-labelledby[39m=[32m"availableSearchLabel"[39m
+                [33mid[39m=[32m"availableSearchInput"[39m
+                [33mplaceholder[39m=[32m"Search title or author"[39m
+                [33mtype[39m=[32m"search"[39m
+              [36m/>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</summary>[39m
+          [0m
+          [0m
+          [36m<p[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"sr-only"[39m
+            [33mid[39m=[32m"availableSearchStatus"[39m
+          [36m/>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33maria-busy[39m=[32m"false"[39m
+            [33mclass[39m=[32m"inventory-pagination pagination-shell"[39m
+            [33mdata-available-pagination[39m=[32m""[39m
+            [33mdata-loading[39m=[32m"false"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__summary pagination-shell__summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<p[39m
+                [33maria-live[39m=[32m"polite"[39m
+                [33mid[39m=[32m"availablePaginationSummary"[39m
+              [36m>[39m
+                [0mItems 1–2 of 2 available books[0m
+              [36m</p>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__actions inventory-pagination__controls pagination-shell__actions"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"pagination-size pagination-shell__size"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"pagination-size__label"[39m
+                [36m>[39m
+                  [0mRows per page[0m
+                [36m</span>[39m
+                [0m
+                [0m
+                [36m<label[39m
+                  [33mclass[39m=[32m"sr-only"[39m
+                  [33mfor[39m=[32m"availablePageSize"[39m
+                [36m>[39m
+                  [0mItems per page[0m
+                [36m</label>[39m
+                [0m
+                [0m
+                [36m<select[39m
+                  [33maria-label[39m=[32m"Items per page"[39m
+                  [33mclass[39m=[32m"pagination-size-select"[39m
+                  [33mid[39m=[32m"availablePageSize"[39m
+                [36m>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"10"[39m
+                  [36m>[39m
+                    [0m10[0m
+                  [36m</option>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mselected[39m=[32m""[39m
+                    [33mvalue[39m=[32m"20"[39m
+                  [36m>[39m
+                    [0m20[0m
+                  [36m</option>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"50"[39m
+                  [36m>[39m
+                    [0m50[0m
+                  [36m</option>[39m
+                  [0m
+                [0m
+                [36m</select>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"pagination-stepper pagination-shell__stepper"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<button[39m
+                  [33maria-controls[39m=[32m"availList"[39m
+                  [33maria-disabled[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Previous page"[39m
+                  [33mclass[39m=[32m"pagination-shell__prev"[39m
+                  [33mdata-pagination[39m=[32m"prev"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mid[39m=[32m"availablePaginationPrev"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m
+                  Prev
+                [0m
+                [36m</button>[39m
+                [0m
+                [0m
+                [0m
+                [0m
+                [36m<div[39m
+                  [33maria-label[39m=[32m"Page selection"[39m
+                  [33mclass[39m=[32m"inventory-pagination__pages pagination-shell__pages"[39m
+                  [33mdata-pagination-pages[39m=[32m""[39m
+                  [33mhidden[39m=[32m""[39m
+                  [33mrole[39m=[32m"group"[39m
+                [36m/>[39m
+                [36m<button[39m
+                  [33maria-controls[39m=[32m"availList"[39m
+                  [33maria-disabled[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Next page"[39m
+                  [33mclass[39m=[32m"pagination-shell__next"[39m
+                  [33mdata-pagination[39m=[32m"next"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mid[39m=[32m"availablePaginationNext"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m
+                  Next
+                [0m
+                [36m</button>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+            [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"pagination-shell__load-more"[39m
+                [33mdata-pagination[39m=[32m"load-more"[39m
+                [33mhidden[39m=[32m""[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</div>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33mid[39m=[32m"availList"[39m
+          [36m>[39m
+            [0m
+    [0m
+            [36m<article[39m
+              [33mclass[39m=[32m"row"[39m
+              [33mdata-id[39m=[32m"inline-bundle-01"[39m
+            [36m>[39m
+              [0m
+      [0m
+              [36m<img[39m
+                [33malt[39m=[32m""[39m
+                [33msrc[39m=[32m"./assets/placeholder.webp"[39m
+              [36m/>[39m
+              [0m
+      [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"row-meta"[39m
+              [36m>[39m
+                [0m
+        [0m
+                [36m<strong>[39m
+                  [0mAlpha B...
+
+      29 |       );
+      30 |       if (chips.length < 2) {
+    > 31 |         throw new Error('waiting for chips');
+         |               ^
+      32 |       }
+      33 |       return chips;
+      34 |     });
+
+      at tests/spec/admin/SBD-F23-TP3-004_ClearBundleConfirmedClosesDrawer.spec.js:31:15
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+FAIL tests/spec/admin/SBD-F23-TP3-003_ClearBundlePromptsOnMultipleSelection.spec.js
+  SPEC SBD-F23-TP3-003: Clear bundle prompts when multiple selections exist
+    ✕ clicking Clear bundle with 2+ selections confirms before wiping chips (1131 ms)
+
+  ● SPEC SBD-F23-TP3-003: Clear bundle prompts when multiple selections exist › clicking Clear bundle with 2+ selections confirms before wiping chips
+
+    waiting for chips
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [0m
+        [0m
+        [36m<details[39m
+          [33mid[39m=[32m"availableBooksPanel"[39m
+          [33mopen[39m=[32m""[39m
+        [36m>[39m
+          [0m
+          [0m
+          [36m<summary>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"available-summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<strong>[39m
+                [0mAvailable[0m
+              [36m</strong>[39m
+              [0m
+              [0m
+              [36m<label[39m
+                [33mclass[39m=[32m"sr-only"[39m
+                [33mfor[39m=[32m"availableSearchInput"[39m
+                [33mid[39m=[32m"availableSearchLabel"[39m
+              [36m>[39m
+                [0m
+                Search available books
+              [0m
+              [36m</label>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33maria-labelledby[39m=[32m"availableSearchLabel"[39m
+                [33mid[39m=[32m"availableSearchInput"[39m
+                [33mplaceholder[39m=[32m"Search title or author"[39m
+                [33mtype[39m=[32m"search"[39m
+              [36m/>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</summary>[39m
+          [0m
+          [0m
+          [36m<p[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"sr-only"[39m
+            [33mid[39m=[32m"availableSearchStatus"[39m
+          [36m/>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33maria-busy[39m=[32m"false"[39m
+            [33mclass[39m=[32m"inventory-pagination pagination-shell"[39m
+            [33mdata-available-pagination[39m=[32m""[39m
+            [33mdata-loading[39m=[32m"false"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__summary pagination-shell__summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<p[39m
+                [33maria-live[39m=[32m"polite"[39m
+                [33mid[39m=[32m"availablePaginationSummary"[39m
+              [36m>[39m
+                [0mItems 1–2 of 2 available books[0m
+              [36m</p>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__actions inventory-pagination__controls pagination-shell__actions"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"pagination-size pagination-shell__size"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"pagination-size__label"[39m
+                [36m>[39m
+                  [0mRows per page[0m
+                [36m</span>[39m
+                [0m
+                [0m
+                [36m<label[39m
+                  [33mclass[39m=[32m"sr-only"[39m
+                  [33mfor[39m=[32m"availablePageSize"[39m
+                [36m>[39m
+                  [0mItems per page[0m
+                [36m</label>[39m
+                [0m
+                [0m
+                [36m<select[39m
+                  [33maria-label[39m=[32m"Items per page"[39m
+                  [33mclass[39m=[32m"pagination-size-select"[39m
+                  [33mid[39m=[32m"availablePageSize"[39m
+                [36m>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"10"[39m
+                  [36m>[39m
+                    [0m10[0m
+                  [36m</option>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mselected[39m=[32m""[39m
+                    [33mvalue[39m=[32m"20"[39m
+                  [36m>[39m
+                    [0m20[0m
+                  [36m</option>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"50"[39m
+                  [36m>[39m
+                    [0m50[0m
+                  [36m</option>[39m
+                  [0m
+                [0m
+                [36m</select>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"pagination-stepper pagination-shell__stepper"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<button[39m
+                  [33maria-controls[39m=[32m"availList"[39m
+                  [33maria-disabled[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Previous page"[39m
+                  [33mclass[39m=[32m"pagination-shell__prev"[39m
+                  [33mdata-pagination[39m=[32m"prev"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mid[39m=[32m"availablePaginationPrev"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m
+                  Prev
+                [0m
+                [36m</button>[39m
+                [0m
+                [0m
+                [0m
+                [0m
+                [36m<div[39m
+                  [33maria-label[39m=[32m"Page selection"[39m
+                  [33mclass[39m=[32m"inventory-pagination__pages pagination-shell__pages"[39m
+                  [33mdata-pagination-pages[39m=[32m""[39m
+                  [33mhidden[39m=[32m""[39m
+                  [33mrole[39m=[32m"group"[39m
+                [36m/>[39m
+                [36m<button[39m
+                  [33maria-controls[39m=[32m"availList"[39m
+                  [33maria-disabled[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Next page"[39m
+                  [33mclass[39m=[32m"pagination-shell__next"[39m
+                  [33mdata-pagination[39m=[32m"next"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mid[39m=[32m"availablePaginationNext"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m
+                  Next
+                [0m
+                [36m</button>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+            [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"pagination-shell__load-more"[39m
+                [33mdata-pagination[39m=[32m"load-more"[39m
+                [33mhidden[39m=[32m""[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</div>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33mid[39m=[32m"availList"[39m
+          [36m>[39m
+            [0m
+    [0m
+            [36m<article[39m
+              [33mclass[39m=[32m"row"[39m
+              [33mdata-id[39m=[32m"inline-bundle-01"[39m
+            [36m>[39m
+              [0m
+      [0m
+              [36m<img[39m
+                [33malt[39m=[32m""[39m
+                [33msrc[39m=[32m"./assets/placeholder.webp"[39m
+              [36m/>[39m
+              [0m
+      [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"row-meta"[39m
+              [36m>[39m
+                [0m
+        [0m
+                [36m<strong>[39m
+                  [0mAlpha B...
+
+      21 |       );
+      22 |       if (chips.length < 2) {
+    > 23 |         throw new Error('waiting for chips');
+         |               ^
+      24 |       }
+      25 |       return chips;
+      26 |     });
+
+      at tests/spec/admin/SBD-F23-TP3-003_ClearBundlePromptsOnMultipleSelection.spec.js:23:15
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+FAIL tests/spec/admin/SBD-F23-TP3-001_SelectedBookChipsExposeRemoveButtons.spec.js
+  SPEC SBD-F23-TP3-001: Selected book chips expose remove buttons
+    ✕ adding books renders chips with accessible remove controls that include each title (1124 ms)
+
+  ● SPEC SBD-F23-TP3-001: Selected book chips expose remove buttons › adding books renders chips with accessible remove controls that include each title
+
+    waiting for chip remove buttons
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [0m
+        [0m
+        [36m<details[39m
+          [33mid[39m=[32m"availableBooksPanel"[39m
+          [33mopen[39m=[32m""[39m
+        [36m>[39m
+          [0m
+          [0m
+          [36m<summary>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"available-summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<strong>[39m
+                [0mAvailable[0m
+              [36m</strong>[39m
+              [0m
+              [0m
+              [36m<label[39m
+                [33mclass[39m=[32m"sr-only"[39m
+                [33mfor[39m=[32m"availableSearchInput"[39m
+                [33mid[39m=[32m"availableSearchLabel"[39m
+              [36m>[39m
+                [0m
+                Search available books
+              [0m
+              [36m</label>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33maria-labelledby[39m=[32m"availableSearchLabel"[39m
+                [33mid[39m=[32m"availableSearchInput"[39m
+                [33mplaceholder[39m=[32m"Search title or author"[39m
+                [33mtype[39m=[32m"search"[39m
+              [36m/>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</summary>[39m
+          [0m
+          [0m
+          [36m<p[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"sr-only"[39m
+            [33mid[39m=[32m"availableSearchStatus"[39m
+          [36m/>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33maria-busy[39m=[32m"false"[39m
+            [33mclass[39m=[32m"inventory-pagination pagination-shell"[39m
+            [33mdata-available-pagination[39m=[32m""[39m
+            [33mdata-loading[39m=[32m"false"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__summary pagination-shell__summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<p[39m
+                [33maria-live[39m=[32m"polite"[39m
+                [33mid[39m=[32m"availablePaginationSummary"[39m
+              [36m>[39m
+                [0mItems 1–2 of 2 available books[0m
+              [36m</p>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__actions inventory-pagination__controls pagination-shell__actions"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"pagination-size pagination-shell__size"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"pagination-size__label"[39m
+                [36m>[39m
+                  [0mRows per page[0m
+                [36m</span>[39m
+                [0m
+                [0m
+                [36m<label[39m
+                  [33mclass[39m=[32m"sr-only"[39m
+                  [33mfor[39m=[32m"availablePageSize"[39m
+                [36m>[39m
+                  [0mItems per page[0m
+                [36m</label>[39m
+                [0m
+                [0m
+                [36m<select[39m
+                  [33maria-label[39m=[32m"Items per page"[39m
+                  [33mclass[39m=[32m"pagination-size-select"[39m
+                  [33mid[39m=[32m"availablePageSize"[39m
+                [36m>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"10"[39m
+                  [36m>[39m
+                    [0m10[0m
+                  [36m</option>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mselected[39m=[32m""[39m
+                    [33mvalue[39m=[32m"20"[39m
+                  [36m>[39m
+                    [0m20[0m
+                  [36m</option>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"50"[39m
+                  [36m>[39m
+                    [0m50[0m
+                  [36m</option>[39m
+                  [0m
+                [0m
+                [36m</select>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"pagination-stepper pagination-shell__stepper"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<button[39m
+                  [33maria-controls[39m=[32m"availList"[39m
+                  [33maria-disabled[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Previous page"[39m
+                  [33mclass[39m=[32m"pagination-shell__prev"[39m
+                  [33mdata-pagination[39m=[32m"prev"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mid[39m=[32m"availablePaginationPrev"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m
+                  Prev
+                [0m
+                [36m</button>[39m
+                [0m
+                [0m
+                [0m
+                [0m
+                [36m<div[39m
+                  [33maria-label[39m=[32m"Page selection"[39m
+                  [33mclass[39m=[32m"inventory-pagination__pages pagination-shell__pages"[39m
+                  [33mdata-pagination-pages[39m=[32m""[39m
+                  [33mhidden[39m=[32m""[39m
+                  [33mrole[39m=[32m"group"[39m
+                [36m/>[39m
+                [36m<button[39m
+                  [33maria-controls[39m=[32m"availList"[39m
+                  [33maria-disabled[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Next page"[39m
+                  [33mclass[39m=[32m"pagination-shell__next"[39m
+                  [33mdata-pagination[39m=[32m"next"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mid[39m=[32m"availablePaginationNext"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m
+                  Next
+                [0m
+                [36m</button>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+            [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"pagination-shell__load-more"[39m
+                [33mdata-pagination[39m=[32m"load-more"[39m
+                [33mhidden[39m=[32m""[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</div>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33mid[39m=[32m"availList"[39m
+          [36m>[39m
+            [0m
+    [0m
+            [36m<article[39m
+              [33mclass[39m=[32m"row"[39m
+              [33mdata-id[39m=[32m"inline-bundle-01"[39m
+            [36m>[39m
+              [0m
+      [0m
+              [36m<img[39m
+                [33malt[39m=[32m""[39m
+                [33msrc[39m=[32m"./assets/placeholder.webp"[39m
+              [36m/>[39m
+              [0m
+      [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"row-meta"[39m
+              [36m>[39m
+                [0m
+        [0m
+                [36m<strong>[39m
+                  [0mDrawer ...
+
+      30 |       );
+      31 |       if (buttons.length < 2) {
+    > 32 |         throw new Error('waiting for chip remove buttons');
+         |               ^
+      33 |       }
+      34 |       return buttons;
+      35 |     });
+
+      at tests/spec/admin/SBD-F23-TP3-001_SelectedBookChipsExposeRemoveButtons.spec.js:32:15
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+FAIL tests/spec/admin/SBD-F23-TP3-002_RemoveButtonClearsChipAndRestoresEmptyState.spec.js
+  SPEC SBD-F23-TP3-002: Removing a book chip restores the empty state when the list is depleted
+    ✕ clicking the remove button for the final chip hides the drawer, shows the empty copy, and returns focus to the trigger (1133 ms)
+
+  ● SPEC SBD-F23-TP3-002: Removing a book chip restores the empty state when the list is depleted › clicking the remove button for the final chip hides the drawer, shows the empty copy, and returns focus to the trigger
+
+    waiting for chip remove button
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [0m
+        [0m
+        [36m<details[39m
+          [33mid[39m=[32m"availableBooksPanel"[39m
+          [33mopen[39m=[32m""[39m
+        [36m>[39m
+          [0m
+          [0m
+          [36m<summary>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"available-summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<strong>[39m
+                [0mAvailable[0m
+              [36m</strong>[39m
+              [0m
+              [0m
+              [36m<label[39m
+                [33mclass[39m=[32m"sr-only"[39m
+                [33mfor[39m=[32m"availableSearchInput"[39m
+                [33mid[39m=[32m"availableSearchLabel"[39m
+              [36m>[39m
+                [0m
+                Search available books
+              [0m
+              [36m</label>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33maria-labelledby[39m=[32m"availableSearchLabel"[39m
+                [33mid[39m=[32m"availableSearchInput"[39m
+                [33mplaceholder[39m=[32m"Search title or author"[39m
+                [33mtype[39m=[32m"search"[39m
+              [36m/>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</summary>[39m
+          [0m
+          [0m
+          [36m<p[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"sr-only"[39m
+            [33mid[39m=[32m"availableSearchStatus"[39m
+          [36m/>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33maria-busy[39m=[32m"false"[39m
+            [33mclass[39m=[32m"inventory-pagination pagination-shell"[39m
+            [33mdata-available-pagination[39m=[32m""[39m
+            [33mdata-loading[39m=[32m"false"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__summary pagination-shell__summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<p[39m
+                [33maria-live[39m=[32m"polite"[39m
+                [33mid[39m=[32m"availablePaginationSummary"[39m
+              [36m>[39m
+                [0mItems 1–1 of 1 available books[0m
+              [36m</p>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__actions inventory-pagination__controls pagination-shell__actions"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"pagination-size pagination-shell__size"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"pagination-size__label"[39m
+                [36m>[39m
+                  [0mRows per page[0m
+                [36m</span>[39m
+                [0m
+                [0m
+                [36m<label[39m
+                  [33mclass[39m=[32m"sr-only"[39m
+                  [33mfor[39m=[32m"availablePageSize"[39m
+                [36m>[39m
+                  [0mItems per page[0m
+                [36m</label>[39m
+                [0m
+                [0m
+                [36m<select[39m
+                  [33maria-label[39m=[32m"Items per page"[39m
+                  [33mclass[39m=[32m"pagination-size-select"[39m
+                  [33mid[39m=[32m"availablePageSize"[39m
+                [36m>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"10"[39m
+                  [36m>[39m
+                    [0m10[0m
+                  [36m</option>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mselected[39m=[32m""[39m
+                    [33mvalue[39m=[32m"20"[39m
+                  [36m>[39m
+                    [0m20[0m
+                  [36m</option>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"50"[39m
+                  [36m>[39m
+                    [0m50[0m
+                  [36m</option>[39m
+                  [0m
+                [0m
+                [36m</select>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"pagination-stepper pagination-shell__stepper"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<button[39m
+                  [33maria-controls[39m=[32m"availList"[39m
+                  [33maria-disabled[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Previous page"[39m
+                  [33mclass[39m=[32m"pagination-shell__prev"[39m
+                  [33mdata-pagination[39m=[32m"prev"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mid[39m=[32m"availablePaginationPrev"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m
+                  Prev
+                [0m
+                [36m</button>[39m
+                [0m
+                [0m
+                [0m
+                [0m
+                [36m<div[39m
+                  [33maria-label[39m=[32m"Page selection"[39m
+                  [33mclass[39m=[32m"inventory-pagination__pages pagination-shell__pages"[39m
+                  [33mdata-pagination-pages[39m=[32m""[39m
+                  [33mhidden[39m=[32m""[39m
+                  [33mrole[39m=[32m"group"[39m
+                [36m/>[39m
+                [36m<button[39m
+                  [33maria-controls[39m=[32m"availList"[39m
+                  [33maria-disabled[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Next page"[39m
+                  [33mclass[39m=[32m"pagination-shell__next"[39m
+                  [33mdata-pagination[39m=[32m"next"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mid[39m=[32m"availablePaginationNext"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m
+                  Next
+                [0m
+                [36m</button>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+            [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"pagination-shell__load-more"[39m
+                [33mdata-pagination[39m=[32m"load-more"[39m
+                [33mhidden[39m=[32m""[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</div>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33mid[39m=[32m"availList"[39m
+          [36m>[39m
+            [0m
+    [0m
+            [36m<article[39m
+              [33mclass[39m=[32m"row"[39m
+              [33mdata-id[39m=[32m"inline-bundle-01"[39m
+            [36m>[39m
+              [0m
+      [0m
+              [36m<img[39m
+                [33malt[39m=[32m""[39m
+                [33msrc[39m=[32m"./assets/placeholder.webp"[39m
+              [36m/>[39m
+              [0m
+      [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"row-meta"[39m
+              [36m>[39m
+                [0m
+        [0m
+                [36m<strong>[39m
+                  [0mRemove ...
+
+      27 |       );
+      28 |       if (!button) {
+    > 29 |         throw new Error('waiting for chip remove button');
+         |               ^
+      30 |       }
+      31 |       return button;
+      32 |     });
+
+      at tests/spec/admin/SBD-F23-TP3-002_RemoveButtonClearsChipAndRestoresEmptyState.spec.js:29:15
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+-------------------------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                                                                                                                                        
+-------------------------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                                  |    7.14 |     5.94 |    7.49 |    7.51 |                                                                                                                                                                                                                                                                                                                          
+ scripts/admin                             |    5.58 |     4.91 |    5.79 |    5.89 |                                                                                                                                                                                                                                                                                                                          
+  auth.js                                  |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                                                                                                                                                                                    
+  autoPrice.js                             |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                                                                                                                                                                                     
+  availablePagination.js                   |       0 |        0 |       0 |       0 | 5-353                                                                                                                                                                                                                                                                                                                    
+  bundleList.js                            |       0 |        0 |       0 |       0 | 2-510                                                                                                                                                                                                                                                                                                                    
+  bundleStatus.js                          |       0 |        0 |       0 |       0 | 7-110                                                                                                                                                                                                                                                                                                                    
+  bundles.js                               |       0 |        0 |       0 |       0 | 3-494                                                                                                                                                                                                                                                                                                                    
+  currency.js                              |       0 |        0 |       0 |       0 | 6-31                                                                                                                                                                                                                                                                                                                     
+  customerLookup.js                        |       0 |        0 |       0 |       0 | 3-392                                                                                                                                                                                                                                                                                                                    
+  customers.js                             |       0 |        0 |       0 |       0 | 3-520                                                                                                                                                                                                                                                                                                                    
+  editor.js                                |       0 |        0 |       0 |       0 | 27-411                                                                                                                                                                                                                                                                                                                   
+  inventory.js                             |   38.71 |     30.6 |   46.39 |   41.06 | 34,39-50,61-70,151,154,159-206,215,273,278-297,304-468,505,511-518,525,532,564,573,585-592,608-609,707,728-732,769-770,775,780-870,880-890,897-898,936,948-958,965-1029,1036-1038,1137,1146,1150-1153,1164,1185-1186,1193-1202,1206-1215,1226-1296,1319-1326,1332-1334,1342-1344,1347-1349,1353-1363,1367-1370,1382-1385 
+  lookup.js                                |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                                                                                                                                                                                   
+  main.js                                  |       0 |        0 |       0 |       0 | 40-2318                                                                                                                                                                                                                                                                                                                  
+  requests.js                              |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                                                                                                                                                                                     
+  salesEntryLauncher.js                    |       0 |        0 |       0 |       0 | 2-68                                                                                                                                                                                                                                                                                                                     
+  salesHeader.js                           |       0 |        0 |       0 |       0 | 3-505                                                                                                                                                                                                                                                                                                                    
+  salesLineItems.js                        |       0 |        0 |       0 |       0 | 3-914                                                                                                                                                                                                                                                                                                                    
+  salesPersist.js                          |       0 |        0 |       0 |       0 | 1-170                                                                                                                                                                                                                                                                                                                    
+  salesTitleAutocomplete.js                |       0 |        0 |       0 |       0 | 9-225                                                                                                                                                                                                                                                                                                                    
+  suppliers.js                             |       0 |        0 |       0 |       0 | 13-319                                                                                                                                                                                                                                                                                                                   
+ src/ui/patterns/inline-bundle-panel-shell |   65.44 |    46.66 |      60 |   68.25 |                                                                                                                                                                                                                                                                                                                          
+  index.js                                 |   65.44 |    46.66 |      60 |   68.25 | 24-28,44-49,56-61,70,76,94,101,104,123,157-160,179,184-195,201-202,213-216                                                                                                                                                                                                                                               
+-------------------------------------------|---------|----------|---------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 4 failed, 4 total
+Tests:       4 failed, 4 total
+Snapshots:   0 total
+Time:        3.002 s
+Ran all test suites matching /SBD-F23-TP3/i.

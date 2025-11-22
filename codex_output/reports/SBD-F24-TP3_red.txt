@@ -1,0 +1,15 @@
+> npm test -- --watchAll=false SBD-F24
+
+FAIL tests/unit/inventory/SBD-F24-TP3-004_StringPriceCoercesDuringSave.test.js
+  SPEC SBD-F24-TP3-004: String bundle prices are coerced so saveBundle can proceed
+    ✕ updateFields stores numeric strings as numbers and saveBundle forwards them (4 ms)
+
+  ● SPEC SBD-F24-TP3-004: String bundle prices are coerced so saveBundle can proceed › updateFields stores numeric strings as numbers and saveBundle forwards them
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: ObjectContaining {"bundlePriceMinor": 8900}
+
+    Number of calls: 0
+
+      at Object.<anonymous> (tests/unit/inventory/SBD-F24-TP3-004_StringPriceCoercesDuringSave.test.js:24:33)

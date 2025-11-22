@@ -1,0 +1,16 @@
+{"type":"meta","topicId":"F19-TP3","title":"Available Books Pagination State Sync"}
+{"type":"given","text":"The admin has paged through or filtered Available books."}
+{"type":"when","text":"They refresh, deep-link to Manage Books, or use browser history to return."}
+{"type":"then","text":"The controller restores the same (or nearest safe) page/filter combo, updates hashes/query params cleanly, and avoids stale cursors when filters change."}
+{"type":"ui-anchor","selector":"#availablePagination"}
+{"type":"ui-anchor","selector":"#availablePaginationPrev"}
+{"type":"ui-anchor","selector":"#availablePaginationNext"}
+{"type":"ui-anchor","selector":"#availablePaginationSummary"}
+{"type":"ui-anchor","selector":"#availablePaginationPages"}
+{"type":"ui-anchor","selector":"#availablePaginationSize"}
+{"type":"js-handler","event":"click","selector":"#availablePaginationPrev","handler":"goPrevAvailable"}
+{"type":"js-handler","event":"click","selector":"#availablePaginationNext","handler":"goNextAvailable"}
+{"type":"js-handler","event":"change","selector":"#availablePaginationSize","handler":"changeAvailablePageSize"}
+{"type":"js-handler","event":"click","selector":"#availablePaginationPages button","handler":"goToAvailablePage"}
+{"type":"adapter-call","function":"fetchAvailableBooksPage","args":["pageRequest"]}
+{"type":"adapter-call","function":"syncAvailablePagingToLocation","args":["page","pageSize"]}

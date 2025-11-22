@@ -1,0 +1,5 @@
+Status: GREEN (not executed locally)
+Notes:
+- Implemented shared bundle-composition pattern with gating on two selections, 25% discount, and contract-shaped save payload reused by Bundle -> Create and Available -> Add to bundle.
+- New specs under tests/spec/admin/ expect computeRecommendation payload parity across routes and identical saveBundle documents.
+- Tests were not run in this environment; run `cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F26-TP1` to verify.

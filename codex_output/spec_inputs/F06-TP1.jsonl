@@ -1,0 +1,10 @@
+{"type":"meta","topicId":"F06-TP1","title":"Record Sale Status and Price"}
+{"type":"given","text":"A book exists and is ready to be marked as sold."}
+{"type":"when","text":"The admin switches the sale status and enters a sale price before saving."}
+{"type":"then","text":"Status and validated sale price persist together, updating stock counters."}
+{"type":"ui-anchor","selector":"button[data-action=\"sold\"]"}
+{"type":"ui-anchor","selector":"#salePriceInput"}
+{"type":"ui-anchor","selector":"#saleStatusForm"}
+{"type":"js-handler","event":"click","selector":"button[data-action=\"sold\"]","handler":"openSaleStatusDialog"}
+{"type":"js-handler","event":"submit","selector":"#saleStatusForm","handler":"saveSaleStatus"}
+{"type":"adapter-call","function":"markBookSold","args":["bookId","salePrice"]}

@@ -1,0 +1,78 @@
+{
+  "topicId": "F19-TP5",
+  "featureId": "F19",
+  "title": "Available Numeric Pager",
+  "area": "Admin / Manage Books",
+  "goal": "Introduce an Amazon-style numeric pager (Prev, numbered buttons, Next, and the per-page dropdown) laid out on a single row for the Available list.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F19-TP5-001",
+      "title": "NumericPagerRendersCorrectPageCount",
+      "given": "The Available list contains enough rows for multiple pages (e.g., 4 pages worth of docs).",
+      "when": "The pagination shell renders",
+      "then": "Prev button, page-number buttons (1…N), Next button, and the page-size dropdown appear on the same row with the buttons showing the total number of pages based on totalItems/pageSize."
+    },
+    {
+      "id": "F19-TP5-002",
+      "title": "ClickingPageNumberLoadsSelectedPage",
+      "given": "Page 1 is visible and numeric buttons 1…N are present",
+      "when": "The admin clicks a specific page number (e.g., 3)",
+      "then": "That page button becomes active, the list renders the correct slice, the summary/hash show the new page, and Prev/Next enable/disable accordingly."
+    },
+    {
+      "id": "F19-TP5-003",
+      "title": "PrevNextWorkWithNumericPager",
+      "given": "The admin is on the middle page of a multi-page list",
+      "when": "They click Prev or Next",
+      "then": "The highlighted numeric button moves, rows update, and the hash/summary reflect the new page while staying on the single-row layout."
+    },
+    {
+      "id": "F19-TP5-004",
+      "title": "LastPageShowsRemainderSlice",
+      "given": "The Available list has a final partial page (e.g., 21 results with a 10-per-page setting).",
+      "when": "The admin switches to 10 per page and clicks the last numeric page button.",
+      "then": "Only the remaining rows render (one result), and the summary/hash reflect the final range instead of repeating the previous full page."
+    }
+  ],
+  "fixtures": [
+    "tests/fixtures/adminInventoryHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/F19-TP5-001_NumericPagerRenders.spec.js",
+    "/tests/spec/admin/F19-TP5-002_ClickPageNumberLoadsSlice.spec.js",
+    "/tests/spec/admin/F19-TP5-003_PrevNextWithNumericPager.spec.js",
+    "/tests/spec/admin/F19-TP5-004_LastPageShowsRemainder.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F19-TP5_red.txt",
+    "green": "codex_output/reports/F19-TP5_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "styles/admin.css",
+    "scripts/admin/inventory.js",
+    "scripts/helpers/data.js",
+    "codex_output/reports/F19-TP5_green.txt",
+    "codex_output/specs/F19-TP5.json",
+    "codex_output/reports/F19-TP5_red.txt",
+    "tests/spec/admin/F19-TP5-004_LastPageShowsRemainder.spec.js",
+    "codex_output/spec_inputs/F19-TP5.jsonl"
+  ],
+  "changeNotes": [
+    "Added the numeric pager container to admin.html plus lightweight styling so the page-size select, numbered buttons, and Prev/Next line up on a single row.",
+    "Extended scripts/admin/inventory.js to render numeric page buttons, handle clicks through the pagination controller, and keep buttons in sync with Prev/Next plus the busy state.",
+    "Enhanced scripts/helpers/data.js so getUiState exposes paging metadata (current page, total pages, offsets) and added a goToPage helper for direct navigation.",
+    "Added coverage for the final partial page so selecting 10 per page with 21 results renders only the remainder instead of repeating the previous slice."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false F19-TP5 --runInBand",
+    "report": "codex_output/reports/F19-TP5_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Numeric pager renders all pages, clicking page numbers/prev/next works, and the final remainder page shows only the remaining item when 21 results are paged at 10 per page."
+    }
+  }
+}

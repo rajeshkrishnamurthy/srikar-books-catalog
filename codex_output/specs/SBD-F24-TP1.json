@@ -1,0 +1,56 @@
+{
+  "topicId": "SBD-F24-TP1",
+  "featureId": "F24",
+  "title": "Inline Bundle Context Lifecycle",
+  "area": "Admin / Available Books",
+  "goal": "Spin up, restore, and tear down bundle context in memory as admins add or remove books from the inline composer.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F24-TP1-001",
+      "title": "InlineBundleContextLifecycle",
+      "given": "The inline bundle composer controller is mounted with default params and adapters.",
+      "when": "The first book is added via addBook (even if called again with the same id).",
+      "then": "A bundleId is generated, the unique book id is stored once, lastInteraction is stamped, and onStateChange fires with the new bundle state."
+    },
+    {
+      "id": "SBD-F24-TP1-002",
+      "title": "ResumeInlineBundleDraft",
+      "given": "An existing bundle id is available to resume in the inline composer drawer.",
+      "when": "setExistingBundle is called and loadBundle resolves with bundleName, bundlePriceMinor, and bookIds.",
+      "then": "The controller restores state (resumeBundleId, bundleName, bundlePriceMinor, and books) and updates lastInteraction so the shell can render chips without re-selection."
+    },
+    {
+      "id": "SBD-F24-TP1-003",
+      "title": "ResetInlineBundleContext",
+      "given": "A bundle draft exists with selected books and pricing.",
+      "when": "reset() is invoked from the inline composer.",
+      "then": "Selections clear, bundleName and pricing fields reset, recommendedPriceMinor is null, totalSalePriceMinor returns to zero, and persistDraft/onStateChange run to keep session state consistent."
+    },
+    {
+      "id": "SBD-F24-TP1-004",
+      "title": "FreshControllerStatePerInstance",
+      "given": "An inline bundle composer controller instance already selected books via the factory.",
+      "when": "A second controller instance is created in the same session using the same factory import.",
+      "then": "The new controller begins with empty selections, null pricing, and empty validationErrors instead of inheriting the previous instance's mutated defaults."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/inlineBundleControllerHarness.js"
+  ],
+  "tests": [
+    "/tests/unit/inventory/SBD-F24-TP1-001_InlineBundleContextLifecycle.test.js",
+    "/tests/unit/inventory/SBD-F24-TP1-002_ResumeInlineBundleDraft.test.js",
+    "/tests/unit/inventory/SBD-F24-TP1-003_ResetInlineBundleContext.test.js",
+    "/tests/unit/inventory/SBD-F24-TP1-004_IsolatedStatePerControllerInstance.test.js"
+  ],
+  "changedFiles": [
+    "src/ui/patterns/inline-bundle-composer-controller/index.js"
+  ],
+  "changeNotes": "Inline bundle controller now creates bundle context, resumes drafts, clears/reset state, emits state snapshots to adapters, and isolates default state across controller instances with a fresh default state per factory call.",
+  "reports": {
+    "red": "codex_output/reports/SBD-F24-TP1_red.txt",
+    "green": "codex_output/reports/SBD-F24-TP1_green.txt"
+  }
+}

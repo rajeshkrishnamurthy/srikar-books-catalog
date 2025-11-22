@@ -1,0 +1,11 @@
+{"type":"meta","topicId":"F05-TP4","title":"Edit Book-Supplier Mapping"}
+{"type":"given","text":"A book already has a supplier association."}
+{"type":"when","text":"An admin selects a different supplier and confirms."}
+{"type":"then","text":"The book updates with the new supplier and admin views refresh to match."}
+{"type":"ui-anchor","selector":"#editForm"}
+{"type":"ui-anchor","selector":"#editPurchasePriceInput"}
+{"type":"ui-anchor","selector":"#editSupplierSelect"}
+{"type":"js-handler","event":"submit","selector":"#editForm","handler":"handleEditSubmit"}
+{"type":"js-handler","event":"change","selector":"#editSupplierSelect","handler":"handleEditSupplierChange"}
+{"type":"adapter-call","function":"updateBook","args":["bookId","patch"]}
+{"type":"adapter-call","function":"updateBookSupplier","args":["bookId","supplierId"]}

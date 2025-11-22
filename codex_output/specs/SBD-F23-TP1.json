@@ -1,0 +1,85 @@
+{
+  "topicId": "SBD-F23-TP1",
+  "featureId": "F23",
+  "title": "Available Books Bundle Entry",
+  "area": "Admin / Available Books",
+  "goal": "Surface Add to bundle affordances on Available rows and open the inline composer drawer from the first selection with stable selectors and focus handling.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F23-TP1-001",
+      "title": "InlineBundlePanelMarkup",
+      "given": "An admin loads admin.html and expands the Available Books panel.",
+      "when": "The DOM renders static markup for the inline bundle composer region.",
+      "then": "The panel contains #inlineBundleComposer (role=region, aria-labelledby inlineBundleHeading, hidden by default) plus heading/empty state/list/save+reset controls so downstream scripts can mount the shell."
+    },
+    {
+      "id": "SBD-F23-TP1-002",
+      "title": "AvailableRowTrigger",
+      "given": "initInventory renders Available rows in the list.",
+      "when": "Each row template is generated.",
+      "then": "Rows include a `[data-test='bookAddToBundle']` button labelled Add to bundle with aria-controls inlineBundleComposer and aria-expanded defaulting to false so assistive tech can announce the drawer relationship."
+    },
+    {
+      "id": "SBD-F23-TP1-003",
+      "title": "TriggerOpensComposer",
+      "given": "A user clicks Add to bundle on an Available row when no composer is active.",
+      "when": "The trigger fires.",
+      "then": "The inline composer drawer becomes visible, focus moves to #inlineBundleHeading, the empty state hides, the selected book title appears inside #inlineBundleSelectedBooks, and the originating trigger flips aria-pressed true."
+    },
+    {
+      "id": "SBD-F23-TP1-004",
+      "title": "ComposerCloseReturnsFocus",
+      "given": "The inline composer is open after an Add to bundle button was activated.",
+      "when": "The admin presses the Close (×) button on the drawer.",
+      "then": "Focus returns to the originating Add to bundle trigger so keyboard users remain on the same row after collapsing the drawer."
+    },
+    {
+      "id": "SBD-F23-TP1-005",
+      "title": "ComposerClosePreservesSelection",
+      "given": "A book has been added to the inline composer selection.",
+      "when": "The admin closes the composer via the Close (×) button.",
+      "then": "The composer hides but keeps the previously selected book chips so reopening the drawer does not discard progress."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminInventoryHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F23-TP1-001_InlineBundlePanelMarkup.spec.js",
+    "/tests/spec/admin/SBD-F23-TP1-002_AvailableRowAddToBundleAction.spec.js",
+    "/tests/spec/admin/SBD-F23-TP1-003_AddToBundleOpensComposer.spec.js",
+    "/tests/spec/admin/SBD-F23-TP1-004_CloseReturnsFocus.spec.js",
+    "/tests/spec/admin/SBD-F23-TP1-005_ClosePreservesSelection.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F23-TP1_red.txt",
+    "green": "codex_output/reports/SBD-F23-TP1_green.txt"
+  },
+  "changedFiles": [
+    "admin.html",
+    "scripts/admin/inventory.js",
+    "src/ui/patterns/inline-bundle-panel-shell/index.js",
+    "tests/fixtures/adminInventoryHarness.js",
+    "tests/spec/admin/SBD-F23-TP1-001_InlineBundlePanelMarkup.spec.js",
+    "tests/spec/admin/SBD-F23-TP1-002_AvailableRowAddToBundleAction.spec.js",
+    "tests/spec/admin/SBD-F23-TP1-003_AddToBundleOpensComposer.spec.js",
+    "tests/spec/admin/SBD-F23-TP1-004_CloseReturnsFocus.spec.js",
+    "tests/spec/admin/SBD-F23-TP1-005_ClosePreservesSelection.spec.js",
+    "codex_output/specs/SBD-F23-TP1.json",
+    "codex_output/reports/SBD-F23-TP1_red.txt",
+    "codex_output/reports/SBD-F23-TP1_green.txt"
+  ],
+  "changeNotes": [
+    "Rendered the inline bundle composer shell markup inside Available Books with stable ids/aria hooks plus save/reset controls so the Add to bundle workflow has anchors.",
+    "Extended inventory row markup and wiring to include a `[data-test='bookAddToBundle']` trigger that opens the composer, toggles aria-pressed/expanded, and forwards the selected book to the shell.",
+    "Implemented a lightweight inline composer state manager that shows the drawer, focuses the heading, hides the empty state, and lists selected books while supporting reset/close affordances.",
+    "Patched the inline bundle panel shell pattern so the Close (×) button collapses the drawer without clearing the selection and returns focus to the originating trigger for keyboard users."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false SBD-F23-TP1",
+    "report": "codex_output/reports/SBD-F23-TP1_green.txt"
+  }
+}

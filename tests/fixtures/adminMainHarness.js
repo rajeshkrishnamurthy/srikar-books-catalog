@@ -1,9 +1,18 @@
 import { jest } from '@jest/globals';
+import { fileURLToPath } from 'node:url';
 
 const mainModuleUrl = new URL('../../scripts/admin/main.js', import.meta.url);
+const dataModuleUrl = new URL('../../scripts/helpers/data.js', import.meta.url);
+
+const resolveModulePath = (relativePath) =>
+  fileURLToPath(new URL(relativePath, import.meta.url));
 
 export async function createAdminMainHarness(options = {}) {
-  const { initialHash = '', initialSearch = '' } = options;
+  const {
+    initialHash = '',
+    initialSearch = '',
+    manageBundles = {},
+  } = options;
 
   jest.resetModules();
   jest.clearAllMocks();
@@ -23,7 +32,7 @@ export async function createAdminMainHarness(options = {}) {
     delete globalThis.__firebaseMocks;
   });
 
-  const mocks = setupModuleMocks();
+  const mocks = await setupModuleMocks({ manageBundles });
   await import(mainModuleUrl.href);
 
   const authCall = mocks.initAuth.mock.calls[0];
@@ -287,8 +296,51 @@ function buildDom() {
           <hr aria-hidden="true" />
         </div>
         <section id="bundleManagePanel" hidden>
-          <div id="bundleResults"></div>
-          <p id="bundleEmpty" hidden>No bundles found.</p>
+          <div class="bundle-manage-card">
+            <div class="bundle-list-filters">
+              <label for="bundleSearchInput">Search bundles</label>
+              <div id="bundleSearchInputWrap">
+                <div id="bundleSearchSummary" class="bundle-selected-chip" data-empty="true">
+                  <span class="bundle-selected-chip__label">No book selected.</span>
+                  <button type="button" class="bundle-selected-chip__clear">×</button>
+                </div>
+                <input id="bundleSearchInput" class="bundle-search-input-field" type="search" aria-controls="bundleSearchSuggestions" />
+                <input type="hidden" id="bundleSearchHiddenInput" />
+              </div>
+              <ul id="bundleSearchSuggestions" role="listbox"></ul>
+              <p id="bundleSearchMsg" class="md-helper"></p>
+              <label for="bundleFilterSupplier">Supplier</label>
+              <select id="bundleFilterSupplier">
+                <option value="">All suppliers</option>
+                <option value="sup-1">Lotus Books</option>
+                <option value="sup-2">Paper Trail</option>
+              </select>
+              <label for="bundleFilterStatus">Status</label>
+              <select id="bundleFilterStatus">
+                <option value="">All statuses</option>
+                <option value="Draft">Draft</option>
+                <option value="Published">Published</option>
+              </select>
+            </div>
+            <div id="bundlePagination" class="pagination-shell" aria-busy="false">
+              <div class="pagination-shell__summary">
+                <p id="bundlePaginationSummary" aria-live="polite">Bundles 0–0 of 0</p>
+              </div>
+              <div class="pagination-shell__controls">
+                <label for="bundlePaginationSize">Rows per page</label>
+                <select id="bundlePaginationSize">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                </select>
+                <div id="bundlePaginationPages" role="group" aria-label="Page selection"></div>
+                <button type="button" id="bundlePaginationPrev" aria-label="Previous bundles">Prev</button>
+                <button type="button" id="bundlePaginationNext" aria-label="Next bundles">Next</button>
+              </div>
+            </div>
+            <div id="bundleResults" class="bundle-results"></div>
+            <p id="bundleEmpty" hidden>No bundles found.</p>
+          </div>
         </section>
       </section>
     </section>
@@ -354,42 +406,43 @@ function buildFirebaseMocks() {
   return { exports };
 }
 
-function setupModuleMocks() {
+async function setupModuleMocks(overrides = {}) {
+  const { manageBundles = {} } = overrides;
   const initAuth = jest.fn();
-  jest.unstable_mockModule('../../scripts/admin/auth.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/auth.js'), () => ({
     initAuth,
   }));
 
   const noOp = () => ({ dispose: jest.fn() });
 
-  jest.unstable_mockModule('../../scripts/admin/autoPrice.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/autoPrice.js'), () => ({
     bindAutoPrice: jest.fn(() => jest.fn()),
   }));
-  jest.unstable_mockModule('../../scripts/admin/lookup.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/lookup.js'), () => ({
     wireLookup: jest.fn(),
   }));
-  jest.unstable_mockModule('../../scripts/admin/inventory.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/inventory.js'), () => ({
     initInventory: jest.fn(() => ({
       setSuppliers: jest.fn(),
       dispose: jest.fn(),
     })),
   }));
-  jest.unstable_mockModule('../../scripts/admin/requests.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/requests.js'), () => ({
     initRequests: jest.fn(),
   }));
-  jest.unstable_mockModule('../../scripts/admin/editor.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/editor.js'), () => ({
     initEditor: jest.fn(() => ({ open: jest.fn(), dispose: jest.fn() })),
   }));
-  jest.unstable_mockModule('../../scripts/admin/suppliers.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/suppliers.js'), () => ({
     initSupplierMaster: jest.fn(noOp),
   }));
-  jest.unstable_mockModule('../../scripts/admin/customers.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/customers.js'), () => ({
     initCustomerMaster: jest.fn(noOp),
   }));
-  jest.unstable_mockModule('../../scripts/admin/salesHeader.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/salesHeader.js'), () => ({
     initSaleHeader: jest.fn(() => ({ dispose: jest.fn() })),
   }));
-  jest.unstable_mockModule('../../scripts/admin/salesLineItems.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/salesLineItems.js'), () => ({
     initSaleLineItems: jest.fn(() => ({
       dispose: jest.fn(),
       setSuppliers: jest.fn(),
@@ -398,27 +451,47 @@ function setupModuleMocks() {
       resetDraft: jest.fn(),
     })),
   }));
-  jest.unstable_mockModule('../../scripts/admin/salesTitleAutocomplete.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/salesTitleAutocomplete.js'), () => ({
     initSaleTitleAutocomplete: jest.fn(() => ({ dispose: jest.fn() })),
   }));
-  jest.unstable_mockModule('../../scripts/admin/salesPersist.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/salesPersist.js'), () => ({
     initSalePersist: jest.fn(() => ({ dispose: jest.fn() })),
   }));
-  jest.unstable_mockModule('../../scripts/admin/customerLookup.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/customerLookup.js'), () => ({
     initCustomerLookup: jest.fn(() => ({ dispose: jest.fn() })),
   }));
-  jest.unstable_mockModule('../../scripts/admin/salesEntryLauncher.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/salesEntryLauncher.js'), () => ({
     initSaleEntryLauncher: jest.fn(() => ({ dispose: jest.fn() })),
   }));
-  jest.unstable_mockModule('../../scripts/admin/bundles.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/bundles.js'), () => ({
     initBundleCreator: jest.fn(() => ({ dispose: jest.fn(), setSuppliers: jest.fn() })),
   }));
-  jest.unstable_mockModule('../../scripts/admin/bundleStatus.js', () => ({
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/bundleStatus.js'), () => ({
     initBundleStatusPanel: jest.fn(() => ({ dispose: jest.fn() })),
   }));
-  jest.unstable_mockModule('../../scripts/admin/bundleList.js', () => ({
-    initBundleList: jest.fn(() => ({ dispose: jest.fn(), setSuppliers: jest.fn(), setBundles: jest.fn(), setError: jest.fn() })),
+  const initBundleList =
+    manageBundles.initBundleList ||
+    jest.fn(() => ({
+      dispose: jest.fn(),
+      setSuppliers: jest.fn(),
+      setBundles: jest.fn(),
+      setError: jest.fn(),
+    }));
+  jest.unstable_mockModule(resolveModulePath('../../scripts/admin/bundleList.js'), () => ({
+    initBundleList,
   }));
 
-  return { initAuth };
+  if (manageBundles.createPaginationController) {
+    const actualDataModule = await import(dataModuleUrl.href);
+    const dataExports = { ...actualDataModule };
+    dataExports.createPaginationController =
+      manageBundles.createPaginationController;
+    jest.unstable_mockModule(resolveModulePath('../../scripts/helpers/data.js'), () => dataExports);
+  }
+
+  return {
+    initAuth,
+    createPaginationController: manageBundles.createPaginationController,
+    initBundleList,
+  };
 }

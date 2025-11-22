@@ -1,0 +1,21 @@
+{"type":"meta","topicId":"SBD-F22-TP2","title":"Book Request Actions Maintain Paging"}
+{"type":"given","text":"An admin triages open requests while viewing a paginated slice."}
+{"type":"when","text":"They mark a request fulfilled, snoozed, or reassigned."}
+{"type":"then","text":"The row disappears or updates in place, the next row from the following page backfills when available, totals refresh, and the view only resets when the queue empties."}
+{"type":"reuse","patternId":"PAGINATION_SUITE"}
+{"type":"ui-anchor","selector":"#requestPagination"}
+{"type":"ui-anchor","selector":"#requestPaginationPrev"}
+{"type":"ui-anchor","selector":"#requestPaginationNext"}
+{"type":"ui-anchor","selector":"#requestPaginationSummary"}
+{"type":"ui-anchor","selector":"#requestPaginationPages"}
+{"type":"ui-anchor","selector":"#requestPaginationSize"}
+{"type":"js-handler","event":"click","selector":"#requestPaginationPrev","handler":"goPrevRequestPage"}
+{"type":"js-handler","event":"click","selector":"#requestPaginationNext","handler":"goNextRequestPage"}
+{"type":"js-handler","event":"change","selector":"#requestPaginationSize","handler":"changeRequestPageSize"}
+{"type":"adapter-call","function":"fetchOpenBookRequestsPage","args":["pageRequest"]}
+{"type":"adapter-call","function":"readRequestPagingFromLocation","args":[]}
+{"type":"adapter-call","function":"writeRequestPagingToLocation","args":["page","pageSize"]}
+{"type":"adapter-call","function":"renderOpenRequestRows","args":["state"]}
+{"type":"adapter-call","function":"formatRequestPaginationSummary","args":["summaryText"]}
+{"type":"adapter-call","function":"announceRequestPaginationRange","args":["text"]}
+{"type":"pattern","patternId":"PAGINATION_SUITE","requiredParams":["container","summaryEl","prevButton","nextButton","defaultPageSize"],"adapters":{"dataSource":"fetchOpenBookRequestsPage","parseLocation":"readRequestPagingFromLocation","syncLocation":"writeRequestPagingToLocation","onStateChange":"renderOpenRequestRows","announce":"announceRequestPaginationRange","formatSummary":"formatRequestPaginationSummary"},"testBehaviors":[]}

@@ -3,12 +3,17 @@ import { jest } from '@jest/globals';
 const inventoryModuleUrl = new URL('../../scripts/admin/inventory.js', import.meta.url);
 
 export async function createAdminInventoryHarness(options = {}) {
-  const { firebaseOverrides = {}, onScrollIntoView = jest.fn() } = options;
+  const {
+    firebaseOverrides = {},
+    onScrollIntoView = jest.fn(),
+    paginationControllerFactory,
+    domSource,
+  } = options;
 
   jest.resetModules();
   jest.clearAllMocks();
 
-  const dom = buildDom(onScrollIntoView);
+  const dom = buildDom(onScrollIntoView, domSource);
   const firebase = buildFirebaseMocks(firebaseOverrides);
   globalThis.__firebaseMocks = firebase;
 
@@ -22,6 +27,7 @@ export async function createAdminInventoryHarness(options = {}) {
     soldList: dom.soldList,
     availableSearchInput: dom.availableSearchInput,
     searchStatus: dom.searchStatus,
+    createPaginationController: paginationControllerFactory,
   });
 
   return {
@@ -29,8 +35,15 @@ export async function createAdminInventoryHarness(options = {}) {
     availablePanel: dom.availablePanel,
     availableSearchInput: dom.availableSearchInput,
     availList: dom.availList,
+    soldPanel: dom.soldPanel,
     soldList: dom.soldList,
+    soldPagination: dom.soldPagination,
+    soldSummary: dom.soldSummary,
+    soldPrevButton: dom.soldPrevButton,
+    soldNextButton: dom.soldNextButton,
+    soldPageSizeSelect: dom.soldPageSizeSelect,
     searchStatus: dom.searchStatus,
+    pageSizeSelect: dom.pageSizeSelect,
     mocks: firebase.mocks,
     inventoryApi,
     emitAvailableDocs(docs = []) {
@@ -44,8 +57,19 @@ export async function createAdminInventoryHarness(options = {}) {
   };
 }
 
-function buildDom(onScrollIntoView) {
-  document.body.innerHTML = `
+function buildDom(onScrollIntoView, domSource) {
+  if (typeof domSource === 'string' && domSource.trim()) {
+    if (typeof DOMParser === 'function') {
+      const parser = new DOMParser();
+      const parsed = parser.parseFromString(domSource, 'text/html');
+      parsed.querySelectorAll('script').forEach((node) => node.remove());
+      const bodyMarkup = parsed.body?.innerHTML || domSource;
+      document.body.innerHTML = bodyMarkup;
+    } else {
+      document.body.innerHTML = domSource;
+    }
+  } else {
+    document.body.innerHTML = `
     <details id="availableBooksPanel" open>
       <summary>
         <div class="available-summary">
@@ -62,22 +86,204 @@ function buildDom(onScrollIntoView) {
         </div>
       </summary>
       <p id="availableSearchStatus" aria-live="polite" class="sr-only"></p>
+      <div
+        class="inventory-pagination pagination-shell"
+        data-available-pagination
+        aria-busy="false"
+      >
+        <div class="inventory-pagination__summary pagination-shell__summary">
+          <p id="availablePaginationSummary" aria-live="polite">
+            Items 0–0 of 0 available books
+          </p>
+        </div>
+        <div class="inventory-pagination__actions inventory-pagination__controls pagination-shell__actions">
+          <div class="pagination-size pagination-shell__size">
+            <span class="pagination-size__label">Rows per page</span>
+            <label for="availablePageSize" class="sr-only">Items per page</label>
+            <select id="availablePageSize" aria-label="Items per page" class="pagination-size-select">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+            </select>
+          </div>
+          <div class="pagination-stepper pagination-shell__stepper">
+            <button
+              type="button"
+              id="availablePaginationPrev"
+              class="pagination-shell__prev"
+              data-pagination="prev"
+              aria-controls="availList"
+              aria-label="Previous page"
+            >
+              Prev
+            </button>
+            <div
+              class="inventory-pagination__pages pagination-shell__pages"
+              data-pagination-pages
+              role="group"
+              aria-label="Page selection"
+              hidden
+            ></div>
+            <button
+              type="button"
+              id="availablePaginationNext"
+              class="pagination-shell__next"
+              data-pagination="next"
+              aria-controls="availList"
+              aria-label="Next page"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
       <div id="availList"></div>
+      <section
+        id="inlineBundleComposer"
+        class="inline-bundle-composer"
+        role="region"
+        aria-labelledby="inlineBundleHeading"
+        hidden
+      >
+        <header class="inline-bundle-composer__header">
+          <h3 id="inlineBundleHeading" tabindex="-1">Bundle in progress</h3>
+          <button
+            id="inlineBundleClose"
+            type="button"
+            aria-label="Close bundle composer"
+          >
+            ×
+          </button>
+        </header>
+        <div class="inline-bundle-composer__body">
+          <p id="inlineBundleEmptyState">Add a book to start a bundle</p>
+          <div id="inlineBundleSelectedBooks" role="list"></div>
+          <div class="inline-bundle-composer__form">
+            <label for="inlineBundleName">Bundle name</label>
+            <input
+              id="inlineBundleName"
+              type="text"
+              required
+              aria-required="true"
+              aria-describedby="inlineBundleHelper"
+            />
+            <label for="inlineBundlePrice">Bundle price</label>
+            <input
+              id="inlineBundlePrice"
+              type="number"
+              required
+              aria-required="true"
+              aria-describedby="inlineBundleHelper"
+            />
+            <label class="sr-only" for="inlineBundleExistingSelect">
+              Continue existing bundle
+            </label>
+            <select id="inlineBundleExistingSelect"></select>
+          </div>
+          <dl class="inline-bundle-composer__totals">
+            <div>
+              <dt>Recommended price</dt>
+              <dd id="inlineBundleRecommended">—</dd>
+            </div>
+            <div>
+              <dt>Total sale price</dt>
+              <dd id="inlineBundleTotal">—</dd>
+            </div>
+            <div>
+              <dt>Total MRP</dt>
+              <dd id="inlineBundleMrp">—</dd>
+            </div>
+          </dl>
+        </div>
+        <p id="inlineBundleHelper" class="inline-bundle-composer__helper">
+          Bundle name and bundle price are required before saving.
+        </p>
+        <footer class="inline-bundle-composer__actions">
+          <button id="inlineBundleReset" type="button">Clear bundle</button>
+          <button id="inlineBundleSave" type="button" disabled>Save bundle</button>
+        </footer>
+      </section>
     </details>
     <details id="soldBooksPanel">
-      <summary>Sold</summary>
+      <summary>
+        <div class="sold-summary">
+          <strong>Sold</strong>
+        </div>
+      </summary>
+      <div
+        class="inventory-pagination pagination-shell"
+        data-sold-pagination
+        aria-busy="false"
+      >
+        <div class="inventory-pagination__summary pagination-shell__summary">
+          <p id="soldPaginationSummary" aria-live="polite">
+            Items 0–0 of 0 - Sold
+          </p>
+        </div>
+        <div class="inventory-pagination__actions inventory-pagination__controls pagination-shell__actions">
+          <div class="pagination-size pagination-shell__size">
+            <span class="pagination-size__label">Rows per page</span>
+            <label for="soldPageSize" class="sr-only">Items per page</label>
+            <select id="soldPageSize" aria-label="Items per page" class="pagination-size-select">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+            </select>
+          </div>
+          <div class="pagination-stepper pagination-shell__stepper">
+            <button
+              type="button"
+              id="soldPaginationPrev"
+              class="pagination-shell__prev"
+              data-pagination="prev"
+              aria-controls="soldList"
+              aria-label="Previous page"
+            >
+              Prev
+            </button>
+            <div
+              class="inventory-pagination__pages pagination-shell__pages"
+              data-pagination-pages
+              role="group"
+              aria-label="Page selection"
+              hidden
+            ></div>
+            <button
+              type="button"
+              id="soldPaginationNext"
+              class="pagination-shell__next"
+              data-pagination="next"
+              aria-controls="soldList"
+              aria-label="Next page"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
       <div id="soldList"></div>
     </details>
   `;
+  }
   const availablePanel = document.getElementById('availableBooksPanel');
-  availablePanel.scrollIntoView = onScrollIntoView;
+  if (availablePanel) {
+    availablePanel.scrollIntoView = onScrollIntoView;
+  }
   return {
     availablePanel,
     availableSearchInput: document.getElementById('availableSearchInput'),
     availList: document.getElementById('availList'),
     soldPanel: document.getElementById('soldBooksPanel'),
     soldList: document.getElementById('soldList'),
+    soldPagination: document.querySelector('[data-sold-pagination]'),
+    soldSummary: document.getElementById('soldPaginationSummary'),
+    soldPrevButton: document.getElementById('soldPaginationPrev'),
+    soldNextButton: document.getElementById('soldPaginationNext'),
+    soldPageSizeSelect: document.getElementById('soldPageSize'),
     searchStatus: document.getElementById('availableSearchStatus'),
+    pageSizeSelect: document.getElementById('availablePageSize'),
+    topPrevButton: document.getElementById('availablePaginationPrevTop'),
+    topNextButton: document.getElementById('availablePaginationNextTop'),
   };
 }
 

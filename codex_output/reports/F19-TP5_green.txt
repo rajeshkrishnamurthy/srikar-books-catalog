@@ -1,0 +1,7 @@
+npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false F19-TP5 --runInBand
+
+Result: PASS
+- F19-TP5-001 Numeric pager renders correct page count
+- F19-TP5-002 Clicking page number loads selected page
+- F19-TP5-003 Prev/Next work with numeric pager
+- F19-TP5-004 Last page shows remainder slice (21 results @10 per page shows only final 1 item)

@@ -1,0 +1,64 @@
+{
+  "topicId": "F18-TP3",
+  "featureId": "F18",
+  "title": "Public Catalog Pagination Application",
+  "area": "Public Catalog / Listing",
+  "goal": "Apply the unified pagination framework to public catalog tabs so visitors see a consistent, clear paging experience.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F18-TP3-001",
+      "title": "FirstPageUsesPagerSummary",
+      "given": "The public catalog category view uses the shared pagination contract and the first page of results is loaded.",
+      "when": "The public pagination helper derives its UI state from the page metadata, total count, and active tab while not loading.",
+      "then": "It exposes a pager-style model with hasMore true and a summary string like `Items 1–20 of 132`, matching the admin summary pattern while hiding backend details.",
+      "test": "/tests/unit/pagination/F18-TP3_catalogPaginationUi.test.js"
+    },
+    {
+      "id": "F18-TP3-002",
+      "title": "LaterPageKeepsSamePatternAcrossTabs",
+      "given": "A later page of results is loaded for two different catalog tabs (e.g., Fiction and Children) using the same pagination metadata.",
+      "when": "The public pagination helper builds UI state for each tab.",
+      "then": "Both tabs report the same `Items 21–40 of 132` style summary and hasMore flag, ensuring the pattern is consistent regardless of which catalog tab is active.",
+      "test": "/tests/unit/pagination/F18-TP3_catalogPaginationUi.test.js"
+    },
+    {
+      "id": "F18-TP3-003",
+      "title": "LoadMoreModeUsesFriendlyLabel",
+      "given": "The catalog chooses a `load more` affordance instead of explicit next/previous buttons for the first page of a long list.",
+      "when": "The public pagination helper is asked to build UI state in `loadMore` mode for a 20-item slice of a 132-book category.",
+      "then": "It keeps the same `Items 1–20 of 132` summary but exposes hasMore true and a friendly `Load more books (21–40 of 132)` label that callers can bind to a single Load more button.",
+      "test": "/tests/unit/pagination/F18-TP3_catalogPaginationUi.test.js"
+    }
+  ],
+  "fixtures": [],
+  "tests": [
+    "/tests/unit/pagination/F18-TP3_catalogPaginationUi.test.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F18-TP3_red.txt",
+    "green": "codex_output/reports/F18-TP3_green.txt"
+  },
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0",
+    "report": "codex_output/reports/F18-TP3_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "F18-TP3 catalog pagination UI specs now pass after implementing the shared buildCatalogPaginationUi helper that reuses the core pagination metadata to drive summary text and Load more labels."
+    }
+  },
+  "changedFiles": [
+    "scripts/helpers/data.js",
+    "tests/unit/pagination/F18-TP3_catalogPaginationUi.test.js",
+    "codex_output/reports/F18-TP3_red.txt",
+    "codex_output/reports/F18-TP3_green.txt",
+    "codex_output/specs/F18-TP3.json"
+  ],
+  "changeNotes": [
+    "Introduced F18-TP3 unit specs exercising how the public catalog pagination helper exposes pager-style summary text and consistent hasMore flags across tabs.",
+    "Added buildCatalogPaginationUi in scripts/helpers/data.js to derive pager and load-more UI state from shared page metadata, totalItems, and offset, reusing buildPaginationShellState for summary text.",
+    "Extended the helper to emit a friendly Load more label (e.g., `Load more books (21–40 of 132)`) when operating in loadMore mode with additional pages available."
+  ]
+}

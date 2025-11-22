@@ -1,0 +1,9 @@
+{"type":"meta","topicId":"BACKLOG-TP1","title":"Accessible Customers Entry"}
+{"type":"given","text":"A keyboard/assistive-tech user triggers the Customers nav or loads /admin#customers / ?section=customers."}
+{"type":"when","text":"Navigation switches to Customers."}
+{"type":"then","text":"Focus moves to the panel heading, ARIA state is announced, and hashes normalize to #customers without disturbing other panels."}
+{"type":"ui-anchor","selector":"#navTab-customers"}
+{"type":"ui-anchor","selector":"#customersPanel [data-customer-panel-heading]"}
+{"type":"js-handler","event":"click","selector":"#navTab-customers","handler":"handleAdminNav"}
+{"type":"adapter-call","function":"announcePanelFocus","args":["customers"]}
+{"type":"adapter-call","function":"normalizeHash","args":["customers"]}

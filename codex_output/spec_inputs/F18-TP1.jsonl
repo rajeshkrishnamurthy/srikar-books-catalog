@@ -1,0 +1,7 @@
+{"type":"meta","topicId":"F18-TP1","title":"Pagination Contract and Data Model"}
+{"type":"given","text":"A view needs to load Firestore-backed records in pages instead of all at once."}
+{"type":"when","text":"The view requests a page of results using the shared pagination helper/contract."}
+{"type":"then","text":"The helper accepts consistent parameters and returns normalized records plus paging metadata (hasNext, hasPrev, cursors) without exposing Firestore details."}
+{"type":"ui-anchor","selector":"#paginationContractDoc"}
+{"type":"js-handler","event":"init","selector":"#paginationContractDoc","handler":"definePaginationContract"}
+{"type":"pattern","patternId":"PAGINATION_CONTRACT","requiredParams":["defaultPageSize"],"adapters":{},"testBehaviors":[]}

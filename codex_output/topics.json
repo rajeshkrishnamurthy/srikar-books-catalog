@@ -1,62 +1,66 @@
 {
-  "feature": "Admin Purchase Price Handling",
-  "topics": [
-    {
-      "id": "TP1",
-      "title": "Capture Purchase Price on Add",
-      "area": "Admin / Inventory Form",
-      "goal": "Allow admins to enter and persist a purchase price when creating a book record.",
-      "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-      "dependencies": [],
-      "given": "An authenticated admin opens the Add Book form.",
-      "when": "They enter a numeric purchase price and submit the form.",
-      "then": "The value is validated (required, non-negative) and written to Firestore with the new book.",
-      "notes": "Includes schema update, client-side validation messaging, and serverTimestamp-safe writes."
-    },
-    {
-      "id": "TP2",
-      "title": "Edit Stored Purchase Price",
-      "area": "Admin / Inventory Management",
-      "goal": "Enable admins to adjust the saved purchase price on existing books without recreating them.",
-      "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-      "dependencies": [
-        "TP1"
-      ],
-      "given": "A book exists in inventory with or without a purchase price set.",
-      "when": "An admin invokes the edit action and updates the purchase price field.",
-      "then": "The new value passes validation and updates the Firestore document, reflecting immediately in the UI.",
-      "notes": "Guard against empty submissions; reuse validation logic from TP1; keep optimistic UI updates consistent."
-    },
-    {
-      "id": "TP3",
-      "title": "Admin Visibility of Purchase Price",
-      "area": "Admin / Inventory List",
-      "goal": "Surface each book's purchase price to admins within list/detail panels for quick reference.",
-      "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-      "dependencies": [
-        "TP1"
-      ],
-      "given": "An admin loads the inventory dashboard or detail drawer.",
-      "when": "Books are rendered in the admin UI.",
-      "then": "Each entry shows the stored purchase price (formatted currency or placeholder when missing) without affecting actions.",
-      "notes": "Ensure formatting is locale-aware and accessible; no exposure in public components."
-    },
-    {
-      "id": "TP4",
-      "title": "Hide Purchase Price from Public Catalog",
-      "area": "Public Catalog / Data Privacy",
-      "goal": "Guarantee purchase price data never appears in the public catalog payloads or UI.",
-      "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-      "dependencies": [
-        "TP1"
-      ],
-      "given": "A visitor browses the public catalog.",
-      "when": "Client-side code queries Firestore and renders cards.",
-      "then": "Purchase price fields are omitted or stripped before rendering so no cost data leaks publicly.",
-      "notes": "Double-check Firestore queries/selects and DOM templates; consider security rules to block reads from non-admin contexts."
-    }
-  ],
   "features": [
+    {
+      "featureId": "F01",
+      "featureTitle": "Admin Purchase Price Handling",
+      "description": "Keep purchase price capture, edits, and visibility scoped to admin workflows while protecting public views.",
+      "topics": [
+        {
+          "id": "TP1",
+          "title": "Capture Purchase Price on Add",
+          "area": "Admin / Inventory Form",
+          "goal": "Allow admins to enter and persist a purchase price when creating a book record.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "An authenticated admin opens the Add Book form.",
+          "when": "They enter a numeric purchase price and submit the form.",
+          "then": "The value is validated (required, non-negative) and written to Firestore with the new book.",
+          "notes": "Includes schema update, client-side validation messaging, and serverTimestamp-safe writes."
+        },
+        {
+          "id": "TP2",
+          "title": "Edit Stored Purchase Price",
+          "area": "Admin / Inventory Management",
+          "goal": "Enable admins to adjust the saved purchase price on existing books without recreating them.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "TP1"
+          ],
+          "given": "A book exists in inventory with or without a purchase price set.",
+          "when": "An admin invokes the edit action and updates the purchase price field.",
+          "then": "The new value passes validation and updates the Firestore document, reflecting immediately in the UI.",
+          "notes": "Guard against empty submissions; reuse validation logic from TP1; keep optimistic UI updates consistent."
+        },
+        {
+          "id": "TP3",
+          "title": "Admin Visibility of Purchase Price",
+          "area": "Admin / Inventory List",
+          "goal": "Surface each book's purchase price to admins within list/detail panels for quick reference.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "TP1"
+          ],
+          "given": "An admin loads the inventory dashboard or detail drawer.",
+          "when": "Books are rendered in the admin UI.",
+          "then": "Each entry shows the stored purchase price (formatted currency or placeholder when missing) without affecting actions.",
+          "notes": "Ensure formatting is locale-aware and accessible; no exposure in public components."
+        },
+        {
+          "id": "TP4",
+          "title": "Hide Purchase Price from Public Catalog",
+          "area": "Public Catalog / Data Privacy",
+          "goal": "Guarantee purchase price data never appears in the public catalog payloads or UI.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "TP1"
+          ],
+          "given": "A visitor browses the public catalog.",
+          "when": "Client-side code queries Firestore and renders cards.",
+          "then": "Purchase price fields are omitted or stripped before rendering so no cost data leaks publicly.",
+          "notes": "Double-check Firestore queries/selects and DOM templates; consider security rules to block reads from non-admin contexts."
+        }
+      ]
+    },
     {
       "featureId": "F05",
       "featureTitle": "Supplier Master Management",
@@ -735,6 +739,880 @@
           "when": "The Sale tile activates directly or via #sale/record.",
           "then": "A Sale dropdown appears (styled identically to Manage/Bundles), Record is selected by default with aria-current, the Record sale panel is the only visible section, hashes normalize to #sale/record, and no duplicate event handlers/styles are introduced.",
           "notes": "Keep the helper config-driven so adding future Sale sub options (History, Returns) is purely data changes; reuse the Manage Books dropdown CSS/JS."
+        }
+      ]
+    },
+    {
+      "featureId": "F18",
+      "featureTitle": "Unified Pagination Framework",
+      "description": "Introduce a shared pagination contract and UI controls that can be plugged into admin and public list views without duplicating Firestore/query logic.",
+      "topics": [
+        {
+          "id": "F18-TP1",
+          "title": "Pagination Contract and Data Model",
+          "area": "Cross-Cutting / Pagination",
+          "goal": "Define a reusable pagination contract (inputs, outputs, and metadata) that all list views can adopt, independent of specific modules.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "A view needs to load Firestore-backed records in pages rather than all at once.",
+          "when": "The view requests a page of results using the shared pagination helper or contract.",
+          "then": "The helper accepts a consistent set of parameters (page size, direction, cursor) and returns a normalized payload containing records plus paging metadata (hasNext, hasPrev, cursors) that callers can render without knowing Firestore details.",
+          "notes": "Covers the core interface for offset/cursor-based paging, default page sizes, and how views should represent paging state without leaking backend-specific concepts."
+        },
+        {
+          "id": "F18-TP2",
+          "title": "Admin List Pagination Shell",
+          "area": "Admin / Lists",
+          "goal": "Provide a standard pagination control strip (Previous/Next, item range, and disabled states) that admin list views can drop in with minimal wiring.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F18-TP1"
+          ],
+          "given": "An admin list view (e.g., Manage Books, Suppliers, Customers) has more items than the default page size.",
+          "when": "The admin interacts with the pagination controls (clicking Next/Previous or changing page size where supported).",
+          "then": "The control strip updates the underlying pagination request via the shared contract, reflects loading/disabled states correctly, and renders a consistent summary like \u201cItems 21\u201340 of 132\u201d without each screen reinventing buttons or copy.",
+          "notes": "Establishes shared CSS/markup patterns for pagination controls, including focus/ARIA attributes and a place to plug in future page-size or jump-to-page affordances."
+        },
+        {
+          "id": "F18-TP3",
+          "title": "Public Catalog Pagination Application",
+          "area": "Public Catalog / Listing",
+          "goal": "Apply the unified pagination framework to the public catalog so visitors see a predictable, performant paging pattern across categories.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F18-TP1"
+          ],
+          "given": "A visitor browses the public catalog and at least one category has more items than fit on a single page.",
+          "when": "They scroll to the end of the current list and use the pagination affordance (e.g., Next/Previous buttons or a Load more control).",
+          "then": "Additional books load using the shared pagination contract, the UI makes it clear which slice of results is visible, and the pattern stays consistent across all catalog tabs without duplicating Firestore query logic.",
+          "notes": "Clarifies when to use explicit page controls vs. a Load more button, and how to preserve scroll position and basic accessibility expectations while still going through the shared helper."
+        },
+        {
+          "id": "F18-TP4",
+          "title": "Pagination State and Deep Linking",
+          "area": "Routing / State Management",
+          "goal": "Keep pagination state (page, cursors, and filters) restorable via URL/hash so refreshes and back/forward navigation land on the same slice of data.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F18-TP1",
+            "F15-TP3"
+          ],
+          "given": "A list view uses the shared pagination contract and the admin or visitor navigates between pages and filters.",
+          "when": "They refresh the page, share a link, or use browser back/forward to return to a previously viewed list.",
+          "then": "The view restores the same pagination slice (or a safe nearest equivalent) based on URL/hash state, keeps pagination controls in sync, and never shows a different page than the one implied by the URL.",
+          "notes": "Defines how page and filter parameters are encoded into the URL/hash and how the pagination helper should reconcile stale or invalid cursor state."
+        },
+        {
+          "id": "F18-TP5",
+          "title": "Pagination Controller Abstraction",
+          "area": "Cross-Cutting / Pagination",
+          "goal": "Introduce a reusable pagination controller that wraps the shared helpers and exposes a tiny, screen-agnostic API for any list view.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F18-TP1",
+            "F18-TP2",
+            "F18-TP3",
+            "F18-TP4"
+          ],
+          "given": "An admin or public list view wants to adopt the shared pagination framework without reimplementing request, UI, and URL wiring on its own.",
+          "when": "The view instantiates the pagination controller with a dataSource callback, default page size, initial filters, and location sync settings.",
+          "then": "The controller manages internal pagination state (items, pageMeta, totalItems, offset, filters), exposes simple methods like goNext/goPrev/loadMore/setFilters, reuses the shared helpers to compute UI state and deep-link params, and keeps the view aligned with URL/back/forward semantics via a consistent callback surface.",
+          "notes": "Defines the shape of the controller config and public API so later topics can plug specific screens into it with minimal glue code."
+        }
+      ]
+    },
+    {
+      "featureId": "F19",
+      "featureTitle": "Available Books Pagination Integration",
+      "description": "Apply the unified pagination controller and shell to the Manage Books > Available view so admins can page through inventory without custom wiring.",
+      "topics": [
+        {
+          "id": "F19-TP1",
+          "title": "Available Books Data Source",
+          "area": "Admin / Manage Books",
+          "goal": "Create a pagination-aware dataSource for the Available list that queries Firestore with the current filters and page cursor.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F16-TP3",
+            "F18-TP1",
+            "F18-TP5"
+          ],
+          "given": "The Manage Books > Available tab is active and the pagination controller initializes.",
+          "when": "The controller requests a page with a specified size, direction, or cursor plus the current filter/search state.",
+          "then": "The dataSource composes the Firestore query, enforces ordering, returns normalized results with paging metadata, and gracefully handles empty or short final pages without duplicating pagination logic.",
+          "notes": "Ensure deduped supplier/search filters feed into the query inputs and that the controller can refetch page 1 whenever filters change."
+        },
+        {
+          "id": "F19-TP2",
+          "title": "Available Books Pagination Shell",
+          "area": "Admin / Manage Books",
+          "goal": "Mount the shared pagination shell within the Available list panel and wire it to the controller methods.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F19-TP1",
+            "F18-TP2"
+          ],
+          "given": "An admin views the Available list that displays more items than the configured page size.",
+          "when": "The controller emits UI state changes or the admin activates Previous/Next controls.",
+          "then": "The shell renders consistent summary text, disables/enables controls per state, triggers goPrev/goNext without double submissions, and keeps focus/ARIA patterns aligned with other paginated lists.",
+          "notes": "Layout should match existing Manage sub panels; ensure the pagination controls remain sticky near list footer and support keyboard activation."
+        },
+        {
+          "id": "F19-TP3",
+          "title": "Available Books Pagination State Sync",
+          "area": "Admin / Manage Books",
+          "goal": "Persist pagination + filter state for the Available list across reloads and navigation.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F19-TP2",
+            "F18-TP4"
+          ],
+          "given": "The admin has navigated across pages or adjusted filters/search within the Available view.",
+          "when": "They refresh, deep-link to Manage Books, or use browser back/forward to return.",
+          "then": "The controller restores the same filter/page combination (or nearest safe slice), updates the hash/location parameters, resets to page 1 when filters change, and prevents stale cursors from causing blank lists.",
+          "notes": "Coordinate with Manage sub nav hash patterns (#manage-books/available) so pagination params append cleanly (e.g., ?page=3) without breaking other panels."
+        },
+        {
+          "id": "F19-TP4",
+          "title": "Available Page Size Selector",
+          "area": "Admin / Manage Books",
+          "goal": "Expose a per-page selector (10/20/50) so admins can adjust how many available books load per slice without reloading.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F19-TP2",
+            "F19-TP3"
+          ],
+          "given": "The Available list shows more results than a single page and the pagination shell is visible.",
+          "when": "The admin changes the page-size control to 10, 20, or 50 items per page.",
+          "then": "The controller updates its request pageSize, refetches the first slice for the new size, persists the selection in state sync (hash/query or local storage), and keeps the summary text/Prev-Next state accurate for the chosen size.",
+          "notes": "Default remains 20 until the admin selects a different size. Size options should be keyboard accessible and announced when changed."
+        },
+        {
+          "id": "F19-TP5",
+          "title": "Available Numeric Pager",
+          "area": "Admin / Manage Books",
+          "goal": "Add an Amazon-style numeric pager (Prev, page numbers, Next, per-page dropdown) presented in a single right-aligned row.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F19-TP2",
+            "F19-TP3",
+            "F19-TP4"
+          ],
+          "given": "The Available list spans multiple pages (based on total items \u00f7 page size) and the pagination bar is visible.",
+          "when": "The admin clicks Prev, Next, or a specific page number within the numeric pager.",
+          "then": "The numeric chips highlight the current page, only render up to the total page count, Prev/Next stay aligned on the right, the per-page dropdown remains alongside them, and the hash/summary update so deep links restore the chosen page.",
+          "notes": "Layout should mirror Amazon\u2019s one-row pagination: Prev button, page numbers, Next button, and the per-page dropdown, all sharing consistent Material styling."
+        }
+      ]
+    },
+    {
+      "featureId": "F20",
+      "featureTitle": "Sold Books Pagination Integration",
+      "description": "Adopt the shared pagination contract and shell for Manage Books > Sold so historical sales stay fast, filterable, and consistent with Available.",
+      "topics": [
+        {
+          "id": "SBD-F20-TP1",
+          "title": "Sold Books Data Source & Cursor Wiring",
+          "area": "Admin / Sold Books",
+          "goal": "Expose the sold-book history through the shared pagination controller using sale-date ordering and sale-specific fields.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F16-TP4",
+            "F18-TP1",
+            "F18-TP5"
+          ],
+          "given": "An admin opens Manage Books > Sold and there are more sold records than a single page can show.",
+          "when": "The pagination controller requests the first or a subsequent page using the shared contract.",
+          "then": "The sold books query executes via the contract, sorted by sale timestamp, and returns normalized records (book title, sale price, customer, soldOn) plus hasNext/hasPrev/cursor metadata ready for the UI.",
+          "notes": "Reuse the F19 data-source pattern, include sale totals per row so the summary text has counts, and ensure the controller handles empty or short final pages gracefully."
+        },
+        {
+          "id": "SBD-F20-TP2",
+          "title": "Sold Books Pagination Shell & Summary",
+          "area": "Admin / Sold Books",
+          "goal": "Mount the shared pagination shell inside the Sold panel and keep controls/summary text aligned with controller state.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F20-TP1",
+            "F18-TP2",
+            "F18-TP4"
+          ],
+          "given": "The Sold Books panel is visible and more rows exist than the selected page size.",
+          "when": "The admin clicks Previous/Next, uses keyboard navigation, or changes the page size.",
+          "then": "The shell disables controls while loading, calls goPrev/goNext/setPageSize on the controller, re-renders the Sold list and summary (e.g., \"Items 21-40 of 180 - Sold\"), and keeps hash/back-button state aligned via the shared helpers.",
+          "notes": "Use the same markup/CSS tokens as the Available view, keep Prev/Next order and aria-labels per Material guidance, and expose the summary as aria-live=polite text."
+        },
+        {
+          "id": "SBD-F20-TP3",
+          "title": "Sold Books Filter Reset & Cursor Safety",
+          "area": "Admin / Sold Books",
+          "goal": "Reset pagination cursors whenever Sold filters (date range, supplier/customer chips, search) change so results stay accurate.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F20-TP1",
+            "F18-TP4"
+          ],
+          "given": "Filters exist on the Sold view (date range, supplier/customer, search text) and at least one is active.",
+          "when": "The admin modifies or clears any filter or search term.",
+          "then": "The controller drops stored cursors, reloads page 1 with the new filters, recomputes the total-count summary, and updates URL/hash state so reloading or sharing the link restores the filtered page.",
+          "notes": "Guard against stale cursors returning empty pages and ensure clearing all filters switches back to the default sort plus first page without manual refreshes."
+        }
+      ]
+    },
+    {
+      "featureId": "F21",
+      "featureTitle": "Manage Bundles Pagination Integration",
+      "description": "Wire the Manage Bundles grid into the shared pagination controller so bundle operations stay responsive even with hundreds of bundles.",
+      "topics": [
+        {
+          "id": "SBD-F21-TP1",
+          "title": "Manage Bundles Pagination Suite Adoption",
+          "area": "Admin / Bundles",
+          "goal": "Mount the pagination suite in Manage Bundles so the shared data source and controls power the grid with zero duplicated logic.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F12-TP3",
+            "F17-TP1",
+            "F18-TP1",
+            "F18-TP2",
+            "F18-TP5"
+          ],
+          "given": "The Bundles -> Manage panel lists dozens of bundles and supplier/status filters are available.",
+          "when": "The pagination suite mounts with the Manage Bundles selectors and requests the first or subsequent page with active filters.",
+          "then": "The shared data source returns normalized rows plus paging metadata, the shell renders summary/Prev/Next/page-size controls, and URL/hash state reflects the current filters and page without ad-hoc wiring.",
+          "notes": "Reuses the pagination suite end-to-end; do not fork markup or controller helpers for Manage Bundles.",
+          "reuse": {
+            "patternId": "PAGINATION_SUITE",
+            "params": {
+              "container": "#bundlePagination",
+              "summaryEl": "#bundlePaginationSummary",
+              "prevButton": "#bundlePaginationPrev",
+              "nextButton": "#bundlePaginationNext",
+              "pagesContainer": "#bundlePaginationPages",
+              "pageSizeSelect": "#bundlePaginationSize",
+              "defaultPageSize": 20,
+              "pageSizeOptions": [
+                10,
+                20,
+                50
+              ],
+              "mode": "pager",
+              "locationKey": "manageBundles",
+              "sticky": true
+            },
+            "adapters": {
+              "dataSource": "fetchManageBundlesPage",
+              "parseLocation": "readManageBundlesPagingFromLocation",
+              "syncLocation": "writeManageBundlesPagingToLocation",
+              "onStateChange": "renderManageBundlesRows",
+              "formatSummary": "formatBundlePaginationSummary",
+              "announce": "announceBundlePaginationRange"
+            },
+            "uiTexts": {
+              "summaryTemplate": "Bundles {first}-{last} of {total}",
+              "prevLabel": "Previous bundles",
+              "nextLabel": "Next bundles"
+            }
+          }
+        },
+        {
+          "id": "SBD-F21-TP2",
+          "title": "Bundle Actions Preserve Pagination Context",
+          "area": "Admin / Bundles",
+          "goal": "Keep pagination state stable while publishing/unpublishing or editing bundles from the Manage view.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F21-TP1",
+            "F12-TP2",
+            "F18-TP5"
+          ],
+          "given": "An admin is on a later page of Manage Bundles with filters applied.",
+          "when": "They publish/unpublish a bundle or trigger inline edit actions that update Firestore.",
+          "then": "The controller refreshes the affected row or current page without jumping back to page 1, updates totals if the row now hides (for example, filter mismatch), and keeps the same filters and cursors active.",
+          "notes": "Use optimistic UI plus targeted refetch so row order stays stable while ensuring paging metadata stays accurate when bundles move in or out of the current filter.",
+          "reuse": {
+            "patternId": "PAGINATION_SUITE",
+            "params": {
+              "container": "#bundlePagination",
+              "summaryEl": "#bundlePaginationSummary",
+              "prevButton": "#bundlePaginationPrev",
+              "nextButton": "#bundlePaginationNext",
+              "pagesContainer": "#bundlePaginationPages",
+              "pageSizeSelect": "#bundlePaginationSize",
+              "defaultPageSize": 20,
+              "pageSizeOptions": [
+                10,
+                20,
+                50
+              ],
+              "mode": "pager",
+              "locationKey": "manageBundles",
+              "sticky": true
+            },
+            "adapters": {
+              "dataSource": "fetchManageBundlesPage",
+              "parseLocation": "readManageBundlesPagingFromLocation",
+              "syncLocation": "writeManageBundlesPagingToLocation",
+              "onStateChange": "renderManageBundlesRows",
+              "formatSummary": "formatBundlePaginationSummary",
+              "announce": "announceBundlePaginationRange"
+            },
+            "uiTexts": {
+              "summaryTemplate": "Bundles {first}-{last} of {total}",
+              "prevLabel": "Previous bundles",
+              "nextLabel": "Next bundles"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "featureId": "F22",
+      "featureTitle": "Open Book Requests Pagination Integration",
+      "description": "Adopt the shared pagination helpers for the Book Requests queue so admins can triage large backlogs with predictable controls.",
+      "topics": [
+        {
+          "id": "SBD-F22-TP1",
+          "title": "Book Requests Pagination Suite Adoption",
+          "area": "Admin / Book Requests",
+          "goal": "Adopt the pagination suite for the open requests queue so data fetches, filters, and controls share one config.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "F18-TP1",
+            "F18-TP2",
+            "F18-TP4",
+            "F18-TP5"
+          ],
+          "given": "The Book Requests panel contains more open requests than the default page size and exposes status/priority filters.",
+          "when": "The pagination suite mounts and the controller asks for the first or subsequent page with the active filters.",
+          "then": "Only open or pending requests are fetched in createdAt desc order, the shell renders requests-specific summary copy plus Prev/Next/per-page controls, and URL/hash state captures filter + page params for reload safety.",
+          "notes": "Copy and aria-labels must mention request context (e.g., \"Requests 61-70 of 322 open\").",
+          "reuse": {
+            "patternId": "PAGINATION_SUITE",
+            "params": {
+              "container": "#requestPagination",
+              "summaryEl": "#requestPaginationSummary",
+              "prevButton": "#requestPaginationPrev",
+              "nextButton": "#requestPaginationNext",
+              "pagesContainer": "#requestPaginationPages",
+              "pageSizeSelect": "#requestPaginationSize",
+              "defaultPageSize": 25,
+              "pageSizeOptions": [
+                10,
+                25,
+                50
+              ],
+              "mode": "pager",
+              "locationKey": "openBookRequests",
+              "sticky": true
+            },
+            "adapters": {
+              "dataSource": "fetchOpenBookRequestsPage",
+              "parseLocation": "readRequestPagingFromLocation",
+              "syncLocation": "writeRequestPagingToLocation",
+              "onStateChange": "renderOpenRequestRows",
+              "formatSummary": "formatRequestPaginationSummary",
+              "announce": "announceRequestPaginationRange"
+            },
+            "uiTexts": {
+              "summaryTemplate": "Requests {first}-{last} of {total} open",
+              "prevLabel": "Previous requests",
+              "nextLabel": "Next requests"
+            }
+          }
+        },
+        {
+          "id": "SBD-F22-TP2",
+          "title": "Book Request Actions Maintain Paging",
+          "area": "Admin / Book Requests",
+          "goal": "Ensure fulfilling, snoozing, or assigning requests updates the paged list without duplicates or jumps.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F22-TP1"
+          ],
+          "given": "An admin triages open requests while viewing a paginated slice.",
+          "when": "They mark a request as fulfilled, snoozed, or reassigned (removing it from the open queue).",
+          "then": "The row disappears or updates in place, the controller pulls the next item from the following page to keep the list filled when available, totals refresh, and the view never jumps back to page 1 unless the queue empties.",
+          "notes": "Handle race conditions where multiple admins close requests simultaneously by reconciling server responses before adjusting cursors.",
+          "reuse": {
+            "patternId": "PAGINATION_SUITE",
+            "params": {
+              "container": "#requestPagination",
+              "summaryEl": "#requestPaginationSummary",
+              "prevButton": "#requestPaginationPrev",
+              "nextButton": "#requestPaginationNext",
+              "pagesContainer": "#requestPaginationPages",
+              "pageSizeSelect": "#requestPaginationSize",
+              "defaultPageSize": 25,
+              "pageSizeOptions": [
+                10,
+                25,
+                50
+              ],
+              "mode": "pager",
+              "locationKey": "openBookRequests",
+              "sticky": true
+            },
+            "adapters": {
+              "dataSource": "fetchOpenBookRequestsPage",
+              "parseLocation": "readRequestPagingFromLocation",
+              "syncLocation": "writeRequestPagingToLocation",
+              "onStateChange": "renderOpenRequestRows",
+              "formatSummary": "formatRequestPaginationSummary",
+              "announce": "announceRequestPaginationRange"
+            },
+            "uiTexts": {
+              "summaryTemplate": "Requests {first}-{last} of {total} open",
+              "prevLabel": "Previous requests",
+              "nextLabel": "Next requests"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "featureId": "F23",
+      "featureTitle": "Inline Bundle Composer Shell",
+      "description": "Render the inline bundle composer UI and entry points in Available Books so admins can start building bundles without leaving the grid.",
+      "topics": [
+        {
+          "id": "SBD-F23-TP1",
+          "title": "Available Books Bundle Entry",
+          "area": "Admin / Available Books",
+          "goal": "Surface an Add to bundle control on every book card that opens the inline composer panel and seeds it with the selected book.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [],
+          "given": "An admin browses Available Books and no inline bundle composer is active.",
+          "when": "They press the Add to bundle action on any book card via mouse or keyboard.",
+          "then": "A slide-in composer panel opens beside the list, focus moves to the panel heading, and the selected book appears in the panel with the originating control marked active.",
+          "notes": "The panel may not cover existing filters/search and must be reachable/closable entirely via keyboard.",
+          "reuse": {
+            "patternId": "INLINE_BUNDLE_PANEL_SHELL",
+            "params": {
+              "container": "#inlineBundleComposer",
+              "panelHeading": "#inlineBundleHeading",
+              "triggerSelector": "[data-test='bookAddToBundle']",
+              "bookList": "#inlineBundleSelectedBooks",
+              "bundleNameInput": "#inlineBundleName",
+              "bundlePriceInput": "#inlineBundlePrice",
+              "recommendedPrice": "#inlineBundleRecommended",
+              "totalPrice": "#inlineBundleTotal",
+              "saveButton": "#inlineBundleSave",
+              "resetButton": "#inlineBundleReset",
+              "emptyState": "#inlineBundleEmptyState"
+            },
+            "adapters": {
+              "controller": "createInlineBundleComposerController",
+              "formatPrice": "formatCurrency",
+              "announce": "announceInlineBundleChange"
+            },
+            "uiTexts": {
+              "panelTitle": "Bundle in progress",
+              "emptyState": "Add a book to start a bundle",
+              "nameLabel": "Bundle name",
+              "priceLabel": "Bundle price",
+              "recommendedLabel": "Recommended price",
+              "totalLabel": "Total sale price"
+            }
+          }
+        },
+        {
+          "id": "SBD-F23-TP2",
+          "title": "Inline Composer Fields and Copy",
+          "area": "Admin / Available Books",
+          "goal": "Render bundle name and price inputs, recommended-price placeholder, and helper copy inside the inline composer shell.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F23-TP1"
+          ],
+          "given": "The inline composer panel is open.",
+          "when": "It renders its heading and form region.",
+          "then": "Bundle name and price inputs display required markers, helper text clarifies the mandatory bundle price, and the recommended price block shows placeholder copy until pricing adapters fill it.",
+          "notes": "Copy and aria-describedby text must match the existing Bundle->Add form so validation language stays predictable.",
+          "reuse": {
+            "patternId": "INLINE_BUNDLE_PANEL_SHELL",
+            "params": {
+              "container": "#inlineBundleComposer",
+              "panelHeading": "#inlineBundleHeading",
+              "triggerSelector": "[data-test='bookAddToBundle']",
+              "bookList": "#inlineBundleSelectedBooks",
+              "bundleNameInput": "#inlineBundleName",
+              "bundlePriceInput": "#inlineBundlePrice",
+              "recommendedPrice": "#inlineBundleRecommended",
+              "totalPrice": "#inlineBundleTotal",
+              "saveButton": "#inlineBundleSave",
+              "resetButton": "#inlineBundleReset",
+              "emptyState": "#inlineBundleEmptyState"
+            },
+            "adapters": {
+              "controller": "createInlineBundleComposerController",
+              "formatPrice": "formatCurrency",
+              "announce": "announceInlineBundleChange"
+            },
+            "uiTexts": {
+              "panelTitle": "Bundle in progress",
+              "emptyState": "Add a book to start a bundle",
+              "nameLabel": "Bundle name",
+              "priceLabel": "Bundle price",
+              "recommendedLabel": "Recommended price",
+              "totalLabel": "Total sale price"
+            }
+          }
+        },
+        {
+          "id": "SBD-F23-TP3",
+          "title": "Selected Books List and Reset",
+          "area": "Admin / Available Books",
+          "goal": "List selected books inside the composer with remove chips and a clear-all control that collapses the panel when empty.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F23-TP1"
+          ],
+          "given": "At least one book has been added to the inline composer.",
+          "when": "The admin removes individual books or activates Clear bundle.",
+          "then": "The corresponding chip disappears with focus returning to a predictable target, the empty state copy returns when zero books remain, and the panel closes unless the user has pinned it open.",
+          "notes": "Remove buttons must include the book title in their accessible name, and Clear bundle needs a confirmation when multiple items are present.",
+          "reuse": {
+            "patternId": "INLINE_BUNDLE_PANEL_SHELL",
+            "params": {
+              "container": "#inlineBundleComposer",
+              "panelHeading": "#inlineBundleHeading",
+              "triggerSelector": "[data-test='bookAddToBundle']",
+              "bookList": "#inlineBundleSelectedBooks",
+              "bundleNameInput": "#inlineBundleName",
+              "bundlePriceInput": "#inlineBundlePrice",
+              "recommendedPrice": "#inlineBundleRecommended",
+              "totalPrice": "#inlineBundleTotal",
+              "saveButton": "#inlineBundleSave",
+              "resetButton": "#inlineBundleReset",
+              "emptyState": "#inlineBundleEmptyState"
+            },
+            "adapters": {
+              "controller": "createInlineBundleComposerController",
+              "formatPrice": "formatCurrency",
+              "announce": "announceInlineBundleChange"
+            },
+            "uiTexts": {
+              "panelTitle": "Bundle in progress",
+              "emptyState": "Add a book to start a bundle",
+              "nameLabel": "Bundle name",
+              "priceLabel": "Bundle price",
+              "recommendedLabel": "Recommended price",
+              "totalLabel": "Total sale price"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "featureId": "F24",
+      "featureTitle": "Inline Bundle Composer Intelligence",
+      "description": "Wire controller logic into the inline composer so bundle context, pricing signals, and validation behave like the standalone Bundle->Add flow without navigation.",
+      "topics": [
+        {
+          "id": "SBD-F24-TP1",
+          "title": "Inline Bundle Context Lifecycle",
+          "area": "Admin / Available Books",
+          "goal": "Spin up, restore, and tear down bundle context in memory as admins add or remove books from the inline composer.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F23-TP1",
+            "SBD-F23-TP3"
+          ],
+          "given": "An admin opens Available Books with the inline composer shell available.",
+          "when": "They add, remove, or reopen the composer via its toggles.",
+          "then": "The controller creates a new bundle context when none exists, tracks selected book IDs plus bundle meta, and restores the same context if the panel is reopened within the session.",
+          "notes": "Expose derived state (count, subtotal, lastInteraction) via controller.getState() so the shell can stay declarative and tests can observe the same data.",
+          "reuse": {
+            "patternId": "INLINE_BUNDLE_COMPOSER_CONTROLLER",
+            "params": {
+              "currency": "INR",
+              "pricePrecision": 2,
+              "recommendationThreshold": 2,
+              "maxBooks": 10,
+              "persistSessionKey": "availableBooksInlineBundle"
+            },
+            "adapters": {
+              "fetchPriceRecommendation": "fetchBundlePriceRecommendation",
+              "loadBundle": "loadBundleDraftFromSession",
+              "saveBundle": "persistNewBundle",
+              "onStateChange": "syncInlineBundlePanelState"
+            },
+            "uiTexts": {
+              "defaultBundleNamePrefix": "Bundle from Available Books",
+              "pricePlaceholder": "Enter bundle price",
+              "recommendedPendingCopy": "Add one more book to see a recommended price"
+            }
+          }
+        },
+        {
+          "id": "SBD-F24-TP2",
+          "title": "Inline Bundle Pricing Signals",
+          "area": "Admin / Available Books",
+          "goal": "Compute and stream recommended bundle price plus total sale price once qualifying books are selected.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F24-TP1"
+          ],
+          "given": "The inline composer holds at least one selected book.",
+          "when": "A second (or more) book is added or existing selections change.",
+          "then": "The controller calls the recommendation adapter, emits recommendedPrice and totalSalePrice in state, applies fallback copy when the adapter rejects, and updates timestamps for downstream analytics.",
+          "notes": "Ensure pending states debounced so adapters are not spammed while admins toggle selections rapidly.",
+          "reuse": {
+            "patternId": "INLINE_BUNDLE_COMPOSER_CONTROLLER",
+            "params": {
+              "currency": "INR",
+              "pricePrecision": 2,
+              "recommendationThreshold": 2,
+              "maxBooks": 10,
+              "persistSessionKey": "availableBooksInlineBundle"
+            },
+            "adapters": {
+              "fetchPriceRecommendation": "fetchBundlePriceRecommendation",
+              "loadBundle": "loadBundleDraftFromSession",
+              "saveBundle": "persistNewBundle",
+              "onStateChange": "syncInlineBundlePanelState"
+            },
+            "uiTexts": {
+              "defaultBundleNamePrefix": "Bundle from Available Books",
+              "pricePlaceholder": "Enter bundle price",
+              "recommendedPendingCopy": "Add one more book to see a recommended price"
+            }
+          }
+        },
+        {
+          "id": "SBD-F24-TP3",
+          "title": "Inline Bundle Validation Gate",
+          "area": "Admin / Available Books",
+          "goal": "Keep the Save button disabled until bundle name and price validate, mirroring the Bundle->Add rules.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F24-TP1"
+          ],
+          "given": "The inline composer contains a bundle context with one or more books.",
+          "when": "The admin edits bundle name or bundle price fields.",
+          "then": "Controller validation trims input, enforces non-empty bundle names plus positive currency values, feeds error messages back to the shell, and only marks the Save affordance enabled when both pass.",
+          "notes": "Expose validationErrors per field so shells can hook aria-invalid and describe attributes without duplicating logic.",
+          "reuse": {
+            "patternId": "INLINE_BUNDLE_COMPOSER_CONTROLLER",
+            "params": {
+              "currency": "INR",
+              "pricePrecision": 2,
+              "recommendationThreshold": 2,
+              "maxBooks": 10,
+              "persistSessionKey": "availableBooksInlineBundle"
+            },
+            "adapters": {
+              "fetchPriceRecommendation": "fetchBundlePriceRecommendation",
+              "loadBundle": "loadBundleDraftFromSession",
+              "saveBundle": "persistNewBundle",
+              "onStateChange": "syncInlineBundlePanelState"
+            },
+            "uiTexts": {
+              "defaultBundleNamePrefix": "Bundle from Available Books",
+              "pricePlaceholder": "Enter bundle price",
+              "recommendedPendingCopy": "Add one more book to see a recommended price"
+            }
+          }
+        },
+        {
+          "id": "SBD-F24-TP4",
+          "title": "Inline Bundle Pricing and MRP Summary",
+          "area": "Admin / Available Books",
+          "goal": "Auto-update recommended bundle price after two selections and surface total MRP inside the inline drawer.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F24-TP2",
+            "SBD-F23-TP3"
+          ],
+          "given": "The inline composer drawer is open with pricing summary fields visible.",
+          "when": "A second book is added or selections change and the price recommendation adapter resolves.",
+          "then": "The aggregate triggers the recommendation call without extra clicks, refreshes recommended and total sale price text via the formatter, and displays a total MRP sum for the selected books with aria-live feedback and fallback copy when data is missing.",
+          "notes": "Recommendation threshold defaults to 2; debounce requests while books are added/removed rapidly. Total MRP should derive from book metadata (MRP/list price) when present and render a placeholder when not.",
+          "reuse": {
+            "patternId": "INLINE_BUNDLE_COMPOSER",
+            "params": {
+              "container": "#inlineBundleComposer",
+              "panelHeading": "#inlineBundleHeading",
+              "triggerSelector": "[data-test='bookAddToBundle']",
+              "bookList": "#inlineBundleSelectedBooks",
+              "bundleNameInput": "#inlineBundleName",
+              "bundlePriceInput": "#inlineBundlePrice",
+              "recommendedPrice": "#inlineBundleRecommended",
+              "totalPrice": "#inlineBundleTotal",
+              "totalMrp": "#inlineBundleMrp",
+              "saveButton": "#inlineBundleSave",
+              "resetButton": "#inlineBundleReset",
+              "existingBundleSelect": "#inlineBundleExistingSelect",
+              "currency": "INR"
+            },
+            "adapters": {
+              "fetchPriceRecommendation": "fetchBundlePriceRecommendation",
+              "formatPrice": "formatCurrency",
+              "announce": "announceInlineBundleChange"
+            },
+            "uiTexts": {
+              "panelTitle": "Bundle in progress",
+              "recommendedPriceLabel": "Recommended price",
+              "totalPriceLabel": "Total sale price",
+              "totalMrpLabel": "Total MRP"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "featureId": "F25",
+      "featureTitle": "Inline Bundle Composer Save & Lifecycle",
+      "description": "Persist inline-built bundles, let admins continue an existing bundle context, and surface success/error feedback without leaving Available Books.",
+      "topics": [
+        {
+          "id": "SBD-F25-TP1",
+          "title": "Save Inline Bundle From Available Books",
+          "area": "Admin / Available Books",
+          "goal": "Persist a newly created inline bundle with its selected books and metadata using the existing bundle APIs.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F24-TP2",
+            "SBD-F24-TP3"
+          ],
+          "given": "A bundle context inside the inline composer contains valid name, price, and at least one book.",
+          "when": "The admin presses Save bundle.",
+          "then": "The aggregate calls saveBundle/linkBooks adapters once, shows a success toast with the bundle name, and exposes the new bundle ID for navigation without dropping the context until the call resolves.",
+          "notes": "Saving must be idempotent; repeat taps while pending should be ignored and aria-busy applied to the panel.",
+          "reuse": {
+            "patternId": "INLINE_BUNDLE_COMPOSER",
+            "params": {
+              "container": "#inlineBundleComposer",
+              "triggerSelector": "[data-test='bookAddToBundle']",
+              "bookList": "#inlineBundleSelectedBooks",
+              "bundleNameInput": "#inlineBundleName",
+              "bundlePriceInput": "#inlineBundlePrice",
+              "recommendedPrice": "#inlineBundleRecommended",
+              "totalPrice": "#inlineBundleTotal",
+              "saveButton": "#inlineBundleSave",
+              "resetButton": "#inlineBundleReset",
+              "existingBundleSelect": "#inlineBundleExistingSelect",
+              "panelHeading": "#inlineBundleHeading",
+              "currency": "INR"
+            },
+            "adapters": {
+              "fetchPriceRecommendation": "fetchBundlePriceRecommendation",
+              "loadBundle": "loadBundleDraftFromSession",
+              "listExistingBundles": "listActiveBundles",
+              "saveBundle": "persistInlineBundle",
+              "linkBooks": "linkBooksToBundle",
+              "toastSuccess": "toastInlineBundleSuccess",
+              "toastError": "toastInlineBundleError",
+              "announce": "announceInlineBundleChange",
+              "formatPrice": "formatCurrency"
+            },
+            "uiTexts": {
+              "panelTitle": "Bundle in progress",
+              "emptyState": "Add a book to start a bundle",
+              "existingBundleLabel": "Continue existing bundle",
+              "saveLabel": "Save bundle",
+              "resetLabel": "Clear bundle"
+            }
+          }
+        },
+        {
+          "id": "SBD-F25-TP2",
+          "title": "Continue Existing Bundle Inline",
+          "area": "Admin / Available Books",
+          "goal": "Allow admins to continue adding books to an existing bundle selected from the composer dropdown.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F24-TP1"
+          ],
+          "given": "There is at least one existing bundle eligible for more books.",
+          "when": "The admin chooses an existing bundle from the composer and adds a book.",
+          "then": "The aggregate loads that bundle's metadata, merges it into the inline context, prevents duplicate book IDs, and keeps the Save affordance labeled as Update bundle with contextual helper copy.",
+          "notes": "Ensure switching bundles warns about unsaved progress and resets recommendation totals to match the target bundle.",
+          "reuse": {
+            "patternId": "INLINE_BUNDLE_COMPOSER",
+            "params": {
+              "container": "#inlineBundleComposer",
+              "triggerSelector": "[data-test='bookAddToBundle']",
+              "bookList": "#inlineBundleSelectedBooks",
+              "bundleNameInput": "#inlineBundleName",
+              "bundlePriceInput": "#inlineBundlePrice",
+              "recommendedPrice": "#inlineBundleRecommended",
+              "totalPrice": "#inlineBundleTotal",
+              "saveButton": "#inlineBundleSave",
+              "resetButton": "#inlineBundleReset",
+              "existingBundleSelect": "#inlineBundleExistingSelect",
+              "panelHeading": "#inlineBundleHeading",
+              "currency": "INR"
+            },
+            "adapters": {
+              "fetchPriceRecommendation": "fetchBundlePriceRecommendation",
+              "loadBundle": "loadBundleDraftFromSession",
+              "listExistingBundles": "listActiveBundles",
+              "saveBundle": "persistInlineBundle",
+              "linkBooks": "linkBooksToBundle",
+              "toastSuccess": "toastInlineBundleSuccess",
+              "toastError": "toastInlineBundleError",
+              "announce": "announceInlineBundleChange",
+              "formatPrice": "formatCurrency"
+            },
+            "uiTexts": {
+              "panelTitle": "Bundle in progress",
+              "emptyState": "Add a book to start a bundle",
+              "existingBundleLabel": "Continue existing bundle",
+              "saveLabel": "Save bundle",
+              "resetLabel": "Clear bundle"
+            }
+          }
+        },
+        {
+          "id": "SBD-F25-TP3",
+          "title": "Inline Bundle Feedback and Recovery",
+          "area": "Admin / Available Books",
+          "goal": "Provide inline success/failure feedback, clear or resume the composer, and keep the Available Books grid in sync after saves.",
+          "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+          "dependencies": [
+            "SBD-F25-TP1"
+          ],
+          "given": "A save attempt is initiated from the inline composer.",
+          "when": "The save resolves successfully or fails.",
+          "then": "On success the composer shows a toast, optionally offers a View bundle link, and resets only when the admin confirms; on failure it surfaces inline errors, re-enables controls, and leaves the existing context intact for retry.",
+          "notes": "Emit analytics hooks (bundleCreatedInline, bundleCreateFailedInline) with bundleId/error codes and keep focus trapped inside error summary for screen readers.",
+          "reuse": {
+            "patternId": "INLINE_BUNDLE_COMPOSER",
+            "params": {
+              "container": "#inlineBundleComposer",
+              "triggerSelector": "[data-test='bookAddToBundle']",
+              "bookList": "#inlineBundleSelectedBooks",
+              "bundleNameInput": "#inlineBundleName",
+              "bundlePriceInput": "#inlineBundlePrice",
+              "recommendedPrice": "#inlineBundleRecommended",
+              "totalPrice": "#inlineBundleTotal",
+              "saveButton": "#inlineBundleSave",
+              "resetButton": "#inlineBundleReset",
+              "existingBundleSelect": "#inlineBundleExistingSelect",
+              "panelHeading": "#inlineBundleHeading",
+              "currency": "INR"
+            },
+            "adapters": {
+              "fetchPriceRecommendation": "fetchBundlePriceRecommendation",
+              "loadBundle": "loadBundleDraftFromSession",
+              "listExistingBundles": "listActiveBundles",
+              "saveBundle": "persistInlineBundle",
+              "linkBooks": "linkBooksToBundle",
+              "toastSuccess": "toastInlineBundleSuccess",
+              "toastError": "toastInlineBundleError",
+              "announce": "announceInlineBundleChange",
+              "formatPrice": "formatCurrency"
+            },
+            "uiTexts": {
+              "panelTitle": "Bundle in progress",
+              "emptyState": "Add a book to start a bundle",
+              "existingBundleLabel": "Continue existing bundle",
+              "saveLabel": "Save bundle",
+              "resetLabel": "Clear bundle"
+            }
+          }
         }
       ]
     },

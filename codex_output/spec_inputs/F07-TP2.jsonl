@@ -1,0 +1,12 @@
+{"type":"meta","topicId":"F07-TP2","title":"Edit Customer Records"}
+{"type":"given","text":"A customer entry already exists."}
+{"type":"when","text":"An admin opens the record and changes address/location/WhatsApp."}
+{"type":"then","text":"Changes persist with updated timestamps and reflect anywhere the customer is referenced."}
+{"type":"ui-anchor","selector":"#customerForm"}
+{"type":"ui-anchor","selector":"#customerNameInput"}
+{"type":"ui-anchor","selector":"#customerWhatsAppInput"}
+{"type":"ui-anchor","selector":"#customerList"}
+{"type":"js-handler","event":"submit","selector":"#customerForm","handler":"handleCustomerSave"}
+{"type":"js-handler","event":"click","selector":"#customerList [data-action=\"editCustomer\"]","handler":"openCustomerEdit"}
+{"type":"adapter-call","function":"saveCustomer","args":["customerData"]}
+{"type":"adapter-call","function":"updateCustomer","args":["customerId","patch"]}

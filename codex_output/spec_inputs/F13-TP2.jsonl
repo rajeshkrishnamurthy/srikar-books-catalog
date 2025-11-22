@@ -1,0 +1,13 @@
+{"type":"meta","topicId":"F13-TP2","title":"Bundle Price Must Be Entered"}
+{"type":"given","text":"Admin locks a supplier, selects books, and reaches the bundle price step."}
+{"type":"when","text":"They leave the price blank or clear it after the recommendation."}
+{"type":"then","text":"Submit stays disabled, inline copy explains the requirement, and persisted bundle documents always include bundlePriceRupees."}
+{"type":"ui-anchor","selector":"#bundleForm"}
+{"type":"ui-anchor","selector":"#bundleSupplierSelect"}
+{"type":"ui-anchor","selector":"#bundleBookInput"}
+{"type":"ui-anchor","selector":"#bundlePriceInput"}
+{"type":"ui-anchor","selector":"#bundleSubmitBtn"}
+{"type":"js-handler","event":"submit","selector":"#bundleForm","handler":"handleBundleSubmit"}
+{"type":"js-handler","event":"input","selector":"#bundlePriceInput","handler":"validateBundlePrice"}
+{"type":"adapter-call","function":"saveBundleDraft","args":["bundleData"]}
+{"type":"adapter-call","function":"ensureBundlePriceSet","args":["bundlePrice"]}

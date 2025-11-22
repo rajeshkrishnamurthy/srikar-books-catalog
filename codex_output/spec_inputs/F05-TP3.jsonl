@@ -1,0 +1,13 @@
+{"type":"meta","topicId":"F05-TP3","title":"Attach Supplier on Book Creation"}
+{"type":"given","text":"An admin is adding a book and the supplier master already has active entries."}
+{"type":"when","text":"They pick a supplier (or attempt without selecting) and submit the form."}
+{"type":"then","text":"Valid submissions persist the supplier reference; missing/invalid selections are blocked with feedback."}
+{"type":"ui-anchor","selector":"#addForm"}
+{"type":"ui-anchor","selector":"#priceInput"}
+{"type":"ui-anchor","selector":"#mrpInput"}
+{"type":"ui-anchor","selector":"#purchasePriceInput"}
+{"type":"ui-anchor","selector":"#supplierSelect"}
+{"type":"js-handler","event":"submit","selector":"#addForm","handler":"handleSubmit"}
+{"type":"js-handler","event":"change","selector":"#supplierSelect","handler":"handleSupplierSelect"}
+{"type":"adapter-call","function":"addBook","args":["formData"]}
+{"type":"adapter-call","function":"validateSupplierSelection","args":["supplierId"]}

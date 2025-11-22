@@ -1,0 +1,61 @@
+{
+  "topicId": "SBD-F25-TP3",
+  "featureId": "F25",
+  "title": "Inline Bundle Feedback and Recovery",
+  "area": "Admin / Available Books",
+  "goal": "Provide inline success/failure feedback, clear or resume the composer, and keep the Available Books grid in sync after saves.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "RED",
+  "specs": [
+    {
+      "id": "SBD-F25-TP3-001",
+      "title": "SuccessToastViewLinkAndContext",
+      "given": "A save attempt resolves successfully from the inline composer.",
+      "when": "saveBundle and linkBooks complete.",
+      "then": "toastSuccess runs, the View bundle link exposes the returned bundleId, and the current chips remain until the admin explicitly resets or navigates."
+    },
+    {
+      "id": "SBD-F25-TP3-002",
+      "title": "FailureKeepsContextAndEnablesRetry",
+      "given": "A save attempt rejects.",
+      "when": "The admin presses Save bundle.",
+      "then": "toastError fires, aria-busy clears, Save re-enables, and the inline composer retains the current selection for retry."
+    },
+    {
+      "id": "SBD-F25-TP3-003",
+      "title": "AnalyticsHooksOnOutcome",
+      "given": "Analytics tracking is available to the inline composer.",
+      "when": "A save first succeeds then a subsequent attempt fails.",
+      "then": "bundleCreatedInline logs bundleId/bookIds on success and bundleCreateFailedInline logs the error detail on failure."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/inlineBundleComposerHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F25-TP3-001_SuccessToastAndViewLinkHoldContext.spec.js",
+    "/tests/spec/admin/SBD-F25-TP3-002_FailureKeepsComposerReadyToRetry.spec.js",
+    "/tests/spec/admin/SBD-F25-TP3-003_AnalyticsHooksFireForSaveOutcome.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F25-TP3_red.txt",
+    "green": "codex_output/reports/SBD-F25-TP3_green.txt"
+  },
+  "changedFiles": [
+    "tests/fixtures/inlineBundleComposerHarness.js",
+    "tests/spec/admin/SBD-F25-TP3-001_SuccessToastAndViewLinkHoldContext.spec.js",
+    "tests/spec/admin/SBD-F25-TP3-002_FailureKeepsComposerReadyToRetry.spec.js",
+    "tests/spec/admin/SBD-F25-TP3-003_AnalyticsHooksFireForSaveOutcome.spec.js",
+    "codex_output/specs/SBD-F25-TP3.json",
+    "codex_output/reports/SBD-F25-TP3_red.txt"
+  ],
+  "changeNotes": [
+    "Outlined feedback/recovery specs for inline bundle saves: success toast + view link, failure retry readiness, and analytics hooks for both outcomes.",
+    "Added RED Jest specs against the composer harness to assert toast/link/error/analytics behavior for success and failure paths."
+  ],
+  "validation": {
+    "status": "RED",
+    "command": "npm test -- --watchAll=false SBD-F25-TP3",
+    "report": "codex_output/reports/SBD-F25-TP3_red.txt"
+  }
+}

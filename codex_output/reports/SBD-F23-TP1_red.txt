@@ -1,0 +1,787 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F23-TP1
+
+(node:38410) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/SBD-F23-TP1-005_ClosePreservesSelection.spec.js
+  SPEC SBD-F23-TP1-005: Closing drawer preserves selected books
+    ✕ Clicking the close button hides the drawer without clearing selected book chips (79 ms)
+
+  ● SPEC SBD-F23-TP1-005: Closing drawer preserves selected books › Clicking the close button hides the drawer without clearing selected book chips
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "Keep Bundle Selection"
+    Received string:    ""
+
+      37 |
+      38 |     expect(composer?.hasAttribute('hidden')).toBe(true);
+    > 39 |     expect(selectionList?.textContent || '').toContain('Keep Bundle Selection');
+         |                                              ^
+      40 |   });
+      41 | });
+      42 |
+
+      at Object.<anonymous> (tests/spec/admin/SBD-F23-TP1-005_ClosePreservesSelection.spec.js:39:46)
+
+FAIL tests/spec/admin/SBD-F23-TP1-004_CloseReturnsFocus.spec.js
+  SPEC SBD-F23-TP1-004: Closing composer restores focus to trigger
+    ✕ Close button collapses the drawer and returns focus to the originating Add to bundle button (1089 ms)
+
+  ● SPEC SBD-F23-TP1-004: Closing composer restores focus to trigger › Close button collapses the drawer and returns focus to the originating Add to bundle button
+
+    expect(received).toBe(expected) // Object.is equality
+
+    - Expected  - 12
+    + Received  +  5
+
+    - <button
+    -   aria-controls="inlineBundleComposer"
+    -   aria-expanded="false"
+    -   aria-pressed="false"
+    -   class="btn btn-secondary"
+    -   data-action="addToBundle"
+    -   data-test="bookAddToBundle"
+    -   type="button"
+    + <h3
+    +   id="inlineBundleHeading"
+    +   tabindex="-1"
+      >
+    -   
+    -         Add to bundle
+    -       
+    - </button>
+    +   Bundle in progress
+    + </h3>
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [0m
+        [0m
+        [36m<details[39m
+          [33mid[39m=[32m"availableBooksPanel"[39m
+          [33mopen[39m=[32m""[39m
+        [36m>[39m
+          [0m
+          [0m
+          [36m<summary>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"available-summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<strong>[39m
+                [0mAvailable[0m
+              [36m</strong>[39m
+              [0m
+              [0m
+              [36m<label[39m
+                [33mclass[39m=[32m"sr-only"[39m
+                [33mfor[39m=[32m"availableSearchInput"[39m
+                [33mid[39m=[32m"availableSearchLabel"[39m
+              [36m>[39m
+                [0m
+                Search available books
+              [0m
+              [36m</label>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33maria-labelledby[39m=[32m"availableSearchLabel"[39m
+                [33mid[39m=[32m"availableSearchInput"[39m
+                [33mplaceholder[39m=[32m"Search title or author"[39m
+                [33mtype[39m=[32m"search"[39m
+              [36m/>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</summary>[39m
+          [0m
+          [0m
+          [36m<p[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"sr-only"[39m
+            [33mid[39m=[32m"availableSearchStatus"[39m
+          [36m/>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33maria-busy[39m=[32m"false"[39m
+            [33mclass[39m=[32m"inventory-pagination pagination-shell"[39m
+            [33mdata-available-pagination[39m=[32m""[39m
+            [33mdata-loading[39m=[32m"false"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__summary pagination-shell__summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<p[39m
+                [33maria-live[39m=[32m"polite"[39m
+                [33mid[39m=[32m"availablePaginationSummary"[39m
+              [36m>[39m
+                [0mItems 1–1 of 1 available books[0m
+              [36m</p>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__actions inventory-pagination__controls pagination-shell__actions"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"pagination-size pagination-shell__size"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"pagination-size__label"[39m
+                [36m>[39m
+                  [0mRows per page[0m
+                [36m</span>[39m
+                [0m
+                [0m
+                [36m<label[39m
+                  [33mclass[39m=[32m"sr-only"[39m
+                  [33mfor[39m=[32m"availablePageSize"[39m
+                [36m>[39m
+                  [0mItems per page[0m
+                [36m</label>[39m
+                [0m
+                [0m
+                [36m<select[39m
+                  [33maria-label[39m=[32m"Items per page"[39m
+                  [33mclass[39m=[32m"pagination-size-select"[39m
+                  [33mid[39m=[32m"availablePageSize"[39m
+                [36m>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"10"[39m
+                  [36m>[39m
+                    [0m10[0m
+                  [36m</option>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mselected[39m=[32m""[39m
+                    [33mvalue[39m=[32m"20"[39m
+                  [36m>[39m
+                    [0m20[0m
+                  [36m</option>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"50"[39m
+                  [36m>[39m
+                    [0m50[0m
+                  [36m</option>[39m
+                  [0m
+                [0m
+                [36m</select>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"pagination-stepper pagination-shell__stepper"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<button[39m
+                  [33maria-controls[39m=[32m"availList"[39m
+                  [33maria-disabled[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Previous page"[39m
+                  [33mclass[39m=[32m"pagination-shell__prev"[39m
+                  [33mdata-pagination[39m=[32m"prev"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mid[39m=[32m"availablePaginationPrev"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m
+                  Prev
+                [0m
+                [36m</button>[39m
+                [0m
+                [0m
+                [0m
+                [0m
+                [36m<div[39m
+                  [33maria-label[39m=[32m"Page selection"[39m
+                  [33mclass[39m=[32m"inventory-pagination__pages pagination-shell__pages"[39m
+                  [33mdata-pagination-pages[39m=[32m""[39m
+                  [33mhidden[39m=[32m""[39m
+                  [33mrole[39m=[32m"group"[39m
+                [36m/>[39m
+                [36m<button[39m
+                  [33maria-controls[39m=[32m"availList"[39m
+                  [33maria-disabled[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Next page"[39m
+                  [33mclass[39m=[32m"pagination-shell__next"[39m
+                  [33mdata-pagination[39m=[32m"next"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mid[39m=[32m"availablePaginationNext"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m
+                  Next
+                [0m
+                [36m</button>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+            [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"pagination-shell__load-more"[39m
+                [33mdata-pagination[39m=[32m"load-more"[39m
+                [33mhidden[39m=[32m""[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</div>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33mid[39m=[32m"availList"[39m
+          [36m>[39m
+            [0m
+    [0m
+            [36m<article[39m
+              [33mclass[39m=[32m"row"[39m
+              [33mdata-id[39m=[32m"inline-bundle-focus"[39m
+            [36m>[39m
+              [0m
+      [0m
+              [36m<img[39m
+                [33malt[39m=[32m""[39m
+                [33msrc[39m=[32m"./assets/placeholder.webp"[39m
+              [36m/>[39m
+              [0m
+      [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"row-meta"[39m
+              [36m>[39m
+                [0m
+        [0m
+                [36m<strong>[39m
+                  [0mFocus Regression Book[0m
+                [36m</strong>[39m
+                [0m
+        [0m
+                [36m<div[39m
+                  [33mclass[39m=[32m"muted"[39m
+                [36m>[39m
+                  [0m
+          Spec Author · Fiction · Paperback · ₹111 · MRP ₹222
+        [0m
+                [36m</div>[39m
+                [0m
+        [0m
+                [36m<div[39m
+                  [33mclass[39m=[32m"purchase-price muted"[39m
+                [36m>[39m
+                  [0mPurchase price: Not set[0m
+                [36m</div>[39m
+                [0m
+      [0m
+              [36m</div>[39m
+              [0m
+      [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"row-actions"[39m
+              [36m>[39m
+                [0m
+        [0m
+                [36m<button[39m
+                  [33maria-controls[39m=[32m"inlineBundleComposer"[39m
+                  [33maria-expanded[39m=[32m"false"[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"btn btn-secondary"[39m
+                  [33mdata-action[39m=[32m"addToBundle"[39m
+                  [33mdata-test[39m=[32m"bookAddToBundle"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m
+            Add to bundle
+          [0m
+                [36m</button>[39m
+                [0m
+        [0m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn"[39m
+                  [33mdata-action[39m=[32m"feature"[39m
+                [36m>[39m
+                  [0mFeature[0m
+                [36m</button>[39m
+                [0m
+        [0m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-secondary"[39m
+                  [33mdata-action[39m=[32m"edit"[39m
+                [36m>[39m
+                  [0mEdit[0m
+                [36m</button>[39m
+                [0m
+        [0m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn"[39m
+                  [33mdata-action[39m=[32m"sold"[39m
+                [36m>[39m
+                  [0mMark sold[0m
+                [36m</button>[39m
+                [0m
+        [0m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-danger"[39m
+                  [33mdata-action[39m=[32m"delete"[39m
+                [36m>[39m
+                  [0mDelete[0m
+                [36m</button>[39m
+                [0m
+      [0m
+              [36m</div>[39m
+              [0m
+    [0m
+            [36m</article>[39m
+          [36m</div>[39m
+          [0m
+          [0m
+          [36m<section[39m
+            [33maria-labelledby[39m=[32m"inlineBundleHeading"[39m
+            [33mclass[39m=[32m"inline-bundle-composer"[39m
+            [33mhidden[39m=[32m""[39m
+            [33mid[39m=[32m"inlineBundleComposer"[39m
+            [33mrole[39m=[32m"region"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<header[39m
+              [33mclass[39m=[32m"inline-bundle-composer__header"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<h3[39m
+                [33mid[39m=[32m"inlineBundleHeading"[39m
+                [33mtabindex[39m=[32m"-1"[39m
+              [36m>[39m
+                [0mBundle in progress[0m
+              [36m</h3>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Close bundle composer"[39m
+                [33mid[39m=[32m"inlineBundleClose"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                ×
+              [0m
+              [36m</button>[39m
+              [0m
+            [0m
+            [36m</header>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inline-bundle-composer__body"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<p[39m
+                [33mid[39m=[32m"inlineBundleEmptyState"[39m
+              [36m>[39m
+                [0mAdd a book to start a bundle[0m
+              [36m</p>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mhidden[39m=[32m""[39m
+                [33mid[39m=[32m"inlineBundleSelectedBooks"[39m
+                [33mrole[39m=[32m"list"[39m
+              [36m/>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"inline-bundle-composer__form"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<label[39m
+                  [33mfor[39m=[32m"inlineBundleName"[39m
+                [36m>[39m
+                  [0mBundle name[0m
+                [36m</label>[39m
+                [0m
+                [0m
+                [36m<input[39m
+                  [33mid[39m=[32m"inlineBundleName"[39m
+                  [33mtype[39m=[32m"text"[39m
+                [36m/>[39m
+                [0m
+                [0m
+                [36m<label[39m
+                  [33mfor[39m=[32m"inlineBundlePrice"[39m
+                [36m>[39m
+                  [0mBundle price[0m
+                [36m</label>[39m
+                [0m
+                [0m
+                [36m<input[39m
+                  [33mid[39m=[32m"inlineBundlePrice"[39m
+                  [33mtype[39m=[32m"number"[39m
+                [36m/>[39m
+                [0m
+                [0m
+                [36m<label[39m
+                  [33mclass[39m=[32m"sr-only"[39m
+                  [33mfor[39m=[32m"inlineBundleExistingSelect"[39m
+                [36m>[39m
+                  [0m
+                  Continue existing bundle
+                [0m
+                [36m</label>[39m
+                [0m
+                [0m
+                [36m<select[39m
+                  [33mid[39m=[32m"inlineBundleExistingSelect"[39m
+                [36m/>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+              [0m
+              [36m<dl[39m
+                [33mclass[39m=[32m"inline-bundle-composer__totals"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<div>[39m
+                  [0m
+                  [0m
+                  [36m<dt>[39m
+                    [0mRecommended price[0m
+                  [36m</dt>[39m
+                  [0m
+                  [0m
+                  [36m<dd[39m
+                    [33mid[39m=[32m"inlineBundleRecommended"[39m
+                  [36m/>[39m
+                  [0m
+                [0m
+                [36m</div>[39m
+                [0m
+                [0m
+                [36m<div>[39m
+                  [0m
+                  [0m
+                  [36m<dt>[39m
+                    [0mTotal sale price[0m
+                  [36m</dt>[39m
+                  [0m
+                  [0m
+                  [36m<dd[39m
+                    [33mid[39m=[32m"inlineBundleTotal"[39m
+                  [36m/>[39m
+                  [0m
+                [0m
+                [36m</div>[39m
+                [0m
+              [0m
+              [36m</dl>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+            [0m
+            [36m<footer[39m
+              [33mclass[39m=[32m"inline-bundle-composer__actions"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33mid[39m=[32m"inlineBundleReset"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mClear bundle[0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33mdisabled[39m=[32m""[39m
+                [33mid[39m=[32m"inlineBundleSave"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mSave bundle[0m
+              [36m</button>[39m
+              [0m
+            [0m
+            [36m</footer>[39m
+            [0m
+          [0m
+          [36m</section>[39m
+          [0m
+        [0m
+        [36m</details>[39m
+        [0m
+        [0m
+        [36m<details[39m
+          [33mid[39m=[32m"soldBooksPanel"[39m
+        [36m>[39m
+          [0m
+          [0m
+          [36m<summary>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"sold-summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<strong>[39m
+                [0mSold[0m
+              [36m</strong>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</summary>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33maria-busy[39m=[32m"false"[39m
+            [33mclass[39m=[32m"inventory-pagination pagination-shell"[39m
+            [33mdata-loading[39m=[32m"false"[39m
+            [33mdata-sold-pagination[39m=[32m""[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__summary pagination-shell__summary"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<p[39m
+                [33maria-live[39m=[32m"polite"[39m
+                [33mid[39m=[32m"soldPaginationSummary"[39m
+              [36m>[39m
+                [0mItems 0–0 of 0 - Sold[0m
+              [36m</p>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"inventory-pagination__actions inventory-pagination__controls pagination-shell__actions"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"pagination-size pagination-shell__size"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"pagination-size__label"[39m
+                [36m>[39m
+                  [0mRows per page[0m
+                [36m</span>[39m
+                [0m
+                [0m
+                [36m<label[39m
+                  [33mclass[39m=[32m"sr-only"[39m
+                  [33mfor[39m=[32m"soldPageSize"[39m
+                [36m>[39m
+                  [0mItems per page[0m
+                [36m</label>[39m
+                [0m
+                [0m
+                [36m<select[39m
+                  [33maria-label[39m=[32m"Items per page"[39m
+                  [33mclass[39m=[32m"pagination-size-select"[39m
+                  [33mid[39m=[32m"soldPageSize"[39m
+                [36m>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"10"[39m
+                  [36m>[39m
+                    [0m10[0m
+                  [36m</option>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mselected[39m=[32m""[39m
+                    [33mvalue[39m=[32m"20"[39m
+                  [36m>[39m
+                    [0m20[0m
+                  [36m</option>[39m
+                  [0m
+                  [0m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"50"[39m
+                  [36m>[39m
+                    [0m50[0m
+                  [36m</option>[39m
+                  [0m
+                [0m
+                [36m</select>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"pagination-stepper pagination-shell__stepper"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<button[39m
+                  [33maria-controls[39m=[32m"soldList"[39m
+                  [33maria-disabled[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Previous page"[39m
+                  [33mclass[39m=[32m"pagination-shell__prev"[39m
+                  [33mdata-pagination[39m=[32m"prev"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mid[39m=[32m"soldPaginationPrev"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m
+                  Prev
+                [0m
+                [36m</button>[39m
+                [0m
+                [0m
+                [0m
+                [0m
+                [36m<div[39m
+                  [33maria-label[39m=[32m"Page selection"[39m
+                  [33mclass[39m=[32m"inventory-pagination__pages pagination-shell__pages"[39m
+                  [33mdata-pagination-pages[39m=[32m""[39m
+                  [33mhidden[39m=[32m""[39m
+                  [33mrole[39m=[32m"group"[39m
+                [36m/>[39m
+                [36m<button[39m
+                  [33maria-controls[39m=[32m"soldList"[39m
+                  [33maria-disabled[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Next page"[39m
+                  [33mclass[39m=[32m"pagination-shell__next"[39m
+                  [33mdata-pagination[39m=[32m"next"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mid[39m=[32m"soldPaginationNext"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m
+                  Next
+                [0m
+                [36m</button>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+            [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"pagination-shell__load-more"[39m
+                [33mdata-pagination[39m=[32m"load-more"[39m
+                [33mhidden[39m=[32m""[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</div>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33mid[39m=[32m"soldList"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"muted"[39m
+            [36m>[39m
+              [0mNo sold books.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [0m
+        [0m
+        [36m</details>[39m
+        [0m
+      [0m
+      [36m</body>[39m
+    [36m</html>[39m
+
+      35 |
+      36 |     await waitFor(() => {
+    > 37 |       expect(document.activeElement).toBe(trigger);
+         |                                      ^
+      38 |     });
+      39 |   });
+      40 | });
+
+      at tests/spec/admin/SBD-F23-TP1-004_CloseReturnsFocus.spec.js:37:38
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+PASS tests/spec/admin/SBD-F23-TP1-003_AddToBundleOpensComposer.spec.js
+  SPEC SBD-F23-TP1-003: Add to bundle trigger opens inline composer
+    ✓ first selection opens the drawer, focuses its heading, and seeds the selected book chip (73 ms)
+
+PASS tests/spec/admin/SBD-F23-TP1-002_AvailableRowAddToBundleAction.spec.js
+  SPEC SBD-F23-TP1-002: Available rows expose Add to bundle action
+    ✓ rendered Available rows render Add to bundle buttons that target the inline composer (23 ms)
+
+PASS tests/spec/admin/SBD-F23-TP1-001_InlineBundlePanelMarkup.spec.js
+  SPEC SBD-F23-TP1-001: Available panel exposes inline bundle composer shell
+    ✓ admin.html ships the inline composer container with stable selectors and empty state (25 ms)
+
+-------------------------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                                                                                                                                
+-------------------------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                                  |    7.11 |     5.77 |    7.41 |    7.52 |                                                                                                                                                                                                                                                                                                                  
+ scripts/admin                             |    5.58 |     4.75 |    5.79 |     5.9 |                                                                                                                                                                                                                                                                                                                  
+  auth.js                                  |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                                                                                                                                                                            
+  autoPrice.js                             |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                                                                                                                                                                             
+  availablePagination.js                   |       0 |        0 |       0 |       0 | 5-353                                                                                                                                                                                                                                                                                                            
+  bundleList.js                            |       0 |        0 |       0 |       0 | 2-510                                                                                                                                                                                                                                                                                                            
+  bundleStatus.js                          |       0 |        0 |       0 |       0 | 7-110                                                                                                                                                                                                                                                                                                            
+  bundles.js                               |       0 |        0 |       0 |       0 | 3-494                                                                                                                                                                                                                                                                                                            
+  currency.js                              |       0 |        0 |       0 |       0 | 6-31                                                                                                                                                                                                                                                                                                             
+  customerLookup.js                        |       0 |        0 |       0 |       0 | 3-392                                                                                                                                                                                                                                                                                                            
+  customers.js                             |       0 |        0 |       0 |       0 | 3-520                                                                                                                                                                                                                                                                                                            
+  editor.js                                |       0 |        0 |       0 |       0 | 27-411                                                                                                                                                                                                                                                                                                           
+  inventory.js                             |   39.03 |    30.18 |   46.39 |   41.43 | 34,39-50,63,70,147-194,203,261,266-285,292-456,493,499-506,513,520,552,561,573-580,596-597,695,716-720,757-758,763,768-858,868-878,885-886,924,936-946,953-1017,1024-1026,1125,1134,1138-1141,1152,1173-1174,1181-1190,1194-1203,1214-1284,1307-1314,1320-1322,1330-1332,1335-1337,1341-1351,1355-1358,1370-1373 
+  lookup.js                                |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                                                                                                                                                                           
+  main.js                                  |       0 |        0 |       0 |       0 | 40-2318                                                                                                                                                                                                                                                                                                          
+  requests.js                              |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                                                                                                                                                                             
+  salesEntryLauncher.js                    |       0 |        0 |       0 |       0 | 2-68                                                                                                                                                                                                                                                                                                             
+  salesHeader.js                           |       0 |        0 |       0 |       0 | 3-505                                                                                                                                                                                                                                                                                                            
+  salesLineItems.js                        |       0 |        0 |       0 |       0 | 3-914                                                                                                                                                                                                                                                                                                            
+  salesPersist.js                          |       0 |        0 |       0 |       0 | 1-170                                                                                                                                                                                                                                                                                                            
+  salesTitleAutocomplete.js                |       0 |        0 |       0 |       0 | 9-225                                                                                                                                                                                                                                                                                                            
+  suppliers.js                             |       0 |        0 |       0 |       0 | 13-319                                                                                                                                                                                                                                                                                                           
+ src/ui/patterns/inline-bundle-panel-shell |   79.43 |    54.02 |      70 |   83.16 |                                                                                                                                                                                                                                                                                                                  
+  index.js                                 |   79.43 |    54.02 |      70 |   83.16 | 24-28,53,60,63,106,112,118-119,141,155,170-173                                                                                                                                                                                                                                                                   
+-------------------------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 2 failed, 3 passed, 5 total
+Tests:       2 failed, 3 passed, 5 total
+Snapshots:   0 total
+Time:        3.418 s
+Ran all test suites matching /SBD-F23-TP1/i.

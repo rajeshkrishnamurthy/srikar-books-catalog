@@ -1,0 +1,14 @@
+{"type":"meta","topicId":"F09-TP3","title":"Header CTA and Draft Flow Alignment"}
+{"type":"given","text":"The sale header form is visible."}
+{"type":"when","text":"The admin selects customer/date, presses the CTA, or picks a book."}
+{"type":"then","text":"The primary CTA reads “Add books” beside a disabled Persist sale button plus helper text, unlocks only after both fields validate, quietly resets the form after success, and keeps #saleLineDraftLabel as “Add another book” while focus hops forward/back as lines are composed."}
+{"type":"ui-anchor","selector":"#saleHeaderForm"}
+{"type":"ui-anchor","selector":"#saleHeaderSaleDate"}
+{"type":"ui-anchor","selector":"#saleHeaderContinue"}
+{"type":"ui-anchor","selector":"#salePersistBtn"}
+{"type":"ui-anchor","selector":"#saleLineTotals"}
+{"type":"ui-anchor","selector":"#saleLineDraftLabel"}
+{"type":"js-handler","event":"submit","selector":"#saleHeaderForm","handler":"handleSaleHeaderSubmit"}
+{"type":"js-handler","event":"click","selector":"#salePersistBtn","handler":"persistSale"}
+{"type":"adapter-call","function":"startSaleDraft","args":["customerId","saleDate"]}
+{"type":"adapter-call","function":"saveSale","args":["saleHeader","lineItems"]}

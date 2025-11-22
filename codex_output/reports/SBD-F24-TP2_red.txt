@@ -1,0 +1,16 @@
+> npm test -- --watchAll=false SBD-F24
+
+FAIL tests/unit/inventory/SBD-F24-TP2-004_RecommendationInvalidatedOnResume.test.js
+  SPEC SBD-F24-TP2-004: Resuming a bundle cancels stale recommendation requests
+    ✕ setExistingBundle clears any pending recommendation timer/request before emitting state (8 ms)
+
+  ● SPEC SBD-F24-TP2-004: Resuming a bundle cancels stale recommendation requests › setExistingBundle clears any pending recommendation timer/request before emitting state
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: {"bookIds": ["book-restored"], "currency": "INR"}
+
+      at Object.<anonymous> (tests/unit/inventory/SBD-F24-TP2-004_RecommendationInvalidatedOnResume.test.js:45:51)

@@ -1,0 +1,72 @@
+{
+  "topicId": "F18-TP5",
+  "featureId": "F18",
+  "title": "Pagination Controller Abstraction",
+  "area": "Cross-Cutting / Pagination",
+  "goal": "Wrap shared pagination helpers in a controller that hides cursor math, URL parsing, and busy-state wiring from every screen.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "F18-TP5-001",
+      "title": "ParseLocationAdapterBootstrapsState",
+      "given": "The controller is configured with adapters.parseLocation so it can restore paging from window.location.",
+      "when": "syncFromLocation runs without an explicit search string (e.g., on init).",
+      "then": "It invokes the adapter, uses the returned page/pageSize/cursors/filters to seed state, and only then calls the dataSource so screens automatically restore bookmarked slices.",
+      "test": "/tests/unit/pagination/F18-TP5_paginationController.test.js"
+    },
+    {
+      "id": "F18-TP5-002",
+      "title": "SyncLocationAdapterReceivesStateSnapshots",
+      "given": "The controller is provided adapters.syncLocation to keep hashes/query params aligned with pagination state.",
+      "when": "State changes (initial fetch, goNext/goPrev, setFilters, setPageSize).",
+      "then": "The controller calls adapters.syncLocation with the derived params (page, pageSize, offset, filters) so callers do not wire window.location updates manually.",
+      "test": "/tests/unit/pagination/F18-TP5_paginationController.test.js"
+    },
+    {
+      "id": "F18-TP5-003",
+      "title": "PageSizeOptionsClampRequests",
+      "given": "A screen supplies pageSizeOptions like [10, 20, 50] and a user enters an unsupported size such as 13 via the shared select.",
+      "when": "setPageSize runs on the controller.",
+      "then": "It clamps the size to the nearest allowed option, resets paging to page 1, drops stale cursors, and makes a new dataSource request with that safe value.",
+      "test": "/tests/unit/pagination/F18-TP5_paginationController.test.js"
+    },
+    {
+      "id": "F18-TP5-004",
+      "title": "LastWriteWinsIgnoresStaleResponses",
+      "given": "Multiple page requests can be in flight when admins click quickly or filters change mid-load.",
+      "when": "An older request resolves after a newer one.",
+      "then": "The controller ignores the stale payload so getUiState() and onStateChange observers only reflect the most recent request and disabled states do not flicker backwards.",
+      "test": "/tests/unit/pagination/F18-TP5_paginationController.test.js"
+    },
+    {
+      "id": "F18-TP5-005",
+      "title": "FiltersResetCursorsAndBusyState",
+      "given": "An admin changes filters or search terms while on a later page.",
+      "when": "setFilters executes.",
+      "then": "The controller clears stored cursors, resets to page 1, exposes isLoading true until the fresh dataSource result arrives, and only then re-enables Next/Prev so stale offsets never leak into the UI.",
+      "test": "/tests/unit/pagination/F18-TP5_paginationController.test.js"
+    }
+  ],
+  "fixtures": [],
+  "tests": [
+    "/tests/unit/pagination/F18-TP5_paginationController.test.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/F18-TP5_red.txt",
+    "green": "codex_output/reports/F18-TP5_green.txt"
+  },
+  "changedFiles": [
+    "scripts/helpers/data.js",
+    "scripts/admin/availablePagination.js"
+  ],
+  "changeNotes": [
+    "createPaginationController gained adapter plumbing (parseLocation/syncLocation), pageSizeOptions clamping, cursor resets on filters/page jumps, and last-write-wins protection so stale responses no longer overwrite UI state.",
+    "Firestore-backed data sources now read cursorAfter/cursorBefore so controller requests align with the updated pagination contract."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false",
+    "report": "codex_output/reports/F18-TP5_green.txt"
+  }
+}

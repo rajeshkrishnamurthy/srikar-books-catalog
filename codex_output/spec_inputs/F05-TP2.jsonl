@@ -1,0 +1,14 @@
+{"type":"meta","topicId":"F05-TP2","title":"Edit or Remove Supplier Records"}
+{"type":"given","text":"A supplier entry already exists."}
+{"type":"when","text":"An admin edits the name/location or requests deletion."}
+{"type":"then","text":"Updates save with audit safety; deletions are blocked if books still reference the supplier."}
+{"type":"ui-anchor","selector":"#supplierForm"}
+{"type":"ui-anchor","selector":"#supplierNameInput"}
+{"type":"ui-anchor","selector":"#supplierLocationInput"}
+{"type":"ui-anchor","selector":"#supplierList"}
+{"type":"js-handler","event":"submit","selector":"#supplierForm","handler":"handleSupplierSave"}
+{"type":"js-handler","event":"click","selector":"#supplierList [data-action=\"supplierEdit\"]","handler":"openSupplierEdit"}
+{"type":"js-handler","event":"click","selector":"#supplierList [data-action=\"supplierDelete\"]","handler":"confirmSupplierDelete"}
+{"type":"adapter-call","function":"saveSupplier","args":["supplierData"]}
+{"type":"adapter-call","function":"updateSupplier","args":["supplierId","patch"]}
+{"type":"adapter-call","function":"deleteSupplier","args":["supplierId"]}

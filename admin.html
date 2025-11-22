@@ -609,17 +609,163 @@
                       autocomplete="off"
                     />
                   </div>
+              </div>
+              <p
+                id="availableSearchStatus"
+                class="sr-only"
+                aria-live="polite"
+              ></p>
+            </div>
+              <div
+                class="inventory-pagination pagination-shell"
+                data-available-pagination
+                aria-busy="false"
+              >
+                <div class="inventory-pagination__summary pagination-shell__summary">
+                  <p
+                    id="availablePaginationSummary"
+                    class="muted"
+                    aria-live="polite"
+                  >
+                    Items 0–0 of 0 available books
+                  </p>
                 </div>
-                <p
-                  id="availableSearchStatus"
-                  class="sr-only"
-                  aria-live="polite"
-                ></p>
+                <div class="inventory-pagination__actions inventory-pagination__controls pagination-shell__actions">
+                  <div class="pagination-size pagination-shell__size">
+                    <span class="pagination-size__label">Rows per page</span>
+                    <label for="availablePageSize" class="sr-only">Items per page</label>
+                    <select
+                      id="availablePageSize"
+                      class="md-input pagination-size-select"
+                      style="max-width:5ch"
+                      aria-label="Items per page"
+                    >
+                      <option value="10">10</option>
+                      <option value="20" selected>20</option>
+                      <option value="50">50</option>
+                    </select>
+                  </div>
+                  <div class="pagination-stepper pagination-shell__stepper">
+                    <button
+                      type="button"
+                      id="availablePaginationPrev"
+                      class="btn btn-secondary pagination-shell__prev"
+                      data-pagination="prev"
+                      aria-controls="availList"
+                      aria-label="Previous page"
+                    >
+                      <span aria-hidden="true">‹</span>
+                      <span class="pagination-control__label">Prev</span>
+                    </button>
+                    <div
+                      class="inventory-pagination__pages pagination-shell__pages"
+                      data-pagination-pages
+                      role="group"
+                      aria-label="Page selection"
+                      hidden
+                    ></div>
+                    <button
+                      type="button"
+                      id="availablePaginationNext"
+                      class="btn pagination-shell__next"
+                      data-pagination="next"
+                      aria-controls="availList"
+                      aria-label="Next page"
+                    >
+                      <span class="pagination-control__label">Next</span>
+                      <span aria-hidden="true">›</span>
+                    </button>
+                  </div>
+                </div>
               </div>
               <div id="availList" class="admin-list inventory-list"></div>
-            </div>
+              <section
+                id="inlineBundleComposer"
+                class="inline-bundle-composer"
+                role="region"
+                aria-labelledby="inlineBundleHeading"
+                hidden
+              >
+                <header class="inline-bundle-composer__header">
+                  <h3 id="inlineBundleHeading" tabindex="-1">Bundle in progress</h3>
+                  <button
+                    id="inlineBundleClose"
+                    type="button"
+                    class="inline-bundle-composer__close"
+                    aria-label="Close bundle composer"
+                  >
+                    ×
+                  </button>
+                </header>
+                <p id="inlineBundleEmptyState" class="inline-bundle-composer__empty">
+                  Add a book to start a bundle
+                </p>
+                <div
+                  id="inlineBundleSelectedBooks"
+                  class="inline-bundle-composer__list"
+                  role="list"
+                  hidden
+                ></div>
+                <div class="inline-bundle-composer__form">
+                  <div class="inline-bundle-field">
+                    <label for="inlineBundleName">Bundle name <span aria-hidden="true">*</span></label>
+                    <input
+                      id="inlineBundleName"
+                      type="text"
+                      class="md-input"
+                      required
+                      aria-required="true"
+                      aria-describedby="inlineBundleHelper"
+                    />
+                  </div>
+                  <div class="inline-bundle-field">
+                    <label for="inlineBundlePrice">Bundle price <span aria-hidden="true">*</span></label>
+                    <input
+                      id="inlineBundlePrice"
+                      type="number"
+                      class="md-input"
+                      required
+                      aria-required="true"
+                      aria-describedby="inlineBundleHelper"
+                    />
+                  </div>
+                  <label for="inlineBundleExistingSelect" class="sr-only">
+                    Continue existing bundle
+                  </label>
+                  <select
+                    id="inlineBundleExistingSelect"
+                    class="md-input"
+                    hidden
+                    aria-label="Continue existing bundle"
+                  ></select>
+                </div>
+                <dl class="inline-bundle-composer__totals">
+                  <div>
+                    <dt>Recommended price</dt>
+                    <dd id="inlineBundleRecommended" aria-live="polite">—</dd>
+                  </div>
+                  <div>
+                    <dt>Total sale price</dt>
+                    <dd id="inlineBundleTotal" aria-live="polite">—</dd>
+                  </div>
+                  <div>
+                    <dt>Total MRP</dt>
+                    <dd id="inlineBundleMrp" aria-live="polite">—</dd>
+                  </div>
+                </dl>
+                <p id="inlineBundleHelper" class="inline-bundle-composer__helper" aria-hidden="true"></p>
+                <div class="inline-bundle-composer__actions">
+                  <button id="inlineBundleReset" type="button" class="btn btn-secondary">
+                    Clear bundle
+                  </button>
+                  <button id="inlineBundleSave" type="button" class="btn" disabled>
+                    Save bundle
+                  </button>
+                </div>
+              </section>
           </div>
-        </details>
+        </div>
+      </details>
 
         <details class="panel" id="soldBooksPanel">
           <summary><strong>Sold</strong></summary>
@@ -628,6 +774,69 @@
               <p class="muted inventory-card__hint">
                 Recently sold entries stay here until reconciled with bookkeeping.
               </p>
+              <div
+                class="inventory-pagination pagination-shell"
+                data-sold-pagination
+                aria-busy="false"
+              >
+                <div class="inventory-pagination__summary pagination-shell__summary">
+                  <p
+                    id="soldPaginationSummary"
+                    class="muted"
+                    aria-live="polite"
+                    data-pagination-summary
+                  >
+                    Items 0–0 of 0 - Sold
+                  </p>
+                </div>
+                <div class="inventory-pagination__actions inventory-pagination__controls pagination-shell__actions">
+                  <div class="pagination-size pagination-shell__size">
+                    <span class="pagination-size__label">Rows per page</span>
+                    <label for="soldPageSize" class="sr-only">Items per page</label>
+                    <select
+                      id="soldPageSize"
+                      class="md-input pagination-size-select"
+                      style="max-width:5ch"
+                      aria-label="Items per page"
+                    >
+                      <option value="10">10</option>
+                      <option value="20" selected>20</option>
+                      <option value="50">50</option>
+                    </select>
+                  </div>
+                  <div class="pagination-stepper pagination-shell__stepper">
+                    <button
+                      type="button"
+                      id="soldPaginationPrev"
+                      class="btn btn-secondary pagination-shell__prev"
+                      data-pagination="prev"
+                      aria-controls="soldList"
+                      aria-label="Previous page"
+                    >
+                      <span aria-hidden="true">‹</span>
+                      <span class="pagination-control__label">Prev</span>
+                    </button>
+                    <div
+                      class="inventory-pagination__pages pagination-shell__pages"
+                      data-pagination-pages
+                      role="group"
+                      aria-label="Page selection"
+                      hidden
+                    ></div>
+                    <button
+                      type="button"
+                      id="soldPaginationNext"
+                      class="btn pagination-shell__next"
+                      data-pagination="next"
+                      aria-controls="soldList"
+                      aria-label="Next page"
+                    >
+                      <span class="pagination-control__label">Next</span>
+                      <span aria-hidden="true">›</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
               <div id="soldList" class="admin-list inventory-list"></div>
             </div>
           </div>
@@ -1016,6 +1225,61 @@
                 </div>
               </div>
               <div class="bundle-results-card">
+                <div
+                  id="bundlePagination"
+                  class="pagination-shell"
+                  aria-busy="false"
+                >
+                  <div class="pagination-shell__summary">
+                    <p id="bundlePaginationSummary" aria-live="polite">
+                      Bundles 0–0 of 0
+                    </p>
+                  </div>
+                  <div class="pagination-shell__actions">
+                    <div class="pagination-shell__size">
+                      <span class="pagination-size__label">Rows per page</span>
+                      <label class="sr-only" for="bundlePaginationSize"
+                        >Bundles per page</label
+                      >
+                      <select
+                        id="bundlePaginationSize"
+                        class="md-input pagination-size-select"
+                        style="max-width:5ch"
+                      >
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                      </select>
+                    </div>
+                    <div class="pagination-shell__stepper">
+                      <button
+                        type="button"
+                        id="bundlePaginationPrev"
+                        class="btn btn-secondary pagination-shell__prev"
+                        aria-label="Previous bundles"
+                      >
+                        <span aria-hidden="true">‹</span>
+                        <span class="pagination-control__label">Prev</span>
+                      </button>
+                      <div
+                        id="bundlePaginationPages"
+                        class="pagination-shell__pages"
+                        role="group"
+                        aria-label="Page selection"
+                        hidden
+                      ></div>
+                      <button
+                        type="button"
+                        id="bundlePaginationNext"
+                        class="btn pagination-shell__next"
+                        aria-label="Next bundles"
+                      >
+                        <span class="pagination-control__label">Next</span>
+                        <span aria-hidden="true">›</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
                 <div id="bundleResults" class="bundle-results"></div>
                 <p id="bundleEmpty" class="md-helper bundle-results-empty" hidden>No bundles found.</p>
               </div>

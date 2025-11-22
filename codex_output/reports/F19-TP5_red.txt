@@ -1,0 +1,2 @@
+New numeric pager coverage fails on the final partial page:
+- F19-TP5-004: With 21 available books and the per-page dropdown set to 10, clicking page 3 repeats the last full slice (10 rows) instead of showing only the final 1 row and the summary/hash for Items 21–21.
