@@ -1976,6 +1976,31 @@ dialog::backdrop {
   word-break: break-word;
 }
 
+#toastStack .toast[data-variant='error'] {
+  background: #fdecea;
+  color: #b71c1c;
+}
+
+#toastStack .toast[data-variant='error'] .toast__icon {
+  background: #f5c6cb;
+  color: #b71c1c;
+}
+
+#toastStack .toast[data-variant='error'] button[data-slot='dismiss'] {
+  background: rgba(183, 28, 28, 0.08);
+  color: #b71c1c;
+}
+
+#toastStack .toast[data-variant='error'] button[data-slot='dismiss']:hover {
+  background: rgba(183, 28, 28, 0.12);
+  color: #b71c1c;
+}
+
+#toastStack .toast[data-variant='error'] button[data-slot='dismiss']:focus-visible {
+  outline: 2px solid #b71c1c;
+  outline-offset: 2px;
+}
+
 #toastStack button[data-slot='dismiss'] {
   border: none;
   background: rgba(27, 94, 32, 0.08);

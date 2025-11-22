@@ -111,6 +111,11 @@ function getToastDispatcher() {
     toastEl.dataset.variant = variant;
     toastEl.setAttribute('role', toastEl.getAttribute('role') || 'status');
 
+    const iconNode = toastEl.querySelector('[data-slot="icon"], .toast__icon');
+    if (iconNode) {
+      iconNode.textContent = variant === 'error' ? '!' : '✔';
+    }
+
     const messageNode =
       toastEl.querySelector('[data-slot="message"]') || toastEl;
     messageNode.textContent = message;
@@ -206,6 +211,16 @@ function emitInlineBundleSaveToast({ bundleName, bundleId } = {}) {
   };
   try {
     dispatcher(payload);
+  } catch (error) {
+    console.error('showToast error:', error);
+  }
+}
+
+function emitInlineBundleErrorToast({ message = 'Bundle not saved. Check required fields.' } = {}) {
+  const dispatcher = getToastDispatcher();
+  if (!dispatcher) return;
+  try {
+    dispatcher({ message, variant: 'error' });
   } catch (error) {
     console.error('showToast error:', error);
   }
@@ -642,6 +657,16 @@ export function initInventory({
         runPromise
           .then((result) => {
             const state = inlineBundleController?.getState?.() || {};
+            const validationErrors = state.validationErrors || {};
+            const hasValidationErrors = Object.keys(validationErrors).length > 0;
+            if (hasValidationErrors) {
+              const errorMessage =
+                validationErrors.bundleName ||
+                validationErrors.bundlePrice ||
+                'Bundle not saved. Add a name and price.';
+              emitInlineBundleErrorToast({ message: errorMessage });
+              return;
+            }
             emitInlineBundleSaveToast({
               bundleName: state.bundleName,
               bundleId: result?.bundleId || state.bundleId,
@@ -661,9 +686,13 @@ export function initInventory({
             }
             syncFloatingTriggerCount(0);
           })
-          .catch((error) => console.error('inline bundle save failed', error));
+          .catch((error) => {
+            emitInlineBundleErrorToast({ message: 'Unable to save bundle. Try again.' });
+            console.error('inline bundle save failed', error);
+          });
       }
     } catch (error) {
+      emitInlineBundleErrorToast({ message: 'Unable to save bundle. Try again.' });
       console.error('inline bundle save failed', error);
     }
   };
