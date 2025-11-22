@@ -1,0 +1,22 @@
+{"type":"meta","topicId":"SBD-F23-TP3","title":"Selected Books List and Reset"}
+{"type":"given","text":"At least one book was added to the inline composer."}
+{"type":"when","text":"The admin removes books or chooses Clear bundle."}
+{"type":"then","text":"The chips update with predictable focus return, empty-state copy comes back at zero books, and the panel closes unless pinned."}
+{"type":"reuse","patternId":"INLINE_BUNDLE_PANEL_SHELL"}
+{"type":"ui-anchor","selector":"#inlineBundleComposer"}
+{"type":"ui-anchor","selector":"#inlineBundleHeading"}
+{"type":"ui-anchor","selector":"[data-test=\"bookAddToBundle\"]"}
+{"type":"ui-anchor","selector":"#inlineBundleSelectedBooks"}
+{"type":"ui-anchor","selector":"#inlineBundleName"}
+{"type":"ui-anchor","selector":"#inlineBundlePrice"}
+{"type":"ui-anchor","selector":"#inlineBundleRecommended"}
+{"type":"ui-anchor","selector":"#inlineBundleTotal"}
+{"type":"ui-anchor","selector":"#inlineBundleSave"}
+{"type":"ui-anchor","selector":"#inlineBundleReset"}
+{"type":"js-handler","event":"click","selector":"[data-test=\"bookAddToBundle\"]","handler":"openInlineBundleComposer"}
+{"type":"js-handler","event":"click","selector":"#inlineBundleReset","handler":"resetInlineBundle"}
+{"type":"js-handler","event":"click","selector":"#inlineBundleSave","handler":"saveInlineBundleDraft"}
+{"type":"adapter-call","function":"createInlineBundleComposerController","args":[]}
+{"type":"adapter-call","function":"formatCurrency","args":["value","currency"]}
+{"type":"adapter-call","function":"announceInlineBundleChange","args":["message"]}
+{"type":"pattern","patternId":"INLINE_BUNDLE_PANEL_SHELL","requiredParams":["container","panelHeading","triggerSelector","bookList","bundleNameInput","bundlePriceInput","recommendedPrice","totalPrice","saveButton","resetButton"],"adapters":{"controller":"createInlineBundleComposerController","formatPrice":"formatCurrency","announce":"announceInlineBundleChange"},"testBehaviors":[]}

@@ -1,0 +1,14 @@
+{"type":"meta","topicId":"SBD-F20-TP3","title":"Sold Books Filter Reset & Cursor Safety"}
+{"type":"given","text":"Date/supplier/customer/search filters are active on Sold Books."}
+{"type":"when","text":"Any filter value is edited or cleared."}
+{"type":"then","text":"Stored cursors drop, page 1 loads with the new filters, totals recompute, and sharable URLs reflect the filtered slice."}
+{"type":"ui-anchor","selector":"#soldPagination"}
+{"type":"ui-anchor","selector":"#soldPaginationPrev"}
+{"type":"ui-anchor","selector":"#soldPaginationNext"}
+{"type":"ui-anchor","selector":"#soldPaginationSummary"}
+{"type":"ui-anchor","selector":"#soldPaginationSize"}
+{"type":"js-handler","event":"click","selector":"#soldPaginationPrev","handler":"goPrevSold"}
+{"type":"js-handler","event":"click","selector":"#soldPaginationNext","handler":"goNextSold"}
+{"type":"js-handler","event":"change","selector":"#soldPaginationSize","handler":"changeSoldPageSize"}
+{"type":"adapter-call","function":"fetchSoldBooksPage","args":["pageRequest"]}
+{"type":"adapter-call","function":"syncSoldPagingToLocation","args":["page","pageSize"]}

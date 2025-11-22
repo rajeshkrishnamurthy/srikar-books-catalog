@@ -1,0 +1,13 @@
+{"type":"meta","topicId":"F09-TP7","title":"Clear Lookup After Selection"}
+{"type":"given","text":"A customer has just been selected and confirmed."}
+{"type":"when","text":"The selection confirmation fires."}
+{"type":"then","text":"The autocomplete input clears, results collapse, focus advances (e.g., to sale date), and the selected customer remains locked until Change customer is used."}
+{"type":"ui-anchor","selector":"#saleCustomerLookupSearch"}
+{"type":"ui-anchor","selector":"#saleCustomerLookupList"}
+{"type":"ui-anchor","selector":"#saleHeaderCustomerSummary"}
+{"type":"js-handler","event":"input","selector":"#saleCustomerLookupSearch","handler":"handleCustomerLookupInput"}
+{"type":"js-handler","event":"click","selector":"#saleCustomerLookupList [data-action=\"selectCustomer\"]","handler":"selectSaleCustomer"}
+{"type":"js-handler","event":"select","selector":"#saleCustomerLookupSearch","handler":"clearCustomerLookup"}
+{"type":"adapter-call","function":"searchCustomers","args":["query"]}
+{"type":"adapter-call","function":"emitCustomerSelection","args":["customerId"]}
+{"type":"adapter-call","function":"clearLookupAfterSelection","args":[]}

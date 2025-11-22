@@ -1,0 +1,11 @@
+{"type":"meta","topicId":"F12-TP1","title":"Create Supplier-Scoped Bundles"}
+{"type":"given","text":"The Create Bundle panel is open and supplier master already has entries."}
+{"type":"when","text":"Admin selects a supplier (locking the picker), adds at least two unique books via the supplier-scoped autocomplete, and keeps the price within 1..total."}
+{"type":"then","text":"Submit persists a Draft bundle containing supplier metadata, ordered bookIds/books, total/recommended/bundle rupee fields, and createdBy data; validation blocks duplicates and out-of-range prices."}
+{"type":"ui-anchor","selector":"#bundleForm"}
+{"type":"ui-anchor","selector":"#bundleSupplierSelect"}
+{"type":"ui-anchor","selector":"#bundleBookInput"}
+{"type":"ui-anchor","selector":"#bundlePriceInput"}
+{"type":"ui-anchor","selector":"#bundleSubmitBtn"}
+{"type":"js-handler","event":"submit","selector":"#bundleForm","handler":"handleBundleSubmit"}
+{"type":"adapter-call","function":"saveBundleDraft","args":["bundleData"]}

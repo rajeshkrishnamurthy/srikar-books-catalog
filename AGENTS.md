@@ -1,536 +1,467 @@
-# AGENTS.md — Role Contracts (HTML + Vanilla JavaScript + CSS)
-
-This document defines stable role contracts and artifacts for a test‑driven workflow. It is designed for long‑term use in a plain HTML/Vanilla JavaScript/CSS codebase validated with Jest.
+# AGENTS.md 
 
 ---
 
-## 0) Scope and Operating Assumptions
+# 0) Scope and Operating Assumptions
 
 * **Stack:** HTML, ES Modules, CSS.
-* **Tests:** Jest; RED → GREEN discipline.
-* **Selectors as Contracts:** `id` and `[data-test]` are stable public interfaces for tests and tools.
-* **Accessibility:** Semantic HTML, keyboard support, ARIA where needed.
-* **Pattern Registry:** Central catalog of reusable UI/behavior modules (e.g., pagination, filter bar).
-* **No background work:** Each role completes within its own run.
+* **Tests:** Jest; strict RED → GREEN discipline.
+* **Selectors as Contracts:** `id` and `[data-test]` are stable public interfaces.
+* **Accessibility:** Semantic HTML, keyboard support, ARIA where necessary.
+* **Pattern Registry:** Central structured catalog of reusable UI/behavior modules.
+* **No humans in the workflow:** All role-to-role transitions are machine only.
+* **All inter-role handoffs use `.jsonl`.**
+* **All global human-facing artifacts use `.md`.**
+* **patterns.json** retained as the machine-friendly global registry.
 
 ---
 
-## 1) Repository Conventions
+# 1) Repository Conventions
 
 ```
 /src/
   ui/
     patterns/               # Reusable UI/behavior modules (by patternId)
   helpers/                  # Generic utilities (behavior‑preserving)
+
 /tests/
-  spec/                     # Behavior-level specs (Jest)
+  spec/                     # Behavior-level tests (Jest)
   unit/                     # Unit tests (Jest)
-  fixtures/                 # Static fixtures
+  fixtures/
+
 codex_output/
-  topics.json               # Topics + metadata
-  topics.md
-  patterns.json             # Pattern Registry (API/params/a11y/tests notes)
-  patterns.md
+  topics.md                 # Human-facing feature decomposition
+  patterns.md               # Human-facing Pattern Registry
+  patterns.json             # Machine-facing Pattern Registry (structured)
+
+  spec_inputs/              # From codex-spec → codex-tdd (.jsonl)
+    <TopicID>.jsonl
+
+  impl_inputs/              # From codex-tdd → codex-dev (.jsonl)
+    <TopicID>.jsonl
+
+  review/
+    <TopicID>_code_review.md
+    routing/<TopicID>.jsonl   # Machine-readable findings for routing
+
   specs/
-    <TopicID>.json          # Spec expansion + status + notes
+    <TopicID>.json          # Expanded specs + status (RED/GREEN)
+
   reports/
     <TopicID>_red.txt
     <TopicID>_green.txt
     <TopicID>_ux_apply.txt
-  review/
-    <TopicID>_code_review.md
-    summary.json
+    patterns/<patternId>_reuse_migration.md
 ```
 
-**IDs and Naming**
+**Identifier Rules**
 
-* **PROJECT_ID**: repository folder name (e.g., `srikar-book-deals`).
-* **Topic IDs**: `<PROJECT_ID>-<FeatureID>-<TopicID>` (e.g., `srikar-book-deals-F03-TP1`).
-* **Spec IDs**: stable slugs derived from topic + short behavior title.
-* **Pattern IDs**: uppercase snake or kebab (e.g., `PAGINATION`, `FILTER_BAR`).
-
-**Commit Messages**
-
-* `feat(<SpecId>): …`
-* `fix(<SpecId>): …`
-* `refactor(<area>): …`
+* **PROJECT_ID** = repository folder name.
+* **Topic IDs:** `<PROJECT_ID>-<FeatureID>-<TopicID>`
+* **Spec IDs:** derived from behavior titles.
+* **Pattern IDs:** uppercase snake/kebab (e.g., `PAGINATION`).
 
 ---
 
-## 2) Default Pipeline and Routing
+# 2) Pipeline Overview
 
-**Feature Pipeline**
+```
+codex-spec
+   ↓ (spec_inputs/*.jsonl)
+codex-tdd
+   ↓ (impl_inputs/*.jsonl)
+codex-dev
+   ↓
+(optional codex-refactor / codex-reuse)
+   ↓
+codex-code-review
+```
 
-1. `codex-spec` → topics and pattern intents.
-2. `codex-tdd` → tests RED + spec JSON.
-3. `codex-dev` → implement to GREEN (minimal change).
-4. `codex-refactor` → behavior‑preserving improvements (optional).
-5. `codex-code-review` → maintainability + conformance review.
+**Auxiliary flows:**
 
-**Auxiliary Flows**
+* `codex-fix` — restore GREEN
+* `codex-refactor` — behavior-preserving improvements
+* `codex-reuse` — pattern extraction + migration
+* `codex-ux-prompt` / `codex-ux-apply`
 
-* `codex-fix` — restore GREEN on regressions.
-* `codex-reuse` — extract/centralize shared behavior into versioned pattern modules and migrate adopters.
-* `codex-ux-prompt` / `codex-ux-apply` — plan and apply UI‑only changes safely.
+**Routing Tags** (emitted by codex-code-review → `.jsonl`):
 
-**Review Routing Matrix**
-
-* `[refactor]` → `codex-refactor` (behavior‑preserving)
-* `[reuse]` → `codex-reuse` (cross‑screen consolidation)
-* `[dev-nit]` → `codex-dev` (trivial, local, same cycle)
-* `[bug-risk]` → add spec via `codex-tdd`, then `codex-fix`/`codex-dev`
-* `[ux-only]` → `codex-ux-apply` (HTML/CSS/ARIA/microcopy only)
-
-Tags are authored by `codex-code-review`.
-
----
-
-## 3) Role Contracts
-
-Short answer: it will be seen as an example only if you make the **schema** and **tier model** the normative parts of the role and explicitly mark examples as non‑normative. Add the guardrails below and the role is fully general for pattern creation.
+* `[bug-risk]` → codex-tdd → codex-fix
+* `[dev-nit]` → codex-dev
+* `[refactor]` → codex-refactor
+* `[reuse]` → codex-reuse
+* `[ux-only]` → codex-ux-apply
 
 ---
 
-## Drop‑in patch for **codex-spec** (general, pattern‑agnostic)
+# 3) Role Contracts
 
-Paste this block over your existing **codex-spec** section.
-
-````md
 ## codex-spec
 
 **Goal**
-Define features as independently shippable topics and capture repeatable UI/behavior as **Patterns**. Produce unambiguous metadata: Topic Macros (per‑screen reuse) and a Pattern Registry with shapes, adapters, accessibility, and canonical test behaviors.
+Define features as shippable topics and author Pattern Registry entries. Produce:
 
-**Scope**
-Planning only. No production or test code edits. **Examples are non‑normative**; the schema and tier model are the only normative parts.
+1. **Global human artifacts:** topics.md, patterns.md
+2. **Global machine registry:** patterns.json
+3. **Per-topic minimal packets:** spec_inputs/*.jsonl
+4. **Wiring invariants** for codex-tdd to generate wiring tests.
 
-**Inputs**
-Product intent and feature descriptions.
+---
 
-**Outputs**
-- `codex_output/topics.json`, `codex_output/topics.md`
-- `codex_output/patterns.json`, `codex_output/patterns.md`
+### Inputs
 
-**Tier model (normative)**
-Every pattern is exactly one of:
-- **contract** — pure, side‑effect‑free helpers (normalization, formatting, rules).
-- **controller** — state + I/O + lifecycle; consumes adapters; exposes a small API.
-- **shell** — UI renderer; consumes a controller; defines required anchors/selectors.
-- **aggregate** — composes multiple patterns (e.g., contract + controller + shell).
+Product/feature intent.
 
-**Pattern schema (normative)**
-Each registry entry MUST follow this shape (keys not used by a given tier may be omitted):
+---
 
-```json
-{
-  "patternId": "STRING_UNIQUE",
-  "type": "contract | controller | shell | aggregate",
-  "version": "1.0.0",
-  "purpose": "Short, vendor-neutral description",
-  "requiredParams": ["..."],
-  "optionalParams": ["..."],
-  "adapters": { "name": "signature string" },   // e.g., "fetch(data) => Promise<Result>"
-  "uiTexts": { "key": "Default copy with {placeholders}" },
-  "a11yNotes": ["..."],
-  "testBehaviors": ["Canonical behavior checks for codex-tdd"],
-  "docs": {
-    "requestShape": { "field": "type/meaning" },
-    "stateShape":   { "field": "type/meaning" },
-    "mountApi":     "mount(container, { params, adapters, uiTexts, options }) => { destroy() }"
-  },
-  "composes": ["SUBPATTERN_IDS_IF_AGGREGATE"]
-}
-````
+### Outputs
 
-**General adapter style (normative)**
+* `topics.md` (human)
+* `patterns.md` (human)
+* `patterns.json` (machine global registry)
+* `spec_inputs/<TopicID>.jsonl` (machine packet)
 
-* Asynchronous work returns `Promise<NormalizedResult>`.
-* Signatures are vendor‑neutral; any datastore specifics live **inside** adapters.
-* Provide `onStateChange(state)` and `onError(error, state)` only for controller/aggregate tiers when needed.
+---
 
-**Tasks**
+### Pattern Tier Model (normative)
 
-1. **Project scoping**
+* **contract** — pure logic
+* **controller** — state + lifecycle
+* **shell** — DOM renderer/selectors
+* **aggregate** — composed patterns
 
-   * Derive `PROJECT_ID` from the repository root folder.
-   * Topic IDs: `<PROJECT_ID>-<FeatureID>-<TopicID>`.
+---
 
-2. **Feature → Topic decomposition**
+### Tasks
 
-   * 2–5 topics per feature with concise **Given/When/Then** behavior.
+1. Derive PROJECT_ID and Topic IDs
+2. Decompose features → topics
+3. Extend Pattern Registry
+4. Author reuse macros
+5. Verify DoR (params, adapters, API, accessibility)
+6. **Emit `.jsonl` Spec Input Packets**
+7. **Emit Wiring Invariants** (new)
 
-3. **Pattern authoring**
+---
 
-   * Create/update registry entries using the schema above.
-   * Prefer **aggregate** entries to simplify adoption (compose sub‑patterns as needed).
+### `.jsonl` Spec Input Packet Format
 
-4. **Topic Macro (reuse) authoring**
-
-   * For any topic adopting a pattern, add:
-
-   ```json
-   "reuse": {
-     "patternId": "<PATTERN_ID>",
-     "params":   { /* screen-specific params */ },
-     "adapters": { /* screen-specific adapter entry points */ },
-     "uiTexts":  { /* optional microcopy overrides */ }
-   }
-   ```
-
-   * Use aggregate patterns by default; reference sub‑patterns only for advanced/atypical needs.
-
-5. **Definition of Ready (DoR)**
-   A pattern may be referenced by topics only if its registry entry includes:
-
-   * `purpose`, `version`, `requiredParams`, `adapters`, `testBehaviors`.
-   * `docs.requestShape` and `docs.stateShape` (controller/aggregate), `docs.mountApi` (shell).
-   * Accessibility notes for interactive surfaces.
-   * Clear defaults and clamping rules for any enumerated params/options.
-
-**Rules**
-
-* No edits outside `codex_output/topics.*` and `codex_output/patterns.*`.
-* No test creation or modification.
-* Avoid framework specifics; stay HTML/Vanilla JS/CSS agnostic.
-* Treat examples in `patterns.md` as illustrative, not prescriptive.
-
-**Deliverables**
-✔ `codex_output/topics.(json|md)`
-✔ `codex_output/patterns.(json|md)` (schema‑conformant)
-✔ Topics that reference patterns via a single `reuse` macro
+Each record is a flat JSON object:
 
 ```
-
----
-
-## Optional: add a one‑line “non‑normative examples” banner to your registry doc
-
-In `codex_output/patterns.md`, insert at the top:
-
+{"type":"meta","topicId":"...","title":"..."}
+{"type":"given","text":"..."}
+{"type":"when","text":"..."}
+{"type":"then","text":"..."}
+{"type":"reuse","patternId":"..."}
 ```
 
-Note: Examples in this document are non‑normative. The Pattern schema and tier model in AGENTS.md are normative and must guide all future patterns. Do not import example‑specific fields into unrelated patterns unless explicitly added to the schema.
+#### UI Anchors (DOM elements that must exist)
 
 ```
+{"type":"ui-anchor","selector":"#nextBtn"}
+```
+
+#### JS Handlers (functions that must be wired to events)
+
+```
+{"type":"js-handler","event":"click","selector":"#nextBtn","handler":"goNextPage"}
+```
+
+#### Adapter Calls (required backend calls)
+
+```
+{"type":"adapter-call","function":"getPage","args":["page","size"]}
+```
+
+#### Pattern fragments
+
+```
+{"type":"pattern","patternId":"...","requiredParams":[...],"adapters":{...},"testBehaviors":[...]}
+```
+
+Rules:
+
+* Only referenced patterns included.
+* Wiring invariants MUST be included whenever UI interaction is implied.
+
 ---
 
-### B) codex-tdd
+### Rules
+
+* Only modify topics.md, patterns.md, patterns.json, spec_inputs/*.jsonl
+* No test or production code edits
+* Wiring invariants MUST be included for UI events
+
+---
+
+## codex-tdd
 
 **Goal**
-Expand a topic into concrete specs and generate compiling‑but‑failing Jest tests (RED).
+Expand a topic into concrete specs and RED tests.
+Ensure tests fully cover UI → JS → Adapter wiring.
+Emit `.jsonl` Implementation Packet for codex-dev.
+
+---
+
+### Inputs
+
+* `spec_inputs/<TopicID>.jsonl`
+* Optional: patterns.json for validation
+
+---
+
+### Outputs
+
+1. Tests under `/tests/spec/` and `/tests/unit/`
+2. RED spec JSON: `specs/<TopicID>.json`
+3. RED report: `reports/<TopicID>_red.txt`
+4. **Implementation Packet:** `impl_inputs/<TopicID>.jsonl`
+
+---
+
+### Mandatory Test Coverage
+
+codex-tdd MUST generate RED tests for all of the following (if applicable):
+
+#### ✔ UI existence tests
+
+```
+expect($("#nextBtn")).not.toBeNull();
+```
+
+#### ✔ UI → JS wiring tests
+
+```
+click("#nextBtn");
+expect(spy(goNextPage)).toHaveBeenCalled();
+```
+
+#### ✔ JS → Adapter wiring tests
+
+```
+goNextPage();
+expect(getPage).toHaveBeenCalledWith(expectedPage, expectedSize);
+```
+
+#### ✔ Adapter → DOM update tests
+
+```
+await renderPage();
+expect($("#pageNumber").textContent).toBe("2");
+```
+
+#### ✔ Pattern-level wiring tests
+
+Validate adapters/params from patterns.json.
+
+---
+
+### Implementation Packet Format (`.jsonl`)
+
+Each line is a flat JSON object:
+
+```
+{"type":"fail","test":"tests/spec/..."}
+{"type":"spec","id":"...","given":"...","when":"...","then":"..."}
+{"type":"ui-anchor","selector":"#nextBtn"}
+{"type":"js-handler","event":"click","selector":"#nextBtn","handler":"goNextPage"}
+{"type":"adapter-call","function":"getPage","args":["page","size"]}
+{"type":"reuse","patternId":"..."}
+{"type":"pattern","patternId":"...","requiredParams":["..."],"adapters":{"...":"..."}}
+```
+
+codex-dev uses this packet to implement full wiring.
+
+---
+
+### Tasks
+
+1. Parse Spec Input Packet
+2. Expand to 3–7 Given/When/Then specs
+3. Generate RED tests
+4. **Generate mandatory wiring tests**
+5. Emit RED spec + Implementation Packet
+6. Validate RED
+
+---
+
+### Rules
+
+* No production code edits
+* RED must represent full wiring failure
+* Missing wiring MUST trigger test failures
+* No weakening of pattern structural guarantees
+
+---
+
+## codex-dev
+
+**Goal**
+Turn RED → GREEN with minimal production code changes.
+
+---
+
+### Inputs
+
+* `impl_inputs/<TopicID>.jsonl`
+* Optional `[dev-nit]` findings
+* Jest failure output
+
+### Outputs
+
+* Production code changes
+* Updated `specs/<TopicID>.json` → GREEN
+* `reports/<TopicID>_green.txt`
+
+---
+
+### Behavior
+
+1. Load Implementation Packet
+2. Confirm RED
+3. Apply smallest code fix
+4. Apply `[dev-nit]` if trivial and safe
+5. Validate GREEN
+6. Update spec JSON
+
+---
+
+### Rules
+
+* Do not alter tests
+* No weakened assertions
+* No cross-screen consolidation (use codex-reuse)
+
+---
+
+## codex-fix
+
+**Goal**
+Restore GREEN after regressions.
 
 **Inputs**
-`codex_output/topics.json`, `codex_output/patterns.json` (optional reuse hints).
+
+* Failing tests
+* Prior GREEN spec
+* Review routing `<TopicID>.jsonl` with `[bug-risk]`
 
 **Outputs**
 
-* Test files under `/tests/`
-* `codex_output/specs/<TopicID>.json` with `"status": "RED"`
-* `codex_output/reports/<TopicID>_red.txt`
-
-**Tasks**
-
-1. Create 3–7 observable behavior specs per topic.
-2. Materialize tests in `/tests/spec` and `/tests/unit`; optional integration in `/tests/spec/integration`.
-3. Use Pattern Registry to add standard tests when `reuse.patternId` is present.
-4. Ensure failures are assertion‑only; validate RED with `npm test -- --watchAll=false`.
+* Minimal fix
+* Updated spec JSON
+* GREEN report
 
 **Rules**
 
-* Do not modify production code or topics.
+* No feature expansion
+* No test edits
 
 ---
 
-### C) codex-dev
+## codex-refactor
 
 **Goal**
-Make all failing tests for the target topic pass (GREEN) with minimal production‑code changes. Pattern‑aware for consumption of existing modules.
-
-**Inputs**
-
-* Jest failing output
-* `codex_output/specs/<TopicID>.json`
-* Optionally `codex_output/review/<TopicID>_code_review.md` for items tagged `[dev-nit]`
-
-**Outputs**
-
-* Production code changes in `/src`
-* `codex_output/specs/<TopicID>.json` (allowed fields)
-* `codex_output/reports/<TopicID>_green.txt`
-
-**Behavior**
-
-1. `npm test -- --watchAll=false --bail=0`; enumerate failing tests.
-2. Implement the smallest change set to pass.
-3. If `reuse.patternId` exists, mount/use `src/ui/patterns/<patternId>/` via its factory and thin adapters.
-4. Apply only trivial `[dev-nit]` suggestions if they are local and risk‑free within the same cycle.
-
-**Rules**
-
-* Do not weaken assertions or edit tests.
-* No broad extractions or cross‑screen consolidation (that is `codex-reuse`).
-* Allowed updates in `specs/<TopicID>.json`: `"status": "GREEN"`, `changedFiles`, `changeNotes`, `helpers`.
-
----
-
-### D) codex-fix
-
-**Goal**
-Restore GREEN when previously passing tests regress.
-
-**Inputs**
-
-* Current failing Jest output
-* Prior GREEN artifacts
-* `codex_output/review/<TopicID>_code_review.md` items tagged `[bug-risk]` (if any)
-
-**Outputs**
-
-* Minimal patch to `/src`
-* Updated `codex_output/specs/<TopicID>.json` (allowed fields)
-* Fresh GREEN report
-
-**Behavior**
-
-1. Identify root cause.
-2. Apply the smallest viable fix.
-3. If the failure originates in a pattern, fix centrally and validate adopters.
-
-**Rules**
-
-* No feature expansion.
-* No refactors beyond what is necessary to fix.
-* No test edits.
-
----
-
-### E) codex-refactor
-
-**Goal**
-Improve structure/readability and remove duplication **without changing behavior**. Primary owner of review‑driven non‑behavioral improvements.
+Behavior-preserving improvements.
 
 **Inputs**
 
 * GREEN state
-* `codex_output/review/<TopicID>_code_review.md` (consume `[refactor]` items)
-* `codex_output/review/summary.json` (if present)
-* `changedFiles` and diffs
+* Review routing `.jsonl` with `[refactor]`
+* diffs
 
 **Outputs**
 
-* Code improvements under `/src` and `/src/helpers`
-* Updated `codex_output/specs/<TopicID>.json` (`helpers`, `changeNotes`, `changedFiles`)
-* GREEN preserved
-
-**Behavior**
-
-1. Parse review findings; select non‑behavioral items.
-2. Extract small helpers; simplify DOM; remove dead code; token‑ize CSS; add non‑behavioral ARIA.
-3. Keep selectors and public DOM contracts intact.
-4. Defer cross‑screen consolidation to `codex-reuse`.
+* Improved code
+* Updated spec JSON
 
 **Rules**
 
-* Zero observable behavior change.
-* No test edits.
+* No behavioral changes
+* No test edits
 
 ---
 
-### F) codex-reuse
+## codex-reuse
 
 **Goal**
-Extract, centralize, and evolve shared UI/behavior into **versioned** pattern modules, and migrate call sites **without changing observable behavior**.
+Extract shared behavior into versioned patterns.
 
 **Inputs**
 
-* `codex_output/patterns.json`
-* GREEN code with similar behavior across ≥3 call sites or explicit adoption topics
-* `codex_output/review/<TopicID>_code_review.md` (consume `[reuse]` items)
+* patterns.json
+* Review routing `.jsonl` with `[reuse]`
 
 **Outputs**
 
-* `src/ui/patterns/<patternId>/index.js` (factory)
-* `src/ui/patterns/<patternId>/styles.css` (themeable)
-* Optional `README.md`
-* Updated adopters wired to the module
-* Pattern Registry version bump + migration notes
-* `codex_output/reports/patterns/<patternId>_reuse_migration.md`
-
-**Standard Module API**
-
-```js
-// src/ui/patterns/<patternId>/index.js
-export function mount(container, { params = {}, adapters = {}, uiTexts = {}, options = {} } = {}) {
-  // attach DOM, wire events, call adapters, manage teardown
-  return { destroy() { /* cleanup */ } };
-}
-```
-
-**Behavior**
-
-1. Identify canonical implementation; extract into `/src/ui/patterns/<patternId>/`.
-2. Define/confirm public API from the Pattern Registry; set `version` (semver).
-3. Migrate adopters; preserve tests and selectors.
-4. If breaking changes are needed, bump major version and supply migration plan.
+* Pattern module under /src/ui/patterns
+* Migration notes
+* Pattern version bump
 
 **Rules**
 
-* Keep suite GREEN; do not weaken tests.
-* No feature additions during extraction.
-* Do not modify topic acceptance criteria; coordinate any new tests with `codex-tdd`.
+* Suite must remain GREEN
+* No feature additions
 
 ---
 
-### G) codex-ux-prompt
+## codex-ux-prompt
 
 **Goal**
-Translate UI/UX goals into deterministic implementation instructions for `codex-dev` or `codex-ux-apply`, grounded in accessibility and design heuristics.
-
-**Inputs**
-Design intent (text, sketches), existing UI.
+Translate UI/UX goals into deterministic instructions.
 
 **Outputs**
-A single, structured instruction block:
-
-```
-=== codex-dev Implementation Instructions (from codex-ux-prompt) ===
-<files to touch>
-<target selectors / do-not-change selectors>
-<step-by-step DOM/CSS edits>
-<microcopy>
-<layout/spacing/typography rationale>
-<accessibility (roles, names, focus order, aria-live)>
-<impact: UI-only | test-sensitive>
-```
+Implementation instruction block (human-readable).
 
 **Rules**
 
-* Planning only; no code or artifact edits.
+* Planning only
 
 ---
 
-### H) codex-ux-apply
+## codex-ux-apply
 
 **Goal**
-Apply **UI‑only** changes (HTML/CSS, non‑behavioral attributes) exactly as specified by `codex-ux-prompt`, keeping tests GREEN.
+Apply safe UI-only changes.
 
 **Inputs**
 
-* Latest instruction block from `codex-ux-prompt` marked **UI‑only**
-* Optionally review items tagged `[ux-only]`
+* Instruction block
+* Review routing `.jsonl` with `[ux-only]`
 
 **Outputs**
 
-* HTML/CSS diffs (and harmless attribute tweaks)
-* `codex_output/reports/<TopicID>_ux_apply.txt`
-* GREEN preserved
-
-**Behavior**
-
-1. Apply CSS tokens, spacing, typography, colors, and ARIA attributes.
-2. Allow non‑breaking HTML wrappers/containers.
-3. Do not alter selectors listed as “do‑not‑change.”
-4. Run tests to confirm GREEN.
+* HTML/CSS diffs
+* UX apply report
 
 **Rules**
 
-* No JS logic changes (events, control flow, data fetch).
-* No renaming/removing IDs or `[data-test]`.
-* Defer risky items to `codex-dev`.
+* No JS behavior changes
 
 ---
 
-### I) codex-code-review
+## codex-code-review
 
 **Goal**
-Assess maintainability and correctness of changed code, verify reuse/pattern conformance, and document actionable improvements.
+Assess correctness/maintainability and produce routing instructions.
 
 **Inputs**
-`changedFiles`, diffs, `codex_output/specs/<TopicID>.json`, `codex_output/patterns.json`, GREEN test results.
 
-**Outputs**
-
-* `codex_output/review/<TopicID>_code_review.md`
-* Optional `codex_output/review/summary.json`
-
-**Findings must be tagged for routing**
-
-* `[refactor]` non‑behavioral improvements; no test updates required.
-* `[reuse]` cross‑screen duplication/patternization.
-* `[dev-nit]` trivial, local, safe to fold into current GREEN cycle.
-* `[bug-risk]` likely defect; recommend adding spec in `codex-tdd`.
-* `[ux-only]` HTML/CSS/ARIA/microcopy without behavior change.
-
-**Rubric**
-
-* Correctness & tests; selectors stable; no weakened assertions.
-* Reuse & patterns; thin adapters; generic pattern modules.
-* Readability & structure; pure helpers; DOM isolation.
-* CSS quality; tokens; sensible specificity; responsive constraints.
-* Accessibility; roles/labels; focus management; aria-live.
-* Performance & safety; cleanup of listeners; defensive checks.
-* Documentation; clear `changeNotes`, pattern version references.
-
-**Rules**
-
-* Read‑only role; no code/test/spec edits.
+* diffs, changedFiles
+* patterns.json
+* specs/<TopicID>.json
 
 ---
 
-## 4) Quality Gates
+### Outputs
 
-* **RED → GREEN:** Only `codex-dev`/`codex-fix` transition tests to GREEN.
-* **Selector Stability:** `id` and `[data-test]` are contracts; only `codex-dev`/`codex-reuse` may change them, and only with tests updated by `codex-tdd`.
-* **Patterns Semver:** `codex-reuse` manages `version` and migration notes.
-* **Accessibility:** Every interactive pattern must be keyboard reachable and screen‑reader friendly.
+1. Human narrative: `review/<TopicID>_code_review.md`
+2. Machine routing: `review/routing/<TopicID>.jsonl`
+   Each line is one action:
 
----
-
-## 5) Commands
-
-* Run all tests (non‑watch):
-  `npm test -- --watchAll=false`
-* Fail‑fast off for debugging:
-  `npm test -- --watchAll=false --bail=0`
-
----
-
-## 6) Artifact Field Contracts
-
-**`codex_output/specs/<TopicID>.json`**
-(writers: `codex-tdd`, `codex-dev`, `codex-fix`, `codex-refactor`)
-
-```json
-{
-  "topicId": "<TopicID>",
-  "status": "RED | GREEN",
-  "specs": [{ "id": "<SpecId>", "title": "...", "given": "...", "when": "...", "then": "..." }],
-  "changedFiles": ["..."],
-  "helpers": ["src/helpers/..."],
-  "changeNotes": "Concise behavior-focused notes"
-}
 ```
+{"type":"bug-risk","message":"..."}
+{"type":"refactor","message":"..."}
 
-**`codex_output/patterns.json`**
-(writers: `codex-spec`, `codex-reuse`)
-
-```json
-{
-  "patterns": [
-    {
-      "patternId": "PAGINATION",
-      "version": "1.0.0",
-      "purpose": "Paginate list/grid data with page-size selection.",
-      "requiredParams": ["container", "defaultSize"],
-      "optionalParams": ["pageSizes", "nextPrevLabels", "ariaLabels"],
-      "adapters": { "getPage": "function(page,size)" },
-      "uiTexts": { "emptyState": "", "loading": "" },
-      "a11yNotes": ["Announce page changes via aria-live"],
-      "testBehaviors": ["controls state", "page-size change", "adapter calls", "aria-live"]
-    }
-  ]
-}
 ```
-
-**End of AGENTS.md**
 

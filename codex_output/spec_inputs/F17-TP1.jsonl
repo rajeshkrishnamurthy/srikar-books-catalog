@@ -1,0 +1,12 @@
+{"type":"meta","topicId":"F17-TP1","title":"Bundles Sub Nav Parity"}
+{"type":"given","text":"The admin nav config hydrates with the Manage sub nav helper already available."}
+{"type":"when","text":"The Bundles tile becomes active (landing state or click)."}
+{"type":"then","text":"The tile label reads Bundles, the shared dropdown renders Create/Manage buttons, Create owns aria-current by default, hashes flip between `#bundles/create` and `#bundles/manage`, and existing panels hook up without duplicate markup or JS."}
+{"type":"ui-anchor","selector":"#bundlesSubNav"}
+{"type":"ui-anchor","selector":"#bundleCreatePanel"}
+{"type":"ui-anchor","selector":"#bundleManagePanel"}
+{"type":"ui-anchor","selector":"#adminNav"}
+{"type":"js-handler","event":"click","selector":"#bundlesSubNav button","handler":"handleBundlesSubNav"}
+{"type":"js-handler","event":"init","selector":"#adminNav","handler":"renderAdminNav"}
+{"type":"adapter-call","function":"syncBundlesHash","args":["targetTab"]}
+{"type":"adapter-call","function":"handleAdminNav","args":["targetSection"]}

@@ -1,0 +1,13 @@
+{"type":"meta","topicId":"F16-TP2","title":"Add Tab Default State"}
+{"type":"given","text":"The admin either first loads /admin or returns to Manage after visiting another nav tile."}
+{"type":"when","text":"Manage activates or the Add tab is clicked."}
+{"type":"then","text":"Only the Add panel shows, Available/Sold stay hidden, Add has aria-current, and the hash normalizes to `#add-book`."}
+{"type":"ui-anchor","selector":"#manageSubNav"}
+{"type":"ui-anchor","selector":"#addBookPanel"}
+{"type":"ui-anchor","selector":"#availablePanel"}
+{"type":"ui-anchor","selector":"#soldPanel"}
+{"type":"ui-anchor","selector":"#navTab-manageBooks"}
+{"type":"js-handler","event":"click","selector":"#manageSubNav button","handler":"handleManageSubNav"}
+{"type":"js-handler","event":"load","selector":"window","handler":"setDefaultLanding"}
+{"type":"adapter-call","function":"syncManageHash","args":["targetTab"]}
+{"type":"adapter-call","function":"routeToAddBook","args":[]}

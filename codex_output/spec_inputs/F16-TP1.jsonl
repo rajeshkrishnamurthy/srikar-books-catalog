@@ -1,0 +1,13 @@
+{"type":"meta","topicId":"F16-TP1","title":"Manage Sub Nav Shell"}
+{"type":"given","text":"An admin signs in and Manage Books loads as the landing tile (#add-book)."}
+{"type":"when","text":"The Manage Books view renders."}
+{"type":"then","text":"A `#manageSubNav` dropdown with Add/Available/Sold buttons appears, Add owns aria-current, and the other Manage panels remain hidden until chosen."}
+{"type":"ui-anchor","selector":"#manageSubNav"}
+{"type":"ui-anchor","selector":"#addBookPanel"}
+{"type":"ui-anchor","selector":"#availablePanel"}
+{"type":"ui-anchor","selector":"#soldPanel"}
+{"type":"ui-anchor","selector":"#adminNav"}
+{"type":"js-handler","event":"click","selector":"#manageSubNav button","handler":"handleManageSubNav"}
+{"type":"js-handler","event":"init","selector":"#adminNav","handler":"renderAdminNav"}
+{"type":"adapter-call","function":"syncManageHash","args":["targetTab"]}
+{"type":"adapter-call","function":"handleAdminNav","args":["targetSection"]}

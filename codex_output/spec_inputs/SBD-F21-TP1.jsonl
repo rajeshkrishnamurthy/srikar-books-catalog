@@ -1,0 +1,21 @@
+{"type":"meta","topicId":"SBD-F21-TP1","title":"Manage Bundles Pagination Suite Adoption"}
+{"type":"given","text":"Bundles -> Manage lists dozens of bundles and exposes supplier/status filters."}
+{"type":"when","text":"The pagination suite mounts and requests the first/next slice with active filters."}
+{"type":"then","text":"Normalized rows and paging metadata flow through the suite, Prev/Next/per-page UI renders, and URL/hash state reflects the current filters/page without custom wiring."}
+{"type":"reuse","patternId":"PAGINATION_SUITE"}
+{"type":"ui-anchor","selector":"#bundlePagination"}
+{"type":"ui-anchor","selector":"#bundlePaginationPrev"}
+{"type":"ui-anchor","selector":"#bundlePaginationNext"}
+{"type":"ui-anchor","selector":"#bundlePaginationSummary"}
+{"type":"ui-anchor","selector":"#bundlePaginationPages"}
+{"type":"ui-anchor","selector":"#bundlePaginationSize"}
+{"type":"js-handler","event":"click","selector":"#bundlePaginationPrev","handler":"goPrevBundlePage"}
+{"type":"js-handler","event":"click","selector":"#bundlePaginationNext","handler":"goNextBundlePage"}
+{"type":"js-handler","event":"change","selector":"#bundlePaginationSize","handler":"changeBundlePageSize"}
+{"type":"adapter-call","function":"fetchManageBundlesPage","args":["pageRequest"]}
+{"type":"adapter-call","function":"readManageBundlesPagingFromLocation","args":[]}
+{"type":"adapter-call","function":"writeManageBundlesPagingToLocation","args":["page","pageSize"]}
+{"type":"adapter-call","function":"renderManageBundlesRows","args":["state"]}
+{"type":"adapter-call","function":"formatBundlePaginationSummary","args":["summaryText"]}
+{"type":"adapter-call","function":"announceBundlePaginationRange","args":["text"]}
+{"type":"pattern","patternId":"PAGINATION_SUITE","requiredParams":["container","summaryEl","prevButton","nextButton","defaultPageSize"],"adapters":{"dataSource":"fetchManageBundlesPage","parseLocation":"readManageBundlesPagingFromLocation","syncLocation":"writeManageBundlesPagingToLocation","onStateChange":"renderManageBundlesRows","announce":"announceBundlePaginationRange","formatSummary":"formatBundlePaginationSummary"},"testBehaviors":[]}

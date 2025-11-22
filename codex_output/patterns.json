@@ -2,9 +2,9 @@
   "patterns": [
     {
       "patternId": "PAGINATION_CONTRACT",
-      "tier": "CONTRACT",
-      "version": "1.0.0",
-      "purpose": "Normalize pagination math (page size clamps, cursor vs offset handling, summary copy) so every list view shares one Firestore-agnostic request/response format.",
+      "type": "contract",
+      "version": "1.1.0",
+      "purpose": "Normalize pagination math (page-size clamps, cursor/offset handling, summary copy) so every list view shares a datastore-agnostic request/response format.",
       "requiredParams": [
         "defaultPageSize"
       ],
@@ -16,59 +16,46 @@
       ],
       "adapters": {},
       "uiTexts": {
-        "summaryTemplate": "Items {first}\u2013{last} of {total}"
-      ],
+        "summaryTemplate": "Items {first}-{last} of {total}"
+      },
       "a11yNotes": [
-        "Outputs summaryText that downstream shells must announce via aria-live=polite so cursor math stays invisible to assistive tech.",
+        "Outputs summaryText that downstream shells announce via aria-live=polite so cursor math stays invisible to assistive tech.",
         "Surface prev/next disabled states derived from metadata so shells consistently wire aria-disabled."
-      ],
-      "requestShape": {
-        "pageSize": "number // desired size before clamping",
-        "direction": "'forward'|'backward' // defaults to forward",
-        "cursorAfter?": "string|null // used when direction=forward",
-        "cursorBefore?": "string|null // used when direction=backward",
-        "offset?": "number // starting index for summary math",
-        "filters?": "Record<string,string|number>// echoed by location helpers",
-        "defaults?": "{ pageSize?: number, minPageSize?: number, maxPageSize?: number }"
-      ],
-      "resultShape": {
-        "pageMeta": {
-          "count": "number // items.length",
-          "pageSize": "number",
-          "hasNext": "boolean",
-          "hasPrev": "boolean",
-          "nextCursor?": "string|null",
-          "prevCursor?": "string|null"
-        },
-        "summaryText": "string // e.g., Items 21\u201340 of 132",
-        "prevDisabled": "boolean",
-        "nextDisabled": "boolean",
-        "totalItems?": "number",
-        "currentOffset": "number",
-        "filters": "Record<string,string>",
-        "locationParams": "{ page: number, pageSize: number, offset: number, ...filters }"
-      ],
-      "publicAPI": [
-        "createPaginationRequest(options)",
-        "buildPaginationState(options)",
-        "buildPaginationShellState(options)",
-        "buildCatalogPaginationUi(options)",
-        "buildPaginationLocationParams(options)",
-        "parsePaginationFromLocation(options)"
       ],
       "testBehaviors": [
         "Clamps requested pageSize between min/max/default values.",
         "Switches cursor usage automatically when direction changes.",
         "Normalizes hasNext/hasPrev booleans and null-safe cursors.",
         "Produces deterministic summaryText/disabled states for offsets at boundaries (first page, last page, empty).",
-        "Serializes filters + pagination params into stable locationParams."
-      ]
+        "Serializes filters plus pagination params into stable locationParams."
+      ],
+      "docs": {
+        "requestShape": {
+          "pageSize": "number // desired size before clamping",
+          "direction": "'forward'|'backward' // defaults to forward",
+          "cursorAfter?": "string|null // used when direction=forward",
+          "cursorBefore?": "string|null // used when direction=backward",
+          "offset?": "number // starting index for summary math",
+          "filters?": "Record<string,string|number>",
+          "defaults?": "{ pageSize?: number, minPageSize?: number, maxPageSize?: number }"
+        },
+        "stateShape": {
+          "pageMeta": "{ count: number, pageSize: number, hasNext: boolean, hasPrev: boolean, nextCursor?: string|null, prevCursor?: string|null }",
+          "summaryText": "string",
+          "prevDisabled": "boolean",
+          "nextDisabled": "boolean",
+          "totalItems?": "number",
+          "currentOffset": "number",
+          "filters": "Record<string,string>",
+          "locationParams": "{ page: number, pageSize: number, offset: number, ...filters }"
+        }
+      }
     },
     {
       "patternId": "PAGINATION_CONTROLLER",
-      "tier": "CONTROLLER",
-      "version": "1.0.0",
-      "purpose": "State machine that talks to a dataSource, keeps cursors/offsets/filters/URL state in sync, and exposes a tiny API for shells (pager or load-more).",
+      "type": "controller",
+      "version": "1.1.0",
+      "purpose": "Promise-aware state machine that talks to a dataSource, keeps cursors/offsets/filters/URL state in sync, and exposes a small API for shells (pager or load-more).",
       "requiredParams": [
         "defaultPageSize"
       ],
@@ -85,55 +72,14 @@
         "parseLocation": "() => ({ pageSize?, direction?, cursorAfter?, cursorBefore?, offset?, filters? })",
         "syncLocation": "(params) => void",
         "onStateChange": "(state) => void"
-      ],
+      },
       "uiTexts": {
-        "summaryTemplate": "Items {first}\u2013{last} of {total}",
-        "loadMoreLabel": "Load more ({nextFirst}\u2013{nextLast} of {total})"
-      ],
+        "summaryTemplate": "Items {first}-{last} of {total}",
+        "loadMoreLabel": "Load more ({nextFirst}-{nextLast} of {total})"
+      },
       "a11yNotes": [
-        "Expose `state.isLoading` so shells can toggle aria-busy and aria-disabled without their own timers.",
-        "Ensure `state.currentPage`, `state.totalPages`, and `state.summaryText` are available for announcing context when page changes."
-      ],
-      "requestShape": {
-        "pageSize": "number",
-        "direction": "'forward'|'backward'|'absolute'",
-        "cursorAfter?": "string|null",
-        "cursorBefore?": "string|null",
-        "offset?": "number",
-        "filters?": "Record<string,string>"
-      ],
-      "resultShape": {
-        "items": "any[]",
-        "pageMeta": {
-          "hasNext": "boolean",
-          "hasPrev": "boolean",
-          "nextCursor?": "string|null",
-          "prevCursor?": "string|null",
-          "pageSize": "number",
-          "count": "number"
-        },
-        "totalItems?": "number",
-        "currentOffset?": "number",
-        "summaryText": "string",
-        "prevDisabled": "boolean",
-        "nextDisabled": "boolean",
-        "isLoading": "boolean",
-        "currentPage": "number",
-        "totalPages": "number",
-        "mode": "'pager'|'loadMore'"
-      ],
-      "publicAPI": [
-        "getUiState()",
-        "goNext()",
-        "goPrev()",
-        "goToPage(page)",
-        "loadMore()",
-        "setFilters(partialFilters)",
-        "setPageSize(size)",
-        "refresh()",
-        "syncFromLocation({ search, totalItems })",
-        "syncToLocation(updateFn)",
-        "destroy()"
+        "Expose state.isLoading so shells can toggle aria-busy and aria-disabled without their own timers.",
+        "Ensure state.currentPage, state.totalPages, and state.summaryText are available for announcing context when page changes."
       ],
       "testBehaviors": [
         "Reads parseLocation() output before the first fetch to restore page/pageSize/filters.",
@@ -141,11 +87,35 @@
         "Drops stale cursors if offsets exceed totals and re-requests page 1.",
         "Ensures only the latest dataSource response mutates state (last-write-wins).",
         "Toggles isLoading/summary/disabled states in sync with goNext/goPrev/loadMore/setPageSize/setFilters."
-      ]
+      ],
+      "docs": {
+        "requestShape": {
+          "pageSize": "number",
+          "direction": "'forward'|'backward'|'absolute'",
+          "cursorAfter?": "string|null",
+          "cursorBefore?": "string|null",
+          "offset?": "number",
+          "filters?": "Record<string,string>"
+        },
+        "stateShape": {
+          "items": "any[]",
+          "pageMeta": "{ hasNext: boolean, hasPrev: boolean, nextCursor?: string|null, prevCursor?: string|null, pageSize: number, count: number }",
+          "totalItems?": "number",
+          "currentOffset?": "number",
+          "summaryText": "string",
+          "prevDisabled": "boolean",
+          "nextDisabled": "boolean",
+          "isLoading": "boolean",
+          "currentPage": "number",
+          "totalPages": "number",
+          "mode": "'pager'|'loadMore'"
+        },
+        "mountApi": "createPaginationController({ params, adapters, uiTexts, options }) => { getUiState, goNext, goPrev, goToPage, loadMore, setFilters, setPageSize, refresh, syncFromLocation, syncToLocation, destroy }"
+      }
     },
     {
       "patternId": "PAGINATION_SHELL",
-      "tier": "SHELL",
+      "type": "shell",
       "version": "1.0.0",
       "purpose": "Declarative DOM wrapper (summary, Prev/Next, numeric pager, optional page-size select or load-more button) that consumes the pagination controller and standardizes markup/ARIA.",
       "requiredParams": [
@@ -162,43 +132,487 @@
         "formatSummary"
       ],
       "adapters": {
-        "controller": "Return value from PAGINATION_CONTROLLER.mount()",
+        "controller": "Return value from PAGINATION_CONTROLLER.create()",
         "formatSummary": "(summaryText, state) => string",
-        "announce": "(text) => void // optional hook for custom SR messaging"
-      ],
+        "announce": "(text) => void"
+      },
       "uiTexts": {
         "prevLabel": "Previous page",
         "nextLabel": "Next page",
         "pageSizeLabel": "Rows per page",
         "loadMoreLabel": "Load more"
-      ],
+      },
       "a11yNotes": [
-        "summaryEl must be aria-live=polite; shell toggles container aria-busy when controller reports isLoading.",
+        "summaryEl must be aria-live=polite and the shell toggles container aria-busy when controller reports isLoading.",
         "Prev/Next buttons expose aria-disabled mirroring the disabled property.",
         "Numeric pager buttons set aria-current=\"page\" and include aria-label=\"Go to page N\"; ellipses are aria-hidden.",
         "Load-more button includes the upcoming range in its label for context."
       ],
-      "requestShape": {
-        "state": "controller.getUiState() payload used to sync DOM",
-        "event": "'init'|'sync'|'teardown'",
-        "elements": "{ container, summaryEl, prevButton, nextButton, pagesContainer?, pageSizeSelect? }"
-      ],
-      "resultShape": {
-        "domUpdates": "Applies textContent/attributes/classes to supplied elements; no return value",
-        "eventListeners": "{ prev:onClick, next:onClick, pageButton:onClick, pageSize:onChange, loadMore:onClick }",
-        "teardown": "Removes listeners and aria attributes on destroy"
-      ],
-      "publicAPI": [
-        "mount(config)",
-        "sync()",
-        "cleanup()"
-      ],
       "testBehaviors": [
-        "Disables Prev/Next buttons (and aria-disabled) whenever state.prevDisabled/state.nextDisabled or state.isBusy are true.",
+        "Disables Prev/Next buttons (and aria-disabled) whenever state.prevDisabled/state.nextDisabled or state.isLoading are true.",
         "Numeric pager renders compressed ranges with ellipses and highlights current page.",
         "Changing the page-size select calls controller.setPageSize and re-syncs summary text.",
         "Load-more button calls controller.loadMore and updates summary copy once results arrive.",
         "Announces summary text updates via aria-live and keeps focus on activated buttons."
+      ],
+      "docs": {
+        "requestShape": {
+          "state": "controller.getUiState() payload used to sync DOM",
+          "event": "'init'|'sync'|'teardown'",
+          "elements": "{ container, summaryEl, prevButton, nextButton, pagesContainer?, pageSizeSelect? }"
+        },
+        "stateShape": {
+          "domUpdates": "Applies textContent/attributes/classes to supplied elements",
+          "eventListeners": "{ prev:onClick, next:onClick, pageButton:onClick, pageSize:onChange, loadMore:onClick }"
+        },
+        "mountApi": "mountPaginationShell({ params, adapters, uiTexts, options }) => { sync, destroy }"
+      }
+    },
+    {
+      "patternId": "PAGINATION_SUITE",
+      "type": "aggregate",
+      "version": "1.0.0",
+      "purpose": "End-to-end pagination package (contract + controller + shell) tuned for admin data grids and queues so adopters wire one factory and screen-specific adapters.",
+      "requiredParams": [
+        "container",
+        "summaryEl",
+        "prevButton",
+        "nextButton",
+        "defaultPageSize"
+      ],
+      "optionalParams": [
+        "pageSizeOptions",
+        "pagesContainer",
+        "pageSizeSelect",
+        "mode",
+        "sticky",
+        "locationKey",
+        "loadMoreLimit"
+      ],
+      "adapters": {
+        "dataSource": "({ request, filters, offset }) => Promise<{ items, pageMeta, totalItems?, offset?, currentOffset? }>",
+        "parseLocation": "() => ({ pageSize?, direction?, cursorAfter?, cursorBefore?, offset?, filters? })",
+        "syncLocation": "(params) => void",
+        "onStateChange": "(state) => void",
+        "announce": "(text) => void",
+        "formatSummary": "(summaryText, state) => string"
+      },
+      "uiTexts": {
+        "prevLabel": "Previous page",
+        "nextLabel": "Next page",
+        "pageSizeLabel": "Rows per page",
+        "summaryTemplate": "Items {first}-{last} of {total}",
+        "loadMoreLabel": "Load more"
+      },
+      "a11yNotes": [
+        "Container toggles aria-busy while controller loads and summary remains aria-live=polite for every page change.",
+        "Prev/Next/Load-more mirror disabled state plus aria-disabled; numeric pager buttons set aria-current and expose descriptive labels.",
+        "Allows per-screen announce() hooks so high-volume queues can describe context (e.g., \"Bundles 21-40 of 210\")."
+      ],
+      "testBehaviors": [
+        "Mounts controller+shell with one config and keeps them synchronized via onStateChange hooks.",
+        "Propagates parseLocation() values before first fetch so reloads restore filters/page.",
+        "Ensures adapter rejections bubble through onError/onStateChange without leaving stuck aria-busy states.",
+        "Preserves pagination context when adopters mutate rows (publish/unpublish, marking fulfilled) and refetch only the impacted slice.",
+        "Supports both pager and load-more modes with identical markup contracts so adopters swap modes via params only."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ defaultPageSize: number, mode?: 'pager'|'loadMore', pageSizeOptions?: number[], locationKey?: string }",
+          "elements": "{ container: HTMLElement, summaryEl: HTMLElement, prevButton: HTMLElement, nextButton: HTMLElement, pagesContainer?: HTMLElement, pageSizeSelect?: HTMLSelectElement }",
+          "adapters": "{ dataSource, parseLocation, syncLocation, onStateChange, formatSummary?, announce? }"
+        },
+        "stateShape": {
+          "controllerState": "PAGINATION_CONTROLLER.getUiState() output",
+          "shellState": "DOM + listener bindings managed by PAGINATION_SHELL",
+          "teardown": "{ destroy: () => void }"
+        },
+        "mountApi": "mountPaginationSuite({ params, adapters, uiTexts, options }) => { destroy() }"
+      },
+      "composes": [
+        "PAGINATION_CONTRACT",
+        "PAGINATION_CONTROLLER",
+        "PAGINATION_SHELL"
+      ]
+    },
+    {
+      "patternId": "INLINE_BUNDLE_PANEL_SHELL",
+      "type": "shell",
+      "version": "1.1.0",
+      "purpose": "Provide the inline bundle composer drawer around the Available Books grid with consistent triggers, book chips, and form fields.",
+      "requiredParams": [
+        "container",
+        "panelHeading",
+        "triggerSelector",
+        "bookList",
+        "bundleNameInput",
+        "bundlePriceInput",
+        "recommendedPrice",
+        "totalPrice",
+        "saveButton",
+        "resetButton"
+      ],
+      "optionalParams": [
+        "overlay",
+        "closeButton",
+        "existingBundleSelect",
+        "emptyState",
+        "bookRowSelector",
+        "pinButton",
+        "viewBundleLink",
+        "totalMrp"
+      ],
+      "adapters": {
+        "controller": "BundleComposerController instance with subscribe(listener) => unsubscribe and dispatch(action, payload).",
+        "formatPrice": "(valueInMinorUnits: number, currency: string) => string",
+        "announce": "(message: string, politeness?: 'polite'|'assertive') => void"
+      },
+      "uiTexts": {
+        "panelTitle": "Bundle in progress",
+        "emptyState": "Add a book to start a bundle",
+        "bundleNameLabel": "Bundle name",
+        "bundlePriceLabel": "Bundle price",
+        "recommendedPriceLabel": "Recommended price",
+        "totalPriceLabel": "Total sale price",
+        "totalMrpLabel": "Total MRP",
+        "saveLabel": "Save bundle",
+        "resetLabel": "Clear bundle"
+      },
+      "a11yNotes": [
+        "Use role='region' with aria-label or aria-labelledby=panelHeading so screen readers announce the drawer when it opens.",
+        "Focus must move to panelHeading when the drawer opens and return to the triggering book card when it closes.",
+        "Recommended and total price blocks should mirror controller output via aria-live=polite so price changes are heard without extra timers.",
+        "Expose a total MRP block with aria-live when rendered so assistive tech hears the updated sum.",
+        "Ensure remove buttons expose the book title in their accessible name and Clear bundle announces count of items being removed.",
+        "Mark invalid inputs with aria-invalid and tie helper text via aria-describedby as soon as validation errors arrive."
+      ],
+      "testBehaviors": [
+        "Opening the panel from any trigger moves focus to panelHeading and toggles aria-expanded on the trigger.",
+        "Panel stays visible/pinned when multiple selections exist and collapses only when stateController reports zero selections.",
+        "Book chips render in selection order with remove buttons that call controller.dispatch('removeBook', bookId).",
+        "Save/Reset buttons reflect disabled/aria-busy state from controller state without desync.",
+        "Recommended price placeholder swaps to formatted output using formatPrice() once controller emits values.",
+        "Total MRP output renders alongside total price with placeholder copy when missing and updates when selections change."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ container: Element, panelHeading: Element, triggerSelector: string, bookList: Element, bundleNameInput: HTMLInputElement, bundlePriceInput: HTMLInputElement, recommendedPrice: Element, totalPrice: Element, totalMrp?: Element }",
+          "adapters": "{ controller, formatPrice, announce }",
+          "uiTexts": "{ panelTitle?, emptyState?, bundleNameLabel?, bundlePriceLabel?, recommendedPriceLabel?, totalPriceLabel?, totalMrpLabel?, saveLabel?, resetLabel? }"
+        },
+        "stateShape": {
+          "isOpen": "boolean",
+          "pinned": "boolean",
+          "activeBookIds": "string[]",
+          "fieldStatus": "{ bundleName: { value: string, error?: string }, bundlePrice: { value: string, error?: string } }",
+          "recommendedPriceText": "string",
+          "totalPriceText": "string",
+          "totalMrpText": "string"
+        },
+        "mountApi": "mountInlineBundlePanel(container, { params, adapters, uiTexts, options }) => { addBook(book, triggerButton), reset(), destroy() }",
+        "modulePath": "src/ui/patterns/inline-bundle-panel-shell/index.js"
+      }
+    },
+    {
+      "patternId": "BUNDLE_PRICE_RECOMMENDATION",
+      "type": "contract",
+      "version": "1.0.0",
+      "purpose": "Provide a reusable recommendation contract to compute bundle recommended price, total sale price, and total MRP once enough books are selected.",
+      "requiredParams": [
+        "currency",
+        "recommendationThreshold"
+      ],
+      "optionalParams": [
+        "debounceMs",
+        "maxBooks"
+      ],
+      "adapters": {
+        "fetchPriceRecommendation": "({ bookIds: string[], currency: string }) => Promise<{ recommendedPriceMinor: number|null, totalSalePriceMinor: number|null, totalMrpMinor?: number|null }>"
+      },
+      "uiTexts": {
+        "pendingCopy": "Add another book to see a recommended price",
+        "placeholder": "\u2014"
+      },
+      "a11yNotes": [
+        "Meant for aria-live surfaces; provide placeholder copy when recommendation data is missing.",
+        "Expose numeric fields; shells handle formatting and announcement so assistive tech hears value changes."
+      ],
+      "testBehaviors": [
+        "fetchPriceRecommendation only fires when selection count >= recommendationThreshold and requests debounce to avoid spam.",
+        "Adapter failures return null recommendation/totalSale values and keep placeholders intact.",
+        "totalMrpMinor is derived from supplied book metadata when present and clamps to 0/placeholder when missing.",
+        "Returned payload includes a status and lastUpdated timestamp so shells can show pending or stale states."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ currency: string, recommendationThreshold: number, debounceMs?: number, maxBooks?: number }",
+          "adapters": "{ fetchPriceRecommendation: ({ bookIds, currency }) => Promise<{ recommendedPriceMinor?: number|null, totalSalePriceMinor?: number|null, totalMrpMinor?: number|null }> }",
+          "options": "{ clock?: () => number }"
+        },
+        "stateShape": {
+          "recommendedPriceMinor": "number|null",
+          "totalSalePriceMinor": "number|null",
+          "totalMrpMinor": "number|null",
+          "status": "pending | ready | error",
+          "lastUpdated": "number (timestamp)"
+        },
+        "mountApi": "computeBundlePriceRecommendation({ bookIds, currency, options }) => Promise<{ recommendedPriceMinor, totalSalePriceMinor, totalMrpMinor, status, lastUpdated }>"
+      }
+    },
+    {
+      "patternId": "BUNDLE_COMPOSITION_CONTRACT",
+      "type": "contract",
+      "version": "1.0.0",
+      "purpose": "Define the canonical bundle document shape and pricing rules so Bundle -> Create and Available -> Add to bundle persist identical payloads.",
+      "requiredParams": [
+        "currency",
+        "recommendationThreshold",
+        "recommendationDiscountPct"
+      ],
+      "optionalParams": [
+        "pricePrecision",
+        "maxBooks",
+        "defaultStatus",
+        "clock"
+      ],
+      "adapters": {},
+      "uiTexts": {},
+      "a11yNotes": [
+        "Normalized totals support aria-live updates without per-flow math.",
+        "Recommended price gating prevents announcing values before the threshold is hit."
+      ],
+      "testBehaviors": [
+        "recommendedPriceMinor uses the shared discount formula once selection count >= recommendationThreshold and returns null below threshold.",
+        "Totals clamp negative or missing sale/mrp values to zero while preserving the order of bookSelections in persisted books.",
+        "recommendationComputedAt updates only when qualifying selections change and stays stable otherwise.",
+        "Output schema stays identical across bundle creation and inline add entry points, including pricing.recommendationBasis metadata."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ currency: string, recommendationThreshold: number, recommendationDiscountPct: number, pricePrecision?: number, maxBooks?: number, defaultStatus?: string }",
+          "bookSelections": "{ bookId: string, salePriceMinor: number, mrpMinor?: number, title?: string, supplierId?: string }[]",
+          "metadata": "{ bundleName: string, supplierId: string, supplierName?: string, bundlePriceMinor?: number|null, createdBy?: string, createdAt?: number, status?: 'Draft'|'Published' }"
+        },
+        "stateShape": {
+          "bundleDocument": "{ bundleId?: string, bundleName: string, status: 'Draft'|'Published', supplier: { id: string, name?: string }, books: { bookId: string, salePriceMinor: number, mrpMinor?: number|null, title?: string, supplierId?: string, position: number }[], totals: { totalSalePriceMinor: number, totalMrpMinor: number|null }, pricing: { recommendedPriceMinor: number|null, recommendationBasis: string, recommendationThreshold: number, bundlePriceMinor: number|null }, recommendationComputedAt?: number, createdBy?: string, createdAt?: number, updatedAt?: number }"
+        },
+        "mountApi": "buildBundleDocument({ params, bookSelections, metadata }) => bundleDocument"
+      },
+      "composes": [
+        "BUNDLE_PRICE_RECOMMENDATION"
+      ]
+    },
+    {
+      "patternId": "BUNDLE_COMPOSITION_CONTROLLER",
+      "type": "controller",
+      "version": "1.0.0",
+      "purpose": "Manage bundle composition state across Bundle -> Create and Available -> Add to bundle while applying the shared contract and pricing rules.",
+      "requiredParams": [
+        "currency",
+        "recommendationThreshold",
+        "recommendationDiscountPct",
+        "pricePrecision"
+      ],
+      "optionalParams": [
+        "maxBooks",
+        "persistSessionKey",
+        "defaultStatus",
+        "clock",
+        "analytics"
+      ],
+      "adapters": {
+        "loadBundle": "(bundleId: string) => Promise<BundleDocument>",
+        "saveBundle": "(bundleDocument: BundleDocument) => Promise<{ bundleId: string }>",
+        "computeRecommendation": "({ bookSelections: BookSelection[], currency: string, recommendationDiscountPct: number }) => Promise<{ recommendedPriceMinor: number|null, totalSalePriceMinor: number, totalMrpMinor: number|null, recommendationComputedAt?: number }>",
+        "onStateChange": "(state: BundleCompositionState) => void"
+      },
+      "uiTexts": {
+        "pricingPendingCopy": "Add another book to see recommended price",
+        "pricingAnnounceTemplate": "Recommended price updated to {price}",
+        "discountCopy": "Recommended price is 25% off combined sale price"
+      },
+      "a11yNotes": [
+        "Expose pricingPendingCopy so shells gate announcements until the threshold is satisfied.",
+        "Emit pricingAnnounceTemplate tokens so screen reader output is consistent across both routes."
+      ],
+      "testBehaviors": [
+        "Fires computeRecommendation once when the second book is added and again when qualifying selections change, debouncing rapid toggles.",
+        "Prevents duplicate bookIds and enforces maxBooks where provided while emitting validation errors instead of mutating state.",
+        "getBundleDocument() and saveBundle() return contract-shaped payloads including totals and pricing from the shared contract.",
+        "Blocks save while isSaving is true or selection count is below recommendationThreshold, unlocking immediately after valid pricing arrives.",
+        "Restores persisted drafts via persistSessionKey and mirrors updates through onStateChange."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ currency: string, recommendationThreshold: number, recommendationDiscountPct: number, pricePrecision: number, maxBooks?: number, persistSessionKey?: string, defaultStatus?: string }",
+          "adapters": "{ loadBundle?, saveBundle, computeRecommendation, onStateChange? }",
+          "options": "{ debounceMs?: number, analytics?: { track(event: string, payload: any) => void }, clock?: () => number }"
+        },
+        "stateShape": {
+          "books": "{ bookId: string, title?: string, salePriceMinor: number, mrpMinor?: number|null }[]",
+          "bundleName": "string",
+          "bundlePriceMinor": "number|null",
+          "totals": "{ totalSalePriceMinor: number, totalMrpMinor: number|null }",
+          "pricing": "{ recommendedPriceMinor: number|null, recommendationBasis: string, recommendationThreshold: number, recommendationComputedAt?: number }",
+          "status": "'Draft'|'Published'",
+          "lastInteraction": "number",
+          "isSaving": "boolean"
+        },
+        "mountApi": "createBundleCompositionController({ params, adapters, uiTexts, options }) => { addBook, removeBook, setBundleName, setBundlePrice, getBundleDocument, saveBundle, reset, subscribe, destroy }"
+      },
+      "composes": [
+        "BUNDLE_COMPOSITION_CONTRACT",
+        "BUNDLE_PRICE_RECOMMENDATION"
+      ]
+    },
+    {
+      "patternId": "INLINE_BUNDLE_COMPOSER_CONTROLLER",
+      "type": "controller",
+      "version": "1.0.0",
+      "purpose": "Manage inline bundle context, pricing, validation, and persistence hooks without forcing navigation away from Available Books.",
+      "requiredParams": [
+        "currency",
+        "pricePrecision",
+        "recommendationThreshold"
+      ],
+      "optionalParams": [
+        "bundleId",
+        "maxBooks",
+        "persistSessionKey",
+        "defaultBundleNamePrefix",
+        "clock",
+        "analytics"
+      ],
+      "adapters": {
+        "fetchPriceRecommendation": "({ bookIds: string[], currency: string }) => Promise<{ recommendedPriceMinor: number, totalSalePriceMinor: number }>",
+        "loadBundle": "(bundleId: string) => Promise<{ bundleName: string, bundlePriceMinor: number, bookIds: string[] }>",
+        "saveBundle": "(payload: { bundleName: string, bundlePriceMinor: number, bookIds: string[], bundleId?: string }) => Promise<{ bundleId: string }>",
+        "persistDraft": "(state: Record<string, any>) => void",
+        "onStateChange": "(state: BundleComposerState) => void"
+      },
+      "uiTexts": {
+        "defaultBundleNamePrefix": "Bundle from Available Books",
+        "pricePlaceholder": "Enter bundle price",
+        "recommendedPendingCopy": "Add another book to see the recommended price",
+        "errorDuplicate": "This book is already part of the bundle"
+      },
+      "a11yNotes": [
+        "Expose lastAnnouncedMessage so shells can pipe it directly to aria-live without inferring intent.",
+        "Track focusRestoreTarget after destructive actions (clear/reset) so the shell can restore focus predictably.",
+        "Emit validationErrors with field-friendly keys so shells may set aria-invalid without string parsing."
+      ],
+      "testBehaviors": [
+        "First addBook() call spawns an empty context with a generated bundleId and stores the triggering book without duplicates.",
+        "Recommended/total price calculations only fire when selection count >= recommendationThreshold and collapse back to placeholders when below threshold.",
+        "totalMrpMinor is derived from selected book metadata when present and returns 0 (or null) when data is missing.",
+        "Validation errors block saveBundle() and clear immediately after the field becomes valid.",
+        "Reset returns controller state to the initial empty draft while preserving persistSessionKey metadata when provided.",
+        "saveBundle() is idempotent; duplicate invocations while isSaving stays true are ignored."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ currency: string, pricePrecision: number, recommendationThreshold: number, maxBooks?: number, persistSessionKey?: string, defaultBundleNamePrefix?: string }",
+          "adapters": "{ fetchPriceRecommendation, loadBundle, saveBundle, persistDraft?, onStateChange? }",
+          "options": "{ debounceMs?: number, analytics?: { track(event, payload) } }"
+        },
+        "stateShape": {
+          "bundleId": "string|null",
+          "books": "{ id: string, title: string, salePriceMinor: number }[]",
+          "bundleName": "string",
+          "bundlePriceMinor": "number|null",
+          "recommendedPriceMinor": "number|null",
+          "totalSalePriceMinor": "number",
+          "totalMrpMinor": "number|null",
+          "validationErrors": "Record<string,string>",
+          "isSaving": "boolean",
+          "resumeBundleId": "string|null",
+          "lastInteraction": "number (timestamp)"
+        },
+        "mountApi": "createInlineBundleComposerController({ params, adapters, uiTexts, options }) => { addBook(book), removeBook(bookId), updateFields(partial), setExistingBundle(bundleId), reset(), saveBundle(), getState(), subscribe(listener), destroy() }"
+      }
+    },
+    {
+      "patternId": "INLINE_BUNDLE_COMPOSER",
+      "type": "aggregate",
+      "version": "1.0.0",
+      "purpose": "Bundle the inline composer shell and controller so list views can mount one factory to add books to bundles, preview pricing, and save without page swaps.",
+      "requiredParams": [
+        "container",
+        "panelHeading",
+        "triggerSelector",
+        "bookList",
+        "bundleNameInput",
+        "bundlePriceInput",
+        "recommendedPrice",
+        "totalPrice",
+        "saveButton",
+        "currency"
+      ],
+      "optionalParams": [
+        "existingBundleSelect",
+        "resetButton",
+        "overlay",
+        "closeButton",
+        "pinButton",
+        "viewBundleLink",
+        "emptyState",
+        "persistSessionKey",
+        "maxBooks",
+        "totalMrp",
+        "recommendationThreshold"
+      ],
+      "adapters": {
+        "fetchPriceRecommendation": "({ bookIds: string[], currency: string }) => Promise<{ recommendedPriceMinor: number, totalSalePriceMinor: number }>",
+        "loadBundle": "(bundleId: string) => Promise<{ bundleName: string, bundlePriceMinor: number, bookIds: string[] }>",
+        "listExistingBundles": "() => Promise<{ id: string, name: string, bookCount: number }[]>",
+        "saveBundle": "(payload: { bundleName: string, bundlePriceMinor: number, bookIds: string[], bundleId?: string }) => Promise<{ bundleId: string }>",
+        "linkBooks": "(bundleId: string, bookIds: string[]) => Promise<void>",
+        "formatPrice": "(valueInMinorUnits: number, currency: string) => string",
+        "toastSuccess": "(message: string, options?: Record<string,any>) => void",
+        "toastError": "(message: string, options?: Record<string,any>) => void",
+        "announce": "(message: string) => void"
+      },
+      "uiTexts": {
+        "panelTitle": "Bundle in progress",
+        "emptyState": "Add a book to start a bundle",
+        "existingBundleLabel": "Continue existing bundle",
+        "saveLabel": "Save bundle",
+        "updateLabel": "Update bundle",
+        "clearBundleLabel": "Clear bundle",
+        "viewBundleLabel": "View bundle",
+        "totalMrpLabel": "Total MRP"
+      },
+      "a11yNotes": [
+        "Aggregate must apply aria-live to pricing summaries and toast messages while keeping focus inside the composer during saves.",
+        "Expose do-not-change selectors for triggers (#inlineBundleComposer, [data-test='bookAddToBundle']) so codex-tdd can rely on them across topics.",
+        "When errors occur the shell should receive focus on an inline error summary before returning focus to the Save button.",
+        "Provide aria-controls relationships between triggers and the drawer container for assistive tech context."
+      ],
+      "testBehaviors": [
+        "First Add to bundle trigger mounts the aggregate exactly once and wires controller->shell state without race conditions.",
+        "Existing bundle selection hydrates controller state and refreshes shell chips without losing unsaved book selections.",
+        "Recommendation adapter auto-fires once selection count meets the threshold (default 2) and streams formatted recommended/total prices plus total MRP to the shell.",
+        "saveBundle() promise resolution shows toastSuccess, passes bundleId to viewBundleLink, and clears state only when the user confirms.",
+        "Error paths call toastError, keep the panel open, and leave controller state untouched for retries.",
+        "linkBooks() calls happen after saveBundle() resolves to ensure Firestore writes stay ordered."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ container, panelHeading, triggerSelector, bookList, bundleNameInput, bundlePriceInput, recommendedPrice, totalPrice, saveButton, currency, existingBundleSelect?, resetButton?, totalMrp?, recommendationThreshold?, persistSessionKey?, maxBooks? }",
+          "adapters": "{ fetchPriceRecommendation, loadBundle, listExistingBundles?, saveBundle, linkBooks, formatPrice, toastSuccess, toastError, announce }",
+          "uiTexts": "{ panelTitle?, emptyState?, existingBundleLabel?, saveLabel?, updateLabel?, clearBundleLabel?, viewBundleLabel?, totalMrpLabel? }"
+        },
+        "stateShape": {
+          "controllerState": "InlineBundleComposerControllerState",
+          "shellState": "{ isOpen: boolean, pinned: boolean, chipOrder: string[] }",
+          "teardown": "() => void"
+        },
+        "mountApi": "mountInlineBundleComposer({ params, adapters, uiTexts, options }) => { destroy(), controller, shell }"
+      },
+      "composes": [
+        "INLINE_BUNDLE_PANEL_SHELL",
+        "INLINE_BUNDLE_COMPOSER_CONTROLLER",
+        "BUNDLE_PRICE_RECOMMENDATION"
       ]
     }
   ]

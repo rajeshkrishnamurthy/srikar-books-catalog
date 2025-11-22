@@ -7,12 +7,13 @@ export async function createAdminInventoryHarness(options = {}) {
     firebaseOverrides = {},
     onScrollIntoView = jest.fn(),
     paginationControllerFactory,
+    domSource,
   } = options;
 
   jest.resetModules();
   jest.clearAllMocks();
 
-  const dom = buildDom(onScrollIntoView);
+  const dom = buildDom(onScrollIntoView, domSource);
   const firebase = buildFirebaseMocks(firebaseOverrides);
   globalThis.__firebaseMocks = firebase;
 
@@ -56,8 +57,19 @@ export async function createAdminInventoryHarness(options = {}) {
   };
 }
 
-function buildDom(onScrollIntoView) {
-  document.body.innerHTML = `
+function buildDom(onScrollIntoView, domSource) {
+  if (typeof domSource === 'string' && domSource.trim()) {
+    if (typeof DOMParser === 'function') {
+      const parser = new DOMParser();
+      const parsed = parser.parseFromString(domSource, 'text/html');
+      parsed.querySelectorAll('script').forEach((node) => node.remove());
+      const bodyMarkup = parsed.body?.innerHTML || domSource;
+      document.body.innerHTML = bodyMarkup;
+    } else {
+      document.body.innerHTML = domSource;
+    }
+  } else {
+    document.body.innerHTML = `
     <details id="availableBooksPanel" open>
       <summary>
         <div class="available-summary">
@@ -126,6 +138,71 @@ function buildDom(onScrollIntoView) {
         </div>
       </div>
       <div id="availList"></div>
+      <section
+        id="inlineBundleComposer"
+        class="inline-bundle-composer"
+        role="region"
+        aria-labelledby="inlineBundleHeading"
+        hidden
+      >
+        <header class="inline-bundle-composer__header">
+          <h3 id="inlineBundleHeading" tabindex="-1">Bundle in progress</h3>
+          <button
+            id="inlineBundleClose"
+            type="button"
+            aria-label="Close bundle composer"
+          >
+            ×
+          </button>
+        </header>
+        <div class="inline-bundle-composer__body">
+          <p id="inlineBundleEmptyState">Add a book to start a bundle</p>
+          <div id="inlineBundleSelectedBooks" role="list"></div>
+          <div class="inline-bundle-composer__form">
+            <label for="inlineBundleName">Bundle name</label>
+            <input
+              id="inlineBundleName"
+              type="text"
+              required
+              aria-required="true"
+              aria-describedby="inlineBundleHelper"
+            />
+            <label for="inlineBundlePrice">Bundle price</label>
+            <input
+              id="inlineBundlePrice"
+              type="number"
+              required
+              aria-required="true"
+              aria-describedby="inlineBundleHelper"
+            />
+            <label class="sr-only" for="inlineBundleExistingSelect">
+              Continue existing bundle
+            </label>
+            <select id="inlineBundleExistingSelect"></select>
+          </div>
+          <dl class="inline-bundle-composer__totals">
+            <div>
+              <dt>Recommended price</dt>
+              <dd id="inlineBundleRecommended">—</dd>
+            </div>
+            <div>
+              <dt>Total sale price</dt>
+              <dd id="inlineBundleTotal">—</dd>
+            </div>
+            <div>
+              <dt>Total MRP</dt>
+              <dd id="inlineBundleMrp">—</dd>
+            </div>
+          </dl>
+        </div>
+        <p id="inlineBundleHelper" class="inline-bundle-composer__helper">
+          Bundle name and bundle price are required before saving.
+        </p>
+        <footer class="inline-bundle-composer__actions">
+          <button id="inlineBundleReset" type="button">Clear bundle</button>
+          <button id="inlineBundleSave" type="button" disabled>Save bundle</button>
+        </footer>
+      </section>
     </details>
     <details id="soldBooksPanel">
       <summary>
@@ -187,8 +264,11 @@ function buildDom(onScrollIntoView) {
       <div id="soldList"></div>
     </details>
   `;
+  }
   const availablePanel = document.getElementById('availableBooksPanel');
-  availablePanel.scrollIntoView = onScrollIntoView;
+  if (availablePanel) {
+    availablePanel.scrollIntoView = onScrollIntoView;
+  }
   return {
     availablePanel,
     availableSearchInput: document.getElementById('availableSearchInput'),

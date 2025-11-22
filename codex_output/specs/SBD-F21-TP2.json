@@ -1,0 +1,66 @@
+{
+  "topicId": "SBD-F21-TP2",
+  "featureId": "F21",
+  "title": "Bundle Actions Preserve Pagination Context",
+  "area": "Admin / Bundles",
+  "goal": "Keep Manage Bundles pagination stable while admins publish/unpublish or edit bundles so only the active page refreshes.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F21-TP2-001",
+      "title": "PublishActionsRefreshCurrentPage",
+      "given": "An admin is on the Manage tab of Bundles with the pagination suite mounted on a later page.",
+      "when": "They toggle the inline Publish switch for a row to publish or unpublish it.",
+      "then": "The Manage Bundles controller calls refresh() on the pagination instance so the current slice refetches without resetting to page 1."
+    },
+    {
+      "id": "SBD-F21-TP2-002",
+      "title": "FilteredUnpublishKeepsFilters",
+      "given": "Status filters (e.g., Published) are active and the admin is viewing a page that contains matching rows.",
+      "when": "They unpublish a bundle so it drops out of the filter.",
+      "then": "Only the active page is refetched, totals update to reflect the removal, and neither filters nor location search values are reset."
+    },
+    {
+      "id": "SBD-F21-TP2-003",
+      "title": "InlineEditHooksTriggerRefresh",
+      "given": "Inline edit controls inside Manage Bundles fire callbacks when they persist changes to Firestore.",
+      "when": "The list signals that an inline mutation completed.",
+      "then": "Manage Bundles passes that signal to the pagination controller (via refresh) so the same slice reloads and cursors/filter context stay intact."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminMainHarness.js",
+    "/tests/fixtures/paginationControllerStub.js",
+    "/tests/fixtures/manageBundlesListStub.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F21-TP2-001_BundlePublishActionsRefreshCurrentPage.spec.js",
+    "/tests/spec/admin/SBD-F21-TP2-002_FilteredUnpublishPreservesContext.spec.js",
+    "/tests/spec/admin/SBD-F21-TP2-003_InlineEditsRequestRefresh.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F21-TP2_red.txt",
+    "green": "codex_output/reports/SBD-F21-TP2_green.txt"
+  },
+  "changedFiles": [
+    "tests/fixtures/adminMainHarness.js",
+    "tests/fixtures/manageBundlesListStub.js",
+    "tests/spec/admin/SBD-F21-TP2-001_BundlePublishActionsRefreshCurrentPage.spec.js",
+    "tests/spec/admin/SBD-F21-TP2-002_FilteredUnpublishPreservesContext.spec.js",
+    "tests/spec/admin/SBD-F21-TP2-003_InlineEditsRequestRefresh.spec.js",
+    "codex_output/specs/SBD-F21-TP2.json",
+    "codex_output/reports/SBD-F21-TP2_red.txt",
+    "scripts/admin/main.js",
+    "codex_output/reports/SBD-F21-TP2_green.txt"
+  ],
+  "changeNotes": [
+    "Manage Bundles now forwards publish toggle completions and inline mutation callbacks to the pagination controller so only the active page refetches.",
+    "Added a shared refresh helper that the bundle list stubs invoke via onBundleMutation, keeping filter and cursor context stable during edits."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false --bail=0 SBD-F21-TP2",
+    "report": "codex_output/reports/SBD-F21-TP2_green.txt"
+  }
+}

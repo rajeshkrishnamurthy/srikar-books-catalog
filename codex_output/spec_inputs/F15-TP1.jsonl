@@ -1,0 +1,7 @@
+{"type":"meta","topicId":"F15-TP1","title":"Unified Admin Nav Map"}
+{"type":"given","text":"An authenticated admin loads /admin and sees the workspace shell."}
+{"type":"when","text":"The navigation bar initializes."}
+{"type":"then","text":"Buttons for each panel appear with consistent data-nav ids, aria-controls, and keyboard order so any workflow can be entered without scrolling."}
+{"type":"ui-anchor","selector":"#adminNav"}
+{"type":"js-handler","event":"init","selector":"#adminNav","handler":"renderAdminNav"}
+{"type":"adapter-call","function":"handleAdminNav","args":["targetSection"]}

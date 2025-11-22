@@ -1,0 +1,4 @@
+Status: RED
+Reason: bundle composition pattern is missing; mountBundleComposition cannot be imported to wire both routes.
+How to reproduce: cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F26-TP1
+Expected failure: import error for src/ui/patterns/bundle-composition when the bundleCompositionHarness attempts to mount the shared controller.

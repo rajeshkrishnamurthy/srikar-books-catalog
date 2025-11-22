@@ -1,0 +1,11 @@
+{"type":"meta","topicId":"F17-TP2","title":"Sale Sub Nav Shell"}
+{"type":"given","text":"The nav renders after sign-in with the Manage helper registered."}
+{"type":"when","text":"The Sale tile activates or a user loads /admin#sale/record."}
+{"type":"then","text":"A Sale dropdown (matching Manage/Bundles styling) appears with Record selected, the Record sale panel is the only visible section, hashes normalize to `#sale/record`, and no duplicate handlers/styles are added."}
+{"type":"ui-anchor","selector":"#saleSubNav"}
+{"type":"ui-anchor","selector":"#saleEntryPanel"}
+{"type":"ui-anchor","selector":"#adminNav"}
+{"type":"js-handler","event":"click","selector":"#saleSubNav button","handler":"handleSaleSubNav"}
+{"type":"js-handler","event":"init","selector":"#adminNav","handler":"renderAdminNav"}
+{"type":"adapter-call","function":"syncSaleHash","args":["targetTab"]}
+{"type":"adapter-call","function":"handleAdminNav","args":["targetSection"]}

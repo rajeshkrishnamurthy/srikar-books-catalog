@@ -1,0 +1,10 @@
+{"type":"meta","topicId":"F14-TP3","title":"Dedicated Admin Task Pages"}
+{"type":"given","text":"An admin activates a nav tile other than Add Book."}
+{"type":"when","text":"Navigation swaps or routes to the requested task."}
+{"type":"then","text":"Only that task’s panel renders with its own hero/actions, while the menu highlights the active tile and offers a quick return path."}
+{"type":"ui-anchor","selector":"#contentPanels"}
+{"type":"ui-anchor","selector":"#adminNav"}
+{"type":"js-handler","event":"click","selector":"[data-nav]","handler":"routeToTaskPage"}
+{"type":"js-handler","event":"init","selector":"#adminNav","handler":"renderAdminNav"}
+{"type":"adapter-call","function":"loadTaskPage","args":["navId"]}
+{"type":"adapter-call","function":"handleAdminNav","args":["targetSection"]}

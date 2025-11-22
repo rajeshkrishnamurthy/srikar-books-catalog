@@ -1,0 +1,84 @@
+/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 18: /bin/ps: Operation not permitted
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F24-TP4
+
+(node:91501) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/spec/admin/SBD-F24-TP4-001_AutoRecommendationFiresOnSecondSelection.spec.js
+  SPEC SBD-F24-TP4-001: Auto recommendation fires on second selection
+    ✕ Selecting a second book triggers fetchPriceRecommendation with both ids and currency (18 ms)
+
+  ● SPEC SBD-F24-TP4-001: Auto recommendation fires on second selection › Selecting a second book triggers fetchPriceRecommendation with both ids and currency
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer/index.js' from 'tests/fixtures/inlineBundleComposerHarness.js']
+
+      16 |     const { importError, mountError, api, adapters } = await mountInlineBundleComposerHarness({
+      17 |       adapters: { fetchPriceRecommendation }
+    > 18 |     });
+         |      ^
+      19 |
+      20 |     expect(importError).toBeUndefined();
+      21 |     expect(mountError).toBeUndefined();
+
+FAIL tests/spec/admin/SBD-F24-TP4-002_FormattedPricingTextUpdates.spec.js
+  SPEC SBD-F24-TP4-002: Pricing text refreshes via formatter
+    ✕ Recommendation results update recommended and total sale price text with formatted values (17 ms)
+
+  ● SPEC SBD-F24-TP4-002: Pricing text refreshes via formatter › Recommendation results update recommended and total sale price text with formatted values
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer/index.js' from 'tests/fixtures/inlineBundleComposerHarness.js']
+
+      18 |       .mockImplementation((valueInMinorUnits, currency) => `${currency} ${(valueInMinorUnits / 100).toFixed(2)}`);
+      19 |
+    > 20 |     const { importError, mountError, api, adapters, elements } = await mountInlineBundleComposerHarness({
+         |                                                                                ^
+      21 |       adapters: { fetchPriceRecommendation, formatPrice }
+      22 |     });
+      23 |
+
+FAIL tests/spec/admin/SBD-F24-TP4-003_TotalMrpSummedAndAnnounced.spec.js
+  SPEC SBD-F24-TP4-003: Total MRP is summed and announced
+    ✕ Total MRP renders from selected book metadata and is announced via the adapter (20 ms)
+
+  ● SPEC SBD-F24-TP4-003: Total MRP is summed and announced › Total MRP renders from selected book metadata and is announced via the adapter
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer/index.js' from 'tests/fixtures/inlineBundleComposerHarness.js']
+
+      24 |
+      25 |     const { importError, mountError, api, adapters, elements } = await mountInlineBundleComposerHarness({
+    > 26 |       adapters: { fetchPriceRecommendation, formatPrice, announce },
+         |                                                       ^
+      27 |       bookFixtures: booksWithMrp
+      28 |     });
+      29 |
+
+FAIL tests/spec/admin/SBD-F24-TP4-004_TotalMrpFallbackWhenMissing.spec.js
+  SPEC SBD-F24-TP4-004: Total MRP fallback when data is missing
+    ✕ Missing MRP data renders placeholder copy and still announces the change (21 ms)
+
+  ● SPEC SBD-F24-TP4-004: Total MRP fallback when data is missing › Missing MRP data renders placeholder copy and still announces the change
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '/Users/rajeshk/Downloads/sbd/src/ui/patterns/inline-bundle-composer/index.js' from 'tests/fixtures/inlineBundleComposerHarness.js']
+
+      20 |     const formatPrice = jest
+      21 |       .fn()
+    > 22 |       .mockImplementation((valueInMinorUnits, currency) => `${currency} ${(valueInMinorUnits / 100).toFixed(2)}`);
+         |                        ^
+      23 |     const announce = jest.fn();
+      24 |
+      25 |     const { importError, mountError, api, adapters, elements } = await mountInlineBundleComposerHarness({
+
+Test Suites: 4 failed, 4 total
+Tests:       4 failed, 4 total
+Snapshots:   0 total
+Time:        2.04 s
+Ran all test suites matching /SBD-F24-TP4/i.

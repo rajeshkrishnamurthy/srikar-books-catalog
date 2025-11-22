@@ -1,0 +1,67 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F23-TP1
+
+(node:41792) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/SBD-F23-TP1-001_InlineBundlePanelMarkup.spec.js
+  SPEC SBD-F23-TP1-001: Available panel exposes inline bundle composer shell
+    ✓ admin.html ships the inline composer container with stable selectors and empty state (83 ms)
+
+(node:41793) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/SBD-F23-TP1-002_AvailableRowAddToBundleAction.spec.js
+  SPEC SBD-F23-TP1-002: Available rows expose Add to bundle action
+    ✓ rendered Available rows render Add to bundle buttons that target the inline composer (328 ms)
+
+(node:41790) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41789) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41791) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/spec/admin/SBD-F23-TP1-005_ClosePreservesSelection.spec.js
+  SPEC SBD-F23-TP1-005: Closing drawer preserves selected books
+    ✓ Clicking the close button hides the drawer without clearing selected book chips (117 ms)
+
+PASS tests/spec/admin/SBD-F23-TP1-003_AddToBundleOpensComposer.spec.js
+  SPEC SBD-F23-TP1-003: Add to bundle trigger opens inline composer
+    ✓ first selection opens the drawer, focuses its heading, and seeds the selected book chip (170 ms)
+
+PASS tests/spec/admin/SBD-F23-TP1-004_CloseReturnsFocus.spec.js
+  SPEC SBD-F23-TP1-004: Closing composer restores focus to trigger
+    ✓ Close button collapses the drawer and returns focus to the originating Add to bundle button (167 ms)
+
+-------------------------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                                                                                                                                
+-------------------------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                                  |    7.12 |     5.75 |    7.63 |    7.51 |                                                                                                                                                                                                                                                                                                                  
+ scripts/admin                             |    5.58 |     4.75 |    5.79 |     5.9 |                                                                                                                                                                                                                                                                                                                  
+  auth.js                                  |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                                                                                                                                                                            
+  autoPrice.js                             |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                                                                                                                                                                             
+  availablePagination.js                   |       0 |        0 |       0 |       0 | 5-353                                                                                                                                                                                                                                                                                                            
+  bundleList.js                            |       0 |        0 |       0 |       0 | 2-510                                                                                                                                                                                                                                                                                                            
+  bundleStatus.js                          |       0 |        0 |       0 |       0 | 7-110                                                                                                                                                                                                                                                                                                            
+  bundles.js                               |       0 |        0 |       0 |       0 | 3-494                                                                                                                                                                                                                                                                                                            
+  currency.js                              |       0 |        0 |       0 |       0 | 6-31                                                                                                                                                                                                                                                                                                             
+  customerLookup.js                        |       0 |        0 |       0 |       0 | 3-392                                                                                                                                                                                                                                                                                                            
+  customers.js                             |       0 |        0 |       0 |       0 | 3-520                                                                                                                                                                                                                                                                                                            
+  editor.js                                |       0 |        0 |       0 |       0 | 27-411                                                                                                                                                                                                                                                                                                           
+  inventory.js                             |   39.03 |    30.18 |   46.39 |   41.43 | 34,39-50,63,70,147-194,203,261,266-285,292-456,493,499-506,513,520,552,561,573-580,596-597,695,716-720,757-758,763,768-858,868-878,885-886,924,936-946,953-1017,1024-1026,1125,1134,1138-1141,1152,1173-1174,1181-1190,1194-1203,1214-1284,1307-1314,1320-1322,1330-1332,1335-1337,1341-1351,1355-1358,1370-1373 
+  lookup.js                                |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                                                                                                                                                                           
+  main.js                                  |       0 |        0 |       0 |       0 | 40-2318                                                                                                                                                                                                                                                                                                          
+  requests.js                              |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                                                                                                                                                                             
+  salesEntryLauncher.js                    |       0 |        0 |       0 |       0 | 2-68                                                                                                                                                                                                                                                                                                             
+  salesHeader.js                           |       0 |        0 |       0 |       0 | 3-505                                                                                                                                                                                                                                                                                                            
+  salesLineItems.js                        |       0 |        0 |       0 |       0 | 3-914                                                                                                                                                                                                                                                                                                            
+  salesPersist.js                          |       0 |        0 |       0 |       0 | 1-170                                                                                                                                                                                                                                                                                                            
+  salesTitleAutocomplete.js                |       0 |        0 |       0 |       0 | 9-225                                                                                                                                                                                                                                                                                                            
+  suppliers.js                             |       0 |        0 |       0 |       0 | 13-319                                                                                                                                                                                                                                                                                                           
+ src/ui/patterns/inline-bundle-panel-shell |   72.88 |    51.68 |   69.56 |   75.67 |                                                                                                                                                                                                                                                                                                                  
+  index.js                                 |   72.88 |    51.68 |   69.56 |   75.67 | 24-28,45,51,69,76,79,121-122,152,157-168,186-189                                                                                                                                                                                                                                                                 
+-------------------------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 5 passed, 5 total
+Tests:       5 passed, 5 total
+Snapshots:   0 total
+Time:        2.198 s
+Ran all test suites matching /SBD-F23-TP1/i.

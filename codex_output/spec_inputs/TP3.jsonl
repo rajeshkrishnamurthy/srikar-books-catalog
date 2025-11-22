@@ -1,0 +1,8 @@
+{"type":"meta","topicId":"TP3","title":"Admin Visibility of Purchase Price"}
+{"type":"given","text":"An admin loads the inventory dashboard or detail drawer."}
+{"type":"when","text":"Books are rendered in the admin UI."}
+{"type":"then","text":"Each entry shows the stored purchase price (formatted currency or placeholder when missing) without affecting actions."}
+{"type":"ui-anchor","selector":"#availableList"}
+{"type":"ui-anchor","selector":".purchase-price"}
+{"type":"js-handler","event":"render","selector":"#availableList","handler":"renderAvailableBooks"}
+{"type":"adapter-call","function":"subscribeToAvailableBooks","args":["includePurchasePrice"]}

@@ -1,0 +1,14 @@
+{"type":"meta","topicId":"SBD-F20-TP2","title":"Sold Books Pagination Shell & Summary"}
+{"type":"given","text":"The Sold Books panel is visible and exceeds the selected page size."}
+{"type":"when","text":"An admin clicks Prev/Next, changes page size, or keyboard-navigates the shell."}
+{"type":"then","text":"Controls disable while loading, the list and summary (\"Items 21-40 of 180 - Sold\") update, and hash/back-button state stays in sync."}
+{"type":"ui-anchor","selector":"#soldPagination"}
+{"type":"ui-anchor","selector":"#soldPaginationPrev"}
+{"type":"ui-anchor","selector":"#soldPaginationNext"}
+{"type":"ui-anchor","selector":"#soldPaginationSummary"}
+{"type":"ui-anchor","selector":"#soldPaginationSize"}
+{"type":"js-handler","event":"click","selector":"#soldPaginationPrev","handler":"goPrevSold"}
+{"type":"js-handler","event":"click","selector":"#soldPaginationNext","handler":"goNextSold"}
+{"type":"js-handler","event":"change","selector":"#soldPaginationSize","handler":"changeSoldPageSize"}
+{"type":"adapter-call","function":"fetchSoldBooksPage","args":["pageRequest"]}
+{"type":"adapter-call","function":"syncSoldPagingToLocation","args":["page","pageSize"]}

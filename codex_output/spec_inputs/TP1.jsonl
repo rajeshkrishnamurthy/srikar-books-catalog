@@ -1,0 +1,10 @@
+{"type":"meta","topicId":"TP1","title":"Capture Purchase Price on Add"}
+{"type":"given","text":"An authenticated admin opens the Add Book form."}
+{"type":"when","text":"They enter a numeric purchase price and submit the form."}
+{"type":"then","text":"The value is validated (required, non-negative) and written to Firestore with the new book."}
+{"type":"ui-anchor","selector":"#addForm"}
+{"type":"ui-anchor","selector":"#priceInput"}
+{"type":"ui-anchor","selector":"#mrpInput"}
+{"type":"ui-anchor","selector":"#purchasePriceInput"}
+{"type":"js-handler","event":"submit","selector":"#addForm","handler":"handleSubmit"}
+{"type":"adapter-call","function":"addBook","args":["formData"]}

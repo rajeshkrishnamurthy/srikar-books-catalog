@@ -1,0 +1,193 @@
+alias.nf !f(){ \
+  git fetch origin && \
+  if git show-ref --verify --quiet refs/heads/feature/$1; then \
+    git switch feature/$1; \
+  else \
+    git switch -c feature/$1 origin/staging && git push -u origin HEAD; \
+  fi; \
+}; f
+alias.prs !gh pr create --base staging --head $(git branch --show-current) --web
+alias.prm !gh pr create --base main --head $(git branch --show-current) --web
+alias.sqs !f(){ \
+  set -e; \
+  BR=$(git branch --show-current); \
+  git fetch origin >/dev/null 2>&1 || true; \
+  # Ensure there is a PR for this branch
+  if ! gh pr view >/dev/null 2>&1; then echo "No PR found for $BR"; exit 1; fi; \
+  BASE=$(gh pr view --json baseRefName -q .baseRefName); \
+  PRNUM=$(gh pr view --json number -q .number); \
+  if [ "$BASE" != "staging" ]; then echo "PR base is \"$BASE\" (expected staging)"; exit 1; fi; \
+  echo "Squash-merging PR #$PRNUM ($BR → staging)…"; \
+  gh pr merge "$PRNUM" --squash; \
+  echo "Done."; \
+}; f
+alias.cf !f(){ \
+  set -e; \
+  BR=$(git branch --show-current); \
+  if [ "$BR" = "staging" ] || [ "$BR" = "main" ]; then echo "Refusing to clean up $BR"; exit 1; fi; \
+  echo "Deleting remote branch origin/$BR (if exists)…"; \
+  git push origin --delete "$BR" 2>/dev/null || echo "(remote branch absent)"; \
+  echo "Switching to staging and updating…"; \
+  git switch staging; \
+  git pull --ff-only; \
+  echo "Deleting local branch $BR…"; \
+  if git diff --quiet origin/staging...$BR; then \
+    git branch -D "$BR"; \
+  else \
+    git branch -d "$BR" || { \
+      echo "Branch not fully merged AND has diffs vs staging; aborting."; exit 1; }; \
+  fi; \
+  echo "Pruning remotes…"; \
+  git fetch -p; \
+  echo "Cleanup complete."; \
+}; f
+alias.nt !f(){ \
+  git fetch origin >/dev/null 2>&1 || true; \
+  BASE=$(git branch --show-current); \
+  if [[ "$BASE" != feature/* ]]; then \
+    echo "❌ You must be on a feature branch to create a topic branch."; \
+    exit 1; \
+  fi; \
+  echo "🔄 Checking if $BASE is up to date with origin..."; \
+  git pull --ff-only || echo "⚠️  Could not fast-forward $BASE (diverged or no remote changes). Proceeding anyway."; \
+  TOPIC=topic/$1; \
+  if git rev-parse --verify "$TOPIC" >/dev/null 2>&1; then \
+    echo "⚠️  Branch $TOPIC already exists. Switching to it..."; \
+    git switch "$TOPIC"; \
+  else \
+    git switch -c "$TOPIC" "$BASE"; \
+    git push -u origin HEAD; \
+    git config branch."$TOPIC".parent "$BASE"; \
+    echo "✅ Created $TOPIC from $BASE, pushed to origin, and recorded parent."; \
+  fi; \
+}; f
+alias.prf !f(){ \
+  BR=$(git branch --show-current); \
+  if [[ "$BR" != topic/* ]]; then \
+    echo "❌ You must be on a topic branch to open a PR to its feature."; \
+    exit 1; \
+  fi; \
+  PARENT=$(git config branch."$BR".parent); \
+  if [ -z "$PARENT" ]; then \
+    echo "⚠️  No parent feature recorded for $BR. Please specify manually:"; \
+    read -p "Enter feature branch name (e.g. feature/staging-persistence): " PARENT; \
+  fi; \
+  echo "📬 Creating PR from $BR → $PARENT"; \
+  gh pr create --base "$PARENT" --head "$BR" --web; \
+}; f
+alias.sqf !f(){ \
+  BR=$(git branch --show-current) || { echo "❌ Cannot detect branch"; exit 1; }; \
+  if [[ "$BR" != topic/* ]]; then \
+    echo "❌ Must be on topic/* branch"; exit 1; fi; \
+  PARENT=$(git config branch."$BR".parent); \
+  if [ -z "$PARENT" ]; then \
+    echo "⚠️  No parent feature recorded for $BR"; \
+    read -p "Enter parent feature (e.g. feature/staging-persistence): " PARENT; \
+  fi; \
+  PRNUM=$(gh pr view --json number -q .number 2>/dev/null); \
+  if [ -z "$PRNUM" ]; then \
+    echo "❌ No PR found for $BR → $PARENT"; exit 1; fi; \
+  MSG="$1"; \
+  if [ -z "$MSG" ]; then echo "Enter squash message (Ctrl+D to finish):"; MSG=$(cat); fi; \
+  echo "🧩 Squash-merging PR #$PRNUM ($BR → $PARENT)…"; \
+  if ! gh pr merge "$PRNUM" --squash --delete-branch --body "$MSG"; then \
+    echo "❌ Merge failed — check GitHub CLI output."; exit 1; fi; \
+  echo "✅ Switching to $PARENT and updating…"; \
+  if ! git switch "$PARENT"; then echo "❌ Could not switch to $PARENT"; exit 1; fi; \
+  git pull --ff-only || echo "⚠️  Pull failed (non-fatal)"; \
+  echo "✨ Done: $MSG"; \
+}; f
+alias.ct !f(){ \
+  set -e; \
+  BR=$(git branch --show-current); \
+  if [[ "$BR" != topic/* ]]; then \
+    echo "❌ You must be on a topic branch to run cleanup (current: $BR)."; \
+    exit 1; \
+  fi; \
+  PARENT=$(git config branch."$BR".parent); \
+  if [ -z "$PARENT" ]; then \
+    echo "⚠️  No recorded parent for $BR. Please specify manually:"; \
+    read -p "Enter feature branch (e.g. feature/staging-persistence): " PARENT; \
+  fi; \
+  echo "🧹 Cleaning up topic branch $BR -> returning to $PARENT..."; \
+  echo "Deleting remote branch origin/$BR (if exists)..."; \
+  git push origin --delete "$BR" 2>/dev/null || echo "(remote branch absent)"; \
+  echo "Switching to $PARENT and updating..."; \
+  git switch "$PARENT"; \
+  git pull --ff-only || echo "(no remote updates)"; \
+  echo "Deleting local branch $BR..."; \
+  git branch -d "$BR" || git branch -D "$BR"; \
+  echo "Pruning stale remotes..."; \
+  git fetch -p; \
+  echo "✅ Cleanup complete: now on $PARENT"; \
+}; f
+alias.acp !f(){ \
+  if [ -z "$1" ]; then \
+    echo "❌ Commit message required. Usage: git acp \"<message>\""; \
+    exit 1; \
+  fi; \
+  git add . && git commit -m "$*" && git push; \
+}; f
+alias.prf-auto !f(){ \
+  BR=$(git branch --show-current); \
+  if [[ "$BR" != topic/* ]]; then echo "❌ Must be on a topic branch"; exit 1; fi; \
+  PARENT=$(git config branch."$BR".parent 2>/dev/null); \
+  if [ -z "$PARENT" ]; then echo "Base feature branch?"; read -r PARENT; fi; \
+  echo "📝 PR title:"; read -r TITLE; \
+  echo "📝 PR description:"; read -r BODY; \
+  git push -u origin "$BR"; \
+  echo "📤 Creating PR $BR → $PARENT..."; \
+  gh pr create --base "$PARENT" --head "$BR" --title "$TITLE" --body "$BODY" || exit 1; \
+  echo "🔀 Attempting merge..."; \
+  if gh pr merge --merge; then \
+    echo "✅ PR merged into $PARENT"; \
+  else \
+    echo "⚠️ Merge conflict — resolve manually"; exit 1; \
+  fi; \
+}; f
+alias.prs-auto !f(){ \
+  BR=$(git branch --show-current); \
+  if [[ "$BR" != feature/* ]]; then echo "❌ Must be on a feature branch"; exit 1; fi; \
+  echo "📝 PR title:"; read -r TITLE; \
+  echo "📝 PR description:"; read -r BODY; \
+  git push -u origin "$BR"; \
+  echo "📤 Creating PR $BR → staging..."; \
+  gh pr create --base staging --head "$BR" --title "$TITLE" --body "$BODY" || exit 1; \
+  echo "🔀 Attempting merge..."; \
+  if gh pr merge --merge --delete-branch; then \
+    echo "🧹 Cleaning up feature branch..."; \
+    git switch staging; \
+    git pull --ff-only; \
+    git branch -d "$BR" || git branch -D "$BR"; \
+    git fetch -p; \
+    echo "✅ Feature branch merged and cleaned"; \
+  else \
+    echo "⚠️ Merge conflict — resolve manually"; exit 1; \
+  fi; \
+}; f
+alias.prm-auto !f(){ \
+  BR=$(git branch --show-current); \
+  if [[ "$BR" != "staging" ]]; then \
+    echo "❌ You must be on the staging branch to promote to main."; \
+    exit 1; \
+  fi; \
+  git push -u origin staging; \
+  echo "📝 PR title:"; read -r TITLE; \
+  echo "📝 PR description:"; read -r BODY; \
+  echo "📤 Creating PR staging → main..."; \
+  gh pr create --base main --head staging --title "$TITLE" --body "$BODY" || { echo "❌ PR creation failed."; exit 1; }; \
+  echo "🔀 Attempting merge into main..."; \
+  if gh pr merge --merge; then \
+    echo "🎉 Staging has been promoted to main successfully."; \
+    echo "⬇️ Updating local main..."; \
+    git switch main; \
+    git pull --ff-only; \
+    echo "⬇️ Updating local staging (optional, usually already latest)..."; \
+    git switch staging; \
+    git pull --ff-only; \
+    echo "✅ Promotion complete. You remain on staging."; \
+  else \
+    echo "⚠️ Merge conflict — resolve manually."; \
+    exit 1; \
+  fi; \
+}; f

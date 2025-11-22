@@ -225,27 +225,245 @@ Notes:
 
 | ID | Title | Goal | Dependencies | Given | When | Then |
 |----|-------|------|--------------|-------|------|------|
-| SBD-F21-TP1 | Manage Bundles Data Source Integration | Provide a pagination-aware data source for Manage Bundles that respects supplier/status filters and updated-at ordering. | F12-TP3, F17-TP1, F18-TP1, F18-TP5 | Bundles -> Manage renders dozens of bundles. | The pagination controller requests page 1 or follow-up slices with the current filters. | The Firestore query applies supplier/status filters, sorts by updatedAt then title, and returns normalized bundle metadata plus paging info. |
-| SBD-F21-TP2 | Manage Bundles Pagination Shell | Embed the shared pagination controls below the Manage Bundles table and sync them with controller state. | SBD-F21-TP1, F18-TP2 | The Manage Bundles list contains more rows than the current page size. | Admins click Prev/Next, change per-page, or use keyboard navigation. | Controls reflect loading/disabled states, the grid refreshes with the requested slice, and the summary shows the visible range (e.g., "Bundles 41-60 of 210"). |
-| SBD-F21-TP3 | Bundle Actions Preserve Pagination Context | Keep pagination stable while publishing/unpublishing or editing bundles from the Manage view. | SBD-F21-TP1, F12-TP2, F18-TP5 | An admin is on a later page with filters applied. | They publish/unpublish a bundle or run inline edits that update Firestore. | Only the affected row/page refreshes, totals adjust if the row leaves the filter, and the view never jumps back to page 1 unless the list empties. |
+| SBD-F21-TP1 | Manage Bundles Pagination Suite Adoption | Mount the pagination suite so the shared data source and controls drive the Manage Bundles grid. | F12-TP3, F17-TP1, F18-TP1, F18-TP2, F18-TP5 | Bundles -> Manage lists dozens of bundles and exposes supplier/status filters. | The pagination suite mounts and requests the first/next slice with active filters. | Normalized rows and paging metadata flow through the suite, Prev/Next/per-page UI renders, and URL/hash state reflects the current filters/page without custom wiring. |
+| SBD-F21-TP2 | Bundle Actions Preserve Pagination Context | Keep pagination stable while publishing/unpublishing or editing bundles from the Manage view. | SBD-F21-TP1, F12-TP2, F18-TP5 | An admin is on a later page with filters applied. | They publish/unpublish a bundle or run inline edits that update Firestore. | Only the affected row/page refreshes, totals adjust if the row leaves the filter, and the view never jumps back to page 1 unless the list empties. |
 
 Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F21 topics.
 - Keep pagination controls aligned with the Manage table footer (sticky on narrow screens) so bundle status/edit buttons stay near their paging context.
+
+**Pattern reuse (`PAGINATION_SUITE`)**
+
+```json
+{
+  "patternId": "PAGINATION_SUITE",
+  "params": {
+    "container": "#bundlePagination",
+    "summaryEl": "#bundlePaginationSummary",
+    "prevButton": "#bundlePaginationPrev",
+    "nextButton": "#bundlePaginationNext",
+    "pagesContainer": "#bundlePaginationPages",
+    "pageSizeSelect": "#bundlePaginationSize",
+    "defaultPageSize": 20,
+    "pageSizeOptions": [10, 20, 50],
+    "mode": "pager",
+    "locationKey": "manageBundles",
+    "sticky": true
+  },
+  "adapters": {
+    "dataSource": "fetchManageBundlesPage",
+    "parseLocation": "readManageBundlesPagingFromLocation",
+    "syncLocation": "writeManageBundlesPagingToLocation",
+    "onStateChange": "renderManageBundlesRows",
+    "formatSummary": "formatBundlePaginationSummary",
+    "announce": "announceBundlePaginationRange"
+  },
+  "uiTexts": {
+    "summaryTemplate": "Bundles {first}-{last} of {total}",
+    "prevLabel": "Previous bundles",
+    "nextLabel": "Next bundles"
+  }
+}
+```
 
 
 # Feature: Open Book Requests Pagination Integration (F22)
 
 | ID | Title | Goal | Dependencies | Given | When | Then |
 |----|-------|------|--------------|-------|------|------|
-| SBD-F22-TP1 | Book Requests Data Source | Serve open book requests through the pagination controller with created-at ordering and quick filters. | F18-TP1, F18-TP5 | The Book Requests panel shows many open requests. | The controller requests the first or next page with optional status/priority filters. | The data source queries open/pending requests sorted by createdAt desc and returns normalized requester/contact/book data plus paging metadata. |
-| SBD-F22-TP2 | Book Requests Pagination Shell | Drop the shared pagination controls beneath the requests list and keep them accessible. | SBD-F22-TP1, F18-TP2, F18-TP4 | More open requests exist than the default page size. | An admin pages through via buttons, keyboard, or per-page changes. | Controls disable while loading, the list and summary ("Requests 61-70 of 322 open") update, and URL/hash state tracks the page for reload safety. |
-| SBD-F22-TP3 | Book Request Actions Maintain Paging | Ensure resolving/snoozing/assigning requests updates the paged list without jumps. | SBD-F22-TP1 | An admin triages open requests while viewing a paginated slice. | They mark a request fulfilled, snoozed, or reassigned. | The row disappears or updates in place, the next row from the following page backfills when available, totals refresh, and the view only resets when the queue empties. |
+| SBD-F22-TP1 | Book Requests Pagination Suite Adoption | Adopt the pagination suite for the open requests queue so fetches, filters, and controls share one config. | F18-TP1, F18-TP2, F18-TP4, F18-TP5 | The Book Requests panel contains more open requests than the default page size and exposes status/priority filters. | The pagination suite mounts and the controller asks for the first or next slice with active filters. | Only open/pending requests are fetched in createdAt desc order, the requests-specific summary/controls render, and URL/hash state captures filter + page params for reload safety. |
+| SBD-F22-TP2 | Book Request Actions Maintain Paging | Ensure resolving/snoozing/assigning requests updates the paged list without jumps. | SBD-F22-TP1 | An admin triages open requests while viewing a paginated slice. | They mark a request fulfilled, snoozed, or reassigned. | The row disappears or updates in place, the next row from the following page backfills when available, totals refresh, and the view only resets when the queue empties. |
 
 Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F22 topics.
 - Keep focus management and summary copy request-specific so queue triage remains accessible even when pagination swaps content rapidly.
 
+**Pattern reuse (`PAGINATION_SUITE`)**
+
+```json
+{
+  "patternId": "PAGINATION_SUITE",
+  "params": {
+    "container": "#requestPagination",
+    "summaryEl": "#requestPaginationSummary",
+    "prevButton": "#requestPaginationPrev",
+    "nextButton": "#requestPaginationNext",
+    "pagesContainer": "#requestPaginationPages",
+    "pageSizeSelect": "#requestPaginationSize",
+    "defaultPageSize": 25,
+    "pageSizeOptions": [10, 25, 50],
+    "mode": "pager",
+    "locationKey": "openBookRequests",
+    "sticky": true
+  },
+  "adapters": {
+    "dataSource": "fetchOpenBookRequestsPage",
+    "parseLocation": "readRequestPagingFromLocation",
+    "syncLocation": "writeRequestPagingToLocation",
+    "onStateChange": "renderOpenRequestRows",
+    "formatSummary": "formatRequestPaginationSummary",
+    "announce": "announceRequestPaginationRange"
+  },
+  "uiTexts": {
+    "summaryTemplate": "Requests {first}-{last} of {total} open",
+    "prevLabel": "Previous requests",
+    "nextLabel": "Next requests"
+  }
+}
+```
+
+
+# Feature: Inline Bundle Composer Shell (F23)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| SBD-F23-TP1 | Available Books Bundle Entry | Add an Add to bundle control on each book card and open the inline composer drawer from the first selection. | — | An admin browses Available Books with no composer active. | They activate Add to bundle on a card via mouse or keyboard. | The drawer opens beside the list, focus moves to its heading, and the selected book appears in the panel with the originating control marked active. |
+| SBD-F23-TP2 | Inline Composer Fields and Copy | Render bundle name/price inputs plus recommended-price placeholder and helper copy inside the drawer. | SBD-F23-TP1 | The inline composer is open. | It renders its heading and form region. | The name/price inputs show required markers, helper copy states the bundle price rule, and the recommended price block shows placeholder text until data arrives. |
+| SBD-F23-TP3 | Selected Books List and Reset | Show chips for selected books with remove and clear-all controls that collapse the panel when empty. | SBD-F23-TP1 | At least one book was added to the inline composer. | The admin removes books or chooses Clear bundle. | The chips update with predictable focus return, empty-state copy comes back at zero books, and the panel closes unless pinned. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F23 topics.
+- Drawer may not cover Available Books filters/search and must be fully keyboard operable.
+- Clear bundle needs confirmation when removing more than one book and removes focus to the drawer heading afterward.
+
+**Pattern reuse (`INLINE_BUNDLE_PANEL_SHELL`)**
+
+```json
+{
+  "patternId": "INLINE_BUNDLE_PANEL_SHELL",
+  "params": {
+    "container": "#inlineBundleComposer",
+    "panelHeading": "#inlineBundleHeading",
+    "triggerSelector": "[data-test='bookAddToBundle']",
+    "bookList": "#inlineBundleSelectedBooks",
+    "bundleNameInput": "#inlineBundleName",
+    "bundlePriceInput": "#inlineBundlePrice",
+    "recommendedPrice": "#inlineBundleRecommended",
+    "totalPrice": "#inlineBundleTotal",
+    "saveButton": "#inlineBundleSave",
+    "resetButton": "#inlineBundleReset",
+    "emptyState": "#inlineBundleEmptyState"
+  },
+  "adapters": {
+    "controller": "createInlineBundleComposerController",
+    "formatPrice": "formatCurrency",
+    "announce": "announceInlineBundleChange"
+  },
+  "uiTexts": {
+    "panelTitle": "Bundle in progress",
+    "emptyState": "Add a book to start a bundle",
+    "nameLabel": "Bundle name",
+    "priceLabel": "Bundle price",
+    "recommendedLabel": "Recommended price",
+    "totalLabel": "Total sale price"
+  }
+}
+```
+
+
+# Feature: Inline Bundle Composer Intelligence (F24)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| SBD-F24-TP1 | Inline Bundle Context Lifecycle | Maintain bundle context in memory as admins add/remove books from the composer. | SBD-F23-TP1, SBD-F23-TP3 | An admin opens Available Books with the composer shell available. | They add, remove, or reopen the composer via its toggles. | The controller creates a new context when none exists, tracks selected book IDs plus bundle meta, and restores the same context if the drawer is reopened during the session. |
+| SBD-F24-TP2 | Inline Bundle Pricing Signals | Stream recommended bundle price plus total sale price once qualifying books are selected. | SBD-F24-TP1 | The composer contains at least one book. | A second (or later) book is added or selections change. | The controller calls the recommendation adapter, emits recommended/total prices with fallback copy on adapter failure, and stamps timestamps for analytics. |
+| SBD-F24-TP3 | Inline Bundle Validation Gate | Keep Save disabled until bundle name and price pass validation, mirroring Bundle->Add rules. | SBD-F24-TP1 | The composer holds a bundle context. | The admin edits name or price fields. | Validation trims input, enforces non-empty names plus positive currency values, feeds field errors to the shell, and only enables Save when both pass. |
+| SBD-F24-TP4 | Inline Bundle Pricing and MRP Summary | Auto-update recommended price after two selections and surface total MRP in the drawer. | SBD-F24-TP2, SBD-F23-TP3 | The inline composer drawer is open with pricing summary fields visible. | A second book is added or selections change and the recommendation adapter resolves. | Recommended and total price text refresh automatically via the formatter, and a total MRP sum for selected books appears with aria-live feedback and placeholder copy when data is missing. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F24 topics.
+- Controller state must expose derived data (count, subtotal, lastInteraction) through `getState()` for deterministic tests.
+- Recommendation adapter calls should debounce so rapid selection toggles do not hammer Firestore/Cloud Functions.
+
+**Pattern reuse (`INLINE_BUNDLE_COMPOSER_CONTROLLER`)**
+
+```json
+{
+  "patternId": "INLINE_BUNDLE_COMPOSER_CONTROLLER",
+  "params": {
+    "currency": "INR",
+    "pricePrecision": 2,
+    "recommendationThreshold": 2,
+    "maxBooks": 10,
+    "persistSessionKey": "availableBooksInlineBundle"
+  },
+  "adapters": {
+    "fetchPriceRecommendation": "fetchBundlePriceRecommendation",
+    "loadBundle": "loadBundleDraftFromSession",
+    "saveBundle": "persistNewBundle",
+    "onStateChange": "syncInlineBundlePanelState"
+  },
+  "uiTexts": {
+    "defaultBundleNamePrefix": "Bundle from Available Books",
+    "pricePlaceholder": "Enter bundle price",
+    "recommendedPendingCopy": "Add one more book to see a recommended price"
+  }
+}
+```
+
+
+# Feature: Inline Bundle Composer Save & Lifecycle (F25)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| SBD-F25-TP1 | Save Inline Bundle From Available Books | Persist a new inline bundle plus its selected books using the bundle APIs. | SBD-F24-TP2, SBD-F24-TP3 | The composer holds a valid name, price, and at least one book. | The admin presses Save bundle. | The aggregate calls saveBundle/linkBooks adapters once, shows a success toast with the bundle name, and exposes the new bundle ID for navigation without dropping context until the call resolves. |
+| SBD-F25-TP2 | Continue Existing Bundle Inline | Let admins select an existing bundle and keep adding books inline. | SBD-F24-TP1 | At least one bundle is eligible for more books. | The admin chooses an existing bundle from the composer and adds a book. | The aggregate loads that bundle's metadata, merges it into the inline context, prevents duplicate book IDs, and relabels Save as Update bundle with contextual helper copy. |
+| SBD-F25-TP3 | Inline Bundle Feedback and Recovery | Provide success/failure feedback, reset or resume the composer, and keep the grid in sync. | SBD-F25-TP1 | A save attempt was initiated. | The save resolves successfully or fails. | Success paths emit toast + optional View bundle link and only clear after confirmation; failures surface inline errors, re-enable controls, and keep the current context intact for retry. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F25 topics.
+- Saves must be idempotent; repeated clicks while pending should be ignored and marked via `aria-busy`.
+- Switching to a different bundle warns about unsaved progress and reloads recommended totals before more edits.
+
+**Pattern reuse (`INLINE_BUNDLE_COMPOSER`)**
+
+```json
+{
+  "patternId": "INLINE_BUNDLE_COMPOSER",
+  "params": {
+    "container": "#inlineBundleComposer",
+    "panelHeading": "#inlineBundleHeading",
+    "triggerSelector": "[data-test='bookAddToBundle']",
+    "bookList": "#inlineBundleSelectedBooks",
+    "bundleNameInput": "#inlineBundleName",
+    "bundlePriceInput": "#inlineBundlePrice",
+    "recommendedPrice": "#inlineBundleRecommended",
+    "totalPrice": "#inlineBundleTotal",
+    "saveButton": "#inlineBundleSave",
+    "resetButton": "#inlineBundleReset",
+    "existingBundleSelect": "#inlineBundleExistingSelect",
+    "currency": "INR"
+  },
+  "adapters": {
+    "fetchPriceRecommendation": "fetchBundlePriceRecommendation",
+    "loadBundle": "loadBundleDraftFromSession",
+    "listExistingBundles": "listActiveBundles",
+    "saveBundle": "persistInlineBundle",
+    "linkBooks": "linkBooksToBundle",
+    "toastSuccess": "toastInlineBundleSuccess",
+    "toastError": "toastInlineBundleError",
+    "announce": "announceInlineBundleChange",
+    "formatPrice": "formatCurrency"
+  },
+  "uiTexts": {
+    "panelTitle": "Bundle in progress",
+    "emptyState": "Add a book to start a bundle",
+    "existingBundleLabel": "Continue existing bundle",
+    "saveLabel": "Save bundle",
+    "resetLabel": "Clear bundle"
+  }
+}
+```
+
+# Feature: Bundle Composition Pattern (F26)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| SBD-F26-TP1 | Shared Bundle Composition Contract | Standardize add-to-bundle flows on one persisted document and pricing pattern. | F12-TP1, SBD-F24-TP2 | Bundle → Create and Available → Add to bundle both expose book selection with price fields. | A second book is added or selections change before save. | The shared controller applies the bundle composition contract: computes recommended price at a 25% discount once 2+ books are present, fills totals/recommended fields with recommendationComputedAt, and both routes persist the same bundle document shape. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom.
+- Recommended price must never render before two selections and must reuse the shared discount formula (25% off combined sale price) across both routes.
 
 # Feature: Backlog (BACKLOG)
 

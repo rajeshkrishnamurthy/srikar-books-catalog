@@ -1,0 +1,17 @@
+{"type":"meta","topicId":"F08-TP2","title":"Add Sale Line Items"}
+{"type":"given","text":"The sale header is valid."}
+{"type":"when","text":"The admin searches for books, adds them (allowing duplicates), and enters selling prices."}
+{"type":"then","text":"Each line persists the book reference, supplier snapshot, and validated selling price."}
+{"type":"ui-anchor","selector":"#saleHeaderForm"}
+{"type":"ui-anchor","selector":"#saleHeaderSaleDate"}
+{"type":"ui-anchor","selector":"#saleHeaderContinue"}
+{"type":"ui-anchor","selector":"#saleLineDraftForm"}
+{"type":"ui-anchor","selector":"#saleLineBookTitle"}
+{"type":"ui-anchor","selector":"#saleLinePrice"}
+{"type":"ui-anchor","selector":"#saleLineAddBtn"}
+{"type":"js-handler","event":"submit","selector":"#saleHeaderForm","handler":"handleSaleHeaderSubmit"}
+{"type":"js-handler","event":"input","selector":"#saleLineBookTitle","handler":"handleSaleTitleInput"}
+{"type":"js-handler","event":"submit","selector":"#saleLineDraftForm","handler":"addSaleLineItem"}
+{"type":"adapter-call","function":"startSaleDraft","args":["customerId","saleDate"]}
+{"type":"adapter-call","function":"fetchTitleSuggestions","args":["query"]}
+{"type":"adapter-call","function":"addSaleLineItem","args":["bookId","sellingPrice"]}

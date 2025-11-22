@@ -1,0 +1,56 @@
+{
+  "topicId": "SBD-F24-TP2",
+  "featureId": "F24",
+  "title": "Inline Bundle Pricing Signals",
+  "area": "Admin / Available Books",
+  "goal": "Compute and stream recommended bundle price plus total sale price once qualifying books are selected.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F24-TP2-001",
+      "title": "RecommendationThresholdGating",
+      "given": "The inline composer controller is mounted with recommendationThreshold=2 and valid currency.",
+      "when": "Only one book is selected then a second book is added.",
+      "then": "fetchPriceRecommendation stays idle with one selection and fires once after the second selection with { bookIds, currency }."
+    },
+    {
+      "id": "SBD-F24-TP2-002",
+      "title": "RecommendationStateEmitsSignals",
+      "given": "Two or more books meet the recommendation threshold and the adapter resolves data.",
+      "when": "fetchPriceRecommendation returns recommendedPriceMinor and totalSalePriceMinor.",
+      "then": "Controller state reflects those numbers, updates lastInteraction, and forwards the payload through onStateChange for the shell to render."
+    },
+    {
+      "id": "SBD-F24-TP2-003",
+      "title": "RecommendationFallbackWhenBelowThreshold",
+      "given": "A recommendation request is in flight and a selection is removed or the adapter rejects.",
+      "when": "The adapter rejects the promise and the selection count drops below recommendationThreshold.",
+      "then": "recommendedPriceMinor clears to null, totalSalePriceMinor is not recomputed, and fetchPriceRecommendation is not re-fired while under-threshold."
+    },
+    {
+      "id": "SBD-F24-TP2-004",
+      "title": "RecommendationInvalidatedWhenResumingBundle",
+      "given": "A recommendation request is pending for the current selection set in the inline composer.",
+      "when": "setExistingBundle loads another bundle whose selections fall below the recommendation threshold.",
+      "then": "Any pending recommendation timer is cleared or requestId invalidated so fetchPriceRecommendation does not fire for the stale selection, and recommendation state remains cleared until a qualified selection is made again."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/inlineBundleControllerHarness.js"
+  ],
+  "tests": [
+    "/tests/unit/inventory/SBD-F24-TP2-001_RecommendationThresholdGating.test.js",
+    "/tests/unit/inventory/SBD-F24-TP2-002_RecommendationStateEmitsSignals.test.js",
+    "/tests/unit/inventory/SBD-F24-TP2-003_RecommendationFallbackWhenBelowThreshold.test.js",
+    "/tests/unit/inventory/SBD-F24-TP2-004_RecommendationInvalidatedOnResume.test.js"
+  ],
+  "changedFiles": [
+    "src/ui/patterns/inline-bundle-composer-controller/index.js"
+  ],
+  "changeNotes": "Added debounced recommendation requests gated by threshold, streaming adapter results into state/onStateChange, clearing on rejection or under-threshold, and canceling stale requests when resuming another bundle.",
+  "reports": {
+    "red": "codex_output/reports/SBD-F24-TP2_red.txt",
+    "green": "codex_output/reports/SBD-F24-TP2_green.txt"
+  }
+}

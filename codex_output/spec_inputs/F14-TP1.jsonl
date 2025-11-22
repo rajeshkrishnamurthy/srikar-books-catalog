@@ -1,0 +1,11 @@
+{"type":"meta","topicId":"F14-TP1","title":"Add Book Default Landing"}
+{"type":"given","text":"An authenticated admin finishes signing in or lands on /admin with no section specified."}
+{"type":"when","text":"The workspace initializes or the page refreshes."}
+{"type":"then","text":"The Add Book page loads first with its menu tile active, and hash/URL routes resolve to the same default state."}
+{"type":"ui-anchor","selector":"#navTab-manageBooks"}
+{"type":"ui-anchor","selector":"#manageSubNav"}
+{"type":"ui-anchor","selector":"#adminNav"}
+{"type":"js-handler","event":"load","selector":"window","handler":"setDefaultLanding"}
+{"type":"js-handler","event":"init","selector":"#adminNav","handler":"renderAdminNav"}
+{"type":"adapter-call","function":"routeToAddBook","args":[]}
+{"type":"adapter-call","function":"handleAdminNav","args":["targetSection"]}
