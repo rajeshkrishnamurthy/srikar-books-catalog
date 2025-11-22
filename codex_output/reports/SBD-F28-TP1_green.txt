@@ -1,0 +1,13 @@
+SBD-F28-TP1 GREEN Validation
+Timestamp: 2025-11-22 07:34:52 UTC
+Command: npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F28-TP1
+
+Result Summary:
+Test Suites: 6 passed, 6 total
+Tests:       6 passed, 6 total
+Snapshots:   0 total
+Time:        1.768 s
+
+Key Passing Suites:
+- codex_output/tests/spec/admin/SBD-F28-TP1-002_EditSaveSuccessShowsToast.spec.js
+- codex_output/tests/spec/admin/SBD-F28-TP1-006_SalePersistSuccessShowsToast.spec.js

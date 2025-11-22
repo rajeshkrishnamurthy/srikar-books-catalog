@@ -1,5 +1,15 @@
 const DEFAULT_STATUS = 'pending';
 
+function dispatchToast(message) {
+  const fn = globalThis.showToast;
+  if (typeof fn !== 'function') return;
+  try {
+    fn({ message, variant: 'success' });
+  } catch (error) {
+    console.error('showToast error:', error);
+  }
+}
+
 export function initSalePersist(elements = {}, options = {}) {
   const refs = {
     submitBtn: elements.submitBtn || null,
@@ -73,8 +83,10 @@ export function initSalePersist(elements = {}, options = {}) {
       if (savedCount > 0) {
         const label = savedCount === 1 ? 'line item' : 'line items';
         setMessage(`Saved ${savedCount} ${label}.`);
+        dispatchToast(`Saved ${savedCount} ${label}.`);
       } else {
         setMessage('Sale saved successfully.');
+        dispatchToast('Sale saved successfully.');
       }
       deps.onPersisted({
         saleId: result?.id || null,
@@ -86,6 +98,7 @@ export function initSalePersist(elements = {}, options = {}) {
     } finally {
       state.busy = false;
       refs.submitBtn.disabled = false;
+      refs.submitBtn.focus?.();
     }
   }
 

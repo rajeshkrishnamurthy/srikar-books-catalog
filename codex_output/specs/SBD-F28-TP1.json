@@ -1,0 +1,101 @@
+{
+  "topicId": "SBD-F28-TP1",
+  "featureId": "F28",
+  "title": "Cross-Workflow Success Toasts",
+  "area": "Admin / Toast Notifications",
+  "goal": "Use the shared toast pattern to announce successful saves across edit, bundle, supplier, customer, and sale workflows without stealing focus.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F28-TP1-001",
+      "title": "ToastAnchorsExposedAcrossWorkflows",
+      "given": "The admin page is loaded with all workflow panels available.",
+      "when": "The static markup renders before scripts bind behavior.",
+      "then": "The page exposes #toastStack, #toastLiveRegion (aria-live=\"polite\"), #toastTemplate, and the edit, bundle, supplier, customer, and sale controls required for toast wiring."
+    },
+    {
+      "id": "SBD-F28-TP1-002",
+      "title": "EditSaveShowsToast",
+      "given": "The Edit Book dialog is open with valid data and toast anchors are present.",
+      "when": "An admin submits #editForm and the save succeeds (including optional cover uploads).",
+      "then": "showToast renders a success toast via #toastTemplate into #toastStack, announces the edited book title politely, and focus remains within the dialog controls."
+    },
+    {
+      "id": "SBD-F28-TP1-003",
+      "title": "BundleCreateShowsToast",
+      "given": "The Bundle Create form has a locked supplier, two books selected, and a valid bundle price.",
+      "when": "An admin submits #bundleForm and the bundle is created.",
+      "then": "A success toast mentions the new bundle title in #toastStack/#toastLiveRegion using the shared template while the bundle form keeps focus."
+    },
+    {
+      "id": "SBD-F28-TP1-004",
+      "title": "SupplierSaveShowsToast",
+      "given": "The Supplier form has a unique name and location filled in.",
+      "when": "#supplierForm submits successfully for an add or update.",
+      "then": "showToast fires with the supplier name, renders in the shared toast stack with a polite announcement, and leaves focus on the supplier form."
+    },
+    {
+      "id": "SBD-F28-TP1-005",
+      "title": "CustomerSaveShowsToast",
+      "given": "The Customer form has valid name, address, location, and WhatsApp fields.",
+      "when": "An admin submits #customerForm and the record is saved.",
+      "then": "A success toast announces the customer name in #toastStack/#toastLiveRegion without moving focus away from the customer form controls."
+    },
+    {
+      "id": "SBD-F28-TP1-006",
+      "title": "SalePersistShowsToast",
+      "given": "The sale header is valid and at least one line item is present in Record Sale.",
+      "when": "An admin clicks #salePersistBtn and the sale persists successfully.",
+      "then": "A success toast summarizes the saved sale (including line count) using the shared toast pattern, announces politely, and keeps focus on the sale controls."
+    }
+  ],
+  "fixtures": [
+    "/tests/helpers/toastTestHarness.js",
+    "/tests/fixtures/adminEditHarness.js",
+    "/tests/fixtures/adminBundleHarness.js",
+    "/tests/fixtures/adminSupplierHarness.js",
+    "/tests/fixtures/adminCustomerHarness.js",
+    "/tests/fixtures/salesEntryPersistHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F28-TP1-001_AdminToastAnchorsAcrossWorkflows.spec.js",
+    "/tests/spec/admin/SBD-F28-TP1-002_EditSaveSuccessShowsToast.spec.js",
+    "/tests/spec/admin/SBD-F28-TP1-003_BundleCreateSuccessShowsToast.spec.js",
+    "/tests/spec/admin/SBD-F28-TP1-004_SupplierSaveSuccessShowsToast.spec.js",
+    "/tests/spec/admin/SBD-F28-TP1-005_CustomerSaveSuccessShowsToast.spec.js",
+    "/tests/spec/admin/SBD-F28-TP1-006_SalePersistSuccessShowsToast.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F28-TP1_red.txt",
+    "green": "codex_output/reports/SBD-F28-TP1_green.txt"
+  ],
+  "changedFiles": [
+    "tests/helpers/toastTestHarness.js",
+    "tests/spec/admin/SBD-F28-TP1-001_AdminToastAnchorsAcrossWorkflows.spec.js",
+    "tests/spec/admin/SBD-F28-TP1-002_EditSaveSuccessShowsToast.spec.js",
+    "tests/spec/admin/SBD-F28-TP1-003_BundleCreateSuccessShowsToast.spec.js",
+    "tests/spec/admin/SBD-F28-TP1-004_SupplierSaveSuccessShowsToast.spec.js",
+    "tests/spec/admin/SBD-F28-TP1-005_CustomerSaveSuccessShowsToast.spec.js",
+    "tests/spec/admin/SBD-F28-TP1-006_SalePersistSuccessShowsToast.spec.js",
+    "codex_output/specs/SBD-F28-TP1.json",
+    "codex_output/impl_inputs/SBD-F28-TP1.jsonl",
+    "codex_output/reports/SBD-F28-TP1_red.txt",
+    "reports/SBD-F28-TP1_green.txt",
+    "scripts/admin/editor.js",
+    "scripts/admin/bundles.js",
+    "scripts/admin/suppliers.js",
+    "scripts/admin/customers.js",
+    "scripts/admin/salesPersist.js"
+  ],
+  "changeNotes": [
+    "Defined cross-workflow success toast specs covering edit, bundle, supplier, customer, and sale flows plus base admin toast anchors.",
+    "Added RED Jest specs with shared toast harnesses to require polite announcements and focus retention when showToast is invoked on successful submits.",
+    "Captured implementation guidance and wiring expectations for the TOAST_NOTIFICATIONS pattern adapters in impl_inputs."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F28-TP1",
+    "report": "codex_output/reports/SBD-F28-TP1_green.txt"
+  }
+}
