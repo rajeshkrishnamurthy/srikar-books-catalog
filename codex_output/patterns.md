@@ -137,3 +137,29 @@ Note: Examples in this document are non-normative. The Pattern schema and tier m
 - **Test behaviors.** Rejects duplicate bookIds, fires a single recommendation request when the second book is added (and on subsequent selection changes), keeps `bundleDocument` aligned with the contract on save, blocks save while `isSaving` or below threshold, and restores persisted context when `persistSessionKey` is provided.
 - **Composes.** `BUNDLE_COMPOSITION_CONTRACT`, `BUNDLE_PRICE_RECOMMENDATION`.
 - **Primary adopters.** Shared controller behind Bundle → Create and Available → Add to bundle.
+
+# Pattern Registry — Toast Notifications
+
+## TOAST_NOTIFICATIONS (type: aggregate, v1.0.0)
+- **Purpose.** Deliver an accessible toast stack/queue for status updates with variants and optional actions from a single shared mount.
+- **Required params.** `container`, `liveRegion`, `template`.
+- **Optional params.** `defaultDurationMs`, `maxVisible`, `position`, `preventDuplicates`, `dismissible`.
+- **Adapters.** `announce(message, politeness?)`, `onShow(toastPayload)`, `onDismiss(toastPayload)`.
+- **UI texts.** Dismiss label and optional variant prefixes (success/error/info/warning).
+- **Docs.** Request shape: `mountToastNotifications({ params, adapters, uiTexts, options }) => { showToast(payload), dismissToast(id), clear(), destroy() }`; payload shape: `{ id, message, variant, durationMs?, actionLabel?, actionHandler?, pin?, actionHold? }`; state shape: `{ queue, visible, timeouts, defaultDurationMs, maxVisible }`.
+- **Accessibility.** Uses a dedicated `aria-live` region separate from the visible stack, sets politeness by variant (success/info polite; error/warning assertive), and keeps close/action buttons keyboard-focusable without stealing focus from the invoking control.
+- **Test behaviors.** Auto-dismiss success/info toasts after `defaultDurationMs` unless pinned, enforce `maxVisible` by trimming the oldest toast when capacity is exceeded, calling `dismissToast` or the dismiss control removes the toast and fires `onDismiss` once, and action handlers fire once and may hold the toast open when `actionHold` is true.
+
+# Pattern Registry — Floating Drawer Trigger
+
+## FLOATING_DRAWER_TRIGGER (type: shell, v1.0.0)
+- **Purpose.** Provide a reusable floating trigger with a badge to open bundle/cart drawers using a host-supplied handler and animation hook.
+- **Required params.** `container`, `trigger`, `badge`, `maxCount`.
+- **Optional params.** `iconSlot`, `position`, `offset`, `zIndex`, `animationClass`, `safeAreaPadding`, `ariaLabel`.
+- **Adapters.** `getCount()`, `openDrawer()`, `applyAnimation(state)` (optional).
+- **Docs.**
+  - Request shape: `{ params: { container, trigger, badge, maxCount, position?, offset?, animationClass? }, adapters: { getCount, openDrawer, applyAnimation? } }`.
+  - State shape: `{ count, isVisible, badgeText, position }`.
+  - Mount API: `mountFloatingDrawerTrigger({ params, adapters, options }) => { syncCount(count), destroy() }`.
+- **Accessibility.** Provide `aria-label` on the trigger, ensure the badge is announced when count changes, and keep the button reachable via keyboard even when fixed-positioned.
+- **Test behaviors.** Trigger hides at count 0, shows at count >0, badge caps to two digits (e.g., 99+), click calls `openDrawer` and toggles the animation hook/class, and trigger stays fixed in the viewport without requiring scroll.

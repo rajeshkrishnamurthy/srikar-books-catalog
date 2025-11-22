@@ -1,0 +1,17 @@
+{"type":"fail","test":"tests/spec/patterns/SBD-F29-TP1-001_FloatingDrawerTriggerAnchors.spec.js"}
+{"type":"fail","test":"tests/spec/patterns/SBD-F29-TP1-002_FloatingTriggerShowsWhenCountPositive.spec.js"}
+{"type":"fail","test":"tests/spec/patterns/SBD-F29-TP1-003_FloatingTriggerHidesWhenZero.spec.js"}
+{"type":"fail","test":"tests/spec/patterns/SBD-F29-TP1-004_FloatingDrawerBadgeCaps.spec.js"}
+{"type":"fail","test":"tests/spec/patterns/SBD-F29-TP1-005_FloatingTriggerClickOpensDrawer.spec.js"}
+{"type":"spec","id":"SBD-F29-TP1-001","given":"The floating drawer trigger shell mounts with #floatingDrawerTrigger/#floatingDrawerBadge and adapters for getCount, openDrawer, and applyAnimation plus an aria label param.","when":"The pattern initializes and pulls the starting count from getCount.","then":"Trigger and badge anchors exist with the aria-label applied, getCount runs, and the mount API returns syncCount/destroy for later updates."}
+{"type":"spec","id":"SBD-F29-TP1-002","given":"getCount reports a positive bundle/cart count.","when":"The pattern syncs that count during mount.","then":"The floating trigger becomes visible with fixed bottom-right positioning, renders a Material-style icon, and the badge shows the positive count."}
+{"type":"spec","id":"SBD-F29-TP1-003","given":"The floating trigger was visible for a positive count.","when":"syncCount(0) runs or getCount returns zero.","then":"The trigger hides/aria-hidden and the badge text clears so zero is never announced."}
+{"type":"spec","id":"SBD-F29-TP1-004","given":"Bundle/cart counts can exceed the configured maxCount (e.g., 150 with maxCount 99).","when":"The pattern renders the badge text.","then":"The badge caps at '99+' while keeping the trigger visible and ready to open the drawer."}
+{"type":"spec","id":"SBD-F29-TP1-005","given":"The trigger is visible with animationClass configured and openDrawer/applyAnimation adapters wired.","when":"A user clicks #floatingDrawerTrigger.","then":"openDrawer fires once, applyAnimation receives the opening state, and the trigger gains the animation class hook for the drawer shell."}
+{"type":"ui-anchor","selector":"#floatingDrawerTrigger"}
+{"type":"ui-anchor","selector":"#floatingDrawerBadge"}
+{"type":"js-handler","event":"click","selector":"#floatingDrawerTrigger","handler":"openFloatingDrawer"}
+{"type":"adapter-call","function":"getCount","args":[]}
+{"type":"adapter-call","function":"openDrawer","args":[]}
+{"type":"adapter-call","function":"applyAnimation","args":["state"]}
+{"type":"pattern","patternId":"FLOATING_DRAWER_TRIGGER","requiredParams":["container","trigger","badge","maxCount"],"adapters":{"getCount":"() => number","openDrawer":"() => void","applyAnimation":"(state) => void"},"testBehaviors":["visibleWhenCountPositive","hiddenWhenZero","badgeCappedToTwoDigits","clickCallsOpenDrawer"]}

@@ -1,0 +1,88 @@
+{
+  "topicId": "SBD-F29-TP1",
+  "featureId": "F29",
+  "title": "Floating Drawer Trigger Pattern",
+  "area": "Pattern Library / UI Shell",
+  "goal": "Define a reusable floating trigger with badge and animation hook for bundle/cart drawers.",
+  "environment": "HTML + Vanilla JavaScript + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F29-TP1-001",
+      "title": "FloatingTriggerAnchorsAndInit",
+      "given": "The floating drawer trigger shell mounts with #floatingDrawerTrigger/#floatingDrawerBadge selectors, adapters for getCount/openDrawer/applyAnimation, and an aria label param.",
+      "when": "The pattern initializes and reads the starting count from getCount.",
+      "then": "Trigger and badge anchors exist with the aria-label applied, getCount runs, and the mount API exposes syncCount/destroy for updates.",
+      "test": "/tests/spec/patterns/SBD-F29-TP1-001_FloatingDrawerTriggerAnchors.spec.js"
+    },
+    {
+      "id": "SBD-F29-TP1-002",
+      "title": "TriggerVisibleWithPositiveCount",
+      "given": "getCount reports a positive bundle/cart count.",
+      "when": "The pattern syncs that count during mount.",
+      "then": "The floating trigger becomes visible with fixed bottom-right positioning, renders a Material-style icon, and the badge shows the positive count.",
+      "test": "/tests/spec/patterns/SBD-F29-TP1-002_FloatingTriggerShowsWhenCountPositive.spec.js"
+    },
+    {
+      "id": "SBD-F29-TP1-003",
+      "title": "TriggerHidesOnZero",
+      "given": "The floating trigger was visible for a positive count.",
+      "when": "syncCount(0) runs or getCount returns zero.",
+      "then": "The trigger hides (aria-hidden/hidden) and the badge text clears so zero is never announced.",
+      "test": "/tests/spec/patterns/SBD-F29-TP1-003_FloatingTriggerHidesWhenZero.spec.js"
+    },
+    {
+      "id": "SBD-F29-TP1-004",
+      "title": "BadgeCapsAtMaxCount",
+      "given": "Bundle/cart counts can exceed the configured maxCount (e.g., 150 with maxCount 99).",
+      "when": "The pattern renders the badge text.",
+      "then": "The badge caps at \"99+\" while keeping the trigger visible and ready to open the drawer.",
+      "test": "/tests/spec/patterns/SBD-F29-TP1-004_FloatingDrawerBadgeCaps.spec.js"
+    },
+    {
+      "id": "SBD-F29-TP1-005",
+      "title": "ClickOpensDrawerWithAnimation",
+      "given": "The trigger is visible with animationClass configured and openDrawer/applyAnimation adapters wired.",
+      "when": "A user clicks #floatingDrawerTrigger.",
+      "then": "openDrawer fires once, applyAnimation receives the opening state, and the trigger gains the animation class hook for the drawer shell.",
+      "test": "/tests/spec/patterns/SBD-F29-TP1-005_FloatingTriggerClickOpensDrawer.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/floatingDrawerTriggerHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/patterns/SBD-F29-TP1-001_FloatingDrawerTriggerAnchors.spec.js",
+    "/tests/spec/patterns/SBD-F29-TP1-002_FloatingTriggerShowsWhenCountPositive.spec.js",
+    "/tests/spec/patterns/SBD-F29-TP1-003_FloatingTriggerHidesWhenZero.spec.js",
+    "/tests/spec/patterns/SBD-F29-TP1-004_FloatingDrawerBadgeCaps.spec.js",
+    "/tests/spec/patterns/SBD-F29-TP1-005_FloatingTriggerClickOpensDrawer.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F29-TP1_red.txt",
+    "green": "codex_output/reports/SBD-F29-TP1_green.txt"
+  },
+  "changedFiles": [
+    "tests/fixtures/floatingDrawerTriggerHarness.js",
+    "tests/spec/patterns/SBD-F29-TP1-001_FloatingDrawerTriggerAnchors.spec.js",
+    "tests/spec/patterns/SBD-F29-TP1-002_FloatingTriggerShowsWhenCountPositive.spec.js",
+    "tests/spec/patterns/SBD-F29-TP1-003_FloatingTriggerHidesWhenZero.spec.js",
+    "tests/spec/patterns/SBD-F29-TP1-004_FloatingDrawerBadgeCaps.spec.js",
+    "tests/spec/patterns/SBD-F29-TP1-005_FloatingTriggerClickOpensDrawer.spec.js",
+    "codex_output/specs/SBD-F29-TP1.json",
+    "codex_output/impl_inputs/SBD-F29-TP1.jsonl",
+    "codex_output/reports/SBD-F29-TP1_red.txt",
+    "src/ui/patterns/floating-drawer-trigger/index.js",
+    "reports/SBD-F29-TP1_green.txt"
+  ],
+  "changeNotes": [
+    "Expanded Floating Drawer Trigger into five RED specs covering anchors, visibility, badge capping, zero-state hiding, and click wiring/animation hook expectations.",
+    "Added a floating drawer trigger harness to exercise the pattern mount API, adapter calls, and DOM updates for badge text and positioning.",
+    "Authored RED Jest specs for UI anchors, count-driven visibility, badge cap, zero-state hiding, and click-to-open with animation class to guide pattern implementation."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F29-TP1",
+    "report": "codex_output/reports/SBD-F29-TP1_green.txt"
+  }
+}

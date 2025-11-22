@@ -12,7 +12,7 @@ describe('SPEC SBD-F23-TP1-001: Available panel exposes inline bundle composer s
 
     const composer = availablePanel?.querySelector('#inlineBundleComposer');
     expect(composer).not.toBeNull();
-    expect(composer?.getAttribute('role')).toBe('region');
+    expect(composer?.getAttribute('role')).toBe('dialog');
     expect(composer?.getAttribute('aria-labelledby')).toBe('inlineBundleHeading');
     expect(composer?.hasAttribute('hidden')).toBe(true);
 

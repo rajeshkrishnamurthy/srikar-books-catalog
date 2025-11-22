@@ -19,7 +19,7 @@
       "title": "RemovingFinalChipRestoresEmptyState",
       "given": "At least one chip is present and the composer is not pinned.",
       "when": "The admin activates the remove button on the last remaining chip.",
-      "then": "That chip disappears, the empty-state paragraph becomes visible, `#inlineBundleComposer` hides itself, and focus plus aria-expanded return to the originating `[data-test='bookAddToBundle']` trigger."
+      "then": "That chip disappears, the empty-state paragraph becomes visible, `#inlineBundleComposer` remains hidden, and focus plus aria-expanded return to the originating `[data-test='bookAddToBundle']` trigger."
     },
     {
       "id": "SBD-F23-TP3-003",
@@ -33,7 +33,7 @@
       "title": "ConfirmedClearBundleCollapsesDrawer",
       "given": "The inline composer has at least one selected book.",
       "when": "The admin confirms the Clear bundle prompt.",
-      "then": "All chips are removed, the empty-state copy returns, the drawer collapses (when unpinned), and focus returns to the most recent `[data-test='bookAddToBundle']` trigger with aria-expanded reset."
+      "then": "All chips are removed, the empty-state copy returns, the drawer stays (or becomes) hidden, and focus returns to the most recent `[data-test='bookAddToBundle']` trigger with aria-expanded reset."
     }
   ],
   "fixtures": [

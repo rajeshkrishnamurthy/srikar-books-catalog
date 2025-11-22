@@ -5,7 +5,7 @@
   "area": "Admin / Available Books",
   "goal": "Provide inline success/failure feedback, clear or resume the composer, and keep the Available Books grid in sync after saves.",
   "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-  "status": "RED",
+  "status": "GREEN",
   "specs": [
     {
       "id": "SBD-F25-TP3-001",
@@ -47,15 +47,20 @@
     "tests/spec/admin/SBD-F25-TP3-002_FailureKeepsComposerReadyToRetry.spec.js",
     "tests/spec/admin/SBD-F25-TP3-003_AnalyticsHooksFireForSaveOutcome.spec.js",
     "codex_output/specs/SBD-F25-TP3.json",
-    "codex_output/reports/SBD-F25-TP3_red.txt"
+    "codex_output/reports/SBD-F25-TP3_red.txt",
+    "codex_output/reports/SBD-F25-TP3_green.txt"
   ],
   "changeNotes": [
     "Outlined feedback/recovery specs for inline bundle saves: success toast + view link, failure retry readiness, and analytics hooks for both outcomes.",
     "Added RED Jest specs against the composer harness to assert toast/link/error/analytics behavior for success and failure paths."
   ],
   "validation": {
-    "status": "RED",
+    "status": "GREEN",
     "command": "npm test -- --watchAll=false SBD-F25-TP3",
-    "report": "codex_output/reports/SBD-F25-TP3_red.txt"
+    "report": "codex_output/reports/SBD-F25-TP3_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Inline bundle feedback now emits success toasts with view links, keeps context on failures, and fires analytics for both outcomes."
+    }
   }
 }

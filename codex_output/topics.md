@@ -179,6 +179,12 @@ Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom across F17 topics.
 - Reuse the existing Manage Books dropdown helper and CSS; adding future Bundles/Sale tabs should be data-only updates, not new DOM scaffolding.
 
+# Feature: Admin Success Toast Coverage (F28)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| SBD-F28-TP1 | Cross-Workflow Success Toasts | Show consistent success toasts via the shared pattern after editing a book, creating a bundle, adding a supplier/customer, or persisting a sale. | F27-TP1, F12-TP1, F05-TP1, F07-TP1, F08-TP3 | An admin completes one of these workflows and toast anchors are present. | The underlying save/persist call succeeds. | A success toast renders in `#toastStack` using the shared template, announces politely via `#toastLiveRegion`, mentions the entity (book title, bundle name, supplier/customer name, or sale count), and leaves focus on the active form. |
+
 
 # Feature: Unified Pagination Framework (F18)
 
@@ -464,6 +470,28 @@ Notes:
 Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom.
 - Recommended price must never render before two selections and must reuse the shared discount formula (25% off combined sale price) across both routes.
+
+# Feature: Toast Notifications (F27)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| SBD-F27-TP1 | Add Book Success Toast | Introduce a reusable toast pattern and show a success toast after adding a book. | F13-TP1, F14-TP1 | An admin submits the Add Book form with valid data. | The addBook adapter succeeds and returns a new book id. | A success toast appears via the shared toast pattern in #toastStack with #toastLiveRegion announcing the status, the message includes the book title when available, and it auto-dismisses after the default duration while staying keyboard dismissible. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom.
+- Use the shared `TOAST_NOTIFICATIONS` pattern (anchors: #toastStack, #toastLiveRegion, #toastTemplate) and keep success copy concise (e.g., “Book added”).
+
+# Feature: Floating Bundle Drawer Trigger (F29)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| SBD-F29-TP1 | Floating Drawer Trigger Pattern | Define a reusable floating trigger with badge and animation hook for bundle/cart drawers. | — | A view wants a Material-style floating trigger for an in-progress bundle/cart count. | The count rises above zero and the host mounts the trigger. | A fixed bottom-right icon appears with a capped two-digit badge, hides at zero, and clicking it invokes the host drawer open handler with the animation hook available. |
+| SBD-F29-TP2 | Books Available Floating Bundle Trigger | Apply the floating trigger to Manage Books → Available so the bundle drawer can be opened from anywhere. | SBD-F23-TP1, SBD-F24-TP1 | An admin is on Manage Books → Available with inline bundle composer/drawer ready. | They add one or more books to a bundle. | The floating trigger shows the bundle count (capped at two digits), stays visible without scrolling, hides when empty, and clicking it opens the existing bundle drawer with the specified animation. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Jest + jsdom for all F29 topics.
+- Follow Material positioning (bottom-right with safe-area awareness) and keep styling/animation details delegable to codex-ux; this spec focuses on wiring and visibility logic.
+- Pattern is reusable for future cart flows; selectors and count behavior must remain stable contracts.
 
 # Feature: Backlog (BACKLOG)
 

@@ -23,6 +23,16 @@ import {
 import { stripHtmlAndSquash } from '../helpers/text.js';
 import { parseCurrencyValue } from './currency.js';
 
+function dispatchToast(message) {
+  const fn = globalThis.showToast;
+  if (typeof fn !== 'function') return;
+  try {
+    fn({ message, variant: 'success' });
+  } catch (error) {
+    console.error('showToast error:', error);
+  }
+}
+
 // --- Auto-price for EDIT form (mirrors add-form logic) ---
 const EDIT_DISCOUNT = {
   'Good as new': 0.4,
@@ -399,6 +409,8 @@ export function initEditor() {
       });
     }
 
+    const toastTitle = title || currentData?.title || 'Book';
+    dispatchToast(`Book updated: ${toastTitle}`);
     msgEl.textContent = 'Saved.';
     setTimeout(() => (msgEl.textContent = ''), 1200);
     dlg.close();

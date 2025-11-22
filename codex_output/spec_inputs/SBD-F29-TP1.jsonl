@@ -1,0 +1,12 @@
+{"type":"meta","topicId":"SBD-F29-TP1","title":"Floating Drawer Trigger Pattern"}
+{"type":"given","text":"The floating drawer trigger is mounted with #floatingDrawerTrigger and badge #floatingDrawerBadge plus an openFloatingDrawer handler."}
+{"type":"when","text":"The bundle/cart item count rises above zero."}
+{"type":"then","text":"A fixed bottom-right trigger appears with a Material-style icon and a badge showing the count capped to two digits (e.g., 99+), staying visible without scrolling."}
+{"type":"when","text":"The bundle/cart item count returns to zero."}
+{"type":"then","text":"The floating trigger hides entirely and the badge text clears so no zero state is shown."}
+{"type":"when","text":"A user clicks #floatingDrawerTrigger."}
+{"type":"then","text":"The openFloatingDrawer handler fires to open the drawer and expose the animation hook/class for the drawer shell."}
+{"type":"ui-anchor","selector":"#floatingDrawerTrigger"}
+{"type":"ui-anchor","selector":"#floatingDrawerBadge"}
+{"type":"js-handler","event":"click","selector":"#floatingDrawerTrigger","handler":"openFloatingDrawer"}
+{"type":"pattern","patternId":"FLOATING_DRAWER_TRIGGER","requiredParams":["container","trigger","badge","maxCount"],"adapters":{"getCount":"() => number","openDrawer":"() => void","applyAnimation":"(state) => void"},"testBehaviors":["visibleWhenCountPositive","hiddenWhenZero","badgeCappedToTwoDigits","clickCallsOpenDrawer"]}

@@ -614,6 +614,124 @@
         "INLINE_BUNDLE_COMPOSER_CONTROLLER",
         "BUNDLE_PRICE_RECOMMENDATION"
       ]
+    },
+    {
+      "patternId": "TOAST_NOTIFICATIONS",
+      "type": "aggregate",
+      "version": "1.0.0",
+      "purpose": "Deliver an accessible toast stack/queue for status updates with variants, optional actions, and queue management from a single shared mount.",
+      "requiredParams": [
+        "container",
+        "liveRegion",
+        "template"
+      ],
+      "optionalParams": [
+        "defaultDurationMs",
+        "maxVisible",
+        "position",
+        "preventDuplicates",
+        "dismissible"
+      ],
+      "adapters": {
+        "announce": "(message: string, politeness?: 'polite'|'assertive') => void",
+        "onShow": "(toast: ToastPayload) => void",
+        "onDismiss": "(toast: ToastPayload) => void"
+      },
+      "uiTexts": {
+        "dismissLabel": "Dismiss",
+        "actionLabel": "View",
+        "successPrefix": "Success",
+        "errorPrefix": "Error"
+      },
+      "a11yNotes": [
+        "Uses a dedicated aria-live region (liveRegion) separate from the visible stack so screen readers announce new toasts without stealing focus.",
+        "Maps variant to politeness: success/info use polite while error/warning use assertive.",
+        "Close and action buttons stay keyboard-focusable with aria-labels that include the variant and message."
+      ],
+      "testBehaviors": [
+        "showToast(payload) pushes to the queue and auto-dismisses after defaultDurationMs unless payload.pin is true.",
+        "Enforces maxVisible by dismissing the oldest visible toast when capacity is exceeded.",
+        "dismissToast(id) or clicking the dismiss control removes the toast and fires onDismiss once while leaving focus on the invoking element.",
+        "Action handlers fire exactly once; when payload.actionHold is true the toast stays visible until the handler resolves."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ container: HTMLElement|string, liveRegion: HTMLElement|string, template: HTMLTemplateElement|HTMLElement, defaultDurationMs?: number, maxVisible?: number, position?: 'top-right'|'top-left'|'bottom', preventDuplicates?: boolean, dismissible?: boolean }",
+          "adapters": "{ announce?, onShow?, onDismiss? }",
+          "uiTexts": "{ dismissLabel?: string, actionLabel?: string, successPrefix?: string, errorPrefix?: string, infoPrefix?: string, warningPrefix?: string }"
+        },
+        "stateShape": {
+          "queue": "ToastPayload[]",
+          "visible": "ToastPayload[]",
+          "timeouts": "Record<string, number>",
+          "defaultDurationMs": "number",
+          "maxVisible": "number"
+        },
+        "mountApi": "mountToastNotifications({ params, adapters, uiTexts, options }) => { showToast(payload), dismissToast(id), clear(), destroy() }",
+        "toastPayload": {
+          "id": "string",
+          "message": "string",
+          "variant": "'success'|'error'|'info'|'warning'",
+          "durationMs?": "number",
+          "actionLabel?": "string",
+          "actionHandler?": "() => void|Promise<void>",
+          "pin?": "boolean",
+          "actionHold?": "boolean"
+        }
+      }
+    },
+    {
+      "patternId": "FLOATING_DRAWER_TRIGGER",
+      "type": "shell",
+      "version": "1.0.0",
+      "purpose": "Reusable floating trigger with badge to open bundle/cart drawers via a host-supplied handler and animation hook, staying visible without scrolling.",
+      "requiredParams": [
+        "container",
+        "trigger",
+        "badge",
+        "maxCount"
+      ],
+      "optionalParams": [
+        "iconSlot",
+        "position",
+        "offset",
+        "zIndex",
+        "animationClass",
+        "safeAreaPadding",
+        "ariaLabel"
+      ],
+      "adapters": {
+        "getCount": "() => number",
+        "openDrawer": "() => void",
+        "applyAnimation": "(state) => void"
+      },
+      "uiTexts": {
+        "ariaLabel": "Open bundle drawer"
+      },
+      "a11yNotes": [
+        "Trigger should expose an aria-label and stay keyboard focusable even when fixed-positioned.",
+        "Badge updates should be announced when counts change; hide trigger entirely at count 0 to avoid announcing zero.",
+        "Animation hook must not block focus; clicking trigger should not steal focus from the drawer heading once opened."
+      ],
+      "testBehaviors": [
+        "Trigger hides when count is zero and shows when count is greater than zero.",
+        "Badge text caps to two digits (e.g., 99+) while preserving the numeric count for logic.",
+        "Clicking the trigger calls openDrawer and toggles the animation hook/class on the drawer container.",
+        "Trigger remains fixed in the viewport (bottom-right with safe-area padding) so it is reachable without scrolling."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ container: HTMLElement|string, trigger: HTMLElement|string, badge: HTMLElement|string, maxCount: number, position?: 'bottom-right'|'bottom-left', offset?: { x: number, y: number }, animationClass?: string, ariaLabel?: string }",
+          "adapters": "{ getCount: () => number, openDrawer: () => void, applyAnimation?: (state: { isOpening: boolean }) => void }"
+        },
+        "stateShape": {
+          "count": "number",
+          "isVisible": "boolean",
+          "badgeText": "string",
+          "position": "{ x: number, y: number }"
+        },
+        "mountApi": "mountFloatingDrawerTrigger({ params, adapters, options }) => { syncCount(count), destroy() }"
+      }
     }
   ]
 }

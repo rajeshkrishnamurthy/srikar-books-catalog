@@ -2,6 +2,16 @@ import { compactText } from '../helpers/text.js';
 
 const DEFAULT_COUNTRY_CODE = '+91';
 
+function dispatchToast(message) {
+  const fn = globalThis.showToast;
+  if (typeof fn !== 'function') return;
+  try {
+    fn({ message, variant: 'success' });
+  } catch (error) {
+    console.error('showToast error:', error);
+  }
+}
+
 export function initCustomerMaster(elements = {}, firebaseDeps) {
   const deps = resolveFirebaseDeps(firebaseDeps);
   if (!deps) {
@@ -271,6 +281,7 @@ async function handleSubmit(refs, deps, state) {
     const customersRef = deps.collection(deps.db, 'customers');
     await deps.addDoc(customersRef, payload);
 
+    dispatchToast(`Customer saved: ${normalizedName}`);
     resetForm(refs);
     setMessage(refs.msgEl, 'Customer added successfully.');
   } catch (err) {
@@ -326,6 +337,7 @@ async function handleEditSubmit({ refs, deps, state, customerId, formValues }) {
   const customerRef = deps.doc(deps.db, 'customers', customerId);
   await deps.updateDoc(customerRef, payload);
   setMessage(refs.msgEl, 'Customer updated successfully.');
+  dispatchToast(`Customer saved: ${payload.name || updates.name || 'Customer'}`);
   exitEditMode(refs, state);
 }
 

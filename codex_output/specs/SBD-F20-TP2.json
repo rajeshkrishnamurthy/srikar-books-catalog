@@ -69,8 +69,12 @@
     "Introduced initInventoryPaginationSection to centralize controller wiring, giving Available and Sold the same setup, reload, and location-sync paths."
   ],
   "validation": {
-    "status": "RED",
+    "status": "GREEN",
     "command": "npm test -- --watchAll=false",
-    "report": "codex_output/reports/SBD-F20-TP2_red.txt"
+    "report": "codex_output/reports/SBD-F20-TP2_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Sold pagination shell, busy state, summary text, page size control, and hash sync specs all pass under the shared controller wiring."
+    }
   }
 }

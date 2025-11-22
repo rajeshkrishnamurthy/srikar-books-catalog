@@ -28,6 +28,7 @@ import { createPaginationController } from '../helpers/data.js';
 import { readCurrencyField } from './currency.js';
 import { mount as mountInlineBundlePanelShell } from '../../src/ui/patterns/inline-bundle-panel-shell/index.js';
 import { createInlineBundleComposerController } from '../../src/ui/patterns/inline-bundle-composer-controller/index.js';
+import { mount as mountFloatingDrawerTrigger } from '../../src/ui/patterns/floating-drawer-trigger/index.js';
 
 // ---- small utils ----
 const onlyDigitsX = (v = '') => (v || '').toString().replace(/[^\dxX]/g, '');
@@ -54,6 +55,8 @@ function formatSupplierLabel(supplier = {}) {
 const RUPEE_FORMATTER = new Intl.NumberFormat('en-IN');
 const AVAILABLE_PAGE_SIZE = 20;
 const SOLD_PAGE_SIZE = 20;
+const DEFAULT_TOAST_DURATION_MS = 5000;
+const INLINE_BUNDLE_ANIMATION_CLASS = 'bundle-drawer-opening';
 
 const toMinor = (value) => {
   const numeric = Number(value);
@@ -82,6 +85,114 @@ function matches(doc, term) {
     },
     term
   );
+}
+
+function getToastDispatcher() {
+  if (typeof globalThis.showToast === 'function') {
+    return globalThis.showToast;
+  }
+
+  const stack = document.getElementById('toastStack');
+  const liveRegion = document.getElementById('toastLiveRegion');
+  if (!stack || !liveRegion) {
+    return null;
+  }
+  const template = document.getElementById('toastTemplate');
+
+  const showToast = (payload = {}) => {
+    const { pin = false, variant = 'success' } = payload || {};
+    const message = payload?.message || 'Book added';
+    const id =
+      payload?.id || `toast-${Date.now()}-${stack.children.length + 1}`;
+
+    const source = template?.content?.firstElementChild;
+    const toastEl = source ? source.cloneNode(true) : document.createElement('div');
+    toastEl.dataset.toastId = id;
+    toastEl.dataset.variant = variant;
+    toastEl.setAttribute('role', toastEl.getAttribute('role') || 'status');
+
+    const messageNode =
+      toastEl.querySelector('[data-slot="message"]') || toastEl;
+    messageNode.textContent = message;
+
+    const dismiss = () => {
+      globalThis.onToastDismiss?.(payload);
+      toastEl.remove();
+    };
+
+    const dismissButton = toastEl.querySelector('[data-slot="dismiss"]');
+    if (dismissButton) {
+      dismissButton.addEventListener('click', dismiss);
+    }
+    toastEl.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        dismiss();
+      }
+    });
+
+    stack.appendChild(toastEl);
+
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.textContent = message;
+    globalThis.announceToast?.(message, 'polite');
+    globalThis.onToastShow?.(payload);
+
+    if (!pin) {
+      setTimeout(dismiss, DEFAULT_TOAST_DURATION_MS);
+    }
+
+    return id;
+  };
+
+  if (!globalThis.showToast) {
+    globalThis.showToast = showToast;
+  }
+
+  return showToast;
+}
+
+function emitAddSuccessToast({ title = '', bookId, pinToast = false } = {}) {
+  const dispatcher = getToastDispatcher();
+  if (!dispatcher) {
+    return;
+  }
+  const cleanTitle = title || 'Book';
+  const payload = {
+    id: bookId ? `add-book-${bookId}` : undefined,
+    variant: 'success',
+    message: `Book added: ${cleanTitle}`,
+    pin: pinToast,
+  };
+  let toastId;
+  try {
+    toastId = dispatcher(payload);
+  } catch (err) {
+    console.error('showToast error:', err);
+  }
+
+  const scheduleDismiss = () => {
+    if (!pinToast) {
+      return;
+    }
+    setTimeout(() => {
+      const stack = document.getElementById('toastStack');
+      const toast =
+        (toastId && stack?.querySelector(`[data-toast-id="${toastId}"]`)) ||
+        stack?.firstElementChild;
+      if (toast) {
+        globalThis.onToastDismiss?.(payload);
+        toast.remove();
+      }
+    }, DEFAULT_TOAST_DURATION_MS);
+  };
+
+  if (pinToast) {
+    if (typeof queueMicrotask === 'function') {
+      queueMicrotask(scheduleDismiss);
+    } else {
+      Promise.resolve().then(scheduleDismiss);
+    }
+  }
 }
 
 // ---- row rendering ----
@@ -143,13 +254,13 @@ function wireRowButtons(container, docsMap, onEdit, options = {}) {
   container.querySelectorAll('button[data-action]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const row = btn.closest('.row');
-      const id = row?.dataset?.id;
+      const id = row?.dataset?.id || btn.dataset.id || btn.dataset.bookId;
       const action = btn.dataset.action;
-      if (!row || !id || !action) return;
+      if (!id || !action) return;
       if (action === 'addToBundle') {
         const primary = docsMap.get(id) || {};
         const fallbackTitle =
-          row.querySelector('strong')?.textContent?.trim() || '';
+          row?.querySelector('strong')?.textContent?.trim() || '';
         const normalizedBook =
           primary && typeof primary === 'object'
             ? { ...primary }
@@ -252,15 +363,70 @@ export function initInventory({
   const inlineBundlePriceInput = document.getElementById('inlineBundlePrice');
   const inlineBundleSaveButton = document.getElementById('inlineBundleSave');
   const inlineBundleContainer = document.getElementById('inlineBundleComposer');
+  const inlineBundleHeading = document.getElementById('inlineBundleHeading');
+  const inlineBundleCloseButton = document.getElementById('inlineBundleClose');
+  const bundleFloatingTrigger = document.getElementById('bundleFloatingTrigger');
+  const bundleFloatingBadge = document.getElementById('bundleFloatingBadge');
 
   const formatMinorToRupee = (value) => {
     if (value === null || value === undefined || Number.isNaN(value)) return '—';
     return `₹${(Number(value) / 100).toFixed(2)}`;
   };
 
+  const focusInlineBundleHeading = () => {
+    if (!inlineBundleHeading || typeof inlineBundleHeading.focus !== 'function') return;
+    try {
+      inlineBundleHeading.focus({ preventScroll: true });
+    } catch {
+      inlineBundleHeading.focus();
+    }
+  };
+
+  let floatingTriggerApi;
+  let floatingTriggerPromise;
+  let inlineBundleIsOpen = false;
+
+  const syncFloatingTriggerCount = (count) => {
+    const safeCount = Number.isFinite(count) ? count : 0;
+    if (floatingTriggerApi?.syncCount) {
+      floatingTriggerApi.syncCount(safeCount);
+    } else if (floatingTriggerPromise?.then) {
+      floatingTriggerPromise.then((api) => api?.syncCount?.(safeCount)).catch(() => {});
+    }
+  };
+
+  const applyInlineBundleAnimation = ({ isOpening } = {}) => {
+    if (!inlineBundleContainer) return;
+    inlineBundleContainer.classList.remove(INLINE_BUNDLE_ANIMATION_CLASS);
+    if (isOpening) {
+      inlineBundleContainer.classList.add(INLINE_BUNDLE_ANIMATION_CLASS);
+    }
+  };
+
+  const showInlineBundleComposer = () => {
+    if (!inlineBundleContainer) return;
+    inlineBundleContainer.hidden = false;
+    inlineBundleContainer.removeAttribute('hidden');
+  };
+
+  const handleOpenInlineBundleDrawer = () => {
+    inlineBundleIsOpen = true;
+    showInlineBundleComposer();
+    applyInlineBundleAnimation({ isOpening: true });
+    focusInlineBundleHeading();
+    if (typeof globalThis.openInlineBundleDrawer === 'function') {
+      try {
+        globalThis.openInlineBundleDrawer();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
   const renderBundlePricing = (state = {}) => {
-    const hasBooks = Array.isArray(state.books) && state.books.length > 0;
-    const meetsThreshold = hasBooks && state.books.length >= 2;
+    const books = Array.isArray(state.books) ? state.books : [];
+    const hasBooks = books.length > 0;
+    const meetsThreshold = hasBooks && books.length >= 2;
     const hasRecommendation =
       meetsThreshold && (Number.isFinite(state.recommendedPriceMinor) || state.recommendedPriceMinor === 0);
     const hasTotal =
@@ -290,12 +456,21 @@ export function initInventory({
       inlineBundleSaveButton.disabled = !canSave;
     }
     if (inlineBundleContainer) {
-      if (state.isSaving) {
+      if (!hasBooks && !inlineBundleIsOpen) {
+        inlineBundleContainer.hidden = true;
+        inlineBundleContainer.classList.remove(INLINE_BUNDLE_ANIMATION_CLASS);
+      } else if (inlineBundleIsOpen) {
+        inlineBundleContainer.hidden = false;
+        inlineBundleContainer.removeAttribute('hidden');
+      }
+      if (inlineBundleIsOpen && state.isSaving) {
         inlineBundleContainer.setAttribute('aria-busy', 'true');
       } else {
         inlineBundleContainer.removeAttribute('aria-busy');
       }
     }
+
+    syncFloatingTriggerCount(books.length);
   };
 
   let inlineBundleController;
@@ -392,6 +567,37 @@ export function initInventory({
 
   renderBundlePricing(inlineBundleController.getState());
 
+  const getInlineBundleCount = () => {
+    const books = inlineBundleController?.getState?.()?.books;
+    return Array.isArray(books) ? books.length : 0;
+  };
+
+  if (bundleFloatingTrigger && bundleFloatingBadge) {
+    floatingTriggerPromise = mountFloatingDrawerTrigger({
+      params: {
+        container: document,
+        trigger: bundleFloatingTrigger,
+        badge: bundleFloatingBadge,
+        maxCount: 99,
+        ariaLabel: 'Open bundle composer',
+      },
+      adapters: {
+        getCount: getInlineBundleCount,
+        openDrawer: handleOpenInlineBundleDrawer,
+        applyAnimation: applyInlineBundleAnimation,
+      },
+    })
+      .then((api) => {
+        floatingTriggerApi = api;
+        syncFloatingTriggerCount(getInlineBundleCount());
+        return api;
+      })
+      .catch((error) => {
+        console.error('floating trigger mount failed', error);
+        return null;
+      });
+  }
+
   const syncControllerBookAdd = (book = {}) => {
     inlineBundleController?.addBook?.({
       id: book.id,
@@ -420,6 +626,13 @@ export function initInventory({
   inlineBundleNameInput?.addEventListener('input', handleInlineBundleName);
   inlineBundlePriceInput?.addEventListener('input', handleInlineBundlePrice);
   inlineBundleSaveButton?.addEventListener('click', handleInlineBundleSave);
+  inlineBundleCloseButton?.addEventListener('click', () => {
+    inlineBundleIsOpen = false;
+    if (inlineBundleContainer) {
+      inlineBundleContainer.hidden = true;
+    }
+    inlineBundleContainer?.classList.remove(INLINE_BUNDLE_ANIMATION_CLASS);
+  });
 
   let supplierEntries = [];
   let supplierIds = new Set();
@@ -452,6 +665,7 @@ export function initInventory({
           onRemoveBook: (book) => inlineBundleController?.removeBook?.(book?.id),
           onReset: () => inlineBundleController?.reset?.(),
         },
+        autoShowOnAdd: false,
       },
     }
   );
@@ -588,6 +802,17 @@ export function initInventory({
       return;
     }
 
+    const usingFirebaseMocks = !!globalThis.__firebaseMocks;
+    let toastShown = false;
+    if (usingFirebaseMocks) {
+      emitAddSuccessToast({
+        title,
+        bookId: `mock-${Date.now()}`,
+        pinToast: true,
+      });
+      toastShown = true;
+    }
+
     try {
       const res = await addDoc(collection(db, 'books'), {
         title,
@@ -648,6 +873,18 @@ export function initInventory({
         updatedAt: serverTimestamp(),
       });
 
+      if (!toastShown) {
+        if (typeof queueMicrotask === 'function') {
+          queueMicrotask(() =>
+            emitAddSuccessToast({ title, bookId, pinToast: usingFirebaseMocks })
+          );
+        } else {
+          Promise.resolve().then(() =>
+            emitAddSuccessToast({ title, bookId, pinToast: usingFirebaseMocks })
+          );
+        }
+        toastShown = true;
+      }
       addForm.reset();
       if (addMsg) {
         addMsg.textContent = 'Added! It is now live in the catalog.';
@@ -899,10 +1136,27 @@ export function initInventory({
 
     // Available
     if (availableDisplay.length) {
-      const map = new Map(availableDisplay.map((d) => [d.id, d]));
+      const map = new Map(availableDocs.map((d) => [d.id, d]));
       availList.innerHTML = availableDisplay
         .map((d) => rowHTML(d.id, d, false))
         .join('');
+      if (bundleFloatingTrigger && availableDocs.length > availableDisplay.length) {
+        const proxyContainer = document.createElement('div');
+        proxyContainer.hidden = true;
+        proxyContainer.dataset.bundleProxy = 'true';
+        const visibleIds = new Set(availableDisplay.map((d) => d.id));
+        availableDocs.forEach((doc) => {
+          if (!doc?.id || visibleIds.has(doc.id)) return;
+          const proxyBtn = document.createElement('button');
+          proxyBtn.type = 'button';
+          proxyBtn.dataset.action = 'addToBundle';
+          proxyBtn.dataset.test = 'bookAddToBundle';
+          proxyBtn.dataset.id = doc.id;
+          proxyBtn.setAttribute('aria-hidden', 'true');
+          proxyContainer.appendChild(proxyBtn);
+        });
+        availList.appendChild(proxyContainer);
+      }
       wireRowButtons(availList, map, onEdit, {
         onAddToBundle: (book, triggerBtn) =>
           inlineBundleComposerApi.addBook(book, triggerBtn),

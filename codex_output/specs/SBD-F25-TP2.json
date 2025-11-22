@@ -5,7 +5,7 @@
   "area": "Admin / Available Books",
   "goal": "Allow admins to continue adding books to an existing bundle selected from the composer dropdown.",
   "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-  "status": "RED",
+  "status": "GREEN",
   "specs": [
     {
       "id": "SBD-F25-TP2-001",
@@ -47,15 +47,20 @@
     "tests/spec/admin/SBD-F25-TP2-002_LoadExistingBundleMergesContext.spec.js",
     "tests/spec/admin/SBD-F25-TP2-003_UpdateBundleSavesUsingExistingId.spec.js",
     "codex_output/specs/SBD-F25-TP2.json",
-    "codex_output/reports/SBD-F25-TP2_red.txt"
+    "codex_output/reports/SBD-F25-TP2_red.txt",
+    "codex_output/reports/SBD-F25-TP2_green.txt"
   ],
   "changeNotes": [
     "Captured continuation specs for inline bundles: populate the existing-bundle select, merge server data into current chips, and persist updates with the selected bundle id.",
     "Added RED Jest specs exercising the composer harness to assert select population, merge logic, and Update payload handling."
   ],
   "validation": {
-    "status": "RED",
+    "status": "GREEN",
     "command": "npm test -- --watchAll=false SBD-F25-TP2",
-    "report": "codex_output/reports/SBD-F25-TP2_red.txt"
+    "report": "codex_output/reports/SBD-F25-TP2_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Continuing an inline bundle now hydrates existing metadata, prevents duplicate ids, relabels Save to Update, and persists with the original bundleId."
+    }
   }
 }
