@@ -1,0 +1,63 @@
+{
+  "topicId": "SBD-F29-TP4",
+  "featureId": "F29",
+  "title": "Reset Floating Trigger After Save",
+  "area": "Admin / Manage Books - Available",
+  "goal": "Reset the inline bundle composer and floating trigger after a successful save so the badge returns to zero until a new selection is made.",
+  "environment": "HTML + Vanilla JavaScript + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F29-TP4-001",
+      "title": "FloatingTriggerResetAnchorsPresent",
+      "given": "Admin markup renders the inline bundle composer drawer alongside the floating trigger and badge that mirror the inline selection count.",
+      "when": "The admin.html DOM is parsed.",
+      "then": "#bundleFloatingTrigger, #bundleFloatingBadge, and #inlineBundleSave exist, with the trigger pointing to #inlineBundleComposer while starting hidden with an empty badge."
+    },
+    {
+      "id": "SBD-F29-TP4-002",
+      "title": "SaveSuccessResetsInlineBundleAndTrigger",
+      "given": "A bundle selection exists with name and price filled, making the floating trigger visible and saveInlineBundle ready to run.",
+      "when": "The admin clicks #inlineBundleSave and the saveInlineBundle promise resolves successfully.",
+      "then": "The inline bundle selection resets (chips removed, inputs cleared, empty state visible), the source Add to bundle trigger resets aria-pressed, and #bundleFloatingTrigger hides with #bundleFloatingBadge cleared until a new selection exists."
+    },
+    {
+      "id": "SBD-F29-TP4-003",
+      "title": "PostSaveSelectionRestartsFloatingTriggerCount",
+      "given": "The floating trigger was hidden after a successful inline bundle save reset.",
+      "when": "The admin clicks Add to bundle again to start a new selection.",
+      "then": "syncFloatingTriggerCount restarts from zero so the trigger reappears only after the new selection with the badge showing 1 instead of carrying over the previous count."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminInventoryHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F29-TP4-001_FloatingTriggerResetAnchors.spec.js",
+    "/tests/spec/admin/SBD-F29-TP4-002_SaveSuccessResetsFloatingTrigger.spec.js",
+    "/tests/spec/admin/SBD-F29-TP4-003_NewSelectionAfterSaveShowsFreshCount.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F29-TP4_red.txt",
+    "green": "codex_output/reports/SBD-F29-TP4_green.txt"
+  },
+  "changedFiles": [
+    "tests/spec/admin/SBD-F29-TP4-001_FloatingTriggerResetAnchors.spec.js",
+    "tests/spec/admin/SBD-F29-TP4-002_SaveSuccessResetsFloatingTrigger.spec.js",
+    "tests/spec/admin/SBD-F29-TP4-003_NewSelectionAfterSaveShowsFreshCount.spec.js",
+    "codex_output/specs/SBD-F29-TP4.json",
+    "codex_output/impl_inputs/SBD-F29-TP4.jsonl",
+    "codex_output/reports/SBD-F29-TP4_red.txt",
+    "codex_output/reports/SBD-F29-TP4_green.txt",
+    "scripts/admin/inventory.js"
+  ],
+  "changeNotes": [
+    "Authored RED specs ensuring inline bundle save success clears the composer selection, hides the floating trigger/badge, and restarts the badge count from zero on the next Add to bundle.",
+    "Inline bundle save success now clears the composer selection, hides the floating trigger/badge, and resets inputs/pressed state so the next selection starts from a zero badge count."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npx cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F29-TP4",
+    "report": "codex_output/reports/SBD-F29-TP4_green.txt"
+  }
+}

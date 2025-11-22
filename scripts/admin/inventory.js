@@ -646,6 +646,20 @@ export function initInventory({
               bundleName: state.bundleName,
               bundleId: result?.bundleId || state.bundleId,
             });
+            inlineBundleIsOpen = false;
+            inlineBundleComposerApi?.reset?.();
+            inlineBundleController?.reset?.();
+            if (inlineBundleNameInput) {
+              inlineBundleNameInput.value = '';
+            }
+            if (inlineBundlePriceInput) {
+              inlineBundlePriceInput.value = '';
+            }
+            if (inlineBundleContainer) {
+              inlineBundleContainer.hidden = true;
+              inlineBundleContainer.classList.remove(INLINE_BUNDLE_ANIMATION_CLASS);
+            }
+            syncFloatingTriggerCount(0);
           })
           .catch((error) => console.error('inline bundle save failed', error));
       }
