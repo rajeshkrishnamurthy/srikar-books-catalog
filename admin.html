@@ -707,24 +707,28 @@
                   hidden
                 ></div>
                 <div class="inline-bundle-composer__form">
-                  <label for="inlineBundleName">Bundle name</label>
-                  <input
-                    id="inlineBundleName"
-                    type="text"
-                    class="md-input"
-                    required
-                    aria-required="true"
-                    aria-describedby="inlineBundleHelper"
-                  />
-                  <label for="inlineBundlePrice">Bundle price</label>
-                  <input
-                    id="inlineBundlePrice"
-                    type="number"
-                    class="md-input"
-                    required
-                    aria-required="true"
-                    aria-describedby="inlineBundleHelper"
-                  />
+                  <div class="inline-bundle-field">
+                    <label for="inlineBundleName">Bundle name <span aria-hidden="true">*</span></label>
+                    <input
+                      id="inlineBundleName"
+                      type="text"
+                      class="md-input"
+                      required
+                      aria-required="true"
+                      aria-describedby="inlineBundleHelper"
+                    />
+                  </div>
+                  <div class="inline-bundle-field">
+                    <label for="inlineBundlePrice">Bundle price <span aria-hidden="true">*</span></label>
+                    <input
+                      id="inlineBundlePrice"
+                      type="number"
+                      class="md-input"
+                      required
+                      aria-required="true"
+                      aria-describedby="inlineBundleHelper"
+                    />
+                  </div>
                   <label for="inlineBundleExistingSelect" class="sr-only">
                     Continue existing bundle
                   </label>
@@ -744,10 +748,12 @@
                     <dt>Total sale price</dt>
                     <dd id="inlineBundleTotal" aria-live="polite">—</dd>
                   </div>
+                  <div>
+                    <dt>Total MRP</dt>
+                    <dd id="inlineBundleMrp" aria-live="polite">—</dd>
+                  </div>
                 </dl>
-                <p id="inlineBundleHelper" class="inline-bundle-composer__helper">
-                  Bundle name and bundle price are required before saving.
-                </p>
+                <p id="inlineBundleHelper" class="inline-bundle-composer__helper" aria-hidden="true"></p>
                 <div class="inline-bundle-composer__actions">
                   <button id="inlineBundleReset" type="button" class="btn btn-secondary">
                     Clear bundle

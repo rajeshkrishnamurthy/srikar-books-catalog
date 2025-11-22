@@ -1,0 +1,12 @@
+{"type":"meta","topicId":"F11-TP3","title":"Persist Clean Payload After Removals"}
+{"type":"given","text":"One or more lines were removed (possibly leaving zero) and the admin proceeds to Persist sale."}
+{"type":"when","text":"The Persist sale action runs validation and prepares the Firestore payload."}
+{"type":"then","text":"Only remaining lines serialize, removed entries never reach Firestore, Persist sale is disabled with guidance when the list is empty, and the success status mentions how many line items actually saved."}
+{"type":"ui-anchor","selector":"#saleLineItemsBody"}
+{"type":"ui-anchor","selector":"#saleLineRemovalStatus"}
+{"type":"ui-anchor","selector":"#salePersistBtn"}
+{"type":"ui-anchor","selector":"#saleLineTotals"}
+{"type":"js-handler","event":"click","selector":"#saleLineItemsBody [data-action=\"removeSaleLine\"]","handler":"confirmRemoveSaleLine"}
+{"type":"js-handler","event":"click","selector":"#salePersistBtn","handler":"persistSale"}
+{"type":"adapter-call","function":"removeSaleLineItem","args":["lineId"]}
+{"type":"adapter-call","function":"saveSale","args":["saleHeader","lineItems"]}

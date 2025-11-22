@@ -1,0 +1,8 @@
+{"type":"meta","topicId":"TP4","title":"Hide Purchase Price from Public Catalog"}
+{"type":"given","text":"A visitor browses the public catalog."}
+{"type":"when","text":"Client-side code queries Firestore and renders cards."}
+{"type":"then","text":"Purchase price fields are omitted or stripped before rendering so no cost data leaks publicly."}
+{"type":"ui-anchor","selector":"#catalogList"}
+{"type":"js-handler","event":"render","selector":"#catalogList","handler":"renderCatalogCards"}
+{"type":"adapter-call","function":"subscribeToCatalog","args":["public"]}
+{"type":"adapter-call","function":"stripPurchasePrice","args":["bookPayload"]}

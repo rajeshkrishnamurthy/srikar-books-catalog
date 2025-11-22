@@ -1,0 +1,16 @@
+{"type":"meta","topicId":"F19-TP1","title":"Available Books Data Source"}
+{"type":"given","text":"Manage Books > Available is active and the pagination controller initializes."}
+{"type":"when","text":"The controller requests a page with size/direction plus the active filter or search state."}
+{"type":"then","text":"The dataSource builds the Firestore query, enforces ordering, and returns normalized results with paging metadata while resetting to page 1 whenever filters change."}
+{"type":"ui-anchor","selector":"#availablePagination"}
+{"type":"ui-anchor","selector":"#availablePaginationPrev"}
+{"type":"ui-anchor","selector":"#availablePaginationNext"}
+{"type":"ui-anchor","selector":"#availablePaginationSummary"}
+{"type":"ui-anchor","selector":"#availablePaginationPages"}
+{"type":"ui-anchor","selector":"#availablePaginationSize"}
+{"type":"js-handler","event":"click","selector":"#availablePaginationPrev","handler":"goPrevAvailable"}
+{"type":"js-handler","event":"click","selector":"#availablePaginationNext","handler":"goNextAvailable"}
+{"type":"js-handler","event":"change","selector":"#availablePaginationSize","handler":"changeAvailablePageSize"}
+{"type":"js-handler","event":"click","selector":"#availablePaginationPages button","handler":"goToAvailablePage"}
+{"type":"adapter-call","function":"fetchAvailableBooksPage","args":["pageRequest"]}
+{"type":"adapter-call","function":"syncAvailablePagingToLocation","args":["page","pageSize"]}

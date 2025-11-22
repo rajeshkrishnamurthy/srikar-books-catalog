@@ -1,0 +1,66 @@
+{
+  "topicId": "SBD-F26-TP1",
+  "featureId": "F26",
+  "title": "Bundle Composition Pattern",
+  "area": "Admin / Bundles",
+  "goal": "Standardize bundle creation and inline add-to-bundle flows on one contract/controller with shared pricing rules.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F26-TP1-001",
+      "title": "SharedDiscountAfterTwoSelections",
+      "given": "Bundle \u2192 Create and Available \u2192 Add to bundle share a bundle composition controller with INR currency and a recommendation threshold of two books.",
+      "when": "A first book is added from one route and a second book is added from the other route.",
+      "then": "computeRecommendation fires once with both book selections, currency, and recommendationDiscountPct=25 and updates the shared recommended price state."
+    },
+    {
+      "id": "SBD-F26-TP1-002",
+      "title": "ContractShapedSavePayload",
+      "given": "Two books have been selected and recommended pricing has been computed.",
+      "when": "Save is initiated from either Bundle \u2192 Create or Available \u2192 Add to bundle.",
+      "then": "saveBundle receives the same contract-shaped payload (ordered books with positions, totals, and recommendedPriceMinor at 25% off total sale price) regardless of route."
+    },
+    {
+      "id": "SBD-F26-TP1-003",
+      "title": "OrderPreservedAndThresholdGated",
+      "given": "A bundle composition controller is mounted across both routes.",
+      "when": "One book is added from Available \u2192 Add to bundle and another from Bundle \u2192 Create, then Save is triggered.",
+      "then": "computeRecommendation remains gated until the second book, and the saved document preserves the cross-route selection order with positions."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/bundleCompositionHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F26-TP1-001_SharedDiscountAcrossRoutes.spec.js",
+    "/tests/spec/admin/SBD-F26-TP1-002_SavePayloadSharedAcrossRoutes.spec.js",
+    "/tests/spec/admin/SBD-F26-TP1-003_OrderPreservedAcrossRoutes.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F26-TP1_red.txt",
+    "green": "codex_output/reports/SBD-F26-TP1_green.txt"
+  },
+  "changedFiles": [
+    "spec_inputs/SBD-F26-TP1.jsonl",
+    "specs/SBD-F26-TP1.json",
+    "tests/fixtures/bundleCompositionHarness.js",
+    "tests/spec/admin/SBD-F26-TP1-001_SharedDiscountAcrossRoutes.spec.js",
+    "tests/spec/admin/SBD-F26-TP1-002_SavePayloadSharedAcrossRoutes.spec.js",
+    "tests/spec/admin/SBD-F26-TP1-003_OrderPreservedAcrossRoutes.spec.js",
+    "impl_inputs/SBD-F26-TP1.jsonl",
+    "reports/SBD-F26-TP1_red.txt",
+    "reports/SBD-F26-TP1_green.txt",
+    "src/ui/patterns/bundle-composition/index.js"
+  ],
+  "changeNotes": [
+    "Add shared bundle composition specs to enforce the 25% discount after two selections across Bundle \u2192 Create and Available \u2192 Add to bundle.",
+    "Ensure saves from both routes use the same contract-shaped payload with ordered books, totals, and pricing metadata.",
+    "Introduce a harness for bundle composition to drive UI wiring and adapter expectations for the new pattern."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F26-TP1",
+    "report": "codex_output/reports/SBD-F26-TP1_green.txt"
+  }
+}

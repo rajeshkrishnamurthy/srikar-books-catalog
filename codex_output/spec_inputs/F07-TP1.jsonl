@@ -1,0 +1,9 @@
+{"type":"meta","topicId":"F07-TP1","title":"Add Customer Records"}
+{"type":"given","text":"An admin opens the Customer Master module."}
+{"type":"when","text":"They submit the add form with all required fields."}
+{"type":"then","text":"A validated customer document is created with normalized phone data."}
+{"type":"ui-anchor","selector":"#customerForm"}
+{"type":"ui-anchor","selector":"#customerNameInput"}
+{"type":"ui-anchor","selector":"#customerWhatsAppInput"}
+{"type":"js-handler","event":"submit","selector":"#customerForm","handler":"handleCustomerSave"}
+{"type":"adapter-call","function":"saveCustomer","args":["customerData"]}

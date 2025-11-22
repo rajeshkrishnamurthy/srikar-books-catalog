@@ -1,0 +1,9 @@
+{"type":"meta","topicId":"F15-TP4","title":"Remove Nav Detail Summaries"}
+{"type":"given","text":"The nav currently renders `#navDetail-*` sections for each tile."}
+{"type":"when","text":"The nav renders after sign-in."}
+{"type":"then","text":"The detail sections are gone/hidden for every tile; only the main buttons remain, simplifying the layout."}
+{"type":"ui-anchor","selector":"#adminNav"}
+{"type":"ui-anchor","selector":"[id^=\"navDetail-\"]"}
+{"type":"js-handler","event":"init","selector":"#adminNav","handler":"renderAdminNav"}
+{"type":"js-handler","event":"init","selector":"#adminNav","handler":"stripNavDetails"}
+{"type":"adapter-call","function":"handleAdminNav","args":["targetSection"]}

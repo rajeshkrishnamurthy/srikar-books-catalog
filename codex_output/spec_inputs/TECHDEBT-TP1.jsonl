@@ -1,0 +1,9 @@
+{"type":"meta","topicId":"TECHDEBT-TP1","title":"Sync Admin Nav With Hash History"}
+{"type":"given","text":"The admin already navigated across sections so history entries exist."}
+{"type":"when","text":"They press Back/Forward and the hash changes."}
+{"type":"then","text":"A listener reruns handleAdminNav so aria-current/panels match the hash (fixes bug “P1 Badge Keep admin nav in sync with hash history”)."}
+{"type":"ui-anchor","selector":"#adminNav"}
+{"type":"js-handler","event":"hashchange","selector":"window","handler":"handleAdminNav"}
+{"type":"js-handler","event":"init","selector":"#adminNav","handler":"renderAdminNav"}
+{"type":"adapter-call","function":"syncNavFromHash","args":["hash"]}
+{"type":"adapter-call","function":"handleAdminNav","args":["targetSection"]}

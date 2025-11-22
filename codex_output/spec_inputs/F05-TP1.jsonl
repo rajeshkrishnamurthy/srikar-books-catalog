@@ -1,0 +1,9 @@
+{"type":"meta","topicId":"F05-TP1","title":"Create Supplier Records"}
+{"type":"given","text":"An admin opens the Supplier Master view."}
+{"type":"when","text":"They submit the form with name and location."}
+{"type":"then","text":"A new supplier document persists and appears instantly without duplicates."}
+{"type":"ui-anchor","selector":"#supplierForm"}
+{"type":"ui-anchor","selector":"#supplierNameInput"}
+{"type":"ui-anchor","selector":"#supplierLocationInput"}
+{"type":"js-handler","event":"submit","selector":"#supplierForm","handler":"handleSupplierSave"}
+{"type":"adapter-call","function":"saveSupplier","args":["supplierData"]}

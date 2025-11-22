@@ -1,0 +1,15 @@
+{"type":"meta","topicId":"F06-TP3","title":"Associate Buyer With Sale"}
+{"type":"given","text":"Customer records exist and a book is being marked sold."}
+{"type":"when","text":"The admin searches/selects (or creates) a buyer while confirming the sale."}
+{"type":"then","text":"The sale record stores the buyer reference and surfaces it in reports."}
+{"type":"ui-anchor","selector":"button[data-action=\"sold\"]"}
+{"type":"ui-anchor","selector":"#salePriceInput"}
+{"type":"ui-anchor","selector":"#saleStatusForm"}
+{"type":"ui-anchor","selector":"#buyerLookup"}
+{"type":"ui-anchor","selector":"#buyerSelect"}
+{"type":"js-handler","event":"click","selector":"button[data-action=\"sold\"]","handler":"openSaleStatusDialog"}
+{"type":"js-handler","event":"submit","selector":"#saleStatusForm","handler":"saveSaleStatus"}
+{"type":"js-handler","event":"input","selector":"#buyerLookup","handler":"searchBuyers"}
+{"type":"js-handler","event":"change","selector":"#buyerSelect","handler":"handleBuyerSelect"}
+{"type":"adapter-call","function":"markBookSold","args":["bookId","salePrice"]}
+{"type":"adapter-call","function":"linkBuyerToSale","args":["bookId","buyerId"]}

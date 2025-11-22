@@ -1,0 +1,18 @@
+{"type":"meta","topicId":"F18-TP3","title":"Public Catalog Pagination Application"}
+{"type":"given","text":"A visitor browses the catalog and a category has more items than fit on one page."}
+{"type":"when","text":"They reach the end of the list and use the pagination affordance."}
+{"type":"then","text":"Additional books load via the shared contract, the visible slice is clear, and the pattern is consistent across all catalog tabs."}
+{"type":"ui-anchor","selector":"#paginationSummary"}
+{"type":"ui-anchor","selector":"#paginationPrev"}
+{"type":"ui-anchor","selector":"#paginationNext"}
+{"type":"ui-anchor","selector":"#paginationController"}
+{"type":"ui-anchor","selector":"#catalogPagination"}
+{"type":"ui-anchor","selector":"#catalogPaginationSummary"}
+{"type":"ui-anchor","selector":"#catalogPaginationPrev"}
+{"type":"ui-anchor","selector":"#catalogPaginationNext"}
+{"type":"js-handler","event":"click","selector":"#paginationPrev","handler":"goPrevPage"}
+{"type":"js-handler","event":"click","selector":"#paginationNext","handler":"goNextPage"}
+{"type":"js-handler","event":"init","selector":"#paginationController","handler":"createPaginationController"}
+{"type":"adapter-call","function":"dataSource","args":["request"]}
+{"type":"pattern","patternId":"PAGINATION_SHELL","requiredParams":["container","summaryEl","prevButton","nextButton"],"adapters":{"controller":"createPaginationController()"},"testBehaviors":[]}
+{"type":"pattern","patternId":"PAGINATION_CONTROLLER","requiredParams":["defaultPageSize"],"adapters":{"dataSource":"({ request }) => Promise"},"testBehaviors":[]}

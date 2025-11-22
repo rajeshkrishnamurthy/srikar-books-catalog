@@ -27,6 +27,7 @@ import { bookMatchesQuery } from '../helpers/bookSearch.js';
 import { createPaginationController } from '../helpers/data.js';
 import { readCurrencyField } from './currency.js';
 import { mount as mountInlineBundlePanelShell } from '../../src/ui/patterns/inline-bundle-panel-shell/index.js';
+import { createInlineBundleComposerController } from '../../src/ui/patterns/inline-bundle-composer-controller/index.js';
 
 // ---- small utils ----
 const onlyDigitsX = (v = '') => (v || '').toString().replace(/[^\dxX]/g, '');
@@ -53,6 +54,12 @@ function formatSupplierLabel(supplier = {}) {
 const RUPEE_FORMATTER = new Intl.NumberFormat('en-IN');
 const AVAILABLE_PAGE_SIZE = 20;
 const SOLD_PAGE_SIZE = 20;
+
+const toMinor = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return null;
+  return Math.round(numeric * 100);
+};
 
 function formatPurchasePriceText(value) {
   if (value === undefined || value === null || value === '') {
@@ -238,6 +245,182 @@ export function initInventory({
   onEdit, // optional
   createPaginationController: createPaginationControllerOverride,
 }) {
+  const inlineBundleRecommended = document.getElementById('inlineBundleRecommended');
+  const inlineBundleTotal = document.getElementById('inlineBundleTotal');
+  const inlineBundleMrp = document.getElementById('inlineBundleMrp');
+  const inlineBundleNameInput = document.getElementById('inlineBundleName');
+  const inlineBundlePriceInput = document.getElementById('inlineBundlePrice');
+  const inlineBundleSaveButton = document.getElementById('inlineBundleSave');
+  const inlineBundleContainer = document.getElementById('inlineBundleComposer');
+
+  const formatMinorToRupee = (value) => {
+    if (value === null || value === undefined || Number.isNaN(value)) return '—';
+    return `₹${(Number(value) / 100).toFixed(2)}`;
+  };
+
+  const renderBundlePricing = (state = {}) => {
+    const hasBooks = Array.isArray(state.books) && state.books.length > 0;
+    const meetsThreshold = hasBooks && state.books.length >= 2;
+    const hasRecommendation =
+      meetsThreshold && (Number.isFinite(state.recommendedPriceMinor) || state.recommendedPriceMinor === 0);
+    const hasTotal =
+      meetsThreshold && (Number.isFinite(state.totalSalePriceMinor) || state.totalSalePriceMinor === 0);
+
+    if (inlineBundleRecommended) {
+      inlineBundleRecommended.textContent = hasRecommendation
+        ? formatMinorToRupee(state.recommendedPriceMinor)
+        : '—';
+    }
+    if (inlineBundleTotal) {
+      inlineBundleTotal.textContent = hasTotal ? formatMinorToRupee(state.totalSalePriceMinor) : '—';
+    }
+    if (inlineBundleMrp) {
+      const hasMrp =
+        meetsThreshold && (Number.isFinite(state.totalMrpMinor) || state.totalMrpMinor === 0);
+      inlineBundleMrp.textContent = hasMrp
+        ? formatMinorToRupee(state.totalMrpMinor)
+        : 'Total MRP unavailable';
+    }
+
+    const nameReady = typeof state.bundleName === 'string' && state.bundleName.trim().length > 0;
+    const priceReady = Number.isFinite(state.bundlePriceMinor) && state.bundlePriceMinor > 0;
+    const canSave =
+      hasBooks && nameReady && priceReady && !state.isSaving;
+    if (inlineBundleSaveButton) {
+      inlineBundleSaveButton.disabled = !canSave;
+    }
+    if (inlineBundleContainer) {
+      if (state.isSaving) {
+        inlineBundleContainer.setAttribute('aria-busy', 'true');
+      } else {
+        inlineBundleContainer.removeAttribute('aria-busy');
+      }
+    }
+  };
+
+  let inlineBundleController;
+  const fetchPriceRecommendation = async ({ bookIds = [] } = {}) => {
+    const selection = inlineBundleController?.getState?.()?.books || [];
+    const ids = Array.isArray(bookIds) && bookIds.length ? new Set(bookIds) : null;
+    const scoped = ids ? selection.filter((book) => ids.has(book.id)) : selection;
+    const totalSaleMinor = scoped.reduce(
+      (sum, book) => sum + (Number(book?.salePriceMinor) || 0),
+      0
+    );
+    const hasAllMrp = scoped.length > 0 && scoped.every((book) => Number.isFinite(book?.mrpMinor));
+    const totalMrpMinor = hasAllMrp
+      ? scoped.reduce((sum, book) => sum + (Number(book?.mrpMinor) || 0), 0)
+      : null;
+    const recommendedMinor = Math.round(totalSaleMinor * 0.75);
+    return {
+      recommendedPriceMinor: recommendedMinor,
+      totalSalePriceMinor: totalSaleMinor,
+      totalMrpMinor,
+    };
+  };
+
+  const saveInlineBundle = async (payload = {}) => {
+    const state = inlineBundleController?.getState?.() || {};
+    const bundleName = (payload.bundleName || state.bundleName || '').trim();
+    const bundlePriceMinor = Number.isFinite(payload.bundlePriceMinor)
+      ? payload.bundlePriceMinor
+      : state.bundlePriceMinor;
+    const bookIds = Array.isArray(payload.bookIds) && payload.bookIds.length
+      ? payload.bookIds
+      : (state.books || []).map((book) => book.id);
+
+    if (!bundleName || !Number.isFinite(bundlePriceMinor) || bundlePriceMinor <= 0 || !bookIds.length) {
+      throw new Error('Invalid inline bundle payload');
+    }
+
+    const totalListMinor =
+      Number.isFinite(state.totalSalePriceMinor) && state.totalSalePriceMinor >= 0
+        ? state.totalSalePriceMinor
+        : (state.books || []).reduce((sum, book) => sum + (Number(book?.salePriceMinor) || 0), 0);
+    const recommendedMinor =
+      Number.isFinite(state.recommendedPriceMinor) && state.recommendedPriceMinor >= 0
+        ? state.recommendedPriceMinor
+        : Math.round(totalListMinor * 0.75);
+
+    const books = (state.books || []).map((book, index) => ({
+      id: book.id,
+      title: book.title,
+      price: Math.round((Number(book.salePriceMinor) || 0) / 100),
+      supplierId: book.supplierId || '',
+      position: index + 1,
+    }));
+
+    const bundleDoc = {
+      title: bundleName,
+      bookIds,
+      books,
+      totalListPriceRupees: Math.round(totalListMinor / 100),
+      recommendedPriceRupees: Math.round(recommendedMinor / 100),
+      bundlePriceRupees: Math.round(bundlePriceMinor / 100),
+      status: 'Draft',
+      createdAt: typeof serverTimestamp === 'function' ? serverTimestamp() : new Date(),
+    };
+
+    const ref = await addDoc(collection(db, 'bundles'), bundleDoc);
+    return { bundleId: ref?.id };
+  };
+
+  const linkInlineBundleBooks = async (bundleId, bookIds = []) => {
+    if (!bundleId || !Array.isArray(bookIds) || bookIds.length === 0) {
+      return;
+    }
+    const updates = bookIds.map((id) => {
+      const docRef = doc(db, 'books', id);
+      return updateDoc(docRef, { bundleId, updatedAt: serverTimestamp() }).catch(() => {});
+    });
+    await Promise.all(updates);
+  };
+
+  inlineBundleController = createInlineBundleComposerController({
+    params: {
+      currency: 'INR',
+      pricePrecision: 2,
+      recommendationThreshold: 2,
+    },
+    adapters: {
+      fetchPriceRecommendation,
+      saveBundle: saveInlineBundle,
+      linkBooks: linkInlineBundleBooks,
+      onStateChange: renderBundlePricing,
+    },
+  });
+
+  renderBundlePricing(inlineBundleController.getState());
+
+  const syncControllerBookAdd = (book = {}) => {
+    inlineBundleController?.addBook?.({
+      id: book.id,
+      title: book.title,
+      salePriceMinor: toMinor(book.salePriceMinor ?? book.price),
+      mrpMinor: toMinor(book.mrpMinor ?? book.mrp),
+      supplierId: book.supplierId,
+    });
+  };
+
+  const handleInlineBundleName = (event) => {
+    inlineBundleController?.updateFields?.({ bundleName: event?.target?.value || '' });
+  };
+
+  const handleInlineBundlePrice = (event) => {
+    const raw = event?.target?.value ?? '';
+    const minor = toMinor(raw);
+    inlineBundleController?.updateFields?.({ bundlePriceMinor: minor });
+  };
+
+  const handleInlineBundleSave = (event) => {
+    event?.preventDefault?.();
+    inlineBundleController?.saveBundle?.().catch((error) => console.error('inline bundle save failed', error));
+  };
+
+  inlineBundleNameInput?.addEventListener('input', handleInlineBundleName);
+  inlineBundlePriceInput?.addEventListener('input', handleInlineBundlePrice);
+  inlineBundleSaveButton?.addEventListener('click', handleInlineBundleSave);
+
   let supplierEntries = [];
   let supplierIds = new Set();
   const inlineBundleComposerApi = mountInlineBundlePanelShell(
@@ -262,6 +445,13 @@ export function initInventory({
         emptyState: 'Add a book to start a bundle',
         saveLabel: 'Save bundle',
         resetLabel: 'Clear bundle',
+      },
+      options: {
+        selectionCallbacks: {
+          onAddBook: syncControllerBookAdd,
+          onRemoveBook: (book) => inlineBundleController?.removeBook?.(book?.id),
+          onReset: () => inlineBundleController?.reset?.(),
+        },
       },
     }
   );
@@ -1068,7 +1258,7 @@ export function initInventory({
       const clampStartIndex = (value = 0) => {
         const numericValue =
           Number.isFinite(value) && value >= 0 ? Math.floor(value) : 0;
-        const maxStart = Math.max(0, filteredDocs.length - pageSize);
+        const maxStart = Math.max(0, filteredDocs.length - 1);
         if (!filteredDocs.length) {
           return 0;
         }

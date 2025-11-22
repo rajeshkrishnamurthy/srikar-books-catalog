@@ -1,0 +1,12 @@
+{"type":"meta","topicId":"F16-TP4","title":"Sold Tab Behavior"}
+{"type":"given","text":"The Manage sub nav is available."}
+{"type":"when","text":"The user selects Sold or opens /admin#manage-books/sold then later returns to Manage."}
+{"type":"then","text":"Only the Sold panel displays while selected, the hash stays `#manage-books/sold`, and re-entering Manage resets Add with hash `#add-book`."}
+{"type":"ui-anchor","selector":"#manageSubNav"}
+{"type":"ui-anchor","selector":"#addBookPanel"}
+{"type":"ui-anchor","selector":"#availablePanel"}
+{"type":"ui-anchor","selector":"#soldPanel"}
+{"type":"js-handler","event":"click","selector":"#manageSubNav button","handler":"handleManageSubNav"}
+{"type":"js-handler","event":"click","selector":"#manageSubNav [data-target=\"sold\"]","handler":"showSoldTab"}
+{"type":"adapter-call","function":"syncManageHash","args":["targetTab"]}
+{"type":"adapter-call","function":"resetSoldHash","args":[]}

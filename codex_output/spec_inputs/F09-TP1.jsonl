@@ -1,0 +1,17 @@
+{"type":"meta","topicId":"F09-TP1","title":"Title Autocomplete Experience"}
+{"type":"given","text":"An admin is adding a sale line and catalog titles exist."}
+{"type":"when","text":"They type and move through the suggestion list."}
+{"type":"then","text":"Each option renders as a card with badges + caret, hover/focus + aria-selected highlight the active item, selecting a book shows a confirmation chip, fires a “Book selected” toast, moves focus to selling price, and no-match cases keep the line disabled with guidance."}
+{"type":"ui-anchor","selector":"#saleLineDraftForm"}
+{"type":"ui-anchor","selector":"#saleLineBookTitle"}
+{"type":"ui-anchor","selector":"#saleLinePrice"}
+{"type":"ui-anchor","selector":"#saleLineAddBtn"}
+{"type":"ui-anchor","selector":"#saleLineSuggestions"}
+{"type":"ui-anchor","selector":"#saleLineBookSummary"}
+{"type":"js-handler","event":"input","selector":"#saleLineBookTitle","handler":"handleSaleTitleInput"}
+{"type":"js-handler","event":"submit","selector":"#saleLineDraftForm","handler":"addSaleLineItem"}
+{"type":"js-handler","event":"click","selector":"#saleLineSuggestions li","handler":"selectSaleBook"}
+{"type":"js-handler","event":"input","selector":"#saleLinePrice","handler":"enforceNumericPrice"}
+{"type":"adapter-call","function":"fetchTitleSuggestions","args":["query"]}
+{"type":"adapter-call","function":"addSaleLineItem","args":["bookId","sellingPrice"]}
+{"type":"adapter-call","function":"validateSellingPrice","args":["value"]}

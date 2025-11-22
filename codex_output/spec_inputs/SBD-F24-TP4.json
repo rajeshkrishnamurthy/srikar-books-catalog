@@ -1,0 +1,78 @@
+{
+  "topicId": "SBD-F24-TP4",
+  "title": "Inline Bundle Pricing and MRP Summary",
+  "givens": [
+    "The inline bundle composer drawer is open with pricing summary fields visible."
+  ],
+  "whens": [
+    "A second book is added or selections change and the recommendation adapter resolves."
+  ],
+  "thens": [
+    "The aggregate triggers the recommendation call without extra clicks, refreshes recommended and total sale price text via the formatter, and displays a total MRP sum for the selected books with aria-live feedback and fallback copy when data is missing."
+  ],
+  "reuse": {
+    "patternId": "INLINE_BUNDLE_COMPOSER",
+    "params": {
+      "container": "#inlineBundleComposer",
+      "panelHeading": "#inlineBundleHeading",
+      "triggerSelector": "[data-test='bookAddToBundle']",
+      "bookList": "#inlineBundleSelectedBooks",
+      "bundleNameInput": "#inlineBundleName",
+      "bundlePriceInput": "#inlineBundlePrice",
+      "recommendedPrice": "#inlineBundleRecommended",
+      "totalPrice": "#inlineBundleTotal",
+      "totalMrp": "#inlineBundleMrp",
+      "saveButton": "#inlineBundleSave",
+      "resetButton": "#inlineBundleReset",
+      "existingBundleSelect": "#inlineBundleExistingSelect",
+      "currency": "INR"
+    },
+    "adapters": {
+      "fetchPriceRecommendation": "fetchBundlePriceRecommendation",
+      "formatPrice": "formatCurrency",
+      "announce": "announceInlineBundleChange"
+    },
+    "uiTexts": {
+      "panelTitle": "Bundle in progress",
+      "recommendedPriceLabel": "Recommended price",
+      "totalPriceLabel": "Total sale price",
+      "totalMrpLabel": "Total MRP"
+    }
+  },
+  "patternContracts": [
+    {
+      "patternId": "INLINE_BUNDLE_COMPOSER",
+      "requiredParams": [
+        "container",
+        "panelHeading",
+        "triggerSelector",
+        "bookList",
+        "bundleNameInput",
+        "bundlePriceInput",
+        "recommendedPrice",
+        "totalPrice",
+        "saveButton",
+        "currency"
+      ],
+      "adapters": {
+        "fetchPriceRecommendation": "({ bookIds: string[], currency: string }) => Promise<{ recommendedPriceMinor: number, totalSalePriceMinor: number }>",
+        "loadBundle": "(bundleId: string) => Promise<{ bundleName: string, bundlePriceMinor: number, bookIds: string[] }>",
+        "listExistingBundles": "() => Promise<{ id: string, name: string, bookCount: number }[]>",
+        "saveBundle": "(payload: { bundleName: string, bundlePriceMinor: number, bookIds: string[], bundleId?: string }) => Promise<{ bundleId: string }>",
+        "linkBooks": "(bundleId: string, bookIds: string[]) => Promise<void>",
+        "formatPrice": "(valueInMinorUnits: number, currency: string) => string",
+        "toastSuccess": "(message: string, options?: Record<string,any>) => void",
+        "toastError": "(message: string, options?: Record<string,any>) => void",
+        "announce": "(message: string) => void"
+      },
+      "testBehaviors": [
+        "First Add to bundle trigger mounts the aggregate exactly once and wires controller->shell state without race conditions.",
+        "Existing bundle selection hydrates controller state and refreshes shell chips without losing unsaved book selections.",
+        "Recommendation adapter auto-fires once selection count meets the threshold (default 2) and streams formatted recommended/total prices plus total MRP to the shell.",
+        "saveBundle() promise resolution shows toastSuccess, passes bundleId to viewBundleLink, and clears state only when the user confirms.",
+        "Error paths call toastError, keep the panel open, and leave controller state untouched for retries.",
+        "linkBooks() calls happen after saveBundle() resolves to ensure Firestore writes stay ordered."
+      ]
+    }
+  ]
+}

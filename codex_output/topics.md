@@ -368,6 +368,7 @@ Notes:
 | SBD-F24-TP1 | Inline Bundle Context Lifecycle | Maintain bundle context in memory as admins add/remove books from the composer. | SBD-F23-TP1, SBD-F23-TP3 | An admin opens Available Books with the composer shell available. | They add, remove, or reopen the composer via its toggles. | The controller creates a new context when none exists, tracks selected book IDs plus bundle meta, and restores the same context if the drawer is reopened during the session. |
 | SBD-F24-TP2 | Inline Bundle Pricing Signals | Stream recommended bundle price plus total sale price once qualifying books are selected. | SBD-F24-TP1 | The composer contains at least one book. | A second (or later) book is added or selections change. | The controller calls the recommendation adapter, emits recommended/total prices with fallback copy on adapter failure, and stamps timestamps for analytics. |
 | SBD-F24-TP3 | Inline Bundle Validation Gate | Keep Save disabled until bundle name and price pass validation, mirroring Bundle->Add rules. | SBD-F24-TP1 | The composer holds a bundle context. | The admin edits name or price fields. | Validation trims input, enforces non-empty names plus positive currency values, feeds field errors to the shell, and only enables Save when both pass. |
+| SBD-F24-TP4 | Inline Bundle Pricing and MRP Summary | Auto-update recommended price after two selections and surface total MRP in the drawer. | SBD-F24-TP2, SBD-F23-TP3 | The inline composer drawer is open with pricing summary fields visible. | A second book is added or selections change and the recommendation adapter resolves. | Recommended and total price text refresh automatically via the formatter, and a total MRP sum for selected books appears with aria-live feedback and placeholder copy when data is missing. |
 
 Notes:
 - Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom for all F24 topics.
@@ -453,6 +454,16 @@ Notes:
   }
 }
 ```
+
+# Feature: Bundle Composition Pattern (F26)
+
+| ID | Title | Goal | Dependencies | Given | When | Then |
+|----|-------|------|--------------|-------|------|------|
+| SBD-F26-TP1 | Shared Bundle Composition Contract | Standardize add-to-bundle flows on one persisted document and pricing pattern. | F12-TP1, SBD-F24-TP2 | Bundle → Create and Available → Add to bundle both expose book selection with price fields. | A second book is added or selections change before save. | The shared controller applies the bundle composition contract: computes recommended price at a 25% discount once 2+ books are present, fills totals/recommended fields with recommendationComputedAt, and both routes persist the same bundle document shape. |
+
+Notes:
+- Environment: HTML + Vanilla JavaScript + Firebase + Jest + jsdom.
+- Recommended price must never render before two selections and must reuse the shared discount formula (25% off combined sale price) across both routes.
 
 # Feature: Backlog (BACKLOG)
 

@@ -112,6 +112,7 @@ export function mount(container, config = {}) {
   const { params = {}, adapters = {}, uiTexts = {}, options = {} } = config;
   const doc = container?.ownerDocument || params.container?.ownerDocument || document;
   const defaultView = doc?.defaultView || (typeof window !== 'undefined' ? window : null);
+  const selectionCallbacks = options?.selectionCallbacks || {};
   const root = isElement(container)
     ? container
     : resolveElement(params.container, { documentRef: doc });
@@ -230,6 +231,9 @@ export function mount(container, config = {}) {
     if (announce) {
       announce(`Removed ${removedTitle} from bundle`, 'polite');
     }
+    if (typeof selectionCallbacks.onRemoveBook === 'function') {
+      selectionCallbacks.onRemoveBook(removed);
+    }
   };
 
   const addBook = (book = {}, triggerButton) => {
@@ -247,6 +251,9 @@ export function mount(container, config = {}) {
     if (announce) {
       announce(`Added ${normalizedTitle} to bundle`, 'polite');
     }
+    if (typeof selectionCallbacks.onAddBook === 'function') {
+      selectionCallbacks.onAddBook({ id: bookId, title: normalizedTitle, ...book });
+    }
   };
 
   const reset = () => {
@@ -256,6 +263,9 @@ export function mount(container, config = {}) {
     collapseAfterEmpty({ focusTarget: lastTrigger });
     if (announce) {
       announce('Cleared inline bundle composer', 'polite');
+    }
+    if (typeof selectionCallbacks.onReset === 'function') {
+      selectionCallbacks.onReset();
     }
   };
 
