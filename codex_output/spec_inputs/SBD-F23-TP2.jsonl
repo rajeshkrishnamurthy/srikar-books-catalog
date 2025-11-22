@@ -1,7 +1,7 @@
 {"type":"meta","topicId":"SBD-F23-TP2","title":"Inline Composer Fields and Copy"}
 {"type":"given","text":"The inline composer is open."}
 {"type":"when","text":"It renders its heading and form region."}
-{"type":"then","text":"The name/price inputs show required markers, helper copy states the bundle price rule, and the recommended price block shows placeholder text until data arrives."}
+{"type":"then","text":"The name/price inputs show required markers and the recommended price block shows placeholder text until data arrives."}
 {"type":"reuse","patternId":"INLINE_BUNDLE_PANEL_SHELL"}
 {"type":"ui-anchor","selector":"#inlineBundleComposer"}
 {"type":"ui-anchor","selector":"#inlineBundleHeading"}

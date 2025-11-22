@@ -14,3 +14,4 @@
 {"type":"js-handler","event":"click","selector":"#availablePaginationPages button","handler":"goToAvailablePage"}
 {"type":"adapter-call","function":"fetchAvailableBooksPage","args":["pageRequest"]}
 {"type":"adapter-call","function":"syncAvailablePagingToLocation","args":["page","pageSize"]}
+{"type":"spec","id":"F19-TP5-004","given":"There are 21 available books and the admin chooses 10 items per page.","when":"They click the page 3 numeric button.","then":"Only the final book renders and the pagination summary/hash show Items 21–21 instead of repeating the previous full page."}

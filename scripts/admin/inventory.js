@@ -1258,7 +1258,7 @@ export function initInventory({
       const clampStartIndex = (value = 0) => {
         const numericValue =
           Number.isFinite(value) && value >= 0 ? Math.floor(value) : 0;
-        const maxStart = Math.max(0, filteredDocs.length - pageSize);
+        const maxStart = Math.max(0, filteredDocs.length - 1);
         if (!filteredDocs.length) {
           return 0;
         }

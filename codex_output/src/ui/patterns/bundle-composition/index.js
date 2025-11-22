@@ -199,8 +199,5 @@ function mountBundleComposition(container, options = {}) {
   };
 }
 
-module.exports = {
-  mountBundleComposition: mountBundleComposition,
-  mount: mountBundleComposition,
-  default: mountBundleComposition
-};
+export { mountBundleComposition, mountBundleComposition as mount };
+export default mountBundleComposition;

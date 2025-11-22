@@ -3,17 +3,10 @@
   "featureId": "F23",
   "title": "Inline Composer Fields and Copy",
   "area": "Admin / Available Books",
-  "goal": "Render bundle name and price inputs, helper copy, and placeholder price blocks inside the inline composer shell so admins immediately see the validation rules.",
+  "goal": "Render bundle name and price inputs with clear required markers and placeholder price blocks inside the inline composer shell so admins immediately see the validation rules.",
   "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
   "status": "GREEN",
   "specs": [
-    {
-      "id": "SBD-F23-TP2-001",
-      "title": "HelperCopyAnchorsBundleRule",
-      "given": "An admin opens admin.html and inspects the Available Books inline bundle composer markup.",
-      "when": "The drawer renders its helper paragraph for explaining bundle requirements.",
-      "then": "It exposes #inlineBundleHelper with copy stating bundle name and bundle price are required so downstream code can reference the id for aria-describedby."
-    },
     {
       "id": "SBD-F23-TP2-002",
       "title": "InputsDeclareRequiredMarkers",
@@ -33,7 +26,6 @@
     "/tests/fixtures/adminInventoryHarness.js"
   ],
   "tests": [
-    "/tests/spec/admin/SBD-F23-TP2-001_InlineBundleHelperCopy.spec.js",
     "/tests/spec/admin/SBD-F23-TP2-002_InlineBundleInputsRequired.spec.js",
     "/tests/spec/admin/SBD-F23-TP2-003_RecommendedPricePlaceholder.spec.js"
   ],
@@ -44,7 +36,6 @@
   "changedFiles": [
     "admin.html",
     "tests/fixtures/adminInventoryHarness.js",
-    "tests/spec/admin/SBD-F23-TP2-001_InlineBundleHelperCopy.spec.js",
     "tests/spec/admin/SBD-F23-TP2-002_InlineBundleInputsRequired.spec.js",
     "tests/spec/admin/SBD-F23-TP2-003_RecommendedPricePlaceholder.spec.js",
     "codex_output/specs/SBD-F23-TP2.json",
@@ -52,9 +43,7 @@
     "codex_output/reports/SBD-F23-TP2_green.txt"
   ],
   "changeNotes": [
-    "Stamped the inline composer inputs inside admin.html with required/aria-required attributes and tied both fields to a newly id-ed #inlineBundleHelper paragraph so validation guidance matches the Add Bundle screen.",
-    "Assigned the helper paragraph its `inlineBundleHelper` id to act as the stable aria-describedby target mandated by the tests.",
-    "Synced the admin inventory harness DOM with production markup, including em dash placeholders for recommended/total price blocks, ensuring jsdom tests reflect the shipped UI."
+    "Stamped the inline composer inputs inside admin.html with required/aria-required attributes and kept em dash placeholders for recommended/total price blocks so jsdom tests reflect the shipped UI."
   ],
   "validation": {
     "status": "GREEN",

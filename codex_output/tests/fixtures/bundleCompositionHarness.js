@@ -70,9 +70,12 @@ async function mountBundleCompositionHarness(options = {}) {
   let mountBundleComposition;
 
   try {
-    const required = require('../../src/ui/patterns/bundle-composition');
+    const required = await import('../../src/ui/patterns/bundle-composition/index.js');
+    const candidate = required?.default || required;
     mountBundleComposition =
-      required.default || required.mountBundleComposition || required.mount;
+      typeof candidate === 'function'
+        ? candidate
+        : candidate?.mountBundleComposition || candidate?.mount || candidate?.default;
   } catch (error) {
     importError = error;
   }
