@@ -163,3 +163,18 @@ Note: Examples in this document are non-normative. The Pattern schema and tier m
   - Mount API: `mountFloatingDrawerTrigger({ params, adapters, options }) => { syncCount(count), destroy() }`.
 - **Accessibility.** Provide `aria-label` on the trigger, ensure the badge is announced when count changes, and keep the button reachable via keyboard even when fixed-positioned.
 - **Test behaviors.** Trigger hides at count 0, shows at count >0, badge caps to two digits (e.g., 99+), click calls `openDrawer` and toggles the animation hook/class, and trigger stays fixed in the viewport without requiring scroll.
+
+# Pattern Registry — Membership Count Badge
+
+## MEMBERSHIP_COUNT_BADGE (type: aggregate, v1.0.0)
+- **Purpose.** Reusable badge helper to show how many collections/bundles an item belongs to, hiding the badge entirely when the count is zero and sitting near the item’s media (e.g., book cover).
+- **Required params.** `itemSelector`, `badgeSelector`, `itemIdAttr`.
+- **Optional params.** `countLabelTemplate`, `zeroHiddenClass`, `announcePoliteness`.
+- **Adapters.** `fetchCounts({ ids })`, `formatCount(count)`, optional `announce(text, politeness)`.
+- **UI texts.** Optional `countLabelTemplate` (default `{count} bundles`).
+- **Docs.**
+  - Request shape: `{ params: { itemSelector, badgeSelector, itemIdAttr, countLabelTemplate?, zeroHiddenClass?, announcePoliteness? }, adapters: { fetchCounts, formatCount?, announce? } }`.
+  - State shape: `{ countsById, renderedIds }`.
+  - Mount API: `mountMembershipCountBadge({ params, adapters, uiTexts, options }) => { sync(ids), destroy() }`.
+- **Accessibility.** Badges hide at zero/missing counts to avoid announcing empties; when counts change, announce via the optional hook; badge text should include the numeric count for screen readers.
+- **Test behaviors.** Batch requests for the current ids, map counts to badges by `itemIdAttr`, hide badges on zero/missing counts, update badge text using `formatCount` + `countLabelTemplate`, and clear stale badges when the visible ids change (e.g., pagination).

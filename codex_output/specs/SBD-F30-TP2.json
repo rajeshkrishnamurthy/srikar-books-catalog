@@ -1,0 +1,64 @@
+{
+  "topicId": "SBD-F30-TP2",
+  "featureId": "F30",
+  "title": "Fetch bundle membership counts for visible books",
+  "area": "Admin / Available Books",
+  "goal": "Batch-fetch bundle membership counts for the currently visible Available Books page and feed the badge renderer while keeping zero/missing counts hidden.",
+  "environment": "HTML + Vanilla JavaScript + Jest + jsdom",
+  "status": "RED",
+  "specs": [
+    {
+      "id": "SBD-F30-TP2-001",
+      "title": "PaginationEventBatchesVisibleIds",
+      "given": "Available Books exposes #availableBooksPagination plus membership badge anchors on #availableBooksList [data-book-id].",
+      "when": "The membership count controller mounts and #availableBooksPagination dispatches a pagechange event with the visible bookIds.",
+      "then": "refreshBundleMembershipCounts is wired to that event and batches the visible bookIds into getBundleMembershipCounts."
+    },
+    {
+      "id": "SBD-F30-TP2-002",
+      "title": "PositiveCountsRenderFormattedBadges",
+      "given": "Visible bookIds have positive bundle membership counts and format/announce adapters are provided.",
+      "when": "refreshBundleMembershipCounts runs for that page with those ids.",
+      "then": "It calls getBundleMembershipCounts with the page ids, formats/announces each count, and shows badges with the formatted text for each visible book."
+    },
+    {
+      "id": "SBD-F30-TP2-003",
+      "title": "ZeroOrMissingCountsStayHidden",
+      "given": "A page change supplies bookIds whose counts are zero or missing from the adapter response.",
+      "when": "refreshBundleMembershipCounts handles the pagechange event.",
+      "then": "Missing or zero counts are treated as zero so the corresponding badges stay hidden and cleared."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/availableBooksMembershipCountsHarness.js",
+    "/tests/fixtures/membershipCountBadgeHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F30-TP2-001_PaginationBindsBundleCounts.spec.js",
+    "/tests/spec/admin/SBD-F30-TP2-002_BundleCountsRenderBadges.spec.js",
+    "/tests/spec/admin/SBD-F30-TP2-003_ZeroOrMissingCountsHideBadges.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F30-TP2_red.txt",
+    "green": "codex_output/reports/SBD-F30-TP2_green.txt"
+  },
+  "changedFiles": [
+    "tests/fixtures/availableBooksMembershipCountsHarness.js",
+    "tests/spec/admin/SBD-F30-TP2-001_PaginationBindsBundleCounts.spec.js",
+    "tests/spec/admin/SBD-F30-TP2-002_BundleCountsRenderBadges.spec.js",
+    "tests/spec/admin/SBD-F30-TP2-003_ZeroOrMissingCountsHideBadges.spec.js",
+    "codex_output/specs/SBD-F30-TP2.json",
+    "codex_output/impl_inputs/SBD-F30-TP2.jsonl",
+    "codex_output/reports/SBD-F30-TP2_red.txt"
+  ],
+  "changeNotes": [
+    "Authored three RED specs covering pagination-to-handler wiring, batch adapter calls for visible bookIds, and badge rendering for fetched membership counts.",
+    "Captured integration expectations for MEMBERSHIP_COUNT_BADGE reuse so getBundleMembershipCounts, formatBundleCount, and announceBundleCount drive the badge updates per page.",
+    "Ensured zero or missing counts remain hidden after pagechange events to avoid stale membership badges."
+  ],
+  "validation": {
+    "status": "RED",
+    "command": "npm test -- --watchAll=false SBD-F30-TP2",
+    "report": "codex_output/reports/SBD-F30-TP2_red.txt"
+  }
+}
