@@ -1,0 +1,14 @@
+{"type":"fail","test":"tests/spec/admin/SBD-F27-TP1-001_AdminPageExposesToastAnchors.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F27-TP1-002_AddBookSuccessShowsToast.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F27-TP1-003_SuccessToastAutoDismisses.spec.js"}
+{"type":"spec","id":"SBD-F27-TP1-001","given":"The admin loads admin.html.","when":"The static markup renders before any scripts run.","then":"The page exposes #toastStack, #toastLiveRegion (aria-live=\"polite\"), and #toastTemplate anchors for the shared toast pattern."}
+{"type":"spec","id":"SBD-F27-TP1-002","given":"The Add Book form is populated with valid data and toast anchors are present.","when":"handleSubmit runs and the addBook adapter resolves successfully for the new book.","then":"A success toast is rendered in #toastStack using the shared template, the message mentions the book title, #toastLiveRegion announces it politely, and focus stays on the form instead of shifting to the toast."}
+{"type":"spec","id":"SBD-F27-TP1-003","given":"A success toast was just shown for an Add Book submission.","when":"The default toast duration elapses without pinning the toast.","then":"The toast auto-dismisses from #toastStack while remaining keyboard-dismissible via its dismiss control."}
+{"type":"ui-anchor","selector":"#addForm"}
+{"type":"ui-anchor","selector":"#toastStack"}
+{"type":"ui-anchor","selector":"#toastLiveRegion"}
+{"type":"ui-anchor","selector":"#toastTemplate"}
+{"type":"js-handler","event":"submit","selector":"#addForm","handler":"handleSubmit"}
+{"type":"adapter-call","function":"addBook","args":["formData"]}
+{"type":"adapter-call","function":"showToast","args":["toastPayload"]}
+{"type":"pattern","patternId":"TOAST_NOTIFICATIONS","requiredParams":["container","liveRegion","template"],"adapters":{"announce":"announceToast","onShow":"onToastShow","onDismiss":"onToastDismiss"},"testBehaviors":["Success toasts use aria-live=polite via liveRegion","Auto-dismiss success/info toasts after defaultDurationMs unless toastPayload.pin is true","Trim oldest toast when maxVisible is exceeded before adding a new one"]}

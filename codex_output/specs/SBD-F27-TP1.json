@@ -1,0 +1,67 @@
+{
+  "topicId": "SBD-F27-TP1",
+  "featureId": "F27",
+  "title": "Add Book Success Toast",
+  "area": "Admin / Inventory",
+  "goal": "Show a success toast for Add Book submissions using the shared toast pattern with polite announcements and auto-dismiss.",
+  "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F27-TP1-001",
+      "title": "AdminPageExposesToastAnchors",
+      "given": "The admin loads admin.html.",
+      "when": "The static markup renders before any scripts run.",
+      "then": "The page exposes #toastStack, #toastLiveRegion (aria-live=\"polite\"), and #toastTemplate anchors for the shared toast pattern."
+    },
+    {
+      "id": "SBD-F27-TP1-002",
+      "title": "AddBookSuccessShowsToast",
+      "given": "The Add Book form is populated with valid data and toast anchors are present.",
+      "when": "handleSubmit runs and the addBook adapter resolves successfully for the new book.",
+      "then": "A success toast is rendered in #toastStack using the shared template, the message mentions the book title (e.g., \"Book added\"), #toastLiveRegion announces it politely, and focus stays on the form instead of shifting to the toast."
+    },
+    {
+      "id": "SBD-F27-TP1-003",
+      "title": "SuccessToastAutoDismissesUnlessPinned",
+      "given": "A success toast was just shown for an Add Book submission.",
+      "when": "The default toast duration elapses without pinning the toast.",
+      "then": "The toast auto-dismisses from #toastStack while remaining keyboard-dismissible via its dismiss control."
+    }
+  ],
+  "fixtures": [
+    "/tests/helpers/adminAddToastHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F27-TP1-001_AdminPageExposesToastAnchors.spec.js",
+    "/tests/spec/admin/SBD-F27-TP1-002_AddBookSuccessShowsToast.spec.js",
+    "/tests/spec/admin/SBD-F27-TP1-003_SuccessToastAutoDismisses.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F27-TP1_red.txt",
+    "green": "codex_output/reports/SBD-F27-TP1_green.txt"
+  },
+  "changedFiles": [
+    "tests/helpers/adminAddToastHarness.js",
+    "tests/spec/admin/SBD-F27-TP1-001_AdminPageExposesToastAnchors.spec.js",
+    "tests/spec/admin/SBD-F27-TP1-002_AddBookSuccessShowsToast.spec.js",
+    "tests/spec/admin/SBD-F27-TP1-003_SuccessToastAutoDismisses.spec.js",
+    "codex_output/specs/SBD-F27-TP1.json",
+    "codex_output/impl_inputs/SBD-F27-TP1.jsonl",
+    "codex_output/reports/SBD-F27-TP1_red.txt",
+    "admin.html",
+    "scripts/admin/inventory.js",
+    "styles/admin.css"
+  ],
+  "changeNotes": [
+    "Added RED specs and Jest coverage to require toast anchors in admin.html, a success toast on Add Book completion with polite aria-live announcement, and auto-dismiss behavior unless pinned.",
+    "Introduced an admin add harness with toast anchors to drive pattern wiring expectations and keep focus on the Add Book form.",
+    "Captured implementation guidance via impl_inputs for the TOAST_NOTIFICATIONS pattern adapters and wiring.",
+    "Added static toast anchors to admin.html, styled the toast stack for visibility, and wired Add Book success submissions to the shared toast pattern with polite announcements and auto-dismiss in both app and harness."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false SBD-F27-TP1",
+    "report": "codex_output/reports/SBD-F27-TP1_green.txt"
+  }
+}

@@ -1569,6 +1569,25 @@
       </section>
     </main>
 
+    <!-- Shared toast anchors -->
+    <div
+      id="toastLiveRegion"
+      class="sr-only"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+    <div id="toastStack" class="toast-stack" data-test="toastStack" aria-live="off"></div>
+    <template id="toastTemplate">
+      <div class="toast" role="status" data-toast="true" data-toast-id="">
+        <span class="toast__icon" aria-hidden="true">✔</span>
+        <p class="toast__message" data-slot="message"></p>
+        <button type="button" data-slot="dismiss" aria-label="Dismiss toast">
+          Dismiss
+        </button>
+      </div>
+    </template>
+
     <!-- Entry point that wires the page using small modules -->
     <script type="module" src="./scripts/admin/main.js"></script>
   </body>

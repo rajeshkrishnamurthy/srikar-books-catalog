@@ -1,0 +1,12 @@
+{"type":"meta","topicId":"SBD-F27-TP1","title":"Add Book Success Toast"}
+{"type":"given","text":"An admin submits the Add Book form with valid data."}
+{"type":"when","text":"The addBook adapter returns a successful response for the new book."}
+{"type":"then","text":"The Add Book view uses the shared toast pattern to render a success toast (for example, \"Book added\" with the title) in #toastStack, announced via #toastLiveRegion, auto-dismisses after the default duration unless pinned, and stays keyboard dismissible without stealing focus from the form."}
+{"type":"ui-anchor","selector":"#addForm"}
+{"type":"ui-anchor","selector":"#toastStack"}
+{"type":"ui-anchor","selector":"#toastLiveRegion"}
+{"type":"ui-anchor","selector":"#toastTemplate"}
+{"type":"js-handler","event":"submit","selector":"#addForm","handler":"handleSubmit"}
+{"type":"adapter-call","function":"addBook","args":["formData"]}
+{"type":"adapter-call","function":"showToast","args":["toastPayload"]}
+{"type":"pattern","patternId":"TOAST_NOTIFICATIONS","requiredParams":["container","liveRegion","template"],"adapters":{"announce":"announceToast","onShow":"onToastShow","onDismiss":"onToastDismiss"},"testBehaviors":["Success toasts use aria-live=polite via liveRegion","Auto-dismiss success/info toasts after defaultDurationMs unless toastPayload.pin is true","Trim oldest toast when maxVisible is exceeded before adding a new one"]}
