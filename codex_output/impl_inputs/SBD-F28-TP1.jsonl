@@ -1,0 +1,28 @@
+{"type":"fail","test":"tests/spec/admin/SBD-F28-TP1-001_AdminToastAnchorsAcrossWorkflows.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F28-TP1-002_EditSaveSuccessShowsToast.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F28-TP1-003_BundleCreateSuccessShowsToast.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F28-TP1-004_SupplierSaveSuccessShowsToast.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F28-TP1-005_CustomerSaveSuccessShowsToast.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F28-TP1-006_SalePersistSuccessShowsToast.spec.js"}
+{"type":"spec","id":"SBD-F28-TP1-001","given":"The admin page is loaded with all workflow panels available.","when":"The static markup renders before scripts bind behavior.","then":"The page exposes #toastStack, #toastLiveRegion (aria-live=\"polite\"), #toastTemplate, and the edit, bundle, supplier, customer, and sale controls required for toast wiring."}
+{"type":"spec","id":"SBD-F28-TP1-002","given":"The Edit Book dialog is open with valid data and toast anchors are present.","when":"An admin submits #editForm and the save succeeds (including optional cover uploads).","then":"showToast renders a success toast via #toastTemplate into #toastStack, announces the edited book title politely, and focus remains within the dialog controls."}
+{"type":"spec","id":"SBD-F28-TP1-003","given":"The Bundle Create form has a locked supplier, two books selected, and a valid bundle price.","when":"An admin submits #bundleForm and the bundle is created.","then":"A success toast mentions the new bundle title in #toastStack/#toastLiveRegion using the shared template while the bundle form keeps focus."}
+{"type":"spec","id":"SBD-F28-TP1-004","given":"The Supplier form has a unique name and location filled in.","when":"#supplierForm submits successfully for an add or update.","then":"showToast fires with the supplier name, renders in the shared toast stack with a polite announcement, and leaves focus on the supplier form."}
+{"type":"spec","id":"SBD-F28-TP1-005","given":"The Customer form has valid name, address, location, and WhatsApp fields.","when":"An admin submits #customerForm and the record is saved.","then":"A success toast announces the customer name in #toastStack/#toastLiveRegion without moving focus away from the customer form controls."}
+{"type":"spec","id":"SBD-F28-TP1-006","given":"The sale header is valid and at least one line item is present in Record Sale.","when":"An admin clicks #salePersistBtn and the sale persists successfully.","then":"A success toast summarizes the saved sale (including line count) using the shared toast pattern, announces politely, and keeps focus on the sale controls."}
+{"type":"ui-anchor","selector":"#toastStack"}
+{"type":"ui-anchor","selector":"#toastLiveRegion"}
+{"type":"ui-anchor","selector":"#toastTemplate"}
+{"type":"ui-anchor","selector":"#editForm"}
+{"type":"ui-anchor","selector":"#bundleForm"}
+{"type":"ui-anchor","selector":"#supplierForm"}
+{"type":"ui-anchor","selector":"#customerForm"}
+{"type":"ui-anchor","selector":"#salePersistBtn"}
+{"type":"js-handler","event":"submit","selector":"#editForm","handler":"save"}
+{"type":"js-handler","event":"submit","selector":"#bundleForm","handler":"onSubmit"}
+{"type":"js-handler","event":"submit","selector":"#supplierForm","handler":"handleSubmit"}
+{"type":"js-handler","event":"submit","selector":"#customerForm","handler":"handleSubmit"}
+{"type":"js-handler","event":"click","selector":"#salePersistBtn","handler":"persistSale"}
+{"type":"adapter-call","function":"showToast","args":["toastPayload"]}
+{"type":"reuse","patternId":"TOAST_NOTIFICATIONS"}
+{"type":"pattern","patternId":"TOAST_NOTIFICATIONS","requiredParams":["container","liveRegion","template"],"adapters":{"announce":"announceToast","onShow":"onToastShow","onDismiss":"onToastDismiss"},"testBehaviors":["Success toasts use aria-live=polite via liveRegion","Auto-dismiss success/info toasts after defaultDurationMs unless toastPayload.pin is true","Trim oldest toast when maxVisible is exceeded before adding a new one"]}

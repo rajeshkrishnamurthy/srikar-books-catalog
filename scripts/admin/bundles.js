@@ -2,6 +2,16 @@ import { escapeHtml, compactText } from '../helpers/text.js';
 
 const RUPEE = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
 
+function dispatchToast(message) {
+  const fn = globalThis.showToast;
+  if (typeof fn !== 'function') return;
+  try {
+    fn({ message, variant: 'success' });
+  } catch (error) {
+    console.error('showToast error:', error);
+  }
+}
+
 export function initBundleCreator(elements = {}, options = {}) {
   const {
     form,
@@ -342,6 +352,7 @@ export function initBundleCreator(elements = {}, options = {}) {
       });
 
       setMessage('Bundle created as Draft. It is hidden until you publish it.', false);
+      dispatchToast(`Bundle created: ${bundleTitle}`);
       if (docRef?.id) {
         onBundleCreated?.({
           id: docRef.id,
