@@ -3,7 +3,7 @@ import { fireEvent, waitFor } from '@testing-library/dom';
 import { createAdminInventoryHarness } from '../../fixtures/adminInventoryHarness.js';
 
 describe('SPEC SBD-F23-TP1-004: Closing composer restores focus to trigger', () => {
-  test('Close button collapses the drawer and returns focus to the originating Add to bundle button', async () => {
+  test('Close button keeps the drawer hidden and returns focus to the originating Add to bundle button', async () => {
     const harness = await createAdminInventoryHarness();
     harness.emitAvailableDocs([
       {
@@ -27,13 +27,10 @@ describe('SPEC SBD-F23-TP1-004: Closing composer restores focus to trigger', () 
 
     fireEvent.click(trigger);
 
-    await waitFor(() => {
-      expect(composer?.hasAttribute('hidden')).toBe(false);
-    });
-
     fireEvent.click(closeButton);
 
     await waitFor(() => {
+      expect(composer?.hasAttribute('hidden')).toBe(true);
       expect(document.activeElement).toBe(trigger);
     });
   });

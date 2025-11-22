@@ -384,7 +384,7 @@ export function initInventory({
 
   let floatingTriggerApi;
   let floatingTriggerPromise;
-  let inlineBundleClosedByUser = false;
+  let inlineBundleIsOpen = false;
 
   const syncFloatingTriggerCount = (count) => {
     const safeCount = Number.isFinite(count) ? count : 0;
@@ -410,7 +410,7 @@ export function initInventory({
   };
 
   const handleOpenInlineBundleDrawer = () => {
-    inlineBundleClosedByUser = false;
+    inlineBundleIsOpen = true;
     showInlineBundleComposer();
     applyInlineBundleAnimation({ isOpening: true });
     focusInlineBundleHeading();
@@ -456,15 +456,14 @@ export function initInventory({
       inlineBundleSaveButton.disabled = !canSave;
     }
     if (inlineBundleContainer) {
-      if (!hasBooks) {
+      if (!hasBooks && !inlineBundleIsOpen) {
         inlineBundleContainer.hidden = true;
         inlineBundleContainer.classList.remove(INLINE_BUNDLE_ANIMATION_CLASS);
-        inlineBundleClosedByUser = false;
-      } else if (!inlineBundleClosedByUser && inlineBundleContainer.hidden) {
+      } else if (inlineBundleIsOpen) {
         inlineBundleContainer.hidden = false;
         inlineBundleContainer.removeAttribute('hidden');
       }
-      if (state.isSaving) {
+      if (inlineBundleIsOpen && state.isSaving) {
         inlineBundleContainer.setAttribute('aria-busy', 'true');
       } else {
         inlineBundleContainer.removeAttribute('aria-busy');
@@ -628,7 +627,10 @@ export function initInventory({
   inlineBundlePriceInput?.addEventListener('input', handleInlineBundlePrice);
   inlineBundleSaveButton?.addEventListener('click', handleInlineBundleSave);
   inlineBundleCloseButton?.addEventListener('click', () => {
-    inlineBundleClosedByUser = true;
+    inlineBundleIsOpen = false;
+    if (inlineBundleContainer) {
+      inlineBundleContainer.hidden = true;
+    }
     inlineBundleContainer?.classList.remove(INLINE_BUNDLE_ANIMATION_CLASS);
   });
 
@@ -663,6 +665,7 @@ export function initInventory({
           onRemoveBook: (book) => inlineBundleController?.removeBook?.(book?.id),
           onReset: () => inlineBundleController?.reset?.(),
         },
+        autoShowOnAdd: false,
       },
     }
   );

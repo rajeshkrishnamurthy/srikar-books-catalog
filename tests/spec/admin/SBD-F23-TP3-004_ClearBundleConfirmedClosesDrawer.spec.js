@@ -20,7 +20,7 @@ describe('SPEC SBD-F23-TP3-004: Confirmed Clear bundle wipes selection and colla
     const composer = document.getElementById('inlineBundleComposer');
     const emptyState = document.getElementById('inlineBundleEmptyState');
     const resetButton = document.getElementById('inlineBundleReset');
-    expect(composer?.hasAttribute('hidden')).toBe(false);
+    expect(composer?.hasAttribute('hidden')).toBe(true);
     expect(emptyState?.hasAttribute('hidden')).toBe(true);
 
     await waitFor(() => {

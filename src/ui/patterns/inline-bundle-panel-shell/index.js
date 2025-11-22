@@ -110,6 +110,7 @@ function focusElement(element) {
 
 export function mount(container, config = {}) {
   const { params = {}, adapters = {}, uiTexts = {}, options = {} } = config;
+  const autoShowOnAdd = options.autoShowOnAdd !== false;
   const doc = container?.ownerDocument || params.container?.ownerDocument || document;
   const defaultView = doc?.defaultView || (typeof window !== 'undefined' ? window : null);
   const selectionCallbacks = options?.selectionCallbacks || {};
@@ -244,10 +245,12 @@ export function mount(container, config = {}) {
     if (!state.books.some((entry) => entry.id === bookId)) {
       state.books.push({ id: bookId, title: normalizedTitle });
     }
-    showComposer();
+    if (autoShowOnAdd) {
+      showComposer();
+      focusHeading();
+    }
     setTriggerState(triggerButton);
     renderList();
-    focusHeading();
     if (announce) {
       announce(`Added ${normalizedTitle} to bundle`, 'polite');
     }

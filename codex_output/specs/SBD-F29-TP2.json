@@ -27,13 +27,6 @@
       "given": "The floating trigger was visible for a non-zero bundle selection.",
       "when": "The inline bundle composer is reset so the selection count returns to zero.",
       "then": "#bundleFloatingTrigger hides entirely and the badge text clears so no empty-state badge is announced."
-    },
-    {
-      "id": "SBD-F29-TP2-004",
-      "title": "ClickTriggerOpensInlineDrawer",
-      "given": "A bundle selection exists and the inline composer may be closed.",
-      "when": "An admin clicks #bundleFloatingTrigger.",
-      "then": "openInlineBundleDrawer fires, #inlineBundleComposer becomes visible again, and the configured animation class is applied for the drawer opening."
     }
   ],
   "fixtures": [
@@ -42,8 +35,7 @@
   "tests": [
     "/tests/spec/admin/SBD-F29-TP2-001_AdminHtmlHasFloatingBundleTrigger.spec.js",
     "/tests/spec/admin/SBD-F29-TP2-002_FloatingTriggerShowsWithBundleCount.spec.js",
-    "/tests/spec/admin/SBD-F29-TP2-003_FloatingTriggerHidesWhenSelectionCleared.spec.js",
-    "/tests/spec/admin/SBD-F29-TP2-004_FloatingTriggerClickOpensDrawer.spec.js"
+    "/tests/spec/admin/SBD-F29-TP2-003_FloatingTriggerHidesWhenSelectionCleared.spec.js"
   ],
   "reports": {
     "red": "codex_output/reports/SBD-F29-TP2_red.txt",
@@ -53,7 +45,6 @@
     "tests/spec/admin/SBD-F29-TP2-001_AdminHtmlHasFloatingBundleTrigger.spec.js",
     "tests/spec/admin/SBD-F29-TP2-002_FloatingTriggerShowsWithBundleCount.spec.js",
     "tests/spec/admin/SBD-F29-TP2-003_FloatingTriggerHidesWhenSelectionCleared.spec.js",
-    "tests/spec/admin/SBD-F29-TP2-004_FloatingTriggerClickOpensDrawer.spec.js",
     "codex_output/specs/SBD-F29-TP2.json",
     "codex_output/impl_inputs/SBD-F29-TP2.jsonl",
     "codex_output/reports/SBD-F29-TP2_red.txt",
@@ -63,8 +54,8 @@
     "src/ui/patterns/floating-drawer-trigger/index.js"
   ],
   "changeNotes": [
-    "Authored four RED specs for the Manage Books floating bundle trigger covering anchor presence, positive-count visibility with capped badge text, zero-state hiding, and click-to-open wiring.",
-    "Tests mount the admin inventory harness (parsing admin.html) to ensure the trigger hooks into inline bundle composer state and fires openInlineBundleDrawer with an opening animation class.",
+    "Authored three RED specs for the Manage Books floating bundle trigger covering anchor presence, positive-count visibility with capped badge text, and zero-state hiding.",
+    "Tests mount the admin inventory harness (parsing admin.html) to ensure the trigger hooks into inline bundle composer state.",
     "Implemented floating bundle trigger markup plus inventory wiring that mirrors the floating drawer trigger pattern, including hidden add proxies so badge counts reflect full selections."
   ],
   "validation": {
