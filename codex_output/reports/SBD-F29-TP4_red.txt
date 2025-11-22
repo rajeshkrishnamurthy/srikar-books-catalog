@@ -1,0 +1,611 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F29-TP4
+
+(node:3652) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS codex_output/tests/spec/admin/SBD-F29-TP4-001_FloatingTriggerResetAnchors.spec.js
+  SPEC SBD-F29-TP4-001: Floating trigger reset anchors present
+    ✓ admin markup exposes the floating trigger, badge, and inline save control for reset wiring (59 ms)
+
+(node:3650) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3651) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL codex_output/tests/spec/admin/SBD-F29-TP4-002_SaveSuccessResetsFloatingTrigger.spec.js
+  SPEC SBD-F29-TP4-002: Save success resets inline bundle and floating trigger
+    ✕ resolving saveInlineBundle clears selection, empties the badge, and hides the trigger (1190 ms)
+
+  ● SPEC SBD-F29-TP4-002: Save success resets inline bundle and floating trigger › resolving saveInlineBundle clears selection, empties the badge, and hides the trigger
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 1
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [0m
+        [0m
+        [36m<header[39m
+          [33mclass[39m=[32m"site-header"[39m
+        [36m>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33mclass[39m=[32m"wrap"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<h1[39m
+              [33mclass[39m=[32m"brand"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mhref[39m=[32m"./"[39m
+              [36m>[39m
+                [0mSrikar’s Books[0m
+              [36m</a>[39m
+            [36m</h1>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"site-header__actions"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<a[39m
+                [33mclass[39m=[32m"btn btn-ghost site-header__link"[39m
+                [33mhref[39m=[32m"./"[39m
+                [33mrel[39m=[32m"noopener"[39m
+                [33mtarget[39m=[32m"_blank"[39m
+              [36m>[39m
+                [0m
+                View catalog
+              [0m
+              [36m</a>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn btn-secondary"[39m
+                [33mid[39m=[32m"signOutBtn"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                Sign out
+              [0m
+              [36m</button>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</div>[39m
+          [0m
+        [0m
+        [36m</header>[39m
+        [0m
+
+        [0m
+        [36m<main[39m
+          [33mclass[39m=[32m"wrap"[39m
+        [36m>[39m
+          [0m
+          [0m
+          [0m
+          [0m
+          [36m<section[39m
+            [33mclass[39m=[32m"auth"[39m
+            [33mid[39m=[32m"auth"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<h2>[39m
+              [0mAdmin sign in[0m
+            [36m</h2>[39m
+            [0m
+            [0m
+            [36m<p[39m
+              [33mclass[39m=[32m"muted"[39m
+            [36m>[39m
+              [0m
+              Use your admin email. Only whitelisted emails can add/remove books.
+            [0m
+            [36m</p>[39m
+            [0m
+            [0m
+            [36m<form[39m
+              [33mclass[39m=[32m"stack"[39m
+              [33mid[39m=[32m"loginForm"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33mid[39m=[32m"email"[39m
+                [33mplaceholder[39m=[32m"email@example.com"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"email"[39m
+              [36m/>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33mid[39m=[32m"password"[39m
+                [33mplaceholder[39m=[32m"Password"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"password"[39m
+              [36m/>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn"[39m
+                [33mtype[39m=[32m"submit"[39m
+              [36m>[39m
+                [0mSign in[0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<p[39m
+                [33mclass[39m=[32m"error"[39m
+                [33mhidden[39m=[32m""[39m
+                [33mid[39m=[32m"authError"[39m
+              [36m/>[39m
+              [0m
+            [0m
+            [36m</form>[39m
+            [0m
+          [0m
+          [36m</section>[39m
+          [0m
+
+          [0m
+          [0m
+          [0m
+          [36m<section[39m
+            [33mclass[39m=[32m"admin"[39m
+            [33mid[39m=[32m"admin"[39m
+            [33mstyle[39m=[32m"display: none"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"admin-topbar"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"admin-topbar__brand"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<h2[39m
+                  [33mclass[39m=[32m"admin-hero__title"[39m
+                [36m>[39m
+                  [0mAdmin workspace[0m
+                [36m</h2>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+
+            [0m
+            [36m<nav[39m
+              [33maria-label[39m=[32m"Admin sections"[39m
+              [33mclass[39m=[32m"admin-nav"[39m
+              [33mid[39m=[32m"adminNav"[39m
+              [33mrole[39m=[32m"tablist"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"addBookPanel"[39m
+                [33maria-expanded[39m=[32m"true"[39m
+                [33mclass[39m=[32m"admin-nav__item is-active"[39m
+                [33mdata-nav[39m=[32m"manageBooks"[39m
+                [33mid[39m=[32m"navTab-manageBooks"[39m
+                [33mrole[39m=[32m"tab"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__title"[39m
+                [36m>[39m
+                  [0mManage books[0m
+                [36m</span>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__meta"[39m
+                [36m>[39m
+                  [0mAdd & stock[0m
+                [36m</span>[39m
+                [0m
+              [0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"bundlesPanel"[39m
+                [33maria-expanded[39m=[32m"false"[39m
+                [33mclass[39m=[32m"admin-nav__item"[39m
+                [33mdata-nav[39m=[32m"bundles"[39m
+                [33mid[39m=[32m"navTab-bundles"[39m
+                [33mrole[39m=[32m"tab"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+              [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__title"[39m
+                [36m>[39m
+                  [0mBundles[0m
+                [36m</span>[39m
+                [0m
+              [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__meta"[39m
+                [36m>[39m
+                  [0mSupplier packs[0m
+                [36m</span>[39m
+                [0m
+            [0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"saleEntryPanel"[39m
+                [33maria-expanded[39m=[32m"false"[39m
+                [33mclass[39m=[32m"admin-nav__item"[39m
+                [33mdata-nav[39m=[32m"recordSale"[39m
+                [33mid[39m=[32m"recordSaleBtn"[39m
+                [33mrole[39m=[32m"tab"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__title"[39m
+                [36m>[39m
+                  [0mSale[0m
+                [36m</span>[39m
+                [0m
+              [0m
+                [36m<span[39m
+                  [33m...
+
+      83 |         "#inlineBundleSelectedBooks [data-test='inlineBundleRemove']"
+      84 |       );
+    > 85 |       expect(chips.length).toBe(0);
+         |                            ^
+      86 |       expect(trigger?.hidden).toBe(true);
+      87 |       expect((badge?.textContent || '').trim()).toBe('');
+      88 |     });
+
+      at codex_output/tests/spec/admin/SBD-F29-TP4-002_SaveSuccessResetsFloatingTrigger.spec.js:85:28
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+FAIL codex_output/tests/spec/admin/SBD-F29-TP4-003_NewSelectionAfterSaveShowsFreshCount.spec.js
+  SPEC SBD-F29-TP4-003: Floating trigger stays hidden until a new post-save selection
+    ✕ after a successful save clears the bundle, the next Add to bundle click restarts the badge count at one (1189 ms)
+
+  ● SPEC SBD-F29-TP4-003: Floating trigger stays hidden until a new post-save selection › after a successful save clears the bundle, the next Add to bundle click restarts the badge count at one
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [0m
+        [0m
+        [36m<header[39m
+          [33mclass[39m=[32m"site-header"[39m
+        [36m>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33mclass[39m=[32m"wrap"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<h1[39m
+              [33mclass[39m=[32m"brand"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mhref[39m=[32m"./"[39m
+              [36m>[39m
+                [0mSrikar’s Books[0m
+              [36m</a>[39m
+            [36m</h1>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"site-header__actions"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<a[39m
+                [33mclass[39m=[32m"btn btn-ghost site-header__link"[39m
+                [33mhref[39m=[32m"./"[39m
+                [33mrel[39m=[32m"noopener"[39m
+                [33mtarget[39m=[32m"_blank"[39m
+              [36m>[39m
+                [0m
+                View catalog
+              [0m
+              [36m</a>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn btn-secondary"[39m
+                [33mid[39m=[32m"signOutBtn"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                Sign out
+              [0m
+              [36m</button>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</div>[39m
+          [0m
+        [0m
+        [36m</header>[39m
+        [0m
+
+        [0m
+        [36m<main[39m
+          [33mclass[39m=[32m"wrap"[39m
+        [36m>[39m
+          [0m
+          [0m
+          [0m
+          [0m
+          [36m<section[39m
+            [33mclass[39m=[32m"auth"[39m
+            [33mid[39m=[32m"auth"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<h2>[39m
+              [0mAdmin sign in[0m
+            [36m</h2>[39m
+            [0m
+            [0m
+            [36m<p[39m
+              [33mclass[39m=[32m"muted"[39m
+            [36m>[39m
+              [0m
+              Use your admin email. Only whitelisted emails can add/remove books.
+            [0m
+            [36m</p>[39m
+            [0m
+            [0m
+            [36m<form[39m
+              [33mclass[39m=[32m"stack"[39m
+              [33mid[39m=[32m"loginForm"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33mid[39m=[32m"email"[39m
+                [33mplaceholder[39m=[32m"email@example.com"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"email"[39m
+              [36m/>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33mid[39m=[32m"password"[39m
+                [33mplaceholder[39m=[32m"Password"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"password"[39m
+              [36m/>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn"[39m
+                [33mtype[39m=[32m"submit"[39m
+              [36m>[39m
+                [0mSign in[0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<p[39m
+                [33mclass[39m=[32m"error"[39m
+                [33mhidden[39m=[32m""[39m
+                [33mid[39m=[32m"authError"[39m
+              [36m/>[39m
+              [0m
+            [0m
+            [36m</form>[39m
+            [0m
+          [0m
+          [36m</section>[39m
+          [0m
+
+          [0m
+          [0m
+          [0m
+          [36m<section[39m
+            [33mclass[39m=[32m"admin"[39m
+            [33mid[39m=[32m"admin"[39m
+            [33mstyle[39m=[32m"display: none"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"admin-topbar"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"admin-topbar__brand"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<h2[39m
+                  [33mclass[39m=[32m"admin-hero__title"[39m
+                [36m>[39m
+                  [0mAdmin workspace[0m
+                [36m</h2>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+
+            [0m
+            [36m<nav[39m
+              [33maria-label[39m=[32m"Admin sections"[39m
+              [33mclass[39m=[32m"admin-nav"[39m
+              [33mid[39m=[32m"adminNav"[39m
+              [33mrole[39m=[32m"tablist"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"addBookPanel"[39m
+                [33maria-expanded[39m=[32m"true"[39m
+                [33mclass[39m=[32m"admin-nav__item is-active"[39m
+                [33mdata-nav[39m=[32m"manageBooks"[39m
+                [33mid[39m=[32m"navTab-manageBooks"[39m
+                [33mrole[39m=[32m"tab"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__title"[39m
+                [36m>[39m
+                  [0mManage books[0m
+                [36m</span>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__meta"[39m
+                [36m>[39m
+                  [0mAdd & stock[0m
+                [36m</span>[39m
+                [0m
+              [0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"bundlesPanel"[39m
+                [33maria-expanded[39m=[32m"false"[39m
+                [33mclass[39m=[32m"admin-nav__item"[39m
+                [33mdata-nav[39m=[32m"bundles"[39m
+                [33mid[39m=[32m"navTab-bundles"[39m
+                [33mrole[39m=[32m"tab"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+              [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__title"[39m
+                [36m>[39m
+                  [0mBundles[0m
+                [36m</span>[39m
+                [0m
+              [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__meta"[39m
+                [36m>[39m
+                  [0mSupplier packs[0m
+                [36m</span>[39m
+                [0m
+            [0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"saleEntryPanel"[39m
+                [33maria-expanded[39m=[32m"false"[39m
+                [33mclass[39m=[32m"admin-nav__item"[39m
+                [33mdata-nav[39m=[32m"recordSale"[39m
+                [33mid[39m=[32m"recordSaleBtn"[39m
+                [33mrole[39m=[32m"tab"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__title"[39m
+                [36m>[39m
+                  [0mSale[0m
+                [36m</span>[39m
+                [0m
+              [0m
+                [36m<span[39m
+                  [33m...
+
+      68 |     await waitFor(() => expect(addDoc).toHaveBeenCalled());
+      69 |
+    > 70 |     await waitFor(() => expect(trigger?.hidden).toBe(true));
+         |                                                 ^
+      71 |     expect((badge?.textContent || '').trim()).toBe('');
+      72 |
+      73 |     fireEvent.click(addButton);
+
+      at codex_output/tests/spec/admin/SBD-F29-TP4-003_NewSelectionAfterSaveShowsFreshCount.spec.js:70:49
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+---------------------------------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+---------------------------------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                                          |   11.67 |     8.82 |   11.51 |   12.32 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+ scripts/admin                                     |    8.14 |     6.84 |    7.82 |    8.61 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+  auth.js                                          |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+  autoPrice.js                                     |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+  availablePagination.js                           |       0 |        0 |       0 |       0 | 5-353                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+  bundleList.js                                    |       0 |        0 |       0 |       0 | 2-510                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+  bundleStatus.js                                  |       0 |        0 |       0 |       0 | 7-110                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+  bundles.js                                       |       0 |        0 |       0 |       0 | 3-505                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+  currency.js                                      |       0 |        0 |       0 |       0 | 6-31                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+  customerLookup.js                                |       0 |        0 |       0 |       0 | 3-392                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+  customers.js                                     |       0 |        0 |       0 |       0 | 3-532                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+  editor.js                                        |       0 |        0 |       0 |       0 | 27-423                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+  inventory.js                                     |   44.63 |    33.55 |   45.45 |   47.07 | 36,41-52,71-80,92,98,119-120,128-129,155-193,210,285,288,293-340,349,388-389,397,434-437,494-506,521,524,530,560-567,612-613,650-653,661-665,696-697,708,713-732,739-926,963,969-976,983,990,1022,1031,1043-1050,1066-1067,1165,1175-1189,1203-1207,1244-1245,1250,1255-1345,1355-1365,1372-1373,1411,1423-1433,1440-1504,1511-1513,1612,1621,1625-1628,1639,1660-1661,1668-1677,1681-1690,1701-1771,1794-1801,1807-1809,1817-1819,1822-1824,1828-1838,1842-1845,1857-1860 
+  lookup.js                                        |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+  main.js                                          |       0 |        0 |       0 |       0 | 39-2386                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+  requests.js                                      |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+  salesEntryLauncher.js                            |       0 |        0 |       0 |       0 | 2-68                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+  salesHeader.js                                   |       0 |        0 |       0 |       0 | 3-505                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+  salesLineItems.js                                |       0 |        0 |       0 |       0 | 3-914                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+  salesPersist.js                                  |       0 |        0 |       0 |       0 | 1-183                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+  salesTitleAutocomplete.js                        |       0 |        0 |       0 |       0 | 9-225                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+  suppliers.js                                     |       0 |        0 |       0 |       0 | 2-331                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+ src/ui/patterns/floating-drawer-trigger           |   83.07 |    55.38 |   88.88 |   87.09 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+  index.js                                         |   83.07 |    55.38 |   88.88 |   87.09 | 20-21,28,43,67,95,114-115                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+ src/ui/patterns/inline-bundle-composer            |       0 |        0 |       0 |       0 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+  index.js                                         |       0 |        0 |       0 |       0 | 3-354                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+ src/ui/patterns/inline-bundle-composer-controller |   50.21 |    36.55 |   65.78 |   53.11 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+  index.js                                         |   50.21 |    36.55 |   65.78 |   53.11 | 16-17,46-53,58-64,73,100,129-133,149-172,177-178,187-194,220-228,232-253,257-271,289,292,304,309-310,335-338,345-351                                                                                                                                                                                                                                                                                                                                                       
+ src/ui/patterns/inline-bundle-panel-shell         |   51.74 |    30.37 |   31.25 |   54.78 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+  index.js                                         |   51.74 |    30.37 |   31.25 |   54.78 | 20-23,34-38,62-63,75-80,87-107,128,135,153,157,180-181,191-194,200-204,208-215,219-236,249-250,255,263-271,276-283,287-289,292-293,304-307                                                                                                                                                                                                                                                                                                                                 
+---------------------------------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 2 failed, 1 passed, 3 total
+Tests:       2 failed, 1 passed, 3 total
+Snapshots:   0 total
+Time:        2.981 s
+Ran all test suites matching /SBD-F29-TP4/i.

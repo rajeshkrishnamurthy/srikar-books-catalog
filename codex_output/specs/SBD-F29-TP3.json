@@ -1,0 +1,66 @@
+{
+  "topicId": "SBD-F29-TP3",
+  "featureId": "F29",
+  "title": "Bundle Save Success Toast",
+  "area": "Admin / Manage Books - Available",
+  "goal": "Show a toast via the shared toast pattern when the floating-trigger save completes successfully.",
+  "environment": "HTML + Vanilla JavaScript + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F29-TP3-001",
+      "title": "InlineSaveToastAnchorsPresent",
+      "given": "The floating bundle trigger is visible and the inline bundle composer drawer is open with #inlineBundleSave ready and the toast pattern mounted (#toastStack, #toastLiveRegion, #toastTemplate).",
+      "when": "The admin.html DOM is parsed.",
+      "then": "#inlineBundleSave plus #toastStack, #toastLiveRegion, and #toastTemplate exist with a keyboard-focusable dismiss control and aria-live set to polite for announcements."
+    },
+    {
+      "id": "SBD-F29-TP3-002",
+      "title": "SaveClickDispatchesToast",
+      "given": "A bundle selection with name and price is ready to save from the inline composer and the shared toast stack is mounted.",
+      "when": "The admin clicks #inlineBundleSave and the saveInlineBundle call resolves successfully.",
+      "then": "saveInlineBundle runs and showToast is invoked once with a success payload that includes the bundle name, pushing a toast into #toastStack and updating #toastLiveRegion politely."
+    },
+    {
+      "id": "SBD-F29-TP3-003",
+      "title": "ToastAutoDismissAndKeyboardDismissible",
+      "given": "A success toast is produced for an inline bundle save using the shared toast pattern.",
+      "when": "The default toast duration elapses or the admin presses Escape while focused on the toast.",
+      "then": "The toast is announced via #toastLiveRegion/announceToast, auto-dismisses after the default duration, and can also be dismissed via keyboard without stealing focus while firing onToastDismiss."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/adminInventoryHarness.js",
+    "/codex_output/tests/helpers/toastTestHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F29-TP3-001_InlineSaveToastAnchors.spec.js",
+    "/tests/spec/admin/SBD-F29-TP3-002_SaveClickShowsSuccessToast.spec.js",
+    "/tests/spec/admin/SBD-F29-TP3-003_ToastsAutoDismissAndKeyboardDismissible.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F29-TP3_red.txt",
+    "green": "codex_output/reports/SBD-F29-TP3_green.txt"
+  },
+  "changedFiles": [
+    "tests/spec/admin/SBD-F29-TP3-001_InlineSaveToastAnchors.spec.js",
+    "tests/spec/admin/SBD-F29-TP3-002_SaveClickShowsSuccessToast.spec.js",
+    "tests/spec/admin/SBD-F29-TP3-003_ToastsAutoDismissAndKeyboardDismissible.spec.js",
+    "codex_output/specs/SBD-F29-TP3.json",
+    "codex_output/impl_inputs/SBD-F29-TP3.jsonl",
+    "codex_output/reports/SBD-F29-TP3_red.txt",
+    "codex_output/reports/SBD-F29-TP3_green.txt",
+    "scripts/admin/inventory.js"
+  ],
+  "changeNotes": [
+    "Authored three RED Jest specs ensuring inline bundle save wiring exposes toast anchors, dispatches saveInlineBundle, and raises a success toast with the bundle name.",
+    "Covered TOAST_NOTIFICATIONS reuse by asserting shared stack/live region usage plus announce/onShow/onDismiss adapter calls.",
+    "Verified toasts auto-dismiss after the default duration while remaining keyboard dismissible via Escape.",
+    "Inline bundle save now dispatches the shared success toast with the bundle name using the existing toast pattern anchors."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false SBD-F29-TP3",
+    "report": "codex_output/reports/SBD-F29-TP3_green.txt"
+  }
+}

@@ -1,0 +1,610 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F29-TP3
+
+(node:71725) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS codex_output/tests/spec/admin/SBD-F29-TP3-001_InlineSaveToastAnchors.spec.js
+  SPEC SBD-F29-TP3-001: Inline save toast anchors exist
+    ✓ Admin markup exposes inline save control plus shared toast stack/live region/template (59 ms)
+
+(node:71724) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:71723) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL codex_output/tests/spec/admin/SBD-F29-TP3-003_ToastsAutoDismissAndKeyboardDismissible.spec.js
+  SPEC SBD-F29-TP3-003: Success toast auto-dismiss and keyboard dismissal
+    ✕ Toast shows in the stack, announces politely, auto-dismisses, and responds to Escape (208 ms)
+
+  ● SPEC SBD-F29-TP3-003: Success toast auto-dismiss and keyboard dismissal › Toast shows in the stack, announces politely, auto-dismisses, and responds to Escape
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [0m
+        [0m
+        [36m<header[39m
+          [33mclass[39m=[32m"site-header"[39m
+        [36m>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33mclass[39m=[32m"wrap"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<h1[39m
+              [33mclass[39m=[32m"brand"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mhref[39m=[32m"./"[39m
+              [36m>[39m
+                [0mSrikar’s Books[0m
+              [36m</a>[39m
+            [36m</h1>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"site-header__actions"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<a[39m
+                [33mclass[39m=[32m"btn btn-ghost site-header__link"[39m
+                [33mhref[39m=[32m"./"[39m
+                [33mrel[39m=[32m"noopener"[39m
+                [33mtarget[39m=[32m"_blank"[39m
+              [36m>[39m
+                [0m
+                View catalog
+              [0m
+              [36m</a>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn btn-secondary"[39m
+                [33mid[39m=[32m"signOutBtn"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                Sign out
+              [0m
+              [36m</button>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</div>[39m
+          [0m
+        [0m
+        [36m</header>[39m
+        [0m
+
+        [0m
+        [36m<main[39m
+          [33mclass[39m=[32m"wrap"[39m
+        [36m>[39m
+          [0m
+          [0m
+          [0m
+          [0m
+          [36m<section[39m
+            [33mclass[39m=[32m"auth"[39m
+            [33mid[39m=[32m"auth"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<h2>[39m
+              [0mAdmin sign in[0m
+            [36m</h2>[39m
+            [0m
+            [0m
+            [36m<p[39m
+              [33mclass[39m=[32m"muted"[39m
+            [36m>[39m
+              [0m
+              Use your admin email. Only whitelisted emails can add/remove books.
+            [0m
+            [36m</p>[39m
+            [0m
+            [0m
+            [36m<form[39m
+              [33mclass[39m=[32m"stack"[39m
+              [33mid[39m=[32m"loginForm"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33mid[39m=[32m"email"[39m
+                [33mplaceholder[39m=[32m"email@example.com"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"email"[39m
+              [36m/>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33mid[39m=[32m"password"[39m
+                [33mplaceholder[39m=[32m"Password"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"password"[39m
+              [36m/>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn"[39m
+                [33mtype[39m=[32m"submit"[39m
+              [36m>[39m
+                [0mSign in[0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<p[39m
+                [33mclass[39m=[32m"error"[39m
+                [33mhidden[39m=[32m""[39m
+                [33mid[39m=[32m"authError"[39m
+              [36m/>[39m
+              [0m
+            [0m
+            [36m</form>[39m
+            [0m
+          [0m
+          [36m</section>[39m
+          [0m
+
+          [0m
+          [0m
+          [0m
+          [36m<section[39m
+            [33mclass[39m=[32m"admin"[39m
+            [33mid[39m=[32m"admin"[39m
+            [33mstyle[39m=[32m"display: none"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"admin-topbar"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"admin-topbar__brand"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<h2[39m
+                  [33mclass[39m=[32m"admin-hero__title"[39m
+                [36m>[39m
+                  [0mAdmin workspace[0m
+                [36m</h2>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+
+            [0m
+            [36m<nav[39m
+              [33maria-label[39m=[32m"Admin sections"[39m
+              [33mclass[39m=[32m"admin-nav"[39m
+              [33mid[39m=[32m"adminNav"[39m
+              [33mrole[39m=[32m"tablist"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"addBookPanel"[39m
+                [33maria-expanded[39m=[32m"true"[39m
+                [33mclass[39m=[32m"admin-nav__item is-active"[39m
+                [33mdata-nav[39m=[32m"manageBooks"[39m
+                [33mid[39m=[32m"navTab-manageBooks"[39m
+                [33mrole[39m=[32m"tab"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__title"[39m
+                [36m>[39m
+                  [0mManage books[0m
+                [36m</span>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__meta"[39m
+                [36m>[39m
+                  [0mAdd & stock[0m
+                [36m</span>[39m
+                [0m
+              [0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"bundlesPanel"[39m
+                [33maria-expanded[39m=[32m"false"[39m
+                [33mclass[39m=[32m"admin-nav__item"[39m
+                [33mdata-nav[39m=[32m"bundles"[39m
+                [33mid[39m=[32m"navTab-bundles"[39m
+                [33mrole[39m=[32m"tab"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+              [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__title"[39m
+                [36m>[39m
+                  [0mBundles[0m
+                [36m</span>[39m
+                [0m
+              [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__meta"[39m
+                [36m>[39m
+                  [0mSupplier packs[0m
+                [36m</span>[39m
+                [0m
+            [0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"saleEntryPanel"[39m
+                [33maria-expanded[39m=[32m"false"[39m
+                [33mclass[39m=[32m"admin-nav__item"[39m
+                [33mdata-nav[39m=[32m"recordSale"[39m
+                [33mid[39m=[32m"recordSaleBtn"[39m
+                [33mrole[39m=[32m"tab"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__title"[39m
+                [36m>[39m
+                  [0mSale[0m
+                [36m</span>[39m
+                [0m
+              [0m
+                [36m<span[39m
+                  [33m...
+
+      62 |       fireEvent.click(saveButton);
+      63 |
+    > 64 |       await waitFor(() => expect(toast.showToast).toHaveBeenCalledTimes(1));
+         |                                                   ^
+      65 |       const toastEl = toast.toastStack.querySelector('[data-toast-id]');
+      66 |       expect(toastEl).not.toBeNull();
+      67 |       expect(toastEl?.getAttribute('role')).toBe('status');
+
+      at codex_output/tests/spec/admin/SBD-F29-TP3-003_ToastsAutoDismissAndKeyboardDismissible.spec.js:64:51
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at node_modules/@testing-library/dom/dist/wait-for.js:82:9
+
+FAIL codex_output/tests/spec/admin/SBD-F29-TP3-002_SaveClickShowsSuccessToast.spec.js
+  SPEC SBD-F29-TP3-002: Inline save click dispatches success toast
+    ✕ clicking Save invokes saveInlineBundle and showToast with the bundle name (1231 ms)
+
+  ● SPEC SBD-F29-TP3-002: Inline save click dispatches success toast › clicking Save invokes saveInlineBundle and showToast with the bundle name
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [0m
+        [0m
+        [36m<header[39m
+          [33mclass[39m=[32m"site-header"[39m
+        [36m>[39m
+          [0m
+          [0m
+          [36m<div[39m
+            [33mclass[39m=[32m"wrap"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<h1[39m
+              [33mclass[39m=[32m"brand"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mhref[39m=[32m"./"[39m
+              [36m>[39m
+                [0mSrikar’s Books[0m
+              [36m</a>[39m
+            [36m</h1>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"site-header__actions"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<a[39m
+                [33mclass[39m=[32m"btn btn-ghost site-header__link"[39m
+                [33mhref[39m=[32m"./"[39m
+                [33mrel[39m=[32m"noopener"[39m
+                [33mtarget[39m=[32m"_blank"[39m
+              [36m>[39m
+                [0m
+                View catalog
+              [0m
+              [36m</a>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn btn-secondary"[39m
+                [33mid[39m=[32m"signOutBtn"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                Sign out
+              [0m
+              [36m</button>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+          [0m
+          [36m</div>[39m
+          [0m
+        [0m
+        [36m</header>[39m
+        [0m
+
+        [0m
+        [36m<main[39m
+          [33mclass[39m=[32m"wrap"[39m
+        [36m>[39m
+          [0m
+          [0m
+          [0m
+          [0m
+          [36m<section[39m
+            [33mclass[39m=[32m"auth"[39m
+            [33mid[39m=[32m"auth"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<h2>[39m
+              [0mAdmin sign in[0m
+            [36m</h2>[39m
+            [0m
+            [0m
+            [36m<p[39m
+              [33mclass[39m=[32m"muted"[39m
+            [36m>[39m
+              [0m
+              Use your admin email. Only whitelisted emails can add/remove books.
+            [0m
+            [36m</p>[39m
+            [0m
+            [0m
+            [36m<form[39m
+              [33mclass[39m=[32m"stack"[39m
+              [33mid[39m=[32m"loginForm"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33mid[39m=[32m"email"[39m
+                [33mplaceholder[39m=[32m"email@example.com"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"email"[39m
+              [36m/>[39m
+              [0m
+              [0m
+              [36m<input[39m
+                [33mid[39m=[32m"password"[39m
+                [33mplaceholder[39m=[32m"Password"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"password"[39m
+              [36m/>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn"[39m
+                [33mtype[39m=[32m"submit"[39m
+              [36m>[39m
+                [0mSign in[0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<p[39m
+                [33mclass[39m=[32m"error"[39m
+                [33mhidden[39m=[32m""[39m
+                [33mid[39m=[32m"authError"[39m
+              [36m/>[39m
+              [0m
+            [0m
+            [36m</form>[39m
+            [0m
+          [0m
+          [36m</section>[39m
+          [0m
+
+          [0m
+          [0m
+          [0m
+          [36m<section[39m
+            [33mclass[39m=[32m"admin"[39m
+            [33mid[39m=[32m"admin"[39m
+            [33mstyle[39m=[32m"display: none"[39m
+          [36m>[39m
+            [0m
+            [0m
+            [36m<div[39m
+              [33mclass[39m=[32m"admin-topbar"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<div[39m
+                [33mclass[39m=[32m"admin-topbar__brand"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<h2[39m
+                  [33mclass[39m=[32m"admin-hero__title"[39m
+                [36m>[39m
+                  [0mAdmin workspace[0m
+                [36m</h2>[39m
+                [0m
+              [0m
+              [36m</div>[39m
+              [0m
+            [0m
+            [36m</div>[39m
+            [0m
+
+            [0m
+            [36m<nav[39m
+              [33maria-label[39m=[32m"Admin sections"[39m
+              [33mclass[39m=[32m"admin-nav"[39m
+              [33mid[39m=[32m"adminNav"[39m
+              [33mrole[39m=[32m"tablist"[39m
+            [36m>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"addBookPanel"[39m
+                [33maria-expanded[39m=[32m"true"[39m
+                [33mclass[39m=[32m"admin-nav__item is-active"[39m
+                [33mdata-nav[39m=[32m"manageBooks"[39m
+                [33mid[39m=[32m"navTab-manageBooks"[39m
+                [33mrole[39m=[32m"tab"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__title"[39m
+                [36m>[39m
+                  [0mManage books[0m
+                [36m</span>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__meta"[39m
+                [36m>[39m
+                  [0mAdd & stock[0m
+                [36m</span>[39m
+                [0m
+              [0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"bundlesPanel"[39m
+                [33maria-expanded[39m=[32m"false"[39m
+                [33mclass[39m=[32m"admin-nav__item"[39m
+                [33mdata-nav[39m=[32m"bundles"[39m
+                [33mid[39m=[32m"navTab-bundles"[39m
+                [33mrole[39m=[32m"tab"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+              [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__title"[39m
+                [36m>[39m
+                  [0mBundles[0m
+                [36m</span>[39m
+                [0m
+              [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__meta"[39m
+                [36m>[39m
+                  [0mSupplier packs[0m
+                [36m</span>[39m
+                [0m
+            [0m
+              [36m</button>[39m
+              [0m
+              [0m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"saleEntryPanel"[39m
+                [33maria-expanded[39m=[32m"false"[39m
+                [33mclass[39m=[32m"admin-nav__item"[39m
+                [33mdata-nav[39m=[32m"recordSale"[39m
+                [33mid[39m=[32m"recordSaleBtn"[39m
+                [33mrole[39m=[32m"tab"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0m
+                [0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"admin-nav__title"[39m
+                [36m>[39m
+                  [0mSale[0m
+                [36m</span>[39m
+                [0m
+              [0m
+                [36m<span[39m
+                  [33m...
+
+      62 |
+      63 |       await waitFor(() => expect(addDoc).toHaveBeenCalled());
+    > 64 |       await waitFor(() => expect(toast.showToast).toHaveBeenCalled());
+         |                                                   ^
+      65 |
+      66 |       const payload = toast.showToast.mock.calls.at(-1)?.[0] || {};
+      67 |       const message = (payload.message || '').toLowerCase();
+
+      at codex_output/tests/spec/admin/SBD-F29-TP3-002_SaveClickShowsSuccessToast.spec.js:64:51
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+---------------------------------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                                                                                                                                                                                                                                                
+---------------------------------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                                          |      11 |     8.44 |   11.11 |    11.6 |                                                                                                                                                                                                                                                                                                                                                                                                                                  
+ scripts/admin                                     |    7.37 |     6.41 |    7.35 |    7.78 |                                                                                                                                                                                                                                                                                                                                                                                                                                  
+  auth.js                                          |       0 |        0 |       0 |       0 | 24-79                                                                                                                                                                                                                                                                                                                                                                                                                            
+  autoPrice.js                                     |       0 |        0 |       0 |       0 | 2-25                                                                                                                                                                                                                                                                                                                                                                                                                             
+  availablePagination.js                           |       0 |        0 |       0 |       0 | 5-353                                                                                                                                                                                                                                                                                                                                                                                                                            
+  bundleList.js                                    |       0 |        0 |       0 |       0 | 2-510                                                                                                                                                                                                                                                                                                                                                                                                                            
+  bundleStatus.js                                  |       0 |        0 |       0 |       0 | 7-110                                                                                                                                                                                                                                                                                                                                                                                                                            
+  bundles.js                                       |       0 |        0 |       0 |       0 | 3-505                                                                                                                                                                                                                                                                                                                                                                                                                            
+  currency.js                                      |       0 |        0 |       0 |       0 | 6-31                                                                                                                                                                                                                                                                                                                                                                                                                             
+  customerLookup.js                                |       0 |        0 |       0 |       0 | 3-392                                                                                                                                                                                                                                                                                                                                                                                                                            
+  customers.js                                     |       0 |        0 |       0 |       0 | 3-532                                                                                                                                                                                                                                                                                                                                                                                                                            
+  editor.js                                        |       0 |        0 |       0 |       0 | 27-423                                                                                                                                                                                                                                                                                                                                                                                                                           
+  inventory.js                                     |   40.86 |    31.93 |   43.26 |   43.06 | 36,41-52,71-193,269,272,277-324,333,372-373,381,418-421,478-490,505,508,514,544-551,596-597,630-634,665-666,677,682-701,708-895,932,938-945,952,959,991,1000,1012-1019,1035-1036,1134,1144-1158,1172-1176,1213-1214,1219,1224-1314,1324-1334,1341-1342,1380,1392-1402,1409-1473,1480-1482,1581,1590,1594-1597,1608,1629-1630,1637-1646,1650-1659,1670-1740,1763-1770,1776-1778,1786-1788,1791-1793,1797-1807,1811-1814,1826-1829 
+  lookup.js                                        |       0 |        0 |       0 |       0 | 11-483                                                                                                                                                                                                                                                                                                                                                                                                                           
+  main.js                                          |       0 |        0 |       0 |       0 | 39-2386                                                                                                                                                                                                                                                                                                                                                                                                                          
+  requests.js                                      |       0 |        0 |       0 |       0 | 6-73                                                                                                                                                                                                                                                                                                                                                                                                                             
+  salesEntryLauncher.js                            |       0 |        0 |       0 |       0 | 2-68                                                                                                                                                                                                                                                                                                                                                                                                                             
+  salesHeader.js                                   |       0 |        0 |       0 |       0 | 3-505                                                                                                                                                                                                                                                                                                                                                                                                                            
+  salesLineItems.js                                |       0 |        0 |       0 |       0 | 3-914                                                                                                                                                                                                                                                                                                                                                                                                                            
+  salesPersist.js                                  |       0 |        0 |       0 |       0 | 1-183                                                                                                                                                                                                                                                                                                                                                                                                                            
+  salesTitleAutocomplete.js                        |       0 |        0 |       0 |       0 | 9-225                                                                                                                                                                                                                                                                                                                                                                                                                            
+  suppliers.js                                     |       0 |        0 |       0 |       0 | 2-331                                                                                                                                                                                                                                                                                                                                                                                                                            
+ src/ui/patterns/floating-drawer-trigger           |   83.07 |    55.38 |   88.88 |   87.09 |                                                                                                                                                                                                                                                                                                                                                                                                                                  
+  index.js                                         |   83.07 |    55.38 |   88.88 |   87.09 | 20-21,28,43,67,95,114-115                                                                                                                                                                                                                                                                                                                                                                                                        
+ src/ui/patterns/inline-bundle-composer            |       0 |        0 |       0 |       0 |                                                                                                                                                                                                                                                                                                                                                                                                                                  
+  index.js                                         |       0 |        0 |       0 |       0 | 3-354                                                                                                                                                                                                                                                                                                                                                                                                                            
+ src/ui/patterns/inline-bundle-composer-controller |   50.21 |    36.55 |   65.78 |   53.11 |                                                                                                                                                                                                                                                                                                                                                                                                                                  
+  index.js                                         |   50.21 |    36.55 |   65.78 |   53.11 | 16-17,46-53,58-64,73,100,129-133,149-172,177-178,187-194,220-228,232-253,257-271,289,292,304,309-310,335-338,345-351                                                                                                                                                                                                                                                                                                             
+ src/ui/patterns/inline-bundle-panel-shell         |   51.74 |    30.37 |   31.25 |   54.78 |                                                                                                                                                                                                                                                                                                                                                                                                                                  
+  index.js                                         |   51.74 |    30.37 |   31.25 |   54.78 | 20-23,34-38,62-63,75-80,87-107,128,135,153,157,180-181,191-194,200-204,208-215,219-236,249-250,255,263-271,276-283,287-289,292-293,304-307                                                                                                                                                                                                                                                                                       
+---------------------------------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Test Suites: 2 failed, 1 passed, 3 total
+Tests:       2 failed, 1 passed, 3 total
+Snapshots:   0 total
+Time:        3.23 s
+Ran all test suites matching /SBD-F29-TP3/i.

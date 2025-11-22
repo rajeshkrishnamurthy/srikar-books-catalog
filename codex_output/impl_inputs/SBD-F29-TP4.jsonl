@@ -1,0 +1,14 @@
+{"type":"fail","test":"tests/spec/admin/SBD-F29-TP4-001_FloatingTriggerResetAnchors.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F29-TP4-002_SaveSuccessResetsFloatingTrigger.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F29-TP4-003_NewSelectionAfterSaveShowsFreshCount.spec.js"}
+{"type":"spec","id":"SBD-F29-TP4-001","given":"Admin markup renders the inline bundle composer drawer alongside the floating trigger and badge that mirror the inline selection count.","when":"The admin.html DOM is parsed.","then":"#bundleFloatingTrigger, #bundleFloatingBadge, and #inlineBundleSave exist, with the trigger pointing to #inlineBundleComposer while starting hidden with an empty badge."}
+{"type":"spec","id":"SBD-F29-TP4-002","given":"A bundle selection exists with name and price filled, making the floating trigger visible and saveInlineBundle ready to run.","when":"The admin clicks #inlineBundleSave and the saveInlineBundle promise resolves successfully.","then":"The inline bundle selection resets (chips removed, inputs cleared, empty state visible), the source Add to bundle trigger resets aria-pressed, and #bundleFloatingTrigger hides with #bundleFloatingBadge cleared until a new selection exists."}
+{"type":"spec","id":"SBD-F29-TP4-003","given":"The floating trigger was hidden after a successful inline bundle save reset.","when":"The admin clicks Add to bundle again to start a new selection.","then":"syncFloatingTriggerCount restarts from zero so the trigger reappears only after the new selection with the badge showing 1 instead of carrying over the previous count."}
+{"type":"ui-anchor","selector":"#bundleFloatingTrigger"}
+{"type":"ui-anchor","selector":"#bundleFloatingBadge"}
+{"type":"ui-anchor","selector":"#inlineBundleSave"}
+{"type":"js-handler","event":"click","selector":"#inlineBundleSave","handler":"saveInlineBundle"}
+{"type":"adapter-call","function":"resetInlineBundle","args":[]}
+{"type":"adapter-call","function":"syncFloatingTriggerCount","args":["count"]}
+{"type":"reuse","patternId":"FLOATING_DRAWER_TRIGGER"}
+{"type":"pattern","patternId":"FLOATING_DRAWER_TRIGGER","requiredParams":["container","trigger","badge","maxCount"],"adapters":{"getCount":"() => number","openDrawer":"() => void","applyAnimation":"(state) => void"},"testBehaviors":["Trigger hides when count is zero","Badge text caps at two digits","Clicking trigger calls openDrawer"]}
