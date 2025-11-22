@@ -1,0 +1,15 @@
+{"type":"fail","test":"tests/spec/admin/SBD-F29-TP3-001_InlineSaveToastAnchors.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F29-TP3-002_SaveClickShowsSuccessToast.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F29-TP3-003_ToastsAutoDismissAndKeyboardDismissible.spec.js"}
+{"type":"spec","id":"SBD-F29-TP3-001","given":"The floating bundle trigger is visible and the inline bundle composer drawer is open with #inlineBundleSave ready and the toast pattern mounted (#toastStack, #toastLiveRegion, #toastTemplate).","when":"The admin.html DOM is parsed.","then":"#inlineBundleSave plus #toastStack, #toastLiveRegion, and #toastTemplate exist with a keyboard-focusable dismiss control and aria-live set to polite for announcements."}
+{"type":"spec","id":"SBD-F29-TP3-002","given":"A bundle selection with name and price is ready to save from the inline composer and the shared toast stack is mounted.","when":"The admin clicks #inlineBundleSave and the saveInlineBundle call resolves successfully.","then":"saveInlineBundle runs and showToast is invoked once with a success payload that includes the bundle name, pushing a toast into #toastStack and updating #toastLiveRegion politely."}
+{"type":"spec","id":"SBD-F29-TP3-003","given":"A success toast is produced for an inline bundle save using the shared toast pattern.","when":"The default toast duration elapses or the admin presses Escape while focused on the toast.","then":"The toast is announced via #toastLiveRegion/announceToast, auto-dismisses after the default duration, and can also be dismissed via keyboard without stealing focus while firing onToastDismiss."}
+{"type":"ui-anchor","selector":"#inlineBundleSave"}
+{"type":"ui-anchor","selector":"#toastStack"}
+{"type":"ui-anchor","selector":"#toastLiveRegion"}
+{"type":"ui-anchor","selector":"#toastTemplate"}
+{"type":"js-handler","event":"click","selector":"#inlineBundleSave","handler":"saveInlineBundle"}
+{"type":"adapter-call","function":"saveInlineBundle","args":[]}
+{"type":"adapter-call","function":"showToast","args":["toastPayload"]}
+{"type":"reuse","patternId":"TOAST_NOTIFICATIONS"}
+{"type":"pattern","patternId":"TOAST_NOTIFICATIONS","requiredParams":["container","liveRegion","template"],"adapters":{"announce":"announceToast","onShow":"onToastShow","onDismiss":"onToastDismiss"},"testBehaviors":["Success toasts announce via liveRegion","Success/info toasts auto-dismiss after defaultDurationMs unless pinned","Dismiss controls stay keyboard accessible without moving focus"]}
