@@ -111,6 +111,11 @@ function getToastDispatcher() {
     toastEl.dataset.variant = variant;
     toastEl.setAttribute('role', toastEl.getAttribute('role') || 'status');
 
+    const iconNode = toastEl.querySelector('[data-slot="icon"], .toast__icon');
+    if (iconNode) {
+      iconNode.textContent = variant === 'error' ? '!' : '✔';
+    }
+
     const messageNode =
       toastEl.querySelector('[data-slot="message"]') || toastEl;
     messageNode.textContent = message;
@@ -192,6 +197,32 @@ function emitAddSuccessToast({ title = '', bookId, pinToast = false } = {}) {
     } else {
       Promise.resolve().then(scheduleDismiss);
     }
+  }
+}
+
+function emitInlineBundleSaveToast({ bundleName, bundleId } = {}) {
+  const dispatcher = getToastDispatcher();
+  if (!dispatcher) return;
+  const name = (bundleName || '').trim() || 'Bundle';
+  const payload = {
+    id: bundleId ? `inline-bundle-${bundleId}` : undefined,
+    variant: 'success',
+    message: `${name} saved`,
+  };
+  try {
+    dispatcher(payload);
+  } catch (error) {
+    console.error('showToast error:', error);
+  }
+}
+
+function emitInlineBundleErrorToast({ message = 'Bundle not saved. Check required fields.' } = {}) {
+  const dispatcher = getToastDispatcher();
+  if (!dispatcher) return;
+  try {
+    dispatcher({ message, variant: 'error' });
+  } catch (error) {
+    console.error('showToast error:', error);
   }
 }
 
@@ -620,7 +651,50 @@ export function initInventory({
 
   const handleInlineBundleSave = (event) => {
     event?.preventDefault?.();
-    inlineBundleController?.saveBundle?.().catch((error) => console.error('inline bundle save failed', error));
+    try {
+      const runPromise = inlineBundleController?.saveBundle?.();
+      if (runPromise && typeof runPromise.then === 'function') {
+        runPromise
+          .then((result) => {
+            const state = inlineBundleController?.getState?.() || {};
+            const validationErrors = state.validationErrors || {};
+            const hasValidationErrors = Object.keys(validationErrors).length > 0;
+            if (hasValidationErrors) {
+              const errorMessage =
+                validationErrors.bundleName ||
+                validationErrors.bundlePrice ||
+                'Bundle not saved. Add a name and price.';
+              emitInlineBundleErrorToast({ message: errorMessage });
+              return;
+            }
+            emitInlineBundleSaveToast({
+              bundleName: state.bundleName,
+              bundleId: result?.bundleId || state.bundleId,
+            });
+            inlineBundleIsOpen = false;
+            inlineBundleComposerApi?.reset?.();
+            inlineBundleController?.reset?.();
+            if (inlineBundleNameInput) {
+              inlineBundleNameInput.value = '';
+            }
+            if (inlineBundlePriceInput) {
+              inlineBundlePriceInput.value = '';
+            }
+            if (inlineBundleContainer) {
+              inlineBundleContainer.hidden = true;
+              inlineBundleContainer.classList.remove(INLINE_BUNDLE_ANIMATION_CLASS);
+            }
+            syncFloatingTriggerCount(0);
+          })
+          .catch((error) => {
+            emitInlineBundleErrorToast({ message: 'Unable to save bundle. Try again.' });
+            console.error('inline bundle save failed', error);
+          });
+      }
+    } catch (error) {
+      emitInlineBundleErrorToast({ message: 'Unable to save bundle. Try again.' });
+      console.error('inline bundle save failed', error);
+    }
   };
 
   inlineBundleNameInput?.addEventListener('input', handleInlineBundleName);

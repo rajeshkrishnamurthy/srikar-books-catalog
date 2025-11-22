@@ -1,0 +1,12 @@
+{"type":"meta","topicId":"SBD-F29-TP4","title":"Reset Floating Trigger After Save"}
+{"type":"given","text":"#bundleFloatingTrigger with badge #bundleFloatingBadge is visible because the inline bundle composer holds one or more selected books."}
+{"type":"when","text":"The Save bundle action via #inlineBundleSave resolves successfully."}
+{"type":"then","text":"The inline bundle state resets (selection count returns to 0), #bundleFloatingBadge text clears, and #bundleFloatingTrigger hides until another book is added."}
+{"type":"ui-anchor","selector":"#bundleFloatingTrigger"}
+{"type":"ui-anchor","selector":"#bundleFloatingBadge"}
+{"type":"ui-anchor","selector":"#inlineBundleSave"}
+{"type":"js-handler","event":"click","selector":"#inlineBundleSave","handler":"saveInlineBundle"}
+{"type":"adapter-call","function":"resetInlineBundle","args":[]}
+{"type":"adapter-call","function":"syncFloatingTriggerCount","args":["count"]}
+{"type":"reuse","patternId":"FLOATING_DRAWER_TRIGGER"}
+{"type":"pattern","patternId":"FLOATING_DRAWER_TRIGGER","requiredParams":["container","trigger","badge","maxCount"],"adapters":{"getCount":"() => number","openDrawer":"() => void","applyAnimation":"(state) => void"},"testBehaviors":["Trigger hides when count is zero","Badge text caps at two digits","Clicking trigger calls openDrawer"]}

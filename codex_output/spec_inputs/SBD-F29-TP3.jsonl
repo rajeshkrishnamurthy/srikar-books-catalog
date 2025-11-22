@@ -1,0 +1,13 @@
+{"type":"meta","topicId":"SBD-F29-TP3","title":"Bundle Save Success Toast"}
+{"type":"given","text":"The floating bundle trigger is visible and the inline bundle composer drawer is open with #inlineBundleSave ready and the toast pattern mounted (#toastStack, #toastLiveRegion, #toastTemplate)."}
+{"type":"when","text":"The admin clicks #inlineBundleSave and the saveInlineBundle call resolves successfully."}
+{"type":"then","text":"A success toast fires via the shared toast stack in #toastStack, announced through #toastLiveRegion, includes the bundle name in the message, and auto-dismisses after the default duration while staying keyboard dismissible."}
+{"type":"ui-anchor","selector":"#inlineBundleSave"}
+{"type":"ui-anchor","selector":"#toastStack"}
+{"type":"ui-anchor","selector":"#toastLiveRegion"}
+{"type":"ui-anchor","selector":"#toastTemplate"}
+{"type":"js-handler","event":"click","selector":"#inlineBundleSave","handler":"saveInlineBundle"}
+{"type":"adapter-call","function":"saveInlineBundle","args":[]}
+{"type":"adapter-call","function":"showToast","args":["toastPayload"]}
+{"type":"reuse","patternId":"TOAST_NOTIFICATIONS"}
+{"type":"pattern","patternId":"TOAST_NOTIFICATIONS","requiredParams":["container","liveRegion","template"],"adapters":{"announce":"announceToast","onShow":"onToastShow","onDismiss":"onToastDismiss"},"testBehaviors":["Success toasts announce via liveRegion","Success/info toasts auto-dismiss after defaultDurationMs unless pinned","Dismiss controls stay keyboard accessible without moving focus"]}
