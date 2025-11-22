@@ -36,6 +36,72 @@ import {
 } from '../lib/firebase.js';
 import { escapeHtml, compactText } from '../helpers/text.js';
 
+const DEFAULT_TOAST_DURATION_MS = 5000;
+
+function ensureToastDispatcher() {
+  if (typeof globalThis.showToast === 'function') {
+    return globalThis.showToast;
+  }
+  const stack = document.getElementById('toastStack');
+  const liveRegion = document.getElementById('toastLiveRegion');
+  if (!stack || !liveRegion) return null;
+  const template = document.getElementById('toastTemplate');
+
+  const dispatcher = (payload = {}) => {
+    const { pin = false, variant = 'success' } = payload || {};
+    const message = payload?.message || 'Saved';
+    const id =
+      payload?.id || `toast-${Date.now()}-${stack.children.length + 1}`;
+
+    const source = template?.content?.firstElementChild;
+    const toastEl = source ? source.cloneNode(true) : document.createElement('div');
+    toastEl.dataset.toastId = id;
+    toastEl.dataset.variant = variant;
+    toastEl.setAttribute('role', toastEl.getAttribute('role') || 'status');
+
+    const messageNode =
+      toastEl.querySelector('[data-slot="message"]') || toastEl;
+    messageNode.textContent = message;
+
+    let dismissed = false;
+    let timeoutId = null;
+    const dismiss = () => {
+      if (dismissed) return;
+      dismissed = true;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      globalThis.onToastDismiss?.(payload);
+      toastEl.remove();
+    };
+
+    const dismissButton = toastEl.querySelector('[data-slot="dismiss"]');
+    if (dismissButton) {
+      dismissButton.addEventListener('click', dismiss);
+    }
+    toastEl.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        dismiss();
+      }
+    });
+
+    stack.appendChild(toastEl);
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.textContent = message;
+    globalThis.announceToast?.(message, 'polite');
+    globalThis.onToastShow?.(payload);
+
+    if (!pin) {
+      timeoutId = setTimeout(dismiss, DEFAULT_TOAST_DURATION_MS);
+    }
+
+    return id;
+  };
+
+  globalThis.showToast = dispatcher;
+  return dispatcher;
+}
+
 // Elements
 const authEl = document.getElementById('auth');
 const adminEl = document.getElementById('admin');
@@ -82,6 +148,8 @@ const bundleCreatePanel = document.getElementById('bundleCreatePanel');
 const bundleManagePanel = document.getElementById('bundleManagePanel');
 const customerPanel = document.getElementById('customerPanel');
 const customerPanelSection = customerPanel?.closest('.panel') || customerPanel;
+
+ensureToastDispatcher();
 
 const addForm = document.getElementById('addForm');
 const addMsg = document.getElementById('addMsg');
