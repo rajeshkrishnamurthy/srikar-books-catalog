@@ -1,0 +1,15 @@
+{"type":"fail","test":"tests/spec/admin/SBD-F29-TP2-001_AdminHtmlHasFloatingBundleTrigger.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F29-TP2-002_FloatingTriggerShowsWithBundleCount.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F29-TP2-003_FloatingTriggerHidesWhenSelectionCleared.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F29-TP2-004_FloatingTriggerClickOpensDrawer.spec.js"}
+{"type":"spec","id":"SBD-F29-TP2-001","given":"Manage Books → Available markup renders alongside the inline bundle composer drawer.","when":"The admin.html DOM is parsed.","then":"#bundleFloatingTrigger and #bundleFloatingBadge exist, target #inlineBundleComposer, and start hidden with an empty badge until a selection exists."}
+{"type":"spec","id":"SBD-F29-TP2-002","given":"Inline bundle composer anchors and floating trigger selectors are present.","when":"One or more books are added to a bundle or a resumed session reports a positive count.","then":"The floating trigger becomes visible with fixed bottom-right positioning and its badge reflects the bundle count capped to two digits (e.g., 99+)."}
+{"type":"spec","id":"SBD-F29-TP2-003","given":"The floating trigger was visible for a non-zero bundle selection.","when":"The inline bundle composer is reset so the selection count returns to zero.","then":"#bundleFloatingTrigger hides entirely and the badge text clears so no empty-state badge is announced."}
+{"type":"spec","id":"SBD-F29-TP2-004","given":"A bundle selection exists and the inline composer may be closed.","when":"An admin clicks #bundleFloatingTrigger.","then":"openInlineBundleDrawer fires, #inlineBundleComposer becomes visible again, and the configured animation class is applied for the drawer opening."}
+{"type":"ui-anchor","selector":"#bundleFloatingTrigger"}
+{"type":"ui-anchor","selector":"#bundleFloatingBadge"}
+{"type":"ui-anchor","selector":"#inlineBundleComposer"}
+{"type":"js-handler","event":"click","selector":"#bundleFloatingTrigger","handler":"openInlineBundleDrawer"}
+{"type":"adapter-call","function":"openInlineBundleDrawer","args":[]}
+{"type":"reuse","patternId":"FLOATING_DRAWER_TRIGGER"}
+{"type":"pattern","patternId":"FLOATING_DRAWER_TRIGGER","requiredParams":["container","trigger","badge","maxCount"],"adapters":{"getCount":"() => number","openDrawer":"() => void","applyAnimation":"(state) => void"},"testBehaviors":["visibleWhenCountPositive","hiddenWhenZero","badgeCappedToTwoDigits","clickCallsOpenDrawer"]}
