@@ -5,7 +5,7 @@
   "area": "Admin / Available Books",
   "goal": "Batch-fetch bundle membership counts for the currently visible Available Books page and feed the badge renderer while keeping zero/missing counts hidden.",
   "environment": "HTML + Vanilla JavaScript + Jest + jsdom",
-  "status": "RED",
+  "status": "GREEN",
   "specs": [
     {
       "id": "SBD-F30-TP2-001",
@@ -43,22 +43,25 @@
     "green": "codex_output/reports/SBD-F30-TP2_green.txt"
   },
   "changedFiles": [
+    "src/ui/patterns/membership-count-badge/available-books.js",
     "tests/fixtures/availableBooksMembershipCountsHarness.js",
     "tests/spec/admin/SBD-F30-TP2-001_PaginationBindsBundleCounts.spec.js",
     "tests/spec/admin/SBD-F30-TP2-002_BundleCountsRenderBadges.spec.js",
     "tests/spec/admin/SBD-F30-TP2-003_ZeroOrMissingCountsHideBadges.spec.js",
     "codex_output/specs/SBD-F30-TP2.json",
     "codex_output/impl_inputs/SBD-F30-TP2.jsonl",
-    "codex_output/reports/SBD-F30-TP2_red.txt"
+    "codex_output/reports/SBD-F30-TP2_red.txt",
+    "codex_output/reports/SBD-F30-TP2_green.txt"
   ],
   "changeNotes": [
     "Authored three RED specs covering pagination-to-handler wiring, batch adapter calls for visible bookIds, and badge rendering for fetched membership counts.",
     "Captured integration expectations for MEMBERSHIP_COUNT_BADGE reuse so getBundleMembershipCounts, formatBundleCount, and announceBundleCount drive the badge updates per page.",
-    "Ensured zero or missing counts remain hidden after pagechange events to avoid stale membership badges."
+    "Ensured zero or missing counts remain hidden after pagechange events to avoid stale membership badges.",
+    "Implemented the Available Books membership count wiring atop the MEMBERSHIP_COUNT_BADGE pattern and recorded the passing GREEN run."
   ],
   "validation": {
-    "status": "RED",
+    "status": "GREEN",
     "command": "npm test -- --watchAll=false SBD-F30-TP2",
-    "report": "codex_output/reports/SBD-F30-TP2_red.txt"
+    "report": "codex_output/reports/SBD-F30-TP2_green.txt"
   }
 }
