@@ -31,7 +31,7 @@ describe('SPEC SBD-F23-TP3-002: Removing a book chip restores the empty state wh
       return button;
     });
 
-    expect(composer?.hasAttribute('hidden')).toBe(false);
+    expect(composer?.hasAttribute('hidden')).toBe(true);
     expect(emptyState?.hasAttribute('hidden')).toBe(true);
 
     fireEvent.click(removeButton);

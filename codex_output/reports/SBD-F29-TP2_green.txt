@@ -1,0 +1,15 @@
+SBD-F29-TP2 GREEN Validation
+Timestamp: 2025-11-22 12:47:44 UTC
+Command: npm test -- --watchAll=false SBD-F29-TP2
+
+Result Summary:
+Test Suites: 4 passed, 4 total
+Tests:       4 passed, 4 total
+Snapshots:   0 total
+Time:        2.43 s
+
+Key Passing Suites:
+- codex_output/tests/spec/admin/SBD-F29-TP2-001_AdminHtmlHasFloatingBundleTrigger.spec.js
+- codex_output/tests/spec/admin/SBD-F29-TP2-002_FloatingTriggerShowsWithBundleCount.spec.js
+- codex_output/tests/spec/admin/SBD-F29-TP2-003_FloatingTriggerHidesWhenSelectionCleared.spec.js
+- codex_output/tests/spec/admin/SBD-F29-TP2-004_FloatingTriggerClickOpensDrawer.spec.js

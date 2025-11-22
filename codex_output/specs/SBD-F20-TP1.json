@@ -57,8 +57,12 @@
     "codex-dev: Ran npm test -- --watchAll=false --bail=0; all suites including SOLD data source unit tests already pass so no production changes were required."
   ],
   "validation": {
-    "status": "RED",
+    "status": "GREEN",
     "command": "npm test -- --watchAll=false",
-    "report": "codex_output/reports/SBD-F20-TP1_red.txt"
+    "report": "codex_output/reports/SBD-F20-TP1_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Sold data source pagination + normalization tests are green with cursor math and sale field exposure wired up."
+    }
   }
 }

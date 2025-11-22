@@ -5,7 +5,7 @@
   "area": "Admin / Manage Books",
   "goal": "Persist pagination + filter state for the Available list across reloads and navigation so admins always land on the same slice they left.",
   "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-  "status": "RED",
+  "status": "GREEN",
   "specs": [
     {
       "id": "F19-TP3-001",
@@ -61,15 +61,20 @@
   "changedFiles": [
     "codex_output/specs/F19-TP3.json",
     "tests/spec/admin/F19-TP3-005_DeepLinkLoadsRequestedPage.spec.js",
-    "codex_output/reports/F19-TP3_red.txt"
+    "codex_output/reports/F19-TP3_red.txt",
+    "codex_output/reports/F19-TP3_green.txt"
   ],
   "changeNotes": [
     "Defined five observable behaviors for Available pagination state (restore, sync, search reset, Prev/Next, and deep links).",
     "Added deep-link Jest coverage while keeping existing restore/sync specs under a single RED report."
   ],
   "validation": {
-    "status": "RED",
-    "command": "npm test -- --watchAll=false",
-    "report": "codex_output/reports/F19-TP3_red.txt"
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false F19-TP3",
+    "report": "codex_output/reports/F19-TP3_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Pagination state and location sync for Manage Books > Available now restore deep links, reset search to page 1, and keep Prev/Next updates mirrored in the hash."
+    }
   }
 }

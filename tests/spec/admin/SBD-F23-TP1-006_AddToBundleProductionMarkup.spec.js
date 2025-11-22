@@ -6,8 +6,8 @@ import { createAdminInventoryHarness } from '../../fixtures/adminInventoryHarnes
 const adminHtmlPath = new URL('../../../admin.html', import.meta.url);
 const adminMarkup = readFileSync(adminHtmlPath, 'utf-8');
 
-describe('SPEC SBD-F23-TP1-006: Inline composer opens from production markup', () => {
-  test('clicking Add to bundle inside the real admin markup opens the drawer and renders chip', async () => {
+describe('SPEC SBD-F23-TP1-006: Inline composer state updates from production markup without auto-opening', () => {
+  test('clicking Add to bundle inside the real admin markup seeds the chip while keeping the drawer hidden', async () => {
     const harness = await createAdminInventoryHarness({
       domSource: adminMarkup,
     });
@@ -41,10 +41,9 @@ describe('SPEC SBD-F23-TP1-006: Inline composer opens from production markup', (
     fireEvent.click(trigger);
 
     await waitFor(() => {
-      expect(composer?.hasAttribute('hidden')).toBe(false);
+      expect(composer?.hasAttribute('hidden')).toBe(true);
       expect(emptyState?.hasAttribute('hidden')).toBe(true);
       expect(selectionList?.textContent || '').toContain('Production Inline Bundle');
-      expect(document.activeElement).toBe(heading);
     });
   });
 });

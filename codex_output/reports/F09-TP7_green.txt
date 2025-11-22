@@ -1,0 +1,38 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false F09-TP7
+
+---------------------------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------
+File                                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                           
+---------------------------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------
+All files                                          |     2.9 |     1.88 |    2.99 |    3.04 |                                                                                                             
+ scripts/admin                                     |    3.28 |     2.12 |    3.37 |    3.44 |                                                                                                             
+  auth.js                                          |       0 |        0 |       0 |       0 | 24-79                                                                                                       
+  autoPrice.js                                     |       0 |        0 |       0 |       0 | 2-25                                                                                                        
+  availablePagination.js                           |       0 |        0 |       0 |       0 | 5-353                                                                                                       
+  bundleList.js                                    |       0 |        0 |       0 |       0 | 2-510                                                                                                       
+  bundleStatus.js                                  |       0 |        0 |       0 |       0 | 7-110                                                                                                       
+  bundles.js                                       |       0 |        0 |       0 |       0 | 3-505                                                                                                       
+  currency.js                                      |       0 |        0 |       0 |       0 | 6-31                                                                                                        
+  customerLookup.js                                |    68.6 |       50 |   71.79 |   74.56 | 17-18,37-43,52-58,73-80,135-141,161-162,184,244-245,275-277,292,310-321,335,341-345,354-355,361-362,382-383 
+  customers.js                                     |       0 |        0 |       0 |       0 | 3-532                                                                                                       
+  editor.js                                        |       0 |        0 |       0 |       0 | 27-423                                                                                                      
+  inventory.js                                     |       0 |        0 |       0 |       0 | 34-1822                                                                                                     
+  lookup.js                                        |       0 |        0 |       0 |       0 | 11-483                                                                                                      
+  main.js                                          |       0 |        0 |       0 |       0 | 39-2386                                                                                                     
+  requests.js                                      |       0 |        0 |       0 |       0 | 6-73                                                                                                        
+  salesEntryLauncher.js                            |       0 |        0 |       0 |       0 | 2-68                                                                                                        
+  salesHeader.js                                   |       0 |        0 |       0 |       0 | 3-505                                                                                                       
+  salesLineItems.js                                |       0 |        0 |       0 |       0 | 3-914                                                                                                       
+  salesPersist.js                                  |       0 |        0 |       0 |       0 | 1-183                                                                                                       
+  salesTitleAutocomplete.js                        |       0 |        0 |       0 |       0 | 9-225                                                                                                       
+  suppliers.js                                     |       0 |        0 |       0 |       0 | 2-331                                                                                                       
+ src/ui/patterns/floating-drawer-trigger           |       0 |        0 |       0 |       0 |                                                                                                             
+  index.js                                         |       0 |        0 |       0 |       0 | 1-115                                                                                                       
+ src/ui/patterns/inline-bundle-composer            |       0 |        0 |       0 |       0 |                                                                                                             
+  index.js                                         |       0 |        0 |       0 |       0 | 3-354                                                                                                       
+ src/ui/patterns/inline-bundle-composer-controller |       0 |        0 |       0 |       0 |                                                                                                             
+  index.js                                         |       0 |        0 |       0 |       0 | 1-354                                                                                                       
+ src/ui/patterns/inline-bundle-panel-shell         |       0 |        0 |       0 |       0 |                                                                                                             
+  index.js                                         |       0 |        0 |       0 |       0 | 1-304                                                                                                       
+---------------------------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------

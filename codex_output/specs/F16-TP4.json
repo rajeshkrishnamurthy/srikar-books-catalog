@@ -5,7 +5,7 @@
   "area": "Admin / Manage Books",
   "goal": "Expose the Sold/out-of-stock list as its own sub page accessed under Manage Books.",
   "environment": "HTML + Vanilla JavaScript + Firebase + Jest + jsdom",
-  "status": "RED",
+  "status": "GREEN",
   "specs": [
     {
       "id": "F16-TP4-001",
@@ -49,14 +49,19 @@
     "tests/spec/admin/F16-TP4-002_SoldTabDeepLink.spec.js",
     "tests/spec/admin/F16-TP4-003_SoldTabRestoreState.spec.js",
     "codex_output/specs/F16-TP4.json",
-    "codex_output/reports/F16-TP4_red.txt"
+    "codex_output/reports/F16-TP4_red.txt",
+    "codex_output/reports/F16-TP4_green.txt"
   ],
   "changeNotes": [
     "Added specs defining Sold tab behavior (visibility, deep links, default state) so the workflow mirrors Add/Available."
   ],
   "validation": {
-    "status": "RED",
-    "command": "npm test -- --runTestsByPath tests/spec/admin/F16-TP4-001_SoldTabShowsOnlySoldPanel.spec.js tests/spec/admin/F16-TP4-002_SoldTabDeepLink.spec.js tests/spec/admin/F16-TP4-003_SoldTabRestoreState.spec.js --watchAll=false --bail=0",
-    "report": "codex_output/reports/F16-TP4_red.txt"
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false F16-TP4",
+    "report": "codex_output/reports/F16-TP4_green.txt",
+    "summary": {
+      "result": "passed",
+      "details": "Sold tab deep links, panel visibility, and Manage default reset now behave as expected across navigation."
+    }
   }
 }
