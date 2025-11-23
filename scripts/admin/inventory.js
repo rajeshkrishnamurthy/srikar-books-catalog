@@ -226,6 +226,99 @@ function emitInlineBundleErrorToast({ message = 'Bundle not saved. Check require
   }
 }
 
+const ACTION_ICONS = {
+  addToBundle: `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="row-action-icon">
+      <path
+        d="M4 7.2 12 3l8 4.2v9.6L12 21 4 16.8V7.2Z"
+        fill="currentColor"
+        opacity="0.72"
+      />
+      <path
+        d="M12 8.5a.75.75 0 0 1 .75.75v2h2a.75.75 0 0 1 0 1.5h-2v2a.75.75 0 0 1-1.5 0v-2h-2a.75.75 0 0 1 0-1.5h2v-2A.75.75 0 0 1 12 8.5Z"
+        fill="currentColor"
+      />
+    </svg>
+  `,
+  feature: `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="row-action-icon">
+      <path
+        d="m12 3.6 2.22 4.5 4.97.72-3.6 3.5.85 4.95L12 15.9l-4.44 2.35.85-4.95-3.6-3.5 4.97-.72Z"
+        fill="currentColor"
+      />
+    </svg>
+  `,
+  unfeature: `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="row-action-icon">
+      <path
+        d="m12 3.6 2.22 4.5 4.97.72-3.6 3.5.85 4.95L12 15.9l-4.44 2.35.85-4.95-3.6-3.5 4.97-.72Z"
+        fill="currentColor"
+        opacity="0.7"
+      />
+      <path
+        d="M6 6.5 18 18.5"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.1"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  `,
+  edit: `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="row-action-icon">
+      <path
+        d="M4 15.5 14.5 5a1.5 1.5 0 0 1 2.12 0l2.38 2.38a1.5 1.5 0 0 1 0 2.12L9.5 20H4z"
+        fill="currentColor"
+      />
+      <path
+        d="M3.5 21h5.56a1 1 0 0 0 .7-.29l10-10a2.5 2.5 0 0 0 0-3.54l-2.38-2.38a2.5 2.5 0 0 0-3.54 0l-10 10a1 1 0 0 0-.29.7V21a.5.5 0 0 0 .5.5ZM5 15.71l9.8-9.8a.5.5 0 0 1 .7 0l2.38 2.38a.5.5 0 0 1 0 .7L8.08 18.79H5Z"
+        fill="currentColor"
+      />
+    </svg>
+  `,
+  sold: `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="row-action-icon">
+      <path
+        d="M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17Z"
+        fill="currentColor"
+        opacity="0.8"
+      />
+      <path
+        d="m10.4 13.6-2.05-2.05a.85.85 0 0 0-1.2 1.2l2.65 2.65a.85.85 0 0 0 1.2 0l5.25-5.25a.85.85 0 0 0-1.2-1.2z"
+        fill="currentColor"
+      />
+    </svg>
+  `,
+  available: `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="row-action-icon">
+      <path
+        d="M6 12a1 1 0 0 1 1-1h6.59L12.3 9.7a1 1 0 0 1 1.4-1.4l3.5 3.5a1 1 0 0 1 0 1.4l-3.5 3.5a1 1 0 0 1-1.4-1.4L13.59 13H7a1 1 0 0 1-1-1Z"
+        fill="currentColor"
+      />
+      <path
+        d="M18 5.75a.75.75 0 0 1 .75.75v11a.75.75 0 0 1-1.5 0v-11A.75.75 0 0 1 18 5.75Z"
+        fill="currentColor"
+      />
+    </svg>
+  `,
+  delete: `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="row-action-icon">
+      <path
+        d="M9.5 4.5h5a1 1 0 0 1 .92.61l.43.89H19a.75.75 0 0 1 0 1.5h-.42l-.74 10.1a2 2 0 0 1-2 1.9H8.16a2 2 0 0 1-2-1.9L5.42 7.5H5a.75.75 0 0 1 0-1.5h3.15l.43-.89A1 1 0 0 1 9.5 4.5Zm-.9 3h-1l.7 9.6a.5.5 0 0 0 .5.46h7.68a.5.5 0 0 0 .5-.46l.7-9.6h-1.02v.87a.75.75 0 1 1-1.5 0V7.5h-4v.87a.75.75 0 1 1-1.5 0V7.5Z"
+        fill="currentColor"
+      />
+    </svg>
+  `,
+};
+
+function buildActionButton({ action, label, className = 'btn row-action-btn', icon, attrs = '' }) {
+  return `<button type="button" data-action="${action}" class="${className}" aria-label="${label}" title="${label}" ${attrs}>
+    ${icon || ''}
+    <span class="sr-only">${label}</span>
+  </button>`;
+}
+
 // ---- row rendering ----
 function rowHTML(id, b, sold = false) {
   const img = (b.images && b.images[0]) || './assets/placeholder.webp';
@@ -236,21 +329,27 @@ function rowHTML(id, b, sold = false) {
     ? ` <span class="pill" title="Shown on homepage">★ Featured</span>`
     : '';
   const featureBtn = b.featured
-    ? `<button data-action="unfeature" class="btn btn-secondary">Unfeature</button>`
-    : `<button data-action="feature" class="btn">Feature</button>`;
+    ? buildActionButton({
+        action: 'unfeature',
+        label: 'Unfeature',
+        className: 'btn btn-secondary row-action-btn',
+        icon: ACTION_ICONS.unfeature,
+      })
+    : buildActionButton({
+        action: 'feature',
+        label: 'Feature',
+        className: 'btn row-action-btn',
+        icon: ACTION_ICONS.feature,
+      });
   const addToBundleBtn = sold
     ? ''
-    : `<button
-        type="button"
-        class="btn btn-secondary"
-        data-action="addToBundle"
-        data-test="bookAddToBundle"
-        aria-controls="inlineBundleComposer"
-        aria-expanded="false"
-        aria-pressed="false"
-      >
-        Add to bundle
-      </button>`;
+    : buildActionButton({
+        action: 'addToBundle',
+        label: 'Add to bundle',
+        className: 'btn btn-secondary row-action-btn',
+        icon: ACTION_ICONS.addToBundle,
+        attrs: `data-test="bookAddToBundle" aria-controls="inlineBundleComposer" aria-expanded="false" aria-pressed="false"`,
+      });
 
   return `
 <article class="row" data-id="${id}" data-book-id="${id}">
@@ -277,13 +376,33 @@ function rowHTML(id, b, sold = false) {
     ></span>
     ${addToBundleBtn}
     ${featureBtn}
-    <button data-action="edit" class="btn btn-secondary">Edit</button>
+    ${buildActionButton({
+      action: 'edit',
+      label: 'Edit',
+      className: 'btn btn-secondary row-action-btn',
+      icon: ACTION_ICONS.edit,
+    })}
     ${
       sold
-        ? `<button data-action="available" class="btn">Mark available</button>`
-        : `<button data-action="sold" class="btn">Mark sold</button>`
+        ? buildActionButton({
+            action: 'available',
+            label: 'Mark available',
+            className: 'btn row-action-btn',
+            icon: ACTION_ICONS.available,
+          })
+        : buildActionButton({
+            action: 'sold',
+            label: 'Mark sold',
+            className: 'btn row-action-btn',
+            icon: ACTION_ICONS.sold,
+          })
     }
-    <button data-action="delete" class="btn btn-danger">Delete</button>
+    ${buildActionButton({
+      action: 'delete',
+      label: 'Delete',
+      className: 'btn row-action-btn',
+      icon: ACTION_ICONS.delete,
+    })}
   </div>
 </article>`;
 }

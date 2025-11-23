@@ -253,6 +253,48 @@ label {
   align-items: center;
   flex-wrap: wrap;
 }
+.row-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.45rem;
+  background: rgba(79, 140, 255, 0.12);
+  color: var(--brand);
+  border: 1px solid rgba(79, 140, 255, 0.35);
+  border-radius: 10px;
+  box-shadow: none;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, color 120ms ease,
+    box-shadow 120ms ease;
+}
+.row-action-btn:hover {
+  background: rgba(79, 140, 255, 0.22);
+  transform: translateY(-1px);
+}
+.row-action-btn:active {
+  background: rgba(79, 140, 255, 0.28);
+  color: #dfe9ff;
+  transform: translateY(0);
+}
+.row-action-btn:focus-visible {
+  outline: 2px solid rgba(79, 140, 255, 0.8);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.25);
+}
+.row-action-btn:disabled {
+  opacity: 0.45;
+  transform: none;
+  box-shadow: none;
+}
+.row-action-btn .row-action-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
 .bundle-membership-badge {
   position: relative;
   min-width: 26px;

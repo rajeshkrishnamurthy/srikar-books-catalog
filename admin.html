@@ -15,15 +15,54 @@
         <h1 class="brand"><a href="./">Srikar’s Books</a></h1>
         <div class="site-header__actions">
           <a
-            class="btn btn-ghost site-header__link"
+            class="btn btn-ghost site-header__link site-header__icon-btn site-header__icon-btn--ghost"
             href="./"
             target="_blank"
             rel="noopener"
+            aria-label="View catalog"
+            title="View catalog"
           >
-            View catalog
+            <svg
+              class="site-header__icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M5.75 5A1.75 1.75 0 0 0 4 6.75v10.5A1.75 1.75 0 0 0 5.75 19h10.5A1.75 1.75 0 0 0 18 17.25V13.5a.75.75 0 0 0-1.5 0v3.75a.25.25 0 0 1-.25.25H5.75a.25.25 0 0 1-.25-.25V6.75c0-.14.11-.25.25-.25h3.75a.75.75 0 0 0 0-1.5Z"
+                fill="currentColor"
+              />
+              <path
+                d="M13.5 5.75a.75.75 0 0 1 .75-.75h4a.75.75 0 0 1 .75.75v4a.75.75 0 0 1-1.5 0V7.56l-5.22 5.21a.75.75 0 1 1-1.06-1.06L16.44 6.5h-2.19a.75.75 0 0 1-.75-.75Z"
+                fill="currentColor"
+              />
+            </svg>
+            <span class="sr-only">View catalog</span>
           </a>
-          <button id="signOutBtn" class="btn btn-secondary" type="button">
-            Sign out
+          <button
+            id="signOutBtn"
+            class="btn btn-secondary site-header__icon-btn site-header__icon-btn--danger"
+            type="button"
+            aria-label="Sign out"
+            title="Sign out"
+          >
+            <svg
+              class="site-header__icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M10.5 4.5A1.5 1.5 0 0 1 12 6v3.25h-1.5V6a.5.5 0 0 0-.5-.5H6.75A1.25 1.25 0 0 0 5.5 6.75v10.5A1.25 1.25 0 0 0 6.75 18.5H10a.5.5 0 0 0 .5-.5v-3.25H12V18a1.5 1.5 0 0 1-1.5 1.5H6.75A2.75 2.75 0 0 1 4 16.75V6.75A2.75 2.75 0 0 1 6.75 4Z"
+                fill="currentColor"
+                opacity="0.8"
+              />
+              <path
+                d="M13.47 8.03a.75.75 0 0 1 1.06 0l3.5 3.5a.75.75 0 0 1 0 1.06l-3.5 3.5a.75.75 0 1 1-1.06-1.06l2.22-2.22H11a.75.75 0 0 1 0-1.5h4.69l-2.22-2.22a.75.75 0 0 1 0-1.06Z"
+                fill="currentColor"
+              />
+            </svg>
+            <span class="sr-only">Sign out</span>
           </button>
         </div>
       </div>
