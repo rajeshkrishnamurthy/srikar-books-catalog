@@ -615,9 +615,10 @@
                 class="sr-only"
                 aria-live="polite"
               ></p>
-            </div>
+              </div>
               <div
                 class="inventory-pagination pagination-shell"
+                id="availableBooksPagination"
                 data-available-pagination
                 aria-busy="false"
               >
@@ -678,7 +679,9 @@
                   </div>
                 </div>
               </div>
-              <div id="availList" class="admin-list inventory-list"></div>
+              <section id="availableBooksList">
+                <div id="availList" class="admin-list inventory-list"></div>
+              </section>
               <div class="bundle-fab-shell">
                 <section
                   id="inlineBundleComposer"
@@ -1612,6 +1615,14 @@
     </template>
 
     <!-- Entry point that wires the page using small modules -->
+    <script
+      type="module"
+      src="./codex_output/src/ui/patterns/membership-count-badge/available-books.bootstrap.js"
+    ></script>
+    <script type="module">
+      import { bootstrapAvailableBooksMembershipBadges } from "./codex_output/src/ui/patterns/membership-count-badge/available-books.bootstrap.js";
+      bootstrapAvailableBooksMembershipBadges({ params: { showZeroBadges: true } }).catch(() => {});
+    </script>
     <script type="module" src="./scripts/admin/main.js"></script>
   </body>
 </html>

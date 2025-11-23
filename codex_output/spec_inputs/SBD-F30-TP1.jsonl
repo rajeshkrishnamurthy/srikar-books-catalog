@@ -1,0 +1,9 @@
+{"type":"meta","topicId":"SBD-F30-TP1","title":"Available Books bundle membership badge"}
+{"type":"given","text":"The Available Books list renders book cards with cover art and stable selectors."}
+{"type":"when","text":"A page of books is visible from pagination and bundle membership counts for those bookIds are available."}
+{"type":"then","text":"Each book card shows a badge near the cover with the number of bundles that include that book when the count is greater than zero; when the count is zero or missing the badge is hidden entirely."}
+{"type":"then","text":"Badge content refreshes when pagination changes so counts stay aligned with the current slice."}
+{"type":"ui-anchor","selector":"#availableBooksList"}
+{"type":"ui-anchor","selector":"[data-test='bundleMembershipBadge']"}
+{"type":"reuse","patternId":"MEMBERSHIP_COUNT_BADGE"}
+{"type":"pattern","patternId":"MEMBERSHIP_COUNT_BADGE","requiredParams":["itemSelector","badgeSelector","itemIdAttr"],"adapters":{"fetchCounts":"getBundleMembershipCounts","formatCount":"formatBundleCount","announce":"announceBundleCount"},"testBehaviors":["hide when count is zero or missing","show count text when count is greater than zero","refresh badges when the visible page changes"]}

@@ -732,6 +732,52 @@
         },
         "mountApi": "mountFloatingDrawerTrigger({ params, adapters, options }) => { syncCount(count), destroy() }"
       }
+    },
+    {
+      "patternId": "MEMBERSHIP_COUNT_BADGE",
+      "type": "aggregate",
+      "version": "1.0.0",
+      "purpose": "Show membership count badges near item media, hiding when zero, with batch count fetching for the current visible items.",
+      "requiredParams": [
+        "itemSelector",
+        "badgeSelector",
+        "itemIdAttr"
+      ],
+      "optionalParams": [
+        "countLabelTemplate",
+        "zeroHiddenClass",
+        "announcePoliteness"
+      ],
+      "adapters": {
+        "fetchCounts": "({ ids }: { ids: string[] }) => Promise<Record<string, number>>",
+        "formatCount": "(count: number) => string",
+        "announce": "(message: string, politeness?: 'polite'|'assertive') => void"
+      },
+      "uiTexts": {
+        "countLabelTemplate": "{count} bundles"
+      },
+      "a11yNotes": [
+        "Hide badges at zero or missing counts so screen readers do not announce empty states.",
+        "Optionally announce count changes via the announce hook without moving focus.",
+        "Badge text must include the numeric count for screen readers."
+      ],
+      "testBehaviors": [
+        "Batch-requests counts for supplied ids and maps results by itemIdAttr.",
+        "Hides badges when counts are zero or missing and clears stale badges when the visible ids change (e.g., pagination).",
+        "Formats badge text using formatCount() plus countLabelTemplate before rendering.",
+        "Announces count updates via the optional announce hook without stealing focus."
+      ],
+      "docs": {
+        "requestShape": {
+          "params": "{ itemSelector: string, badgeSelector: string, itemIdAttr: string, countLabelTemplate?: string, zeroHiddenClass?: string, announcePoliteness?: 'polite'|'assertive' }",
+          "adapters": "{ fetchCounts: ({ ids: string[] }) => Promise<Record<string, number>>, formatCount?: (count: number) => string, announce?: (message: string, politeness?: 'polite'|'assertive') => void }"
+        },
+        "stateShape": {
+          "countsById": "Record<string, number>",
+          "renderedIds": "string[]"
+        },
+        "mountApi": "mountMembershipCountBadge({ params, adapters, uiTexts, options }) => { sync(ids: string[]), destroy() }"
+      }
     }
   ]
 }

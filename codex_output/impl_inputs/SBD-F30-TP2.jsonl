@@ -1,0 +1,15 @@
+{"type":"fail","test":"tests/spec/admin/SBD-F30-TP2-001_PaginationBindsBundleCounts.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F30-TP2-002_BundleCountsRenderBadges.spec.js"}
+{"type":"fail","test":"tests/spec/admin/SBD-F30-TP2-003_ZeroOrMissingCountsHideBadges.spec.js"}
+{"type":"spec","id":"SBD-F30-TP2-001","given":"Available Books exposes #availableBooksPagination plus membership badge anchors on #availableBooksList [data-book-id].","when":"The membership count controller mounts and #availableBooksPagination dispatches a pagechange event with the visible bookIds.","then":"refreshBundleMembershipCounts is wired to that event and batches the visible bookIds into getBundleMembershipCounts."}
+{"type":"spec","id":"SBD-F30-TP2-002","given":"Visible bookIds have positive bundle membership counts and format/announce adapters are provided.","when":"refreshBundleMembershipCounts runs for that page with those ids.","then":"It calls getBundleMembershipCounts with the page ids, formats/announces each count, and shows badges with the formatted text for each visible book."}
+{"type":"spec","id":"SBD-F30-TP2-003","given":"A page change supplies bookIds whose counts are zero or missing from the adapter response.","when":"refreshBundleMembershipCounts handles the pagechange event.","then":"Missing or zero counts are treated as zero so the corresponding badges stay hidden and cleared."}
+{"type":"ui-anchor","selector":"#availableBooksPagination"}
+{"type":"ui-anchor","selector":"#availableBooksList"}
+{"type":"ui-anchor","selector":"[data-test='bundleMembershipBadge']"}
+{"type":"js-handler","event":"pagechange","selector":"#availableBooksPagination","handler":"refreshBundleMembershipCounts"}
+{"type":"adapter-call","function":"getBundleMembershipCounts","args":["bookIds"]}
+{"type":"adapter-call","function":"formatBundleCount","args":["count"]}
+{"type":"adapter-call","function":"announceBundleCount","args":["message","politeness"]}
+{"type":"reuse","patternId":"MEMBERSHIP_COUNT_BADGE"}
+{"type":"pattern","patternId":"MEMBERSHIP_COUNT_BADGE","requiredParams":["itemSelector","badgeSelector","itemIdAttr"],"adapters":{"fetchCounts":"getBundleMembershipCounts","formatCount":"formatBundleCount","announce":"announceBundleCount"},"testBehaviors":["batch request per page change","map results by itemId","treat missing or zero counts as hidden badges"]}
