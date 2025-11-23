@@ -1,0 +1,125 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F30-TP1
+
+(node:65666) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL codex_output/tests/spec/patterns/SBD-F30-TP1-004_RefreshBadgesOnPagination.spec.js
+  SPEC SBD-F30-TP1-004: Membership badges refresh with pagination
+    ✕ sync refresh clears stale badges and updates the visible page (7 ms)
+
+  ● SPEC SBD-F30-TP1-004: Membership badges refresh with pagination › sync refresh clears stale badges and updates the visible page
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '../../src/ui/patterns/membership-count-badge/index.js' from 'codex_output/tests/fixtures/membershipCountBadgeHarness.js']
+
+       6 |     const { api, adapters, badgesById, importError, mountError } = harness;
+       7 |
+    >  8 |     expect(importError).toBeUndefined();
+         |                         ^
+       9 |     expect(mountError).toBeUndefined();
+      10 |     expect(api).toBeDefined();
+      11 |
+
+      at Object.<anonymous> (codex_output/tests/spec/patterns/SBD-F30-TP1-004_RefreshBadgesOnPagination.spec.js:8:25)
+
+FAIL codex_output/tests/spec/patterns/SBD-F30-TP1-002_ShowBadgeWhenCountPresent.spec.js
+  SPEC SBD-F30-TP1-002: Membership badge shows formatted counts
+    ✕ positive membership counts show badges with formatted text (2 ms)
+
+  ● SPEC SBD-F30-TP1-002: Membership badge shows formatted counts › positive membership counts show badges with formatted text
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '../../src/ui/patterns/membership-count-badge/index.js' from 'codex_output/tests/fixtures/membershipCountBadgeHarness.js']
+
+       8 |     const { api, adapters, badgesById, importError, mountError } = harness;
+       9 |
+    > 10 |     expect(importError).toBeUndefined();
+         |                         ^
+      11 |     expect(mountError).toBeUndefined();
+      12 |     expect(api).toBeDefined();
+      13 |
+
+      at Object.<anonymous> (codex_output/tests/spec/patterns/SBD-F30-TP1-002_ShowBadgeWhenCountPresent.spec.js:10:25)
+
+FAIL codex_output/tests/spec/patterns/SBD-F30-TP1-003_HideBadgeWhenCountMissing.spec.js
+  SPEC SBD-F30-TP1-003: Membership badge hides for zero or missing counts
+    ✕ zero or missing membership counts keep badges hidden and cleared (2 ms)
+
+  ● SPEC SBD-F30-TP1-003: Membership badge hides for zero or missing counts › zero or missing membership counts keep badges hidden and cleared
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '../../src/ui/patterns/membership-count-badge/index.js' from 'codex_output/tests/fixtures/membershipCountBadgeHarness.js']
+
+       8 |     const { api, adapters, badgesById, importError, mountError } = harness;
+       9 |
+    > 10 |     expect(importError).toBeUndefined();
+         |                         ^
+      11 |     expect(mountError).toBeUndefined();
+      12 |     expect(api).toBeDefined();
+      13 |
+
+      at Object.<anonymous> (codex_output/tests/spec/patterns/SBD-F30-TP1-003_HideBadgeWhenCountMissing.spec.js:10:25)
+
+FAIL codex_output/tests/spec/patterns/SBD-F30-TP1-001_MembershipBadgeAnchors.spec.js
+  SPEC SBD-F30-TP1-001: Available book membership badge anchors
+    ✕ available books list exposes badge anchors and mount API (2 ms)
+
+  ● SPEC SBD-F30-TP1-001: Available book membership badge anchors › available books list exposes badge anchors and mount API
+
+    expect(received).toBeUndefined()
+
+    Received: [Error: Cannot find module '../../src/ui/patterns/membership-count-badge/index.js' from 'codex_output/tests/fixtures/membershipCountBadgeHarness.js']
+
+       6 |     const { list, cards, badges, importError, mountError, api } = harness;
+       7 |
+    >  8 |     expect(importError).toBeUndefined();
+         |                         ^
+       9 |     expect(mountError).toBeUndefined();
+      10 |
+      11 |     expect(list).not.toBeNull();
+
+      at Object.<anonymous> (codex_output/tests/spec/patterns/SBD-F30-TP1-001_MembershipBadgeAnchors.spec.js:8:25)
+
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+File                                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+All files                                          |       0 |        0 |       0 |       0 |                   
+ scripts/admin                                     |       0 |        0 |       0 |       0 |                   
+  auth.js                                          |       0 |        0 |       0 |       0 | 24-79             
+  autoPrice.js                                     |       0 |        0 |       0 |       0 | 2-25              
+  availablePagination.js                           |       0 |        0 |       0 |       0 | 5-353             
+  bundleList.js                                    |       0 |        0 |       0 |       0 | 2-510             
+  bundleStatus.js                                  |       0 |        0 |       0 |       0 | 7-110             
+  bundles.js                                       |       0 |        0 |       0 |       0 | 3-505             
+  currency.js                                      |       0 |        0 |       0 |       0 | 6-31              
+  customerLookup.js                                |       0 |        0 |       0 |       0 | 3-392             
+  customers.js                                     |       0 |        0 |       0 |       0 | 3-532             
+  editor.js                                        |       0 |        0 |       0 |       0 | 27-423            
+  inventory.js                                     |       0 |        0 |       0 |       0 | 34-1903           
+  lookup.js                                        |       0 |        0 |       0 |       0 | 11-483            
+  main.js                                          |       0 |        0 |       0 |       0 | 39-2386           
+  requests.js                                      |       0 |        0 |       0 |       0 | 6-73              
+  salesEntryLauncher.js                            |       0 |        0 |       0 |       0 | 2-68              
+  salesHeader.js                                   |       0 |        0 |       0 |       0 | 3-505             
+  salesLineItems.js                                |       0 |        0 |       0 |       0 | 3-914             
+  salesPersist.js                                  |       0 |        0 |       0 |       0 | 1-183             
+  salesTitleAutocomplete.js                        |       0 |        0 |       0 |       0 | 9-225             
+  suppliers.js                                     |       0 |        0 |       0 |       0 | 2-331             
+ src/ui/patterns/floating-drawer-trigger           |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 1-115             
+ src/ui/patterns/inline-bundle-composer            |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 3-354             
+ src/ui/patterns/inline-bundle-composer-controller |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 1-354             
+ src/ui/patterns/inline-bundle-panel-shell         |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 1-307             
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 4 failed, 4 total
+Tests:       4 failed, 4 total
+Snapshots:   0 total
+Time:        1.562 s
+Ran all test suites matching /SBD-F30-TP1/i.

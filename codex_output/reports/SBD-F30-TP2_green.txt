@@ -1,0 +1,57 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F30-TP2
+
+(node:47493) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS codex_output/tests/spec/admin/SBD-F30-TP2-003_ZeroOrMissingCountsHideBadges.spec.js
+  SPEC SBD-F30-TP2-003: Missing or zero bundle counts keep badges hidden
+    ✓ pagechange treats missing or zero counts as hidden badges for that page (13 ms)
+
+PASS codex_output/tests/spec/admin/SBD-F30-TP2-001_PaginationBindsBundleCounts.spec.js
+  SPEC SBD-F30-TP2-001: Available pagination refreshes bundle membership counts
+    ✓ pagechange on #availableBooksPagination batches visible bookIds into the adapter call (5 ms)
+
+PASS codex_output/tests/spec/admin/SBD-F30-TP2-002_BundleCountsRenderBadges.spec.js
+  SPEC SBD-F30-TP2-002: Bundle membership counts render badges per visible page
+    ✓ refresh fetches counts for the current page and shows formatted badges (5 ms)
+
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+File                                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+All files                                          |       0 |        0 |       0 |       0 |                   
+ scripts/admin                                     |       0 |        0 |       0 |       0 |                   
+  auth.js                                          |       0 |        0 |       0 |       0 | 24-79             
+  autoPrice.js                                     |       0 |        0 |       0 |       0 | 2-25              
+  availablePagination.js                           |       0 |        0 |       0 |       0 | 5-353             
+  bundleList.js                                    |       0 |        0 |       0 |       0 | 2-510             
+  bundleStatus.js                                  |       0 |        0 |       0 |       0 | 7-110             
+  bundles.js                                       |       0 |        0 |       0 |       0 | 3-505             
+  currency.js                                      |       0 |        0 |       0 |       0 | 6-31              
+  customerLookup.js                                |       0 |        0 |       0 |       0 | 3-392             
+  customers.js                                     |       0 |        0 |       0 |       0 | 3-532             
+  editor.js                                        |       0 |        0 |       0 |       0 | 27-423            
+  inventory.js                                     |       0 |        0 |       0 |       0 | 34-1903           
+  lookup.js                                        |       0 |        0 |       0 |       0 | 11-483            
+  main.js                                          |       0 |        0 |       0 |       0 | 39-2386           
+  requests.js                                      |       0 |        0 |       0 |       0 | 6-73              
+  salesEntryLauncher.js                            |       0 |        0 |       0 |       0 | 2-68              
+  salesHeader.js                                   |       0 |        0 |       0 |       0 | 3-505             
+  salesLineItems.js                                |       0 |        0 |       0 |       0 | 3-914             
+  salesPersist.js                                  |       0 |        0 |       0 |       0 | 1-183             
+  salesTitleAutocomplete.js                        |       0 |        0 |       0 |       0 | 9-225             
+  suppliers.js                                     |       0 |        0 |       0 |       0 | 2-331             
+ src/ui/patterns/floating-drawer-trigger           |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 1-115             
+ src/ui/patterns/inline-bundle-composer            |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 3-354             
+ src/ui/patterns/inline-bundle-composer-controller |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 1-354             
+ src/ui/patterns/inline-bundle-panel-shell         |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 1-307             
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 3 passed, 3 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        1.413 s
+Ran all test suites matching /SBD-F30-TP2/i.

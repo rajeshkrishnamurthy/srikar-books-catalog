@@ -1,0 +1,68 @@
+{
+  "topicId": "SBD-F30-TP3",
+  "featureId": "F30",
+  "title": "Mount Available Books membership badges",
+  "area": "Admin / Available Books",
+  "goal": "Mount the membership badge aggregate on Available Books so visible bookIds fetch bundle counts on init and after pagination updates.",
+  "environment": "HTML + Vanilla JavaScript + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F30-TP3-001",
+      "title": "InitialMountFetchesVisibleCounts",
+      "given": "Manage Books > Available renders #availableBooksList [data-book-id] cards with [data-test='bundleMembershipBadge'] anchors and #availableBooksPagination.",
+      "when": "mountAvailableBooksMembershipCounts initializes on that page without waiting for user interaction.",
+      "then": "It batches the visible bookIds into getBundleMembershipCounts immediately, formats/announces positive counts, and hides or clears zero/missing counts."
+    },
+    {
+      "id": "SBD-F30-TP3-002",
+      "title": "PaginationRefreshesAndClearsStaleBadges",
+      "given": "The initial fetch has populated membership badges for the current page of Available books.",
+      "when": "#availableBooksPagination dispatches a pagechange event with the next page's bookIds.",
+      "then": "refreshBundleMembershipCounts re-fetches counts for those ids, announces formatted positives, and clears or hides badges from the previous page."
+    },
+    {
+      "id": "SBD-F30-TP3-003",
+      "title": "RefreshApiHandlesZeroOrMissingCounts",
+      "given": "The Available Books module exposes refreshBundleMembershipCounts for the pagination controller.",
+      "when": "refreshBundleMembershipCounts runs with a mix of zero, missing, and positive counts for supplied bookIds.",
+      "then": "getBundleMembershipCounts receives those ids, only positive counts format/announce, and zero/missing badges stay hidden and cleared."
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/availableBooksMembershipCountsHarness.js",
+    "/tests/fixtures/membershipCountBadgeHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/admin/SBD-F30-TP3-001_InitialMountFetchesBundleCounts.spec.js",
+    "/tests/spec/admin/SBD-F30-TP3-002_PagechangeRefreshesCounts.spec.js",
+    "/tests/spec/admin/SBD-F30-TP3-003_RefreshApiKeepsZeroBadgesHidden.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F30-TP3_red.txt",
+    "green": "codex_output/reports/SBD-F30-TP3_green.txt"
+  },
+  "changedFiles": [
+    "src/ui/patterns/membership-count-badge/available-books.js",
+    "src/ui/patterns/membership-count-badge/available-books.bootstrap.js",
+    "tests/spec/admin/SBD-F30-TP3-001_InitialMountFetchesBundleCounts.spec.js",
+    "tests/spec/admin/SBD-F30-TP3-002_PagechangeRefreshesCounts.spec.js",
+    "tests/spec/admin/SBD-F30-TP3-003_RefreshApiKeepsZeroBadgesHidden.spec.js",
+    "tests/fixtures/availableBooksMembershipCountsHarness.js",
+    "codex_output/specs/SBD-F30-TP3.json",
+    "codex_output/impl_inputs/SBD-F30-TP3.jsonl",
+    "codex_output/reports/SBD-F30-TP3_red.txt",
+    "codex_output/reports/SBD-F30-TP3_green.txt"
+  ],
+  "changeNotes": [
+    "Authored three RED specs for mounting Available Books membership badges: initial auto-fetch, pagination refresh wiring, and manual refresh handling of zero/missing counts.",
+    "Captured coverage expectations for MEMBERSHIP_COUNT_BADGE reuse so getBundleMembershipCounts, formatBundleCount, and announceBundleCount drive badge visibility for visible bookIds.",
+    "Exposed Available Books cards from the test harness to assert visible bookIds and implement membership badge mounting with initial sync plus pagination-driven refreshes, recording the passing GREEN run for SBD-F30-TP3.",
+    "Added an auto-mount bootstrap for Available Books that wires membership badge mounting once anchors and global adapters are present."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false SBD-F30-TP3",
+    "report": "codex_output/reports/SBD-F30-TP3_green.txt"
+  }
+}

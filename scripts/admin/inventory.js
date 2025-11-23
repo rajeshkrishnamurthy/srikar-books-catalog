@@ -253,8 +253,10 @@ function rowHTML(id, b, sold = false) {
       </button>`;
 
   return `
-<article class="row" data-id="${id}">
-  <img src="${img}" alt="" />
+<article class="row" data-id="${id}" data-book-id="${id}">
+  <div class="row-thumb">
+    <img src="${img}" alt="" />
+  </div>
   <div class="row-meta">
     <strong>${(b.title || '').replace(/</g, '&lt;')}${featuredPill}</strong>
     <div class="muted">
@@ -267,6 +269,12 @@ function rowHTML(id, b, sold = false) {
     )}</div>
   </div>
   <div class="row-actions">
+    <span
+      class="bundle-membership-badge"
+      data-test="bundleMembershipBadge"
+      hidden
+      aria-hidden="true"
+    ></span>
     ${addToBundleBtn}
     ${featureBtn}
     <button data-action="edit" class="btn btn-secondary">Edit</button>

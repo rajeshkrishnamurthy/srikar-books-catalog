@@ -1,0 +1,15 @@
+{"type":"fail","test":"tests/spec/patterns/SBD-F30-TP1-001_MembershipBadgeAnchors.spec.js"}
+{"type":"fail","test":"tests/spec/patterns/SBD-F30-TP1-002_ShowBadgeWhenCountPresent.spec.js"}
+{"type":"fail","test":"tests/spec/patterns/SBD-F30-TP1-003_HideBadgeWhenCountMissing.spec.js"}
+{"type":"fail","test":"tests/spec/patterns/SBD-F30-TP1-004_RefreshBadgesOnPagination.spec.js"}
+{"type":"spec","id":"SBD-F30-TP1-001","given":"The Available Books list renders book cards with cover art and badge placeholders at #availableBooksList [data-book-id] with [data-test='bundleMembershipBadge'].","when":"The membership count badge aggregate mounts against those selectors.","then":"Badge anchors exist per card starting hidden/empty and the mount API exposes sync and destroy for refreshing counts."}
+{"type":"spec","id":"SBD-F30-TP1-002","given":"Positive bundle membership counts exist for the visible page of bookIds and a formatCount adapter is provided.","when":"sync runs for the visible bookIds and fetchCounts resolves those positive counts.","then":"Badges near each cover become visible with formatted count text and fetchCounts receives the visible ids."}
+{"type":"spec","id":"SBD-F30-TP1-003","given":"Visible bookIds include bundle membership counts that are zero or missing.","when":"sync runs after fetchCounts returns zeros or omits some ids.","then":"Badges for those ids stay hidden with cleared text so zero or missing counts never render."}
+{"type":"spec","id":"SBD-F30-TP1-004","given":"Pagination replaces the currently visible slice of Available books with a new page.","when":"sync reruns with the new set of bookIds after a prior sync for a different page.","then":"fetchCounts requests the new ids, stale badges clear or hide, and the new page badges render updated counts."}
+{"type":"ui-anchor","selector":"#availableBooksList"}
+{"type":"ui-anchor","selector":"[data-test='bundleMembershipBadge']"}
+{"type":"adapter-call","function":"getBundleMembershipCounts","args":["ids"]}
+{"type":"adapter-call","function":"formatBundleCount","args":["count"]}
+{"type":"adapter-call","function":"announceBundleCount","args":["message","politeness"]}
+{"type":"reuse","patternId":"MEMBERSHIP_COUNT_BADGE"}
+{"type":"pattern","patternId":"MEMBERSHIP_COUNT_BADGE","requiredParams":["itemSelector","badgeSelector","itemIdAttr"],"adapters":{"fetchCounts":"getBundleMembershipCounts","formatCount":"formatBundleCount","announce":"announceBundleCount"},"testBehaviors":["hide when count is zero or missing","show count text when count is greater than zero","refresh badges when the visible page changes"]}
