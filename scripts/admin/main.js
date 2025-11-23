@@ -38,6 +38,69 @@ import { escapeHtml, compactText } from '../helpers/text.js';
 
 const DEFAULT_TOAST_DURATION_MS = 5000;
 
+function registerAvailableBooksMembershipCounts(firebase = {}) {
+  if (typeof window === 'undefined') return;
+  const { db: adb, collection: ac, query: aq, where: aw, getDocs: ag } = firebase;
+  if (!adb || !ac || !aq || !aw || !ag) return;
+
+  const existing = window.availableBooksMembershipCounts || {};
+  const existingAdapters = existing.adapters || {};
+
+  window.availableBooksMembershipCounts = {
+    ...existing,
+    adapters: {
+      ...existingAdapters,
+      async getBundleMembershipCounts({ bookIds = [] } = {}) {
+        const ids = Array.isArray(bookIds) ? bookIds.filter(Boolean) : [];
+        if (!ids.length) return {};
+        const counts = {};
+
+        await Promise.all(
+          ids.map(async (id) => {
+            try {
+              const bundlesQuery = aq(ac(adb, 'bundles'), aw('bookIds', 'array-contains', id));
+              const snap = await ag(bundlesQuery);
+              const size =
+                typeof snap?.size === 'number'
+                  ? snap.size
+                  : Array.isArray(snap?.docs)
+                  ? snap.docs.length
+                  : Array.isArray(snap)
+                  ? snap.length
+                  : 0;
+              if (size > 0) {
+                counts[id] = size;
+              }
+            } catch (error) {
+              console.error('bundle membership count failed', error);
+            }
+          })
+        );
+
+        return counts;
+      },
+      formatBundleCount: (count) => `${count} bundle${count === 1 ? '' : 's'}`,
+      announceBundleCount: (message, politeness = 'polite') => {
+        if (typeof globalThis.announceToast === 'function') {
+          try {
+            globalThis.announceToast(message, politeness);
+          } catch (error) {
+            console.error('announceToast error:', error);
+          }
+        }
+      },
+    },
+  };
+}
+
+registerAvailableBooksMembershipCounts({
+  db,
+  collection,
+  query,
+  where,
+  getDocs,
+});
+
 function ensureToastDispatcher() {
   if (typeof globalThis.showToast === 'function') {
     return globalThis.showToast;

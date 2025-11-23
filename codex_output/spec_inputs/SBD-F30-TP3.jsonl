@@ -1,0 +1,14 @@
+{"type":"meta","topicId":"SBD-F30-TP3","title":"Mount Available Books membership badges"}
+{"type":"given","text":"Manage Books > Available renders #availableBooksList [data-book-id] with [data-test='bundleMembershipBadge'] badges and #availableBooksPagination."}
+{"type":"when","text":"The Available Books module initializes and the pagination controller emits the current pagechange with visible bookIds."}
+{"type":"then","text":"mountAvailableBooksMembershipCounts mounts on those anchors, wires the pagechange handler, and refreshBundleMembershipCounts runs for the visible ids on init and subsequent page changes."}
+{"type":"then","text":"getBundleMembershipCounts receives the visible bookIds, formatBundleCount and announceBundleCount handle positive counts, and badges for missing or zero counts stay hidden and cleared."}
+{"type":"ui-anchor","selector":"#availableBooksList"}
+{"type":"ui-anchor","selector":"[data-test='bundleMembershipBadge']"}
+{"type":"ui-anchor","selector":"#availableBooksPagination"}
+{"type":"js-handler","event":"pagechange","selector":"#availableBooksPagination","handler":"refreshBundleMembershipCounts"}
+{"type":"adapter-call","function":"getBundleMembershipCounts","args":["bookIds"]}
+{"type":"adapter-call","function":"formatBundleCount","args":["count"]}
+{"type":"adapter-call","function":"announceBundleCount","args":["message","politeness"]}
+{"type":"reuse","patternId":"MEMBERSHIP_COUNT_BADGE"}
+{"type":"pattern","patternId":"MEMBERSHIP_COUNT_BADGE","requiredParams":["itemSelector","badgeSelector","itemIdAttr"],"adapters":{"fetchCounts":"getBundleMembershipCounts","formatCount":"formatBundleCount","announce":"announceBundleCount"},"testBehaviors":["mounts on Available anchors","wires pagination pagechange to refresh","hides badges for zero/missing counts","formats/announces positive counts"]}

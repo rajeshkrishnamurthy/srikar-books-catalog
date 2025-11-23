@@ -12,12 +12,28 @@ function hideBadge(badge, zeroHiddenClass) {
   if (zeroHiddenClass) {
     badge.classList.add(zeroHiddenClass);
   }
+  if (badge) {
+    delete badge.dataset.count;
+    badge.removeAttribute('title');
+    badge.removeAttribute('aria-label');
+  }
 }
 
-function showBadge(badge, text, zeroHiddenClass) {
+function showBadge(badge, text, zeroHiddenClass, count) {
   if (!badge) return;
   badge.hidden = false;
   badge.textContent = text ?? '';
+  const numeric = typeof count === 'number' ? count : undefined;
+  if (numeric !== undefined) {
+    badge.dataset.count = String(numeric);
+    const label = text ?? String(numeric);
+    badge.title = `${numeric} ${numeric === 1 ? 'bundle' : 'bundles'}`;
+    badge.setAttribute('aria-label', label);
+  } else {
+    delete badge.dataset.count;
+    badge.removeAttribute('title');
+    badge.removeAttribute('aria-label');
+  }
   if (zeroHiddenClass) {
     badge.classList.remove(zeroHiddenClass);
   }
@@ -73,6 +89,8 @@ async function mountMembershipCountBadge(options = {}) {
     throw new Error('membership badges missing');
   }
 
+  let showZeroBadges = !!(params.showZeroBadges || uiTexts.showZeroBadges);
+
   async function sync(ids = []) {
     const safeIds = Array.isArray(ids) ? ids : [];
     const template = params.countLabelTemplate || uiTexts.countLabelTemplate || DEFAULT_TEMPLATE;
@@ -84,11 +102,13 @@ async function mountMembershipCountBadge(options = {}) {
 
     Object.entries(badgesById).forEach(([id, badge]) => {
       const count = counts[id];
-      const shouldShow = safeIds.includes(id) && typeof count === 'number' && count > 0;
+      const isNumber = typeof count === 'number';
+      const shouldShow =
+        safeIds.includes(id) && isNumber && (count > 0 || showZeroBadges);
 
       if (shouldShow) {
         const label = formatLabel(count, adapters, template);
-        showBadge(badge, label, zeroHiddenClass);
+        showBadge(badge, label, zeroHiddenClass, count);
 
         if (typeof adapters.announce === 'function') {
           adapters.announce(label, politeness);
@@ -103,7 +123,11 @@ async function mountMembershipCountBadge(options = {}) {
     Object.values(badgesById).forEach((badge) => hideBadge(badge, zeroHiddenClass));
   }
 
-  return { sync, destroy };
+  function setShowZeroBadges(flag) {
+    showZeroBadges = !!flag;
+  }
+
+  return { sync, destroy, setShowZeroBadges };
 }
 
 export { mountMembershipCountBadge, mountMembershipCountBadge as mount };

@@ -13,12 +13,16 @@ function resolvePagination(params = {}) {
 async function mountAvailableBooksMembershipCounts(options = {}) {
   const params = options.params || {};
   const adapters = options.adapters || {};
+  const itemSelector = params.itemSelector || '#availableBooksList [data-book-id]';
+  const badgeSelector = params.badgeSelector || "[data-test='bundleMembershipBadge']";
+  const itemIdAttr = params.itemIdAttr || 'data-book-id';
 
   const badgeApi = await mountMembershipCountBadge({
     params: {
-      itemSelector: params.itemSelector || '#availableBooksList [data-book-id]',
-      badgeSelector: params.badgeSelector || "[data-test='bundleMembershipBadge']",
-      itemIdAttr: params.itemIdAttr || 'data-book-id',
+      itemSelector,
+      badgeSelector,
+      itemIdAttr,
+      showZeroBadges: params.showZeroBadges,
       zeroHiddenClass: params.zeroHiddenClass,
       countLabelTemplate: params.countLabelTemplate,
       announcePoliteness: params.announcePoliteness
@@ -42,20 +46,65 @@ async function mountAvailableBooksMembershipCounts(options = {}) {
     throw new Error('available books pagination anchor missing');
   }
 
+  let pendingIds = null;
+  let scheduledSync = null;
+
+  function getVisibleBookIds() {
+    return Array.from(document.querySelectorAll(itemSelector))
+      .map((item) => item.getAttribute(itemIdAttr))
+      .filter(Boolean);
+  }
+
+  // Defer syncing so init + same-tick pagination events collapse into one adapter call.
+  function scheduleSync(ids = []) {
+    pendingIds = toSafeArray(ids);
+    if (scheduledSync) return scheduledSync;
+
+    scheduledSync = new Promise((resolve) => {
+      setTimeout(async () => {
+        try {
+          while (pendingIds !== null) {
+            const idsToSync = pendingIds || [];
+            pendingIds = null;
+            await badgeApi.sync?.(idsToSync);
+          }
+          resolve();
+        } finally {
+          const hasQueued = pendingIds !== null;
+          scheduledSync = null;
+          if (hasQueued) {
+            scheduleSync(pendingIds);
+          }
+        }
+      }, 0);
+    });
+
+    return scheduledSync;
+  }
+
   async function refreshBundleMembershipCounts(bookIds = []) {
     const safeIds = toSafeArray(bookIds);
-    return badgeApi.sync?.(safeIds);
+    const idsToSync = safeIds.length ? safeIds : getVisibleBookIds();
+    return scheduleSync(idsToSync);
   }
 
   function handlePageChange(event) {
     const pageIds = toSafeArray(event?.detail?.bookIds);
-    refreshBundleMembershipCounts(pageIds);
+    scheduleSync(pageIds);
   }
 
   pagination.addEventListener('pagechange', handlePageChange);
 
+  const visibleBookIds = getVisibleBookIds();
+  if (visibleBookIds.length) {
+    scheduleSync(visibleBookIds);
+  }
+
   return {
     refreshBundleMembershipCounts,
+    setShowZeroBadges(flag) {
+      badgeApi.setShowZeroBadges?.(flag);
+    },
     destroy() {
       pagination.removeEventListener('pagechange', handlePageChange);
       badgeApi.destroy?.();

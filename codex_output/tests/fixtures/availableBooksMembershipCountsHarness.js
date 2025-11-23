@@ -1,7 +1,7 @@
 const { buildAvailableBooksDom, flushCounts } = require('./membershipCountBadgeHarness.js');
 
 async function createAvailableBooksMembershipCountsHarness(options = {}) {
-  const { list, badges, badgesById } = buildAvailableBooksDom(options.books);
+  const { list, cards, badges, badgesById } = buildAvailableBooksDom(options.books);
 
   const pagination = document.createElement('div');
   pagination.id = 'availableBooksPagination';
@@ -85,6 +85,7 @@ async function createAvailableBooksMembershipCountsHarness(options = {}) {
 
   return {
     list,
+    cards,
     badges,
     badgesById,
     pagination,

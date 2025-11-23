@@ -233,11 +233,63 @@ label {
   border-radius: 12px;
   padding: 0.4rem;
 }
+.row-thumb {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .row img {
   width: 64px;
   height: 64px;
   object-fit: cover;
   border-radius: 8px;
+}
+.row-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.bundle-membership-badge {
+  position: relative;
+  min-width: 26px;
+  max-width: 38px;
+  height: 28px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  background: var(--ok);
+  color: transparent; /* keep text for tests/ARIA but hide visually */
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 999px;
+  box-shadow: 0 4px 10px rgba(35, 197, 94, 0.3);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  line-height: 1;
+  overflow: hidden;
+}
+.bundle-membership-badge[hidden] {
+  display: none !important;
+}
+.bundle-membership-badge::after {
+  content: attr(data-count);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: inherit;
+  font-weight: inherit;
+  color: #0b0c10;
+}
+.bundle-membership-badge:hover {
+  transform: translateY(-1px);
 }
 .row-meta {
   display: grid;
