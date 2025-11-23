@@ -1,0 +1,10 @@
+{"type":"meta","topicId":"SBD-F30-TP2","title":"Fetch bundle membership counts for visible books"}
+{"type":"given","text":"The Available Books pagination controller supplies the current page of bookIds for the list view."}
+{"type":"when","text":"A page loads initially or pagination changes while viewing Available Books."}
+{"type":"then","text":"A batch adapter call requests bundle membership counts for the visible bookIds and provides the results to the badge renderer."}
+{"type":"then","text":"Missing entries or zero values are treated as zero and keep badges hidden for those books."}
+{"type":"adapter-call","function":"getBundleMembershipCounts","args":["bookIds"]}
+{"type":"js-handler","event":"pagechange","selector":"#availableBooksPagination","handler":"refreshBundleMembershipCounts"}
+{"type":"ui-anchor","selector":"#availableBooksPagination"}
+{"type":"reuse","patternId":"MEMBERSHIP_COUNT_BADGE"}
+{"type":"pattern","patternId":"MEMBERSHIP_COUNT_BADGE","requiredParams":["itemSelector","badgeSelector","itemIdAttr"],"adapters":{"fetchCounts":"getBundleMembershipCounts","formatCount":"formatBundleCount","announce":"announceBundleCount"},"testBehaviors":["batch request per page change","map results by itemId","treat missing or zero counts as hidden badges"]}

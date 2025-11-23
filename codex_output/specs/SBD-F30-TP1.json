@@ -1,0 +1,79 @@
+{
+  "topicId": "SBD-F30-TP1",
+  "featureId": "F30",
+  "title": "Available Books Bundle Membership Badge",
+  "area": "Admin / Available Books",
+  "goal": "Show a badge near each Available book cover with the number of bundles that include that book, hiding the badge entirely at zero.",
+  "environment": "HTML + Vanilla JavaScript + Jest + jsdom",
+  "status": "GREEN",
+  "specs": [
+    {
+      "id": "SBD-F30-TP1-001",
+      "title": "MembershipBadgeAnchorsAndApi",
+      "given": "The Available Books list renders book cards with cover art and badge placeholders at #availableBooksList [data-book-id] with [data-test='bundleMembershipBadge'].",
+      "when": "The membership count badge aggregate mounts with those selectors.",
+      "then": "Badge anchors exist per card starting hidden/empty and the mount API exposes sync and destroy for refreshing counts.",
+      "test": "/tests/spec/patterns/SBD-F30-TP1-001_MembershipBadgeAnchors.spec.js"
+    },
+    {
+      "id": "SBD-F30-TP1-002",
+      "title": "PositiveCountsShowBadge",
+      "given": "Positive bundle membership counts exist for the visible page of bookIds and a formatCount adapter is provided.",
+      "when": "sync runs for the visible bookIds and fetchCounts resolves those positive counts.",
+      "then": "Badges near each cover become visible with formatted count text and fetchCounts receives the visible ids.",
+      "test": "/tests/spec/patterns/SBD-F30-TP1-002_ShowBadgeWhenCountPresent.spec.js"
+    },
+    {
+      "id": "SBD-F30-TP1-003",
+      "title": "ZeroOrMissingCountsHidden",
+      "given": "Visible bookIds include bundle membership counts that are zero or missing.",
+      "when": "sync runs after fetchCounts returns zeros or omits some ids.",
+      "then": "Badges for those ids stay hidden with cleared text so zero or missing counts never render.",
+      "test": "/tests/spec/patterns/SBD-F30-TP1-003_HideBadgeWhenCountMissing.spec.js"
+    },
+    {
+      "id": "SBD-F30-TP1-004",
+      "title": "PaginationRefreshClearsStaleBadges",
+      "given": "A new page of Available books replaces the previously visible slice.",
+      "when": "sync runs with the new page bookIds after a prior sync for a different page.",
+      "then": "fetchCounts reruns for the new ids, stale badges from the previous page clear or hide, and the new page badges render updated counts.",
+      "test": "/tests/spec/patterns/SBD-F30-TP1-004_RefreshBadgesOnPagination.spec.js"
+    }
+  ],
+  "fixtures": [
+    "/tests/fixtures/membershipCountBadgeHarness.js"
+  ],
+  "tests": [
+    "/tests/spec/patterns/SBD-F30-TP1-001_MembershipBadgeAnchors.spec.js",
+    "/tests/spec/patterns/SBD-F30-TP1-002_ShowBadgeWhenCountPresent.spec.js",
+    "/tests/spec/patterns/SBD-F30-TP1-003_HideBadgeWhenCountMissing.spec.js",
+    "/tests/spec/patterns/SBD-F30-TP1-004_RefreshBadgesOnPagination.spec.js"
+  ],
+  "reports": {
+    "red": "codex_output/reports/SBD-F30-TP1_red.txt",
+    "green": "codex_output/reports/SBD-F30-TP1_green.txt"
+  },
+  "changedFiles": [
+    "src/ui/patterns/membership-count-badge/index.js",
+    "tests/fixtures/membershipCountBadgeHarness.js",
+    "tests/spec/patterns/SBD-F30-TP1-001_MembershipBadgeAnchors.spec.js",
+    "tests/spec/patterns/SBD-F30-TP1-002_ShowBadgeWhenCountPresent.spec.js",
+    "tests/spec/patterns/SBD-F30-TP1-003_HideBadgeWhenCountMissing.spec.js",
+    "tests/spec/patterns/SBD-F30-TP1-004_RefreshBadgesOnPagination.spec.js",
+    "codex_output/specs/SBD-F30-TP1.json",
+    "codex_output/impl_inputs/SBD-F30-TP1.jsonl",
+    "codex_output/reports/SBD-F30-TP1_red.txt",
+    "codex_output/reports/SBD-F30-TP1_green.txt"
+  ],
+  "changeNotes": [
+    "Authored four RED specs for the Available Books membership badge covering anchors, positive counts, zero/missing counts, and pagination refresh behavior.",
+    "Added a membership count badge harness to mount the aggregate pattern against #availableBooksList and verify fetchCounts/formatCount wiring.",
+    "Captured the failing Jest run for SBD-F30-TP1 showing the missing membership-count-badge implementation.",
+    "Implemented membership-count-badge aggregate and recorded the passing GREEN test run."
+  ],
+  "validation": {
+    "status": "GREEN",
+    "command": "npm test -- --watchAll=false SBD-F30-TP1",
+    "report": "codex_output/reports/SBD-F30-TP1_green.txt"
+  }
+}

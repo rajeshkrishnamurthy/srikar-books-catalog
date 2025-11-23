@@ -1,0 +1,108 @@
+
+> test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll=false SBD-F30-TP3
+
+(node:75440) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL codex_output/tests/spec/admin/SBD-F30-TP3-002_PagechangeRefreshesCounts.spec.js
+  SPEC SBD-F30-TP3-002: Pagination refreshes bundle counts after init
+    ✕ pagechange re-fetches visible bookIds and clears stale badges (17 ms)
+
+  ● SPEC SBD-F30-TP3-002: Pagination refreshes bundle counts after init › pagechange re-fetches visible bookIds and clears stale badges
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 2
+    Received number of calls: 1
+
+      28 |     await flushCounts();
+      29 |
+    > 30 |     expect(adapters.getBundleMembershipCounts).toHaveBeenCalledTimes(2);
+         |                                                ^
+      31 |     expect(adapters.getBundleMembershipCounts).toHaveBeenCalledWith({ bookIds: ['book-2'] });
+      32 |
+      33 |     expect(badgesById['book-1'].hidden).toBe(true);
+
+      at Object.<anonymous> (codex_output/tests/spec/admin/SBD-F30-TP3-002_PagechangeRefreshesCounts.spec.js:30:48)
+
+FAIL codex_output/tests/spec/admin/SBD-F30-TP3-003_RefreshApiKeepsZeroBadgesHidden.spec.js
+  SPEC SBD-F30-TP3-003: Refresh API keeps zero-count badges hidden
+    ✕ refreshBundleMembershipCounts stays callable after init and hides zero or missing counts (7 ms)
+
+  ● SPEC SBD-F30-TP3-003: Refresh API keeps zero-count badges hidden › refreshBundleMembershipCounts stays callable after init and hides zero or missing counts
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 2
+    Received number of calls: 1
+
+      29 |     await flushCounts();
+      30 |
+    > 31 |     expect(adapters.getBundleMembershipCounts).toHaveBeenCalledTimes(2);
+         |                                                ^
+      32 |     expect(adapters.getBundleMembershipCounts).toHaveBeenCalledWith({
+      33 |       bookIds: ['book-1', 'book-3']
+      34 |     });
+
+      at Object.<anonymous> (codex_output/tests/spec/admin/SBD-F30-TP3-003_RefreshApiKeepsZeroBadgesHidden.spec.js:31:48)
+
+FAIL codex_output/tests/spec/admin/SBD-F30-TP3-001_InitialMountFetchesBundleCounts.spec.js
+  SPEC SBD-F30-TP3-001: Available mount fetches bundle counts on init
+    ✕ mountAvailableBooksMembershipCounts fetches visible bookIds on init and renders badges (3 ms)
+
+  ● SPEC SBD-F30-TP3-001: Available mount fetches bundle counts on init › mountAvailableBooksMembershipCounts fetches visible bookIds on init and renders badges
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      28 |     const visibleIds = cards.map((card) => card.getAttribute('data-book-id'));
+      29 |
+    > 30 |     expect(adapters.getBundleMembershipCounts).toHaveBeenCalledTimes(1);
+         |                                                ^
+      31 |     expect(adapters.getBundleMembershipCounts).toHaveBeenCalledWith({ bookIds: visibleIds });
+      32 |
+      33 |     expect(adapters.formatBundleCount).toHaveBeenCalledWith(2);
+
+      at Object.<anonymous> (codex_output/tests/spec/admin/SBD-F30-TP3-001_InitialMountFetchesBundleCounts.spec.js:30:48)
+
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+File                                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+All files                                          |       0 |        0 |       0 |       0 |                   
+ scripts/admin                                     |       0 |        0 |       0 |       0 |                   
+  auth.js                                          |       0 |        0 |       0 |       0 | 24-79             
+  autoPrice.js                                     |       0 |        0 |       0 |       0 | 2-25              
+  availablePagination.js                           |       0 |        0 |       0 |       0 | 5-353             
+  bundleList.js                                    |       0 |        0 |       0 |       0 | 2-510             
+  bundleStatus.js                                  |       0 |        0 |       0 |       0 | 7-110             
+  bundles.js                                       |       0 |        0 |       0 |       0 | 3-505             
+  currency.js                                      |       0 |        0 |       0 |       0 | 6-31              
+  customerLookup.js                                |       0 |        0 |       0 |       0 | 3-392             
+  customers.js                                     |       0 |        0 |       0 |       0 | 3-532             
+  editor.js                                        |       0 |        0 |       0 |       0 | 27-423            
+  inventory.js                                     |       0 |        0 |       0 |       0 | 34-1903           
+  lookup.js                                        |       0 |        0 |       0 |       0 | 11-483            
+  main.js                                          |       0 |        0 |       0 |       0 | 39-2386           
+  requests.js                                      |       0 |        0 |       0 |       0 | 6-73              
+  salesEntryLauncher.js                            |       0 |        0 |       0 |       0 | 2-68              
+  salesHeader.js                                   |       0 |        0 |       0 |       0 | 3-505             
+  salesLineItems.js                                |       0 |        0 |       0 |       0 | 3-914             
+  salesPersist.js                                  |       0 |        0 |       0 |       0 | 1-183             
+  salesTitleAutocomplete.js                        |       0 |        0 |       0 |       0 | 9-225             
+  suppliers.js                                     |       0 |        0 |       0 |       0 | 2-331             
+ src/ui/patterns/floating-drawer-trigger           |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 1-115             
+ src/ui/patterns/inline-bundle-composer            |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 3-354             
+ src/ui/patterns/inline-bundle-composer-controller |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 1-354             
+ src/ui/patterns/inline-bundle-panel-shell         |       0 |        0 |       0 |       0 |                   
+  index.js                                         |       0 |        0 |       0 |       0 | 1-307             
+---------------------------------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 3 failed, 3 total
+Tests:       3 failed, 3 total
+Snapshots:   0 total
+Time:        1.735 s
+Ran all test suites matching /SBD-F30-TP3/i.
